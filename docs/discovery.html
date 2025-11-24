@@ -1,0 +1,65 @@
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <title>Discovery — CommandLayer</title>
+        <link rel="stylesheet" href="/styles.css" />
+      </head>
+      <body>
+        <div class="page">
+          <header class="header">
+            <div class="logo">COMMAND<span>LAYER</span></div>
+            <nav class="nav">
+              <a href="/">Home</a>
+              <a href="/docs/schemas.html">Schemas</a>
+              <a href="/docs/agent-cards.html">Agent-Cards</a>
+              <a href="/lookup/index.html">Lookup</a>
+              <a href="/docs/index.html" class="active">Docs</a>
+            </nav>
+          </header>
+
+          <main>
+            <section class="hero">
+              <div class="hero-kicker">Discovery</div>
+              <h1>ENS + x402 for agent discovery and routing.</h1>
+              <p>
+                CommandLayer uses ENS TXT records and x402-style URIs to make verbs, schemas,
+                and entrypoints discoverable in a neutral way.
+              </p>
+            </section>
+
+            <section class="card">
+              <h2>Example ENS TXT record</h2>
+              <pre><code>cl.verb=summarize
+cl.version=1.0.0
+cl.entry=x402://summarizeagent.eth/summarize/v1
+cl.schema.request=https://commandlayer.org/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json
+cl.schema.receipt=https://commandlayer.org/schemas/v1.0.0/commons/summarize/receipts/summarize.receipt.schema.json
+cl.cid.schemas=&lt;IPFS CID&gt;
+cl.checksum=&lt;sha256&gt;</code></pre>
+              <p>
+                Coordinators, wallets, or other agents can use these records to locate the
+                canonical schema and a reference entrypoint for a verb.
+              </p>
+            </section>
+
+            <section class="card">
+              <h2>Static lookup JSON</h2>
+              <p>
+                In addition to ENS, a static JSON registry is exposed at
+                <code>/lookup/verbs.json</code>:
+              </p>
+              <pre><code>GET https://commandlayer.org/lookup/verbs.json</code></pre>
+              <p>
+                This allows libraries and tooling to map verbs to schemas and agent-cards without
+                hard-coding individual URLs.
+              </p>
+            </section>
+          </main>
+
+          <footer class="footer">
+            CommandLayer — Discovery
+          </footer>
+        </div>
+      </body>
+    </html>

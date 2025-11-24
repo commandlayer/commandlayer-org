@@ -1,1 +1,53 @@
-<html><body><h1>Lookup</h1><p>Lookup placeholder.</p></body></html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CommandLayer Lookup</title>
+    <meta
+      name="description"
+      content="Lookup verbs, schemas, and agent-cards for CommandLayer."
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <div class="logo">COMMAND<span>LAYER</span></div>
+        <nav class="nav">
+          <a href="/">Home</a>
+          <a href="/docs/schemas.html">Schemas</a>
+          <a href="/docs/agent-cards.html">Agent-Cards</a>
+          <a href="/lookup/index.html" class="active">Lookup</a>
+          <a href="/docs/index.html">Docs</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-kicker">Lookup</div>
+          <h1>Resolve verbs to schemas and agent-cards.</h1>
+          <p>
+            Tooling can use this endpoint to map a verb name to its canonical request and
+            receipt schemas, plus a reference agent-card.
+          </p>
+        </section>
+
+        <section class="card">
+          <h2>Static registry</h2>
+          <p>
+            A static JSON document is served at <code>/lookup/verbs.json</code>:
+          </p>
+          <pre><code>GET https://commandlayer.org/lookup/verbs.json</code></pre>
+          <p>
+            This registry can be generated from the underlying schema and agent-card
+            manifests and kept in sync with each release.
+          </p>
+        </section>
+      </main>
+
+      <footer class="footer">
+        CommandLayer — Lookup
+      </footer>
+    </div>
+  </body>
+</html>

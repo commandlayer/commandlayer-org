@@ -1,0 +1,73 @@
+  <!doctype html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <title>Schemas — CommandLayer</title>
+      <link rel="stylesheet" href="/styles.css" />
+    </head>
+    <body>
+      <div class="page">
+        <header class="header">
+          <div class="logo">COMMAND<span>LAYER</span></div>
+          <nav class="nav">
+            <a href="/">Home</a>
+            <a href="/docs/schemas.html" class="active">Schemas</a>
+            <a href="/docs/agent-cards.html">Agent-Cards</a>
+            <a href="/lookup/index.html">Lookup</a>
+            <a href="/docs/index.html">Docs</a>
+          </nav>
+        </header>
+
+        <main>
+          <section class="hero">
+            <div class="hero-kicker">Schemas</div>
+            <h1>Canonical message contracts for agent verbs.</h1>
+            <p>
+              CommandLayer uses strict JSON Schema 2020-12 with deterministic
+              <code>$id</code> and versioned directories for stability and long-term
+              compatibility.
+            </p>
+          </section>
+
+          <section class="card">
+            <h2>Directory layout (v1.0.0)</h2>
+            <pre><code>schemas/
+v1.0.0/
+  commons/
+    &lt;verb&gt;/
+      requests/&lt;verb&gt;.request.schema.json
+      receipts/&lt;verb&gt;.receipt.schema.json
+  commercial/
+    &lt;verb&gt;/
+      requests/&lt;verb&gt;.request.schema.json
+      receipts/&lt;verb&gt;.receipt.schema.json</code></pre>
+            <p>
+              The <strong>commons</strong> layer is a neutral baseline for broadly useful
+              verbs. The <strong>commercial</strong> layer is for monetized or higher-risk
+              operations where governance and economics may differ.
+            </p>
+          </section>
+
+          <section class="card">
+            <h2>Versioning principles</h2>
+            <ul>
+              <li><strong>Semantic versioning</strong> per verb and per layer.</li>
+              <li><strong>No breaking changes</strong> within a minor version.</li>
+              <li>
+                <strong>New features</strong> via optional fields and explicit
+                feature-flags.
+              </li>
+              <li>
+                <strong>New major versions</strong> use new directories
+                (for example <code>v2.0.0/</code>) while preserving old ones.
+              </li>
+            </ul>
+          </section>
+        </main>
+
+        <footer class="footer">
+          CommandLayer — Schemas
+        </footer>
+      </div>
+    </body>
+  </html>

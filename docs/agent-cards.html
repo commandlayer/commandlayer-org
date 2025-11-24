@@ -1,0 +1,62 @@
+  <!doctype html>
+  <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <title>Agent-Cards — CommandLayer</title>
+      <link rel="stylesheet" href="/styles.css" />
+    </head>
+    <body>
+      <div class="page">
+        <header class="header">
+          <div class="logo">COMMAND<span>LAYER</span></div>
+          <nav class="nav">
+            <a href="/">Home</a>
+            <a href="/docs/schemas.html">Schemas</a>
+            <a href="/docs/agent-cards.html" class="active">Agent-Cards</a>
+            <a href="/lookup/index.html">Lookup</a>
+            <a href="/docs/index.html">Docs</a>
+          </nav>
+        </header>
+
+        <main>
+          <section class="hero">
+            <div class="hero-kicker">Agent identity</div>
+            <h1>Agent-cards describe capabilities, not implementations.</h1>
+            <p>
+              An agent-card binds an ENS name, one or more verbs, and the schemas those verbs
+              implement. It does not dictate how you run your agent.
+            </p>
+          </section>
+
+          <section class="card">
+            <h2>Directory layout (v1.0.0)</h2>
+            <pre><code>agent-cards/
+v1.0.0/
+  commons/
+    &lt;verb&gt;/&lt;verbagent&gt;.eth.json
+  commercial/
+    &lt;verb&gt;/&lt;verbagent&gt;.eth.json</code></pre>
+            <p>
+              Each card is a JSON document that references the schemas it implements and the
+              entrypoints where the agent can be reached.
+            </p>
+          </section>
+
+          <section class="card">
+            <h2>Typical contents</h2>
+            <ul>
+              <li>Agent identifier (ENS name, slug, display name).</li>
+              <li>Version and status (for example <code>protocol_reference</code>).</li>
+              <li>List of implemented schemas (request + receipt).</li>
+              <li>x402 and HTTPS entrypoints.</li>
+              <li>Capability metadata, limits, and tags.</li>
+            </ul>
+          </section>
+        </main>
+
+        <footer class="footer">
+          CommandLayer — Agent-Cards
+        </footer>
+      </div>
+    </body>
+  </html>

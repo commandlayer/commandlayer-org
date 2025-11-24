@@ -1,1 +1,12 @@
-{}
+{
+  "summarize": {
+    "request": "https://commandlayer.org/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json",
+    "receipt": "https://commandlayer.org/schemas/v1.0.0/commons/summarize/receipts/summarize.receipt.schema.json",
+    "agent_card": "https://commandlayer.org/agent-cards/v1.0.0/commons/summarize/summarizeagent.eth.json"
+  },
+  "verify": {
+    "request": "https://commandlayer.org/schemas/v1.0.0/commercial/verify/requests/verify.request.schema.json",
+    "receipt": "https://commandlayer.org/schemas/v1.0.0/commercial/verify/receipts/verify.receipt.schema.json",
+    "agent_card": "https://commandlayer.org/agent-cards/v1.0.0/commercial/verify/verifyagent.eth.json"
+  }
+}
