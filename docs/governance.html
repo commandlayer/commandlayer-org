@@ -3,57 +3,48 @@
   <head>
     <meta charset="utf-8" />
     <title>Governance — CommandLayer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
+
   <body>
-    <div class="page">
-      <header class="site-header">
-  <div class="container">
-    <a href="/" class="logo">CommandLayer</a>
-    <nav class="nav-links">
-      <a href="/docs/">Docs</a>
-      <a href="/schemas/">Schemas</a>
-      <a href="/agent-cards/">Agent Cards</a>
-      <a href="/lookup/">Lookup</a>
-    </nav>
-  </div>
-</header>
+    <header class="site-header">
+      <div class="container">
+        <a href="/" class="logo">CommandLayer</a>
+        <nav class="nav-links">
+          <a href="/docs/" class="active">Docs</a>
+          <a href="/schemas/">Schemas</a>
+          <a href="/agent-cards/">Agent Cards</a>
+          <a href="/lookup/">Lookup</a>
+        </nav>
+      </div>
+    </header>
 
-      <main>
-        <section class="hero">
-          <div class="hero-kicker">Governance</div>
-          <h1>Long-lived, neutral semantics for agents.</h1>
-          <p>
-            CommandLayer is intended to be a stable, neutral standard for agent semantics and
-            identity, separate from any single runtime or implementation.
-          </p>
-        </section>
+    <main class="container">
+      <section class="hero">
+        <div class="hero-kicker">Governance</div>
+        <h1>Governance Principles</h1>
+        <p>
+          CommandLayer aims to be a stable, open standard for verb semantics and agent
+          discovery, while leaving implementation details to builders.
+        </p>
+      </section>
 
-        <section class="card">
-          <h2>Principles</h2>
-          <ul>
-            <li>Neutral commons layer (MIT-licensed schemas).</li>
-            <li>Predictable versioning and migration paths.</li>
-            <li>Separation of identity (agent-cards) and execution.</li>
-            <li>Clear distinction between commons and commercial layers.</li>
-          </ul>
-        </section>
+      <section class="card">
+        <h2>Principles</h2>
+        <ul>
+          <li>Small, carefully chosen verb set.</li>
+          <li>Strict, versioned schemas with immutability guarantees.</li>
+          <li>Clear separation between Commons and Commercial layers.</li>
+          <li>ENS as a primary identity and discovery anchor.</li>
+        </ul>
+      </section>
+    </main>
 
-        <section class="card">
-          <h2>Evolution</h2>
-          <ul>
-            <li>New verbs and aliases are coordinated via versioned releases.</li>
-            <li>Existing verbs favor backwards-compatible extensions.</li>
-            <li>Breaking changes require new major versions and clear migration notes.</li>
-          </ul>
-        </section>
-      </main>
-
-      <footer class="site-footer">
-  <div class="container">
-    <p>CommandLayer Protocol — v1.0.0</p>
-  </div>
-</footer>
-    </div>
+    <footer class="site-footer">
+      <div class="container">
+        <p>CommandLayer Protocol — v1.0.0</p>
+      </div>
+    </footer>
   </body>
 </html>

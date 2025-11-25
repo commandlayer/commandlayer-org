@@ -1,105 +1,73 @@
-  <!doctype html>
-  <html lang="en">
-    <head>
-      <meta charset="utf-8" />
-      <title>Getting Started — CommandLayer</title>
-      <link rel="stylesheet" href="/styles.css" />
-    </head>
-    <body>
-      <div class="page">
-        <header class="site-header">
-  <div class="container">
-    <a href="/" class="logo">CommandLayer</a>
-    <nav class="nav-links">
-      <a href="/docs/">Docs</a>
-      <a href="/schemas/">Schemas</a>
-      <a href="/agent-cards/">Agent Cards</a>
-      <a href="/lookup/">Lookup</a>
-    </nav>
-  </div>
-</header>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Getting Started — CommandLayer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
 
-        <main>
-          <section class="hero">
-            <div class="hero-kicker">Getting started</div>
-            <h1>Use CommandLayer without changing your stack.</h1>
-            <p>
-              CommandLayer does not run agents. It defines verbs, schemas, and discovery rules
-              so you can build agents that interoperate while keeping your own infra,
-              runtimes, and models.
-            </p>
-          </section>
-
-          <section class="card">
-            <h2>1. Choose a verb</h2>
-            <p>
-              Start from a canonical verb your agent should support, for example
-              <code>summarize</code> or <code>verify</code>.
-            </p>
-            <p>
-              You can discover available verbs via ENS TXT records or the static lookup JSON
-              at <code>/lookup/verbs.json</code>.
-            </p>
-          </section>
-
-          <section class="card">
-            <h2>2. Resolve canonical schemas</h2>
-            <p>
-              Each verb has a request and receipt schema under
-              <code>/schemas/v1.0.0/&lt;layer&gt;/&lt;verb&gt;/</code>.
-            </p>
-            <pre><code>schemas/
-v1.0.0/
-  commons/
-    summarize/
-      requests/summarize.request.schema.json
-      receipts/summarize.receipt.schema.json</code></pre>
-            <p>
-              Your agent accepts payloads that validate against the request schema and returns
-              receipts that validate against the receipt schema.
-            </p>
-          </section>
-
-          <section class="card">
-            <h2>3. Bind your own endpoint</h2>
-            <p>
-              Implement your own endpoint (for example
-              <code>https://api.yourdomain.com/agents/summarize</code>) that speaks the
-              CommandLayer schema. You keep:
-            </p>
-            <ul>
-              <li>your own infra and runtimes,</li>
-              <li>your own auth and billing,</li>
-              <li>your own rate limits and SLAs.</li>
-            </ul>
-            <p>
-              CommandLayer only standardizes the message formats and discovery, not the
-              execution.
-            </p>
-          </section>
-
-          <section class="card">
-            <h2>4. Optionally publish an agent-card</h2>
-            <p>
-              Agent-cards describe identity and capabilities. A typical card:
-            </p>
-            <ul>
-              <li>binds an ENS name to one or more verbs,</li>
-              <li>declares the schemas it implements,</li>
-              <li>lists x402 and HTTPS entrypoints.</li>
-            </ul>
-            <p>
-              Publishing a card is optional but recommended if you want others to route to
-              your agent in a standardized way.
-            </p>
-          </section>
-        </main>
-
-        <footer class="site-footer">
-  <div class="container">
-    <p>CommandLayer Protocol — v1.0.0</p>
-  </div>
-</footer>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <a href="/" class="logo">CommandLayer</a>
+        <nav class="nav-links">
+          <a href="/docs/" class="active">Docs</a>
+          <a href="/schemas/">Schemas</a>
+          <a href="/agent-cards/">Agent Cards</a>
+          <a href="/lookup/">Lookup</a>
+        </nav>
       </div>
-    </body>
-  </html>
+    </header>
+
+    <main class="container">
+      <section class="hero">
+        <div class="hero-kicker">Getting started</div>
+        <h1>Integrate CommandLayer in 3 steps.</h1>
+        <p>
+          You do not need to change your models, frameworks, or infra. You only need
+          to agree on verbs, schemas, and identifiers.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>1. Choose verbs</h2>
+        <p>
+          Start with the Commons verbs:
+          <code>summarize</code>, <code>analyze</code>, <code>fetch</code>,
+          <code>classify</code>, <code>clean</code>, <code>convert</code>,
+          <code>describe</code>, <code>explain</code>, <code>format</code>,
+          <code>parse</code>.
+        </p>
+        <p>
+          Each verb has a request and receipt schema under
+          <code>/schemas/v1.0.0/commons/&lt;verb&gt;/</code>.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>2. Validate requests and receipts</h2>
+        <p>
+          Use the JSON Schemas directly from
+          <code>https://commandlayer.org/schemas/v1.0.0/...</code> or mirror them
+          internally. Validate every incoming request and outgoing receipt.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>3. Publish an Agent Card</h2>
+        <p>
+          Create an Agent Card describing your ENS, verbs, schemas, and x402/HTTPS
+          entrypoints. Host it at a stable URL, or mirror the reference cards under
+          <code>/agent-cards/v1.0.0/</code>.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>CommandLayer Protocol — v1.0.0</p>
+      </div>
+    </footer>
+  </body>
+</html>

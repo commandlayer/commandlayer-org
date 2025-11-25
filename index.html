@@ -2,99 +2,79 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>CommandLayer — Canonical Verb & Schema Layer</title>
-    <meta
-      name="description"
-      content="CommandLayer defines the canonical verb, schema, and discovery layer for AI agents, built on ENS, JSON Schema, IPFS, and x402."
-    />
+    <title>CommandLayer — Canonical Verb Layer for Agents</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
+
   <body>
-    <div class="page">
-      <header class="site-header">
-  <div class="container">
-    <a href="/" class="logo">CommandLayer</a>
-    <nav class="nav-links">
-      <a href="/docs/">Docs</a>
-      <a href="/schemas/">Schemas</a>
-      <a href="/agent-cards/">Agent Cards</a>
-      <a href="/lookup/">Lookup</a>
-    </nav>
-  </div>
-</header>
+    <header class="site-header">
+      <div class="container">
+        <a href="/" class="logo">CommandLayer</a>
+        <nav class="nav-links">
+          <a href="/docs/" class="active">Docs</a>
+          <a href="/schemas/">Schemas</a>
+          <a href="/agent-cards/">Agent Cards</a>
+          <a href="/lookup/">Lookup</a>
+        </nav>
+      </div>
+    </header>
 
-      <main>
-        <section class="hero">
-          <div class="hero-kicker">Agent semantics, not agents</div>
-          <h1>Canonical verbs, schemas &amp; discovery for AI agents.</h1>
-          <p>
-            CommandLayer v1.0.0 defines a neutral naming and schema layer so builders can
-            create their own agents that interoperate across runtimes, frameworks, and
-            ecosystems.
-          </p>
-          <div class="hero-meta">
-            <span class="pill">JSON Schema 2020-12</span>
-            <span class="pill">ENS + x402 aligned</span>
-            <span class="pill">Commons + Commercial layers</span>
-            <span class="pill">MIT-licensed schemas</span>
-          </div>
-        </section>
+    <main class="container">
+      <section class="hero">
+        <div class="hero-kicker">Protocol surface</div>
+        <h1>The canonical verb layer for AI agents.</h1>
+        <p>
+          CommandLayer defines a small, universal set of verbs, JSON Schemas, and agent
+          identity documents that any agent framework can adopt. It does not compete with
+          your models &mdash; it standardizes how they talk.
+        </p>
+      </section>
 
-        <section class="layout-grid">
-          <div>
-            <section class="card">
-              <div class="card-title-row">
-                <h2>What CommandLayer provides</h2>
-                <span class="badge">Protocol</span>
-              </div>
-              <ul>
-                <li>Canonical verbs for agent actions (e.g. <code>summarize</code>, <code>parse</code>, <code>verify</code>).</li>
-                <li>Strict request &amp; receipt schemas for each verb.</li>
-                <li>Agent identity documents (“agent-cards”) bound to ENS.</li>
-                <li>Discovery via ENS TXT records and x402-style entrypoints.</li>
-                <li>Immutable provenance via checksums and IPFS CIDs.</li>
-              </ul>
-            </section>
+      <section class="card">
+        <h2>What CommandLayer Provides</h2>
+        <ul>
+          <li>10 Commons verbs with strict JSON Schema 2020-12 definitions.</li>
+          <li>Request + receipt schemas for each verb, with trace and x402 envelopes.</li>
+          <li>Agent Cards that bind ENS names, verbs, schemas, and entrypoints.</li>
+          <li>A simple lookup surface for discovery and routing.</li>
+        </ul>
+      </section>
 
-            <section class="card">
-              <h2>What CommandLayer is <em>not</em></h2>
-              <p>
-                CommandLayer does <strong>not</strong> run agents, host models, or replace
-                orchestration frameworks. It defines:
-              </p>
-              <ul>
-                <li>the shared <strong>language</strong> (verbs),</li>
-                <li>the shared <strong>contracts</strong> (schemas),</li>
-                <li>the shared <strong>identity layer</strong> (agent-cards),</li>
-                <li>and the shared <strong>routing semantics</strong> (ENS + x402).</li>
-              </ul>
-            </section>
-          </div>
+      <section class="card">
+        <h2>Key Directories</h2>
+        <pre><code>schemas/
+  v1.0.0/
+    _shared/
+    commons/
+    commercial/
 
-          <div>
-            <section class="card">
-              <div class="card-title-row">
-                <h3>Quick links</h3>
-                <span class="badge badge-outline">v1.0.0</span>
-              </div>
-              <ul>
-                <li><a href="/docs/getting-started.html">Getting started guide</a></li>
-                <li><a href="/docs/schemas.html">Browse canonical schemas</a></li>
-                <li><a href="/docs/agent-cards.html">Understand agent-cards &amp; identity</a></li>
-                <li><a href="/lookup/index.html">Resolve verbs via lookup</a></li>
-                <li><a href="/docs/discovery.html">ENS + x402 discovery patterns</a></li>
-                <li><a href="/docs/governance.html">Governance &amp; evolution</a></li>
-              </ul>
-            </section>
-          </div>
-        </section>
-      </main>
+agent-cards/
+  v1.0.0/
+    commons/
+    commercial/
 
-      <footer class="site-footer">
-  <div class="container">
-    <p>CommandLayer Protocol — v1.0.0</p>
-  </div>
-</footer>
-    </div>
+lookup/
+  verbs.json
+
+docs/
+  index.html
+  getting-started.html
+  schemas.html
+  agent-cards.html
+  discovery.html
+  governance.html</code></pre>
+        <p>
+          Everything is static, versioned, and can be mirrored or cached by registries,
+          wallets, or agent runtimes.
+        </p>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>CommandLayer Protocol — v1.0.0</p>
+      </div>
+    </footer>
   </body>
 </html>

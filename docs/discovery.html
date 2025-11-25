@@ -1,68 +1,54 @@
-    <!doctype html>
-    <html lang="en">
-      <head>
-        <meta charset="utf-8" />
-        <title>Discovery — CommandLayer</title>
-        <link rel="stylesheet" href="/styles.css" />
-      </head>
-      <body>
-        <div class="page">
-          <header class="site-header">
-  <div class="container">
-    <a href="/" class="logo">CommandLayer</a>
-    <nav class="nav-links">
-      <a href="/docs/">Docs</a>
-      <a href="/schemas/">Schemas</a>
-      <a href="/agent-cards/">Agent Cards</a>
-      <a href="/lookup/">Lookup</a>
-    </nav>
-  </div>
-</header>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Discovery &amp; Lookup — CommandLayer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
 
-          <main>
-            <section class="hero">
-              <div class="hero-kicker">Discovery</div>
-              <h1>ENS + x402 for agent discovery and routing.</h1>
-              <p>
-                CommandLayer uses ENS TXT records and x402-style URIs to make verbs, schemas,
-                and entrypoints discoverable in a neutral way.
-              </p>
-            </section>
+  <body>
+    <header class="site-header">
+      <div class="container">
+        <a href="/" class="logo">CommandLayer</a>
+        <nav class="nav-links">
+          <a href="/docs/" class="active">Docs</a>
+          <a href="/schemas/">Schemas</a>
+          <a href="/agent-cards/">Agent Cards</a>
+          <a href="/lookup/">Lookup</a>
+        </nav>
+      </div>
+    </header>
 
-            <section class="card">
-              <h2>Example ENS TXT record</h2>
-              <pre><code>cl.verb=summarize
-cl.version=1.0.0
-cl.entry=x402://summarizeagent.eth/summarize/v1
-cl.schema.request=https://commandlayer.org/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json
-cl.schema.receipt=https://commandlayer.org/schemas/v1.0.0/commons/summarize/receipts/summarize.receipt.schema.json
-cl.cid.schemas=&lt;IPFS CID&gt;
-cl.checksum=&lt;sha256&gt;</code></pre>
-              <p>
-                Coordinators, wallets, or other agents can use these records to locate the
-                canonical schema and a reference entrypoint for a verb.
-              </p>
-            </section>
+    <main class="container">
+      <section class="hero">
+        <div class="hero-kicker">Discovery</div>
+        <h1>Discovery &amp; Lookup</h1>
+        <p>
+          CommandLayer exposes a simple, static lookup surface that maps verbs to
+          schemas and Agent Cards. Clients can either consume it directly or mirror
+          it internally.
+        </p>
+      </section>
 
-            <section class="card">
-              <h2>Static lookup JSON</h2>
-              <p>
-                In addition to ENS, a static JSON registry is exposed at
-                <code>/lookup/verbs.json</code>:
-              </p>
-              <pre><code>GET https://commandlayer.org/lookup/verbs.json</code></pre>
-              <p>
-                This allows libraries and tooling to map verbs to schemas and agent-cards without
-                hard-coding individual URLs.
-              </p>
-            </section>
-          </main>
+      <section class="card">
+        <h2>verbs.json</h2>
+<pre><code>/lookup/verbs.json</code></pre>
+        <p>
+          Each entry contains:
+        </p>
+        <ul>
+          <li>The verb name.</li>
+          <li>Request and receipt schema URLs.</li>
+          <li>The reference Agent Card URL for that verb.</li>
+        </ul>
+      </section>
+    </main>
 
-          <footer class="site-footer">
-  <div class="container">
-    <p>CommandLayer Protocol — v1.0.0</p>
-  </div>
-</footer>
-        </div>
-      </body>
-    </html>
+    <footer class="site-footer">
+      <div class="container">
+        <p>CommandLayer Protocol — v1.0.0</p>
+      </div>
+    </footer>
+  </body>
+</html>

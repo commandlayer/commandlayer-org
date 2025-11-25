@@ -2,11 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>CommandLayer — Verb Registry (v1.0.0)</title>
+    <title>Verb Registry — CommandLayer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body class="lookup-page">
+
+  <body>
     <header class="site-header">
       <div class="container">
         <a href="/" class="logo">CommandLayer</a>
@@ -14,17 +15,18 @@
           <a href="/docs/">Docs</a>
           <a href="/schemas/">Schemas</a>
           <a href="/agent-cards/">Agent Cards</a>
-          <a href="/lookup/">Lookup</a>
+          <a href="/lookup/" class="active">Lookup</a>
         </nav>
       </div>
     </header>
 
     <main class="container">
       <section class="hero">
+        <div class="hero-kicker">Lookup</div>
         <h1>Verb Registry (v1.0.0)</h1>
         <p>
           Discover the canonical verbs defined by CommandLayer. Each row links
-          to the verb's request/receipt schemas and the reference agent card.
+          to the verb's request and receipt schemas, plus its reference Agent Card.
         </p>
       </section>
 
@@ -122,7 +124,7 @@
                 <td><a href="/agent-cards/v1.0.0/commons/parseagent.eth.json">agent-card</a></td>
               </tr>
 
-              <!-- Commercial (early) -->
+              <!-- Commercial early placeholder -->
               <tr data-verb="checkout" data-layer="commercial">
                 <td>checkout</td>
                 <td>Commercial</td>
@@ -138,7 +140,7 @@
 
     <footer class="site-footer">
       <div class="container">
-        <p>CommandLayer Protocol — Verb Registry v1.0.0</p>
+        <p>CommandLayer Protocol — v1.0.0</p>
       </div>
     </footer>
 

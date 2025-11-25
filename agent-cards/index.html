@@ -2,18 +2,19 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>CommandLayer — Agent Cards v1.0.0</title>
+    <title>Agent Cards — CommandLayer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body class="agentcards-page">
+
+  <body>
     <header class="site-header">
       <div class="container">
         <a href="/" class="logo">CommandLayer</a>
         <nav class="nav-links">
           <a href="/docs/">Docs</a>
           <a href="/schemas/">Schemas</a>
-          <a href="/agent-cards/">Agent Cards</a>
+          <a href="/agent-cards/" class="active">Agent Cards</a>
           <a href="/lookup/">Lookup</a>
         </nav>
       </div>
@@ -21,16 +22,17 @@
 
     <main class="container">
       <section class="hero">
+        <div class="hero-kicker">Registry</div>
         <h1>Agent Cards (v1.0.0)</h1>
         <p>
-          Canonical agent identity descriptors for CommandLayer verbs.
-          These JSON documents describe ownership, entrypoints, capabilities,
-          and limits for protocol-level reference agents.
+          Canonical agent identity descriptors for CommandLayer verbs. These JSON documents
+          describe ownership, entrypoints, capabilities, and limits for protocol-level
+          reference agents.
         </p>
       </section>
 
       <section class="card">
-        <h2>Commons Agents (v1.0.0)</h2>
+        <h2>Commons Agents</h2>
         <p>These agents implement the CommandLayer Commons verbs.</p>
         <div class="table-wrapper">
           <table class="data-table">
@@ -98,11 +100,10 @@
       </section>
 
       <section class="card">
-        <h2>Commercial Agents (v1.0.0 — early)</h2>
+        <h2>Commercial Agents (early)</h2>
         <p>
-          Early commercial verbs and agent identities. These are placeholders
-          for higher-value flows (payments, checkout, etc.) and may evolve
-          as the Commercial layer stabilizes.
+          Early commercial verbs and agent identities. These are placeholders for
+          higher-value flows and may evolve as the Commercial layer stabilizes.
         </p>
         <div class="table-wrapper">
           <table class="data-table">
@@ -125,25 +126,11 @@
           </table>
         </div>
       </section>
-
-      <section class="card">
-        <h2>Using Agent Cards</h2>
-        <p>
-          Agent cards are stable, versioned identity documents. They are
-          designed to be fetched and cached by registries, wallets, agent
-          runtimes, and discovery systems. For each verb:
-        </p>
-        <ul>
-          <li>Use the <strong>schema URLs</strong> to validate requests and receipts.</li>
-          <li>Use the <strong>agent-card URL</strong> to understand ownership and entrypoints.</li>
-          <li>Use ENS TXT + x402 endpoints to route execution.</li>
-        </ul>
-      </section>
     </main>
 
     <footer class="site-footer">
       <div class="container">
-        <p>CommandLayer Protocol — Agent Cards v1.0.0</p>
+        <p>CommandLayer Protocol — v1.0.0</p>
       </div>
     </footer>
   </body>
