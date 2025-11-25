@@ -1,0 +1,7 @@
+{
+  "id": "test-summarizeagent.eth",
+  "slug": "test-summarize",
+  "display_name": "Test Summarize Agent",
+  "description": "Test agent-card exposure on commandlayer.org.",
+  "version": "1.0.0"
+}
