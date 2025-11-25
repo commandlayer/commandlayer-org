@@ -2,52 +2,161 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>CommandLayer Lookup</title>
-    <meta
-      name="description"
-      content="Lookup verbs, schemas, and agent-cards for CommandLayer."
-    />
+    <title>CommandLayer — Verb Registry (v1.0.0)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
-    <div class="page">
-      <header class="header">
-        <div class="logo">COMMAND<span>LAYER</span></div>
-        <nav class="nav">
-          <a href="/">Home</a>
-          <a href="/docs/schemas.html">Schemas</a>
-          <a href="/docs/agent-cards.html">Agent-Cards</a>
-          <a href="/lookup/index.html" class="active">Lookup</a>
-          <a href="/docs/index.html">Docs</a>
+    <header class="site-header">
+      <div class="container">
+        <a href="/" class="logo">CommandLayer</a>
+        <nav class="nav-links">
+          <a href="/docs/">Docs</a>
+          <a href="/schemas/">Schemas</a>
+          <a href="/agent-cards/">Agent Cards</a>
+          <a href="/lookup/">Lookup</a>
         </nav>
-      </header>
+      </div>
+    </header>
 
-      <main>
-        <section class="hero">
-          <div class="hero-kicker">Lookup</div>
-          <h1>Resolve verbs to schemas and agent-cards.</h1>
-          <p>
-            Tooling can use this endpoint to map a verb name to its canonical request and
-            receipt schemas, plus a reference agent-card.
-          </p>
-        </section>
+    <main class="container">
+      <section class="hero">
+        <h1>Verb Registry (v1.0.0)</h1>
+        <p>
+          Discover the canonical verbs defined by CommandLayer. Each row links
+          to the verb's request/receipt schemas and the reference agent card.
+        </p>
+      </section>
 
-        <section class="card">
-          <h2>Static registry</h2>
-          <p>
-            A static JSON document is served at <code>/lookup/verbs.json</code>:
-          </p>
-          <pre><code>GET https://commandlayer.org/lookup/verbs.json</code></pre>
-          <p>
-            This registry can be generated from the underlying schema and agent-card
-            manifests and kept in sync with each release.
-          </p>
-        </section>
-      </main>
+      <section class="card">
+        <div class="lookup-controls">
+          <label for="verb-filter">Filter verbs</label>
+          <input
+            id="verb-filter"
+            type="text"
+            placeholder="Type to filter (e.g. summarize, fetch, checkout)…"
+          />
+        </div>
 
-      <footer class="footer">
-        CommandLayer — Lookup
-      </footer>
-    </div>
+        <div class="table-wrapper">
+          <table class="data-table" id="verb-table">
+            <thead>
+              <tr>
+                <th>Verb</th>
+                <th>Layer</th>
+                <th>Request Schema</th>
+                <th>Receipt Schema</th>
+                <th>Agent Card</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Commons verbs -->
+              <tr data-verb="summarize" data-layer="commons">
+                <td>summarize</td>
+                <td>Commons</td>
+                <td><a href="/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json">request</a></td>
+                <td><a href="/schemas/v1.0.0/commons/summarize/receipts/summarize.receipt.schema.json">receipt</a></td>
+                <td><a href="/agent-cards/v1.0.0/commons/summarizeagent.eth.json">agent-card</a></td>
+              </tr>
+              <tr data-verb="analyze" data-layer="commons">
+                <td>analyze</td>
+                <td>Commons</td>
+                <td><a href="/schemas/v1.0.0/commons/analyze/requests/analyze.request.schema.json">request</a></td>
+                <td><a href="/schemas/v1.0.0/commons/analyze/receipts/analyze.receipt.schema.json">receipt</a></td>
+                <td><a href="/agent-cards/v1.0.0/commons/analyzeagent.eth.json">agent-card</a></td>
+              </tr>
+              <tr data-verb="fetch" data-layer="commons">
+                <td>fetch</td>
+                <td>Commons</td>
+                <td><a href="/schemas/v1.0.0/commons/fetch/requests/fetch.request.schema.json">request</a></td>
+                <td><a href="/schemas/v1.0.0/commons/fetch/receipts/fetch.receipt.schema.json">receipt</a></td>
+                <td><a href="/agent-cards/v1.0.0/commons/fetchagent.eth.json">agent-card</a></td>
+              </tr>
+              <tr data-verb="classify" data-layer="commons">
+                <td>classify</td>
+                <td>Commons</td>
+                <td><a href="/schemas/v1.0.0/commons/classify/requests/classify.request.schema.json">request</a></td>
+                <td><a href="/schemas/v1.0.0/commons/classify/receipts/classify.receipt.schema.json">receipt</a></td>
+                <td><a href="/agent-cards/v1.0.0/commons/classifyagent.eth.json">agent-card</a></td>
+              </tr>
+              <tr data-verb="clean" data-layer="commons">
+                <td>clean</td>
+                <td>Commons</td>
+                <td><a href="/schemas/v1.0.0/commons/clean/requests/clean.request.schema.json">request</a></td>
+                <td><a href="/schemas/v1.0.0/commons/clean/receipts/clean.receipt.schema.json">receipt</a></td>
+                <td><a href="/agent-cards/v1.0.0/commons/cleanagent.eth.json">agent-card</a></td>
+              </tr>
+              <tr data-verb="convert" data-layer="commons">
+                <td>convert</td>
+                <td>Commons</td>
+                <td><a href="/schemas/v1.0.0/commons/convert/requests/convert.request.schema.json">request</a></td>
+                <td><a href="/schemas/v1.0.0/commons/convert/receipts/convert.receipt.schema.json">receipt</a></td>
+                <td><a href="/agent-cards/v1.0.0/commons/convertagent.eth.json">agent-card</a></td>
+              </tr>
+              <tr data-verb="describe" data-layer="commons">
+                <td>describe</td>
+                <td>Commons</td>
+                <td><a href="/schemas/v1.0.0/commons/describe/requests/describe.request.schema.json">request</a></td>
+                <td><a href="/schemas/v1.0.0/commons/describe/receipts/describe.receipt.schema.json">receipt</a></td>
+                <td><a href="/agent-cards/v1.0.0/commons/describeagent.eth.json">agent-card</a></td>
+              </tr>
+              <tr data-verb="explain" data-layer="commons">
+                <td>explain</td>
+                <td>Commons</td>
+                <td><a href="/schemas/v1.0.0/commons/explain/requests/explain.request.schema.json">request</a></td>
+                <td><a href="/schemas/v1.0.0/commons/explain/receipts/explain.receipt.schema.json">receipt</a></td>
+                <td><a href="/agent-cards/v1.0.0/commons/explainagent.eth.json">agent-card</a></td>
+              </tr>
+              <tr data-verb="format" data-layer="commons">
+                <td>format</td>
+                <td>Commons</td>
+                <td><a href="/schemas/v1.0.0/commons/format/requests/format.request.schema.json">request</a></td>
+                <td><a href="/schemas/v1.0.0/commons/format/receipts/format.receipt.schema.json">receipt</a></td>
+                <td><a href="/agent-cards/v1.0.0/commons/formatagent.eth.json">agent-card</a></td>
+              </tr>
+              <tr data-verb="parse" data-layer="commons">
+                <td>parse</td>
+                <td>Commons</td>
+                <td><a href="/schemas/v1.0.0/commons/parse/requests/parse.request.schema.json">request</a></td>
+                <td><a href="/schemas/v1.0.0/commons/parse/receipts/parse.receipt.schema.json">receipt</a></td>
+                <td><a href="/agent-cards/v1.0.0/commons/parseagent.eth.json">agent-card</a></td>
+              </tr>
+
+              <!-- Commercial (early) -->
+              <tr data-verb="checkout" data-layer="commercial">
+                <td>checkout</td>
+                <td>Commercial</td>
+                <td><a href="/schemas/v1.0.0/commercial/checkout/requests/checkout.request.schema.json">request (future)</a></td>
+                <td><a href="/schemas/v1.0.0/commercial/checkout/receipts/checkout.receipt.schema.json">receipt (future)</a></td>
+                <td><a href="/agent-cards/v1.0.0/commercial/checkoutagent.eth.json">agent-card</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container">
+        <p>CommandLayer Protocol — Verb Registry v1.0.0</p>
+      </div>
+    </footer>
+
+    <script>
+      (function() {
+        const input = document.getElementById('verb-filter');
+        const rows = Array.from(document.querySelectorAll('#verb-table tbody tr'));
+
+        input.addEventListener('input', function() {
+          const q = this.value.toLowerCase().trim();
+          rows.forEach(row => {
+            const verb = row.dataset.verb || '';
+            const layer = row.dataset.layer || '';
+            const text = (verb + ' ' + layer).toLowerCase();
+            row.style.display = text.includes(q) ? '' : 'none';
+          });
+        });
+      })();
+    </script>
   </body>
 </html>
