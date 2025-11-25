@@ -1,0 +1,60 @@
+{
+  "$schema": "https://commandlayer.org/agent-cards/schemas/v1.0.0/commons/agent.card.base.schema.json",
+  "$id": "https://commandlayer.org/agent-cards/agents/v1.0.0/commercial/checkoutagent.eth.json",
+
+  "id": "checkoutagent.eth",
+  "slug": "checkoutagent",
+  "display_name": "Checkout Agent (Commercial)",
+  "description": "Commercial-grade checkout agent implementing secure payment, order construction, transaction routing, and multi-rail settlement through x402. This agent conforms to the checkout.request and checkout.receipt schemas defined in protocol-commercial.",
+
+  "owner": "commandlayer.eth",
+  "ens": "checkoutagent.eth",
+  "version": "1.0.0",
+  "status": "commercial",
+  "class": "commercial",
+
+  "implements": ["checkout"],
+
+  "schemas": {
+    "request": "ipfs://__FILL_AFTER_PIN__/commercial/checkout/requests/checkout.request.schema.json",
+    "receipt": "ipfs://__FILL_AFTER_PIN__/commercial/checkout/receipts/checkout.receipt.schema.json"
+  },
+
+  "schemas_mirror": {
+    "request": "https://commandlayer.org/schemas/v1.0.0/commercial/checkout/requests/checkout.request.schema.json",
+    "receipt": "https://commandlayer.org/schemas/v1.0.0/commercial/checkout/receipts/checkout.receipt.schema.json"
+  },
+
+  "entry": "x402://checkoutagent.eth/checkout/v1",
+
+  "capabilities": {
+    "operations": [
+      "build_order",
+      "initiate_payment",
+      "select_settlement_rail",
+      "verify_payment",
+      "emit_receipt"
+    ],
+    "input_types": ["application/json"],
+    "output_types": ["application/json"]
+  },
+
+  "meta": {
+    "publisher": "CommandLayer",
+    "contact": "dev@commandlayer.org",
+    "pgp_fingerprint": "5016 D496 9F38 22B2 C5A2 FA40 99A2 6950 197D AB0A",
+    "tags": [
+      "checkout",
+      "commerce",
+      "payment",
+      "x402",
+      "commercial"
+    ]
+  },
+
+  "networks": ["eip155:1"],
+  "license": "Apache-2.0",
+
+  "created_at": "2025-11-22T00:00:00Z",
+  "updated_at": "2025-11-22T00:00:00Z"
+}

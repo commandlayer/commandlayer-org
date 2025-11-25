@@ -1,0 +1,59 @@
+{
+  "$schema": "https://commandlayer.org/agent-cards/schemas/v1.0.0/commons/agent.card.base.schema.json",
+  "$id": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/summarizeagent.eth.json",
+  "id": "summarizeagent.eth",
+  "slug": "summarizeagent",
+  "display_name": "Summarize Agent (Protocol Reference)",
+  "description": "Official protocol-level reference agent for the summarize verb. Produces concise summaries from longer content according to the summarize.request and summarize.receipt schemas.",
+  "owner": "commandlayer.eth",
+  "ens": "summarizeagent.eth",
+  "version": "1.0.0",
+  "status": "protocol_reference",
+  "class": "commons",
+  "implements": [
+    "summarize"
+  ],
+  "schemas": {
+    "request": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/summarize/requests/summarize.request.schema.json",
+    "receipt": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/summarize/receipts/summarize.receipt.schema.json"
+  },
+  "schemas_mirror": {
+    "request": "https://commandlayer.org/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json",
+    "receipt": "https://commandlayer.org/schemas/v1.0.0/commons/summarize/receipts/summarize.receipt.schema.json"
+  },
+  "entry": "x402://summarizeagent.eth/summarize/v1",
+  "capabilities": {
+    "operations": [
+      "extract_key_points",
+      "compress_long_form",
+      "produce_bullet_summaries",
+      "produce_paragraph_summaries"
+    ],
+    "input_types": [
+      "text/plain",
+      "text/markdown",
+      "application/json"
+    ],
+    "output_types": [
+      "text/plain",
+      "text/markdown",
+      "application/json"
+    ]
+  },
+  "meta": {
+    "publisher": "CommandLayer",
+    "contact": "dev@commandlayer.org",
+    "pgp_fingerprint": "5016 D496 9F38 22B2 C5A2 FA40 99A2 6950 197D AB0A",
+    "tags": [
+      "summarize",
+      "compression",
+      "protocol-reference"
+    ]
+  },
+  "networks": [
+    "eip155:1"
+  ],
+  "license": "Apache-2.0",
+  "created_at": "2025-11-22T00:00:00Z",
+  "updated_at": "2025-11-22T00:00:00Z"
+}

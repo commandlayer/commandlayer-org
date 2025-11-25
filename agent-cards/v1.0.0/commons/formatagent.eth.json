@@ -1,0 +1,57 @@
+{
+  "$schema": "https://commandlayer.org/agent-cards/schemas/v1.0.0/commons/agent.card.base.schema.json",
+  "$id": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/formatagent.eth.json",
+  "id": "formatagent.eth",
+  "slug": "formatagent",
+  "display_name": "Format Agent (Protocol Reference)",
+  "description": "Reference agent for the format verb. Applies structural and stylistic formatting to content according to the format.request and format.receipt schemas.",
+  "owner": "commandlayer.eth",
+  "ens": "formatagent.eth",
+  "version": "1.0.0",
+  "status": "protocol_reference",
+  "class": "commons",
+  "implements": [
+    "format"
+  ],
+  "schemas": {
+    "request": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/format/requests/format.request.schema.json",
+    "receipt": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/format/receipts/format.receipt.schema.json"
+  },
+  "schemas_mirror": {
+    "request": "https://commandlayer.org/schemas/v1.0.0/commons/format/requests/format.request.schema.json",
+    "receipt": "https://commandlayer.org/schemas/v1.0.0/commons/format/receipts/format.receipt.schema.json"
+  },
+  "entry": "x402://formatagent.eth/format/v1",
+  "capabilities": {
+    "operations": [
+      "apply_markdown",
+      "apply_html_structure",
+      "normalize_headings",
+      "normalize_lists"
+    ],
+    "input_types": [
+      "text/plain",
+      "text/markdown"
+    ],
+    "output_types": [
+      "text/markdown",
+      "text/html"
+    ]
+  },
+  "meta": {
+    "publisher": "CommandLayer",
+    "contact": "dev@commandlayer.org",
+    "pgp_fingerprint": "5016 D496 9F38 22B2 C5A2 FA40 99A2 6950 197D AB0A",
+    "tags": [
+      "format",
+      "styling",
+      "protocol-reference"
+    ]
+  },
+  "networks": [
+    "eip155:1"
+  ],
+  "license": "Apache-2.0",
+  "created_at": "2025-11-22T00:00:00Z",
+  "updated_at": "2025-11-22T00:00:00Z"
+}

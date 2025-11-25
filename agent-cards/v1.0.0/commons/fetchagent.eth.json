@@ -1,0 +1,57 @@
+{
+  "$schema": "https://commandlayer.org/agent-cards/schemas/v1.0.0/commons/agent.card.base.schema.json",
+  "$id": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/fetchagent.eth.json",
+  "id": "fetchagent.eth",
+  "slug": "fetchagent",
+  "display_name": "Fetch Agent (Protocol Reference)",
+  "description": "Reference agent for the fetch verb. Retrieves external resources over HTTP and other channels according to the fetch.request and fetch.receipt schemas.",
+  "owner": "commandlayer.eth",
+  "ens": "fetchagent.eth",
+  "version": "1.0.0",
+  "status": "protocol_reference",
+  "class": "commons",
+  "implements": [
+    "fetch"
+  ],
+  "schemas": {
+    "request": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/fetch/requests/fetch.request.schema.json",
+    "receipt": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/fetch/receipts/fetch.receipt.schema.json"
+  },
+  "schemas_mirror": {
+    "request": "https://commandlayer.org/schemas/v1.0.0/commons/fetch/requests/fetch.request.schema.json",
+    "receipt": "https://commandlayer.org/schemas/v1.0.0/commons/fetch/receipts/fetch.receipt.schema.json"
+  },
+  "entry": "x402://fetchagent.eth/fetch/v1",
+  "capabilities": {
+    "operations": [
+      "http_get",
+      "http_head",
+      "follow_redirects",
+      "resolve_canonical_url"
+    ],
+    "input_types": [
+      "application/json"
+    ],
+    "output_types": [
+      "text/plain",
+      "text/markdown",
+      "application/json"
+    ]
+  },
+  "meta": {
+    "publisher": "CommandLayer",
+    "contact": "dev@commandlayer.org",
+    "pgp_fingerprint": "5016 D496 9F38 22B2 C5A2 FA40 99A2 6950 197D AB0A",
+    "tags": [
+      "fetch",
+      "http",
+      "protocol-reference"
+    ]
+  },
+  "networks": [
+    "eip155:1"
+  ],
+  "license": "Apache-2.0",
+  "created_at": "2025-11-22T00:00:00Z",
+  "updated_at": "2025-11-22T00:00:00Z"
+}
