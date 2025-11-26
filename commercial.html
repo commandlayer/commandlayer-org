@@ -92,14 +92,12 @@
         color: inherit;
       }
 
-      .site-header__logo-orb.site-header__logo-img {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  display: block;
-  border-radius: 6px; /* If you want a bit of polish — remove if unwanted */
-}
-
+      .site-header__logo-img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        display: block;
+        border-radius: 6px; /* remove if you don't want rounded corners */
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
           0 14px 40px rgba(0, 0, 0, 0.9);
       }
@@ -370,8 +368,8 @@
       <header class="site-header">
         <div class="site-header__inner container">
           <a href="/" class="site-header__brand">
-        <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-         <div class="site-header__text">
+            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+            <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
               <span class="site-header__subtitle">
                 Verb &amp; schema layer for agents
@@ -379,15 +377,15 @@
             </div>
           </a>
 
-         <nav class="site-header__nav">
+          <nav class="site-header__nav">
             <a href="/" class="site-header__link">Overview</a>
             <a href="/commons.html" class="site-header__link">Commons</a>
-            <a href="/commercial.html" class="site-header__link">Commercial</a>
+            <a href="/commercial.html" class="site-header__link site-header__link--active">Commercial</a>
             <a href="/agent-cards.html" class="site-header__link">
               Agent Cards
             </a>
             <a href="/docs.html" class="site-header__link">Docs</a>
-            <a href="/roadmap.html" class="site-header__link site-header__link--active">
+            <a href="/roadmap.html" class="site-header__link">
               Roadmap
             </a>
             <a
@@ -399,7 +397,6 @@
               GitHub
             </a>
           </nav>
-
         </div>
       </header>
 
@@ -542,7 +539,7 @@
                       <td>
                         <a
                           href="https://commandlayer.org/schemas/v1.0.0/commercial/pay/receipts/pay.receipt.schema.json"
-                          target="_blank"
+                          target->_blank"
                           >receipt</a
                         >
                       </td>
