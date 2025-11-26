@@ -91,19 +91,12 @@
         color: inherit;
       }
 
-      .site-header__logo-orb {
+      .site-header__logo-img {
         width: 28px;
         height: 28px;
-        border-radius: 999px;
-        background: conic-gradient(
-          from 210deg,
-          #f9fafb 0deg,
-          #9ca3af 80deg,
-          #4b5563 160deg,
-          #e5e7eb 220deg,
-          #9ca3af 300deg,
-          #f9fafb 360deg
-        );
+        object-fit: contain;
+        display: block;
+        border-radius: 6px;
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
           0 14px 40px rgba(0, 0, 0, 0.9);
       }
@@ -394,7 +387,7 @@
       <header class="site-header">
         <div class="site-header__inner container">
           <a href="/" class="site-header__brand">
-            <div class="site-header__logo-orb"></div>
+            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
               <span class="site-header__subtitle">
@@ -403,15 +396,15 @@
             </div>
           </a>
 
-           <nav class="site-header__nav">
-            <a href="/" class="site-header__link">Overview</a>
+          <nav class="site-header__nav">
+            <a href="/" class="site-header__link site-header__link--active">Overview</a>
             <a href="/commons.html" class="site-header__link">Commons</a>
             <a href="/commercial.html" class="site-header__link">Commercial</a>
             <a href="/agent-cards.html" class="site-header__link">
               Agent Cards
             </a>
             <a href="/docs.html" class="site-header__link">Docs</a>
-            <a href="/roadmap.html" class="site-header__link site-header__link--active">
+            <a href="/roadmap.html" class="site-header__link">
               Roadmap
             </a>
             <a
@@ -468,9 +461,9 @@
               <h2 class="hero__card-title">What you can do right now</h2>
               <p class="hero__card-body">
                 Use CommandLayer as the
-                <strong>language contract</strong> between clients and agents —
-                the part that standardizes the “exit names” and traffic rules on
-                top of x402 and ERC-8004:
+                <strong>language contract</strong> between clients and agents — the
+                part that standardizes the “exit names” and traffic rules on top
+                of x402 and ERC-8004:
               </p>
               <ul class="hero__card-list">
                 <li>Pick a Commons verb (e.g. <code>summarize</code>).</li>
