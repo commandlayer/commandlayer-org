@@ -476,3 +476,45 @@ a[href]:hover {
   border-radius: 0.35rem;
 }
 
+
+/* --- Homepage hero meta cards --- */
+.hero-meta-grid {
+  margin-top: 1.4rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.hero-meta-card {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 0.9rem 1rem;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.hero-meta-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.hero-meta-card h3 {
+  font-size: 0.98rem;
+  margin: 0 0 0.35rem;
+  color: #111827;
+}
+
+.hero-meta-card p {
+  font-size: 0.86rem;
+  color: #4b5563;
+}
+
+@media (max-width: 900px) {
+  .hero-meta-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
