@@ -93,19 +93,19 @@
       }
 
       .site-header__logo-img {
-        width: 32px;
-        height: 32px;
+        width: 28px;
+        height: 28px;
         object-fit: contain;
-        filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.65))
-          brightness(1.03)
-          contrast(1.1);
+        display: block;
+        border-radius: 6px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
+          0 14px 40px rgba(0, 0, 0, 0.9);
+        filter: brightness(1.03) contrast(1.08);
         transition: filter 0.25s ease;
       }
 
       .site-header__logo-img:hover {
-        filter: drop-shadow(0 14px 40px rgba(0, 0, 0, 0.95))
-          brightness(1.12)
-          contrast(1.15);
+        filter: brightness(1.12) contrast(1.15);
       }
 
       .site-header__text {
@@ -375,29 +375,27 @@
         <div class="site-header__inner container">
           <a href="/" class="site-header__brand">
             <img
-              src="/icon2.png"
+              src="icon2.png"
               alt="CommandLayer Logo"
               class="site-header__logo-img"
             />
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
               <span class="site-header__subtitle">
-                Verb &amp; schema layer for agents
+                Semantic verb &amp; schema layer for agents
               </span>
             </div>
           </a>
 
-         <nav class="site-header__nav">
+          <nav class="site-header__nav">
             <a href="/" class="site-header__link">Overview</a>
             <a href="/commons.html" class="site-header__link">Commons</a>
             <a href="/commercial.html" class="site-header__link">Commercial</a>
-            <a href="/agent-cards.html" class="site-header__link">
+            <a href="/agent-cards.html" class="site-header__link site-header__link--active">
               Agent Cards
             </a>
             <a href="/docs.html" class="site-header__link">Docs</a>
-            <a href="/roadmap.html" class="site-header__link site-header__link--active">
-              Roadmap
-            </a>
+            <a href="/roadmap.html" class="site-header__link">Roadmap</a>
             <a
               href="https://github.com/commandlayer"
               class="site-header__link"
@@ -435,7 +433,7 @@
           </div>
         </section>
 
-        <!-- EXPLAINER (like homepage info cards) -->
+        <!-- EXPLAINER -->
         <section class="section">
           <div class="container">
             <div class="section__header">
@@ -476,7 +474,7 @@
           </div>
         </section>
 
-        <!-- COMMONS TABLE IN A CARD CONTAINER -->
+        <!-- COMMONS TABLE -->
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
@@ -621,7 +619,7 @@
           </div>
         </section>
 
-        <!-- COMMERCIAL PREVIEW TABLE (also in a container) -->
+        <!-- COMMERCIAL PREVIEW TABLE -->
         <section class="section">
           <div class="container">
             <div class="section__header">
