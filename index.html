@@ -11,8 +11,315 @@
       name="description"
       content="CommandLayer is the canonical verb & schema layer for autonomous agents — aligned with x402 and compatible with ERC-8004."
     />
-    <link rel="stylesheet" href="styles.css" />
+
+    <!-- === FULL CSS INLINE === -->
+    <style>
+      :root {
+        --bg: #05060a;
+        --bg-elevated: #0a0c14;
+        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+        --border-soft: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.18);
+        --accent: #c5cbe0;
+        --accent-strong: #e3e7ff;
+        --accent-muted: #8f96b5;
+        --text-main: #f7f8ff;
+        --text-muted: #9ca3c7;
+        --text-soft: #6b7280;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+        --max-width: 1120px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, Inter, sans-serif;
+        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+        color: var(--text-main);
+      }
+
+      body {
+        min-height: 100vh;
+      }
+
+      .page-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page-main {
+        flex: 1;
+      }
+
+      .container {
+        width: 100%;
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* HEADER */
+      .site-header {
+        background: var(--bg-header);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(18px);
+      }
+
+      .site-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.5rem;
+      }
+
+      .site-header__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .site-header__logo-orb {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: conic-gradient(
+          from 210deg,
+          #f9fafb 0deg,
+          #9ca3af 80deg,
+          #4b5563 160deg,
+          #e5e7eb 220deg,
+          #9ca3af 300deg,
+          #f9fafb 360deg
+        );
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
+          0 14px 40px rgba(0, 0, 0, 0.9);
+      }
+
+      .site-header__text {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .site-header__title {
+        font-size: 0.98rem;
+        font-weight: 600;
+      }
+
+      .site-header__subtitle {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .site-header__nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .site-header__link {
+        padding: 0.35rem 0.8rem;
+        text-decoration: none;
+        color: var(--text-muted);
+        font-size: 0.86rem;
+        border-radius: 999px;
+      }
+
+      .site-header__link--active {
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        color: #020617;
+      }
+
+      /* HERO */
+      .hero {
+        padding: 3.5rem 0 2.5rem;
+      }
+
+      .hero__inner {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 2.5rem;
+      }
+
+      .hero__eyebrow {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        color: var(--accent-muted);
+      }
+
+      .hero__title {
+        font-size: clamp(2.4rem, 4vw, 3rem);
+        margin: 1rem 0;
+        line-height: 1.1;
+      }
+
+      .hero__title-highlight {
+        background: linear-gradient(120deg, #e5e7eb, #c7d2fe, #9ca3af);
+        -webkit-background-clip: text;
+        color: transparent;
+      }
+
+      .hero__subtitle {
+        color: var(--text-muted);
+        max-width: 34rem;
+        line-height: 1.6;
+      }
+
+      .hero__actions {
+        margin: 1.4rem 0;
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      .btn {
+        padding: 0.6rem 1.3rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        display: inline-flex;
+      }
+
+      .btn--primary {
+        background: linear-gradient(135deg, #e5e7eb, #cbd5f5);
+        color: #020617;
+      }
+
+      .btn--ghost {
+        background: rgba(15, 23, 42, 0.85);
+        color: var(--accent-strong);
+        border: 1px solid rgba(148, 163, 184, 0.35);
+      }
+
+      .hero__meta-grid {
+        display: grid;
+        gap: 1rem;
+      }
+
+      .meta-card {
+        background: radial-gradient(circle at 0 0, #1b2437, #0b0d14);
+        padding: 1rem;
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--border-soft);
+      }
+
+      .meta-card__label {
+        font-size: 0.75rem;
+        color: var(--accent-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .meta-card__title {
+        margin: 0.4rem 0;
+      }
+
+      .meta-card__body {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      .meta-card__footer {
+        margin-top: 0.6rem;
+        font-size: 0.8rem;
+        color: var(--text-soft);
+      }
+
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+      }
+
+      .dot--ok {
+        background: #4ade80;
+      }
+
+      .dot--beta {
+        background: #facc15;
+      }
+
+      /* SECTIONS */
+      .section {
+        padding: 2.5rem 0;
+      }
+
+      .section--muted {
+        background: rgb(6, 9, 18);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      }
+
+      .grid {
+        display: grid;
+        gap: 1.3rem;
+      }
+
+      .grid--3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .info-card {
+        background: rgba(15, 23, 42, 0.9);
+        padding: 1.1rem;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-soft);
+      }
+
+      .info-card h3 {
+        margin: 0 0 0.6rem;
+      }
+
+      .info-card p {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      /* FOOTER */
+      .site-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: #020308;
+      }
+
+      .site-footer__inner {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        font-size: 0.78rem;
+        color: var(--text-soft);
+      }
+
+      /* MOBILE */
+      @media (max-width: 880px) {
+        .hero__inner {
+          grid-template-columns: 1fr;
+        }
+
+        .grid--3 {
+          grid-template-columns: 1fr;
+        }
+
+        .site-footer__inner {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+      }
+    </style>
   </head>
+
   <body>
     <div class="page-shell">
       <header class="site-header">
@@ -36,40 +343,24 @@
             <a href="/agent-cards.html" class="site-header__link">
               Agent Cards
             </a>
-            <a
-              href="https://github.com/commandlayer"
-              class="site-header__link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
-            </a>
           </nav>
         </div>
       </header>
 
       <main class="page-main">
-        <!-- HERO -->
         <section class="hero">
           <div class="container hero__inner">
-            <div class="hero__content">
-              <div class="hero__eyebrow">
-                Open protocol · Verb & schema layer
-              </div>
+            <div>
+              <div class="hero__eyebrow">Open protocol · Verb & schema layer</div>
 
               <h1 class="hero__title">
                 CommandLayer is the<br />
-                <span class="hero__title-highlight">
-                  command language for agents.
-                </span>
+                <span class="hero__title-highlight">command language for agents.</span>
               </h1>
 
               <p class="hero__subtitle">
-                A canonical <strong>verb + schema</strong> layer for autonomous
-                agents — aligned with <strong>x402</strong> and compatible with
-                <strong>ERC-8004</strong>. 10 universal verbs. 20
-                request/receipt schemas. One place to agree on what agents can
-                <em>do</em>.
+                Canonical <strong>verb + schema</strong> layer for autonomous agents —
+                aligned with <strong>x402</strong> and compatible with <strong>ERC-8004</strong>.
               </p>
 
               <div class="hero__actions">
@@ -80,143 +371,101 @@
                   href="https://github.com/commandlayer/protocol-commons"
                   class="btn btn--ghost"
                   target="_blank"
-                  rel="noopener noreferrer"
                 >
-                  View protocol on GitHub
+                  View on GitHub
                 </a>
               </div>
-
-              <p class="hero__meta">
-                Pinned on IPFS · Strict JSON Schema 2020-12 · MIT-licensed
-                Commons
-              </p>
             </div>
 
             <div class="hero__meta-grid">
-              <article class="meta-card">
+              <div class="meta-card">
                 <div class="meta-card__label">Layer 1 · Commons</div>
                 <h3 class="meta-card__title">The canonical verbs</h3>
                 <p class="meta-card__body">
-                  10 universal verbs for A2A flows: analyze, classify, fetch,
-                  format, parse, summarize, clean, convert, describe, explain.
+                  10 universal verbs: analyze, classify, fetch, format, parse,
+                  summarize, clean, convert, describe, explain.
                 </p>
                 <p class="meta-card__footer">
-                  <span class="dot dot--ok"></span>
-                  Stable, immutable, versioned (v1.0.0)
+                  <span class="dot dot--ok"></span> Stable, versioned (v1.0.0)
                 </p>
-              </article>
+              </div>
 
-              <article class="meta-card">
-                <div class="meta-card__label">Layer 2 · Commercial</div>
+              <div class="meta-card">
+                <div class="meta-card__label">Layer 2 · Commercial</div
+                >
                 <h3 class="meta-card__title">Economic verbs</h3>
                 <p class="meta-card__body">
-                  Checkout, pay, refund, authorize, ship, register, verify,
-                  schedule. Commercial verbs live here with premium licensing.
+                  Checkout, refund, register, verify, authorize, ship, schedule.
                 </p>
                 <p class="meta-card__footer">
-                  <span class="dot dot--beta"></span>
-                  Commercial layer in active design
+                  <span class="dot dot--beta"></span> In active design
                 </p>
-              </article>
+              </div>
 
-              <article class="meta-card">
+              <div class="meta-card">
                 <div class="meta-card__label">Layer 3 · Agent Cards</div>
                 <h3 class="meta-card__title">Who serves each verb</h3>
                 <p class="meta-card__body">
-                  Agent cards bind <strong>ENS names</strong>,
-                  <strong>x402 endpoints</strong>, and
-                  <strong>schema versions</strong> so any client can discover
-                  and call agents trustlessly.
+                  Binds ENS name → verbs → x402 endpoint → schema version.
                 </p>
                 <p class="meta-card__footer">
-                  <span class="dot dot--ok"></span>
-                  Commons cards ready · Commercial to follow
+                  <span class="dot dot--ok"></span> Commons cards ready
                 </p>
-              </article>
+              </div>
             </div>
           </div>
         </section>
 
-        <!-- WHAT IT DOES -->
         <section class="section">
           <div class="container">
-            <div class="section__header">
-              <h2>What CommandLayer does</h2>
-              <p>
-                CommandLayer doesn’t replace agents, wallets, or LLMs. It gives
-                them a <strong>shared command language</strong> so any client
-                can understand what “summarize”, “checkout”, or “refund”
-                actually mean.
-              </p>
-            </div>
+            <h2>What CommandLayer does</h2>
 
-            <div class="grid grid--3">
-              <article class="info-card">
+            <div class="grid grid--3" style="margin-top: 1.4rem;">
+              <div class="info-card">
                 <h3>Defines the verbs</h3>
                 <p>
-                  CommandLayer specifies <strong>verbs</strong> and their
-                  <strong>JSON schemas</strong> so “analyze.request” or
-                  “checkout.receipt” are unambiguous across agents and
-                  platforms.
+                  JSON Schemas that define what “analyze.request” or “checkout.receipt”
+                  actually mean.
                 </p>
-              </article>
+              </div>
 
-              <article class="info-card">
-                <h3>Aligns with x402 &amp; ERC-8004</h3>
+              <div class="info-card">
+                <h3>Aligns with x402 & ERC-8004</h3>
                 <p>
-                  Verbs map cleanly into <strong>x402 envelopes</strong> and are
-                  discoverable by <strong>ERC-8004 agents</strong>, keeping
-                  payment, routing, and discovery interoperable.
+                  Verbs map cleanly to x402 envelopes and agent discovery standards.
                 </p>
-              </article>
+              </div>
 
-              <article class="info-card">
+              <div class="info-card">
                 <h3>Binds ENS to execution</h3>
                 <p>
-                  <strong>Agent Cards</strong> bind ENS names, verb support,
-                  schema versions, and x402 endpoints, so clients know exactly
-                  <em>who</em> can serve <em>which</em> verbs.
+                  Agent Cards connect ENS names, verbs supported, schema versions, and
+                  x402 entrypoints.
                 </p>
-              </article>
+              </div>
             </div>
           </div>
         </section>
 
-        <!-- HOW BUILDERS USE IT -->
         <section class="section section--muted">
           <div class="container">
-            <div class="section__header">
-              <h2>How builders use CommandLayer</h2>
-              <p>Three touch points. No lock-in. No magic.</p>
-            </div>
+            <h2>How builders use it</h2>
 
-            <div class="grid grid--3">
-              <article class="info-card">
-                <h3>1. Import the schemas</h3>
-                <p>
-                  Use <code>@commandlayer/protocol-commons</code> for the 10
-                  universal verbs. Validate A2A payloads under strict JSON
-                  Schema 2020-12.
-                </p>
-              </article>
+            <div class="grid grid--3" style="margin-top: 1.4rem;">
+              <div class="info-card">
+                <h3>1. Import schemas</h3>
+                <p>Use <code>@commandlayer/protocol-commons</code> for validation.</p>
+              </div>
 
-              <article class="info-card">
-                <h3>2. Publish an Agent Card</h3>
-                <p>
-                  Describe your agent: ENS name, supported verbs, schema
-                  versions, and x402 entrypoints. Let clients discover you
-                  trustlessly.
-                </p>
-              </article>
+              <div class="info-card">
+                <h3>2. Publish Agent Cards</h3>
+                <p>ENS → verbs → x402 endpoints → versions.</p>
+              </div>
 
-              <article class="info-card">
-                <h3>3. Wire x402 + ERC-8004</h3>
-                <p>
-                  Expose your verbs via x402 endpoints and register under
-                  ERC-8004 so other agents can call you without custom glue
-                  code.
-                </p>
-              </article>
+              <div class="info-card">
+                <h3>3. Wire x402 + 8004</h3>
+                <p>Expose verbs through trustless execution.</p>
+              </div>
             </div>
           </div>
         </section>
@@ -225,9 +474,7 @@
       <footer class="site-footer">
         <div class="container site-footer__inner">
           <span>© CommandLayer Protocol</span>
-          <span class="site-footer__meta">
-            Commons v1.0.0 · MIT · x402-aligned · ERC-8004-compatible
-          </span>
+          <span class="site-footer__meta">Commons v1.0.0 · MIT · x402-aligned · 8004-compatible</span>
         </div>
       </footer>
     </div>
