@@ -205,6 +205,21 @@
         margin-top: 1.6rem;
       }
 
+      .hero__meta {
+        margin-top: 1.3rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.8rem;
+        color: var(--text-soft);
+      }
+
+      .hero__meta-pill {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        padding: 0.18rem 0.55rem;
+      }
+
       .btn {
         display: inline-flex;
         align-items: center;
@@ -242,21 +257,6 @@
 
       .btn__icon {
         font-size: 1rem;
-      }
-
-      .hero__meta {
-        margin-top: 1.3rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.6rem;
-        font-size: 0.8rem;
-        color: var(--text-soft);
-      }
-
-      .hero__meta-pill {
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.6);
-        padding: 0.18rem 0.55rem;
       }
 
       .hero__card {
@@ -456,6 +456,11 @@
                   <span>Start with summarize</span>
                 </a>
               </div>
+
+              <div class="hero__meta">
+                <span class="hero__meta-pill">Protocol v1.0.0 · Commons live</span>
+                <span class="hero__meta-pill">Hundreds of verbs staged for rollout</span>
+              </div>
             </div>
 
             <aside class="hero__card">
@@ -531,6 +536,19 @@
                   <a href="/agent-cards.html">Browse Agent Cards →</a>
                 </p>
               </article>
+
+              <article class="info-card">
+                <h3>Roadmap</h3>
+                <p>
+                  CommandLayer ships high-value verbs on a steady release
+                  cadence. Dozens of Commercial verbs are in active development,
+                  and hundreds more are staged for rollout as x402 and ERC-8004
+                  adoption accelerates.
+                </p>
+                <p style="margin-top:0.6rem;">
+                  <a href="/roadmap.html">See the roadmap →</a>
+                </p>
+              </article>
             </div>
           </div>
         </section>
@@ -562,6 +580,19 @@
                 your agents are already speaking the shared language.
               </p>
             </div>
+
+            <p
+              style="
+                text-align:center;
+                font-size:0.8rem;
+                color:#6b7280;
+                margin-top:2rem;
+              "
+            >
+              Today: 10 Commons. Next: financial flows, fulfillment,
+              compliance, identity — and hundreds of verbs that define the
+              agent economy.
+            </p>
           </div>
         </section>
       </main>
