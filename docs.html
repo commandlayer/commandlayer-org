@@ -9,7 +9,7 @@
     />
     <meta
       name="description"
-      content="CommandLayer docs — how to integrate Commons verbs, use schemas, and register Agent Cards for agents."
+      content="CommandLayer docs — how to integrate Commons verbs, use schemas, and register Agent Cards for agents on top of x402 and ERC-8004."
     />
 
     <!-- Same metallic layout system as the other pages -->
@@ -97,7 +97,7 @@
         height: 28px;
         object-fit: contain;
         display: block;
-        border-radius: 6px; /* remove if you don't want rounded corners */
+        border-radius: 6px;
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
           0 14px 40px rgba(0, 0, 0, 0.9);
       }
@@ -376,7 +376,7 @@
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
               <span class="site-header__subtitle">
-                Verb &amp; schema layer for agents
+                Semantic verb &amp; schema layer for agents
               </span>
             </div>
           </a>
@@ -415,7 +415,8 @@
                 Three moving parts: <strong>Commons</strong> verbs,
                 <strong>schemas</strong>, and <strong>Agent Cards</strong>.
                 This page shows how to call a verb, validate payloads, and
-                describe your own agent in a way others can discover.
+                describe your own agent in a way others can discover — on top of
+                x402 and ERC-8004.
               </p>
             </div>
             <div class="subhero__meta">
@@ -671,7 +672,7 @@ const receipt = await res.json();
                 </li>
                 <li>
                   Preview economic verbs on
-                  <a href="/commercial.html" class="link">Commercial</a> (in progress).
+                  <a href="/commercial.html" class="link">Commercial</a> (design in progress).
                 </li>
                 <li>
                   See how Agent Cards are laid out on
