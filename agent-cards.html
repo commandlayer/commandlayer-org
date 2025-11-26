@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Agent Cards — CommandLayer</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="Agent Cards bind ENS names, verbs, schema versions, and x402 entrypoints in the CommandLayer protocol."
+    />
+
+    <!-- Same CSS system as homepage -->
+    <style>
+      :root {
+        --bg: #05060a;
+        --bg-elevated: #0a0c14;
+        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+        --border-soft: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.18);
+        --accent: #c5cbe0;
+        --accent-strong: #e3e7ff;
+        --accent-muted: #8f96b5;
+        --text-main: #f7f8ff;
+        --text-muted: #9ca3c7;
+        --text-soft: #6b7280;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+        --max-width: 1120px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, Inter, sans-serif;
+        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+        color: var(--text-main);
+      }
+
+      body {
+        min-height: 100vh;
+      }
+
+      .page-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page-main {
+        flex: 1;
+      }
+
+      .container {
+        width: 100%;
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* HEADER (same as home) */
+      .site-header {
+        background: var(--bg-header);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(18px);
+      }
+
+      .site-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.5rem;
+      }
+
+      .site-header__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .site-header__logo-orb {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: conic-gradient(
+          from 210deg,
+          #f9fafb 0deg,
+          #9ca3af 80deg,
+          #4b5563 160deg,
+          #e5e7eb 220deg,
+          #9ca3af 300deg,
+          #f9fafb 360deg
+        );
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
+          0 14px 40px rgba(0, 0, 0, 0.9);
+      }
+
+      .site-header__text {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .site-header__title {
+        font-size: 0.98rem;
+        font-weight: 600;
+      }
+
+      .site-header__subtitle {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .site-header__nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .site-header__link {
+        padding: 0.35rem 0.8rem;
+        text-decoration: none;
+        color: var(--text-muted);
+        font-size: 0.86rem;
+        border-radius: 999px;
+      }
+
+      .site-header__link--active {
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        color: #020617;
+      }
+
+      .site-header__link:hover {
+        color: var(--accent-strong);
+        background: rgba(15, 23, 42, 0.85);
+      }
+
+      /* SUB-HERO (Agent Cards) */
+      .subhero {
+        padding: 2.8rem 0 2rem;
+        border-bottom: 1px solid var(--border-soft);
+        background: radial-gradient(circle at 0 0, #111827, #020308);
+      }
+
+      .subhero__inner {
+        display: flex;
+        justify-content: space-between;
+        gap: 2rem;
+        align-items: flex-end;
+      }
+
+      .subhero__title {
+        font-size: 2rem;
+        margin: 0 0 0.6rem;
+      }
+
+      .subhero__subtitle {
+        margin: 0;
+        color: var(--text-muted);
+        max-width: 34rem;
+        font-size: 0.98rem;
+      }
+
+      .subhero__meta {
+        font-size: 0.85rem;
+        color: var(--text-soft);
+        text-align: right;
+      }
+
+      .subhero__meta code {
+        background: rgba(15, 23, 42, 0.9);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+      }
+
+      /* GENERIC SECTIONS */
+      .section {
+        padding: 2.5rem 0;
+      }
+
+      .section--muted {
+        background: rgb(6, 9, 18);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255,
