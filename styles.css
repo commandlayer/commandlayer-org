@@ -443,3 +443,36 @@ a[href]:hover {
   }
 }
 
+
+/* === Docs theming: remove dark-blue panels, use light cards === */
+
+.docs-page main .card {
+  background: #ffffff;
+  border-radius: 16px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+/* H2 inside docs cards */
+.docs-page main .card h2 {
+  color: #111827;
+}
+
+/* Code blocks / layout diagrams inside docs */
+.docs-page main pre {
+  background: #f3f4f6;
+  color: #111827;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
+  overflow-x: auto;
+  border: 1px solid #e5e7eb;
+}
+
+/* Inline code in docs */
+.docs-page main code {
+  background: #e5e7eb;
+  color: #111827;
+  padding: 0.05rem 0.35rem;
+  border-radius: 0.35rem;
+}
+
