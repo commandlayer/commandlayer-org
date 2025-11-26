@@ -456,9 +456,10 @@
                 <h3>1. Pick a verb</h3>
                 <p>
                   Choose a verb from <a href="/commons.html" class="link">Commons</a>
-                  (e.g. <code>summarize</code>, <code>analyze</code>) or from
-                  <a href="/commercial.html" class="link">Commercial</a>
-                  (e.g. <code>checkout</code>).
+                  (e.g. <code>summarize</code>, <code>analyze</code>). Commercial
+                  is reserved for economic verbs (e.g. <code>checkout</code>) and
+                  will roll out as a separate tier, so most integrations should
+                  start with Commons.
                 </p>
                 <p>
                   You are not inventing a new format. You’re opting into a
@@ -534,7 +535,11 @@
 
               <article class="info-card">
                 <h3>2. Shape a request</h3>
-                <p>Minimal pseudo-example:</p>
+                <p>
+                  Minimal pseudo-example. The <code>trace</code> block is
+                  optional in Commons v1.0.0 and only needed if your agent uses
+                  tracing.
+                </p>
                 <pre><code>{
   "x402": {
     "verb": "summarize",
@@ -550,8 +555,9 @@
     "style": "neutral"
   },
   "trace": {
-    "idempotency_key": "abc-123",
-    "client_id": "my-client"
+    "trace_id": "c81f9f56-2c3a-4a6c-bc5b-8d5f8b372901",
+    "span_id": "s1",
+    "timestamp": "2025-11-26T00:00:00Z"
   }
 }</code></pre>
               </article>
@@ -581,9 +587,9 @@ if (!validate(payload)) {
               <article class="info-card">
                 <h3>4. Send &amp; receive a receipt</h3>
                 <p>
-                  Where you send it depends on the agent. For reference agents,
-                  you’ll typically hit an x402-compatible HTTP endpoint from an
-                  Agent Card.
+                  Where you send it depends on the agent. When reference agents
+                  are available, you’ll typically hit an x402-compatible HTTP
+                  endpoint listed in an Agent Card.
                 </p>
                 <pre><code>const res = await fetch("https://&lt;agent-endpoint&gt;/summarize", {
   method: "POST",
@@ -673,8 +679,8 @@ const receipt = await res.json();
                   Browse the verb set on <a href="/commons.html" class="link">Commons</a>.
                 </li>
                 <li>
-                  Inspect economic verbs on
-                  <a href="/commercial.html" class="link">Commercial</a>.
+                  Preview economic verbs on
+                  <a href="/commercial.html" class="link">Commercial</a> (in progress).
                 </li>
                 <li>
                   See how Agent Cards are laid out on
