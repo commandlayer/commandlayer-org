@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>CommandLayer — Canonical Verb Layer for Agents</title>
+    <title>CommandLayer — Verb & Schema Layer for AI Agents</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
@@ -21,59 +21,81 @@
     </header>
 
     <main class="container">
-      <section class="hero">
-        <div class="hero-kicker">Protocol surface</div>
-        <h1>The canonical verb layer for AI agents.</h1>
-        <p>
-          CommandLayer defines a small, universal set of verbs, JSON Schemas, and agent
-          identity documents that any agent framework can adopt. It does not compete with
-          your models &mdash; it standardizes how they talk.
-        </p>
+      <!-- Hero: two-column layout -->
+      <section class="hero hero-grid">
+        <div class="hero-main">
+          <div class="hero-kicker">Protocol surface · v1.0.0</div>
+          <h1>The canonical verb & schema layer for AI agents.</h1>
+          <p>
+            CommandLayer standardizes how agents talk: 10 universal verbs, strict JSON Schemas,
+            and ENS-bound Agent Cards. You keep your models, frameworks, and infra — we give you
+            a shared language.
+          </p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/schemas/">
+              View Schemas
+            </a>
+            <a class="btn btn-ghost" href="/docs/getting-started.html">
+              Integrate in 5 minutes
+            </a>
+          </div>
+
+          <div class="hero-meta">
+            <span>🔒 Immutable v1.0.0</span>
+            <span>🔗 x402 & ERC-8004 aligned</span>
+            <span>🌐 HTTPS & IPFS friendly</span>
+          </div>
+        </div>
+
+        <div class="hero-side">
+          <div class="card hero-card">
+            <h2>What you get out of the box</h2>
+            <ul>
+              <li><strong>10 Commons verbs</strong> with request & receipt schemas.</li>
+              <li><strong>_shared primitives</strong>: x402, trace, identity, receipt base.</li>
+              <li><strong>Agent Cards</strong> binding ENS names to verbs & entrypoints.</li>
+              <li><strong>Static lookup</strong> at <code>/lookup/verbs.json</code>.</li>
+            </ul>
+          </div>
+        </div>
       </section>
 
+      <!-- Metrics row -->
+      <section class="card metrics-row">
+        <div class="metric">
+          <div class="metric-label">Commons Verbs</div>
+          <div class="metric-value">10</div>
+          <div class="metric-note">Summarize, analyze, fetch, classify, and more.</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Schemas</div>
+          <div class="metric-value">20+</div>
+          <div class="metric-note">Requests + receipts, strict JSON Schema 2020-12.</div>
+        </div>
+        <div class="metric">
+          <div class="metric-label">Reference Agents</div>
+          <div class="metric-value">11</div>
+          <div class="metric-note">10 Commons + early Commercial checkout.</div>
+        </div>
+      </section>
+
+      <!-- How it fits -->
       <section class="card">
-        <h2>What CommandLayer Provides</h2>
+        <h2>Where CommandLayer fits in the stack</h2>
         <ul>
-          <li>10 Commons verbs with strict JSON Schema 2020-12 definitions.</li>
-          <li>Request + receipt schemas for each verb, with trace and x402 envelopes.</li>
-          <li>Agent Cards that bind ENS names, verbs, schemas, and entrypoints.</li>
-          <li>A simple lookup surface for discovery and routing.</li>
+          <li><strong>Above transport:</strong> works with HTTPS, x402, and future agent rails.</li>
+          <li><strong>Below frameworks:</strong> independent of any specific LLM or runtime.</li>
+          <li><strong>Side by side with ENS:</strong> ENS names anchor agents and capabilities.</li>
+          <li><strong>Mirror-friendly:</strong> anyone can mirror <code>/schemas/</code> and
+              <code>/agent-cards/</code> for local validation and discovery.</li>
         </ul>
-      </section>
-
-      <section class="card">
-        <h2>Key Directories</h2>
-        <pre><code>schemas/
-  v1.0.0/
-    _shared/
-    commons/
-    commercial/
-
-agent-cards/
-  v1.0.0/
-    commons/
-    commercial/
-
-lookup/
-  verbs.json
-
-docs/
-  index.html
-  getting-started.html
-  schemas.html
-  agent-cards.html
-  discovery.html
-  governance.html</code></pre>
-        <p>
-          Everything is static, versioned, and can be mirrored or cached by registries,
-          wallets, or agent runtimes.
-        </p>
       </section>
     </main>
 
     <footer class="site-footer">
       <div class="container">
-        <p>CommandLayer Protocol — v1.0.0</p>
+        <p>CommandLayer Protocol — v1.0.0 · Commons &amp; Commercial surface</p>
       </div>
     </footer>
   </body>
