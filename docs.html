@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Docs — CommandLayer</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="CommandLayer docs — how to integrate Commons verbs, use schemas, and register Agent Cards for agents."
+    />
+
+    <!-- Same metallic layout system as the other pages -->
+    <style>
+      :root {
+        --bg: #05060a;
+        --bg-elevated: #0a0c14;
+        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+        --border-soft: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.18);
+        --accent: #c5cbe0;
+        --accent-strong: #e3e7ff;
+        --accent-muted: #8f96b5;
+        --text-main: #f7f8ff;
+        --text-muted: #9ca3c7;
+        --text-soft: #6b7280;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+        --max-width: 1120px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+          "Inter", sans-serif;
+        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+        color: var(--text-main);
+      }
+
+      body {
+        min-height: 100vh;
+      }
+
+      .page-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page-main {
+        flex: 1;
+      }
+
+      .container {
+        width: 100%;
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Header */
+      .site-header {
+        background: var(--bg-header);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(18px);
+      }
+
+      .site-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.5rem;
+      }
+
+      .site-header__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .site-header__logo-orb {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        background: conic-gradient(
+          from 210deg,
+          #f9fafb 0deg,
+          #9ca3af 80deg,
+          #4b5563 160deg,
+          #e5e7eb 220deg,
+          #9ca3af 300deg,
+          #f9fafb 360deg
+        );
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
+          0 14px 40px rgba(0, 0, 0, 0.9);
+      }
+
+      .site-header__text {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .site-header__title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+
+      .site-header__subtitle {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .site-header__nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .site-header__link {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        text-decoration: none;
+        color: var(--text-muted);
+        border: 1px solid transparent;
+      }
+
+      .site-header__link:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__link--active {
+        color: #020617;
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+
+      /* Subhero */
+      .subhero {
+        padding: 2.8rem 0 2rem;
+        border-bottom: 1px solid var(--border-soft);
+        background: radial-gradient(circle at 0 0, #111827, #020308);
+      }
+
+      .subhero__inner {
+        display: flex;
+        justify-content: space-between;
+        gap: 2rem;
+        align-items: flex-end;
+      }
+
+      .subhero__eyebrow {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent-muted);
+        margin-bottom: 0.5rem;
+      }
+
+      .subhero__title {
+        margin: 0 0 0.6rem;
+        font-size: 2rem;
+      }
+
+      .subhero__subtitle {
+        margin: 0;
+        color: var(--text-muted);
+        max-width: 40rem;
+        font-size: 0.96rem;
+        line-height: 1.6;
+      }
+
+      .subhero__meta {
+        font-size: 0.85rem;
+        color: var(--text-soft);
+        text-align: right;
+      }
+
+      .subhero__meta code {
+        background: rgba(15, 23, 42, 0.9);
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        font-size: 0.8rem;
+      }
+
+      /* Sections */
+      .section {
+        padding: 2.5rem 0;
+      }
+
+      .section--muted {
+        background: rgb(6, 9, 18);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .section__header {
+        max-width: 40rem;
+        margin-bottom: 1.4rem;
+      }
+
+      .section__header h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.4rem;
+      }
+
+      .section__header p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+      }
+
+      .grid {
+        display: grid;
+        gap: 1.2rem;
+      }
+
+      .grid--3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid--2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .info-card {
+        background: rgba(15, 23, 42, 0.95);
+        padding: 1.1rem;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-soft);
+        font-size: 0.9rem;
+      }
+
+      .info-card h3 {
+        margin: 0 0 0.45rem;
+        font-size: 1rem;
+      }
+
+      .info-card p {
+        margin: 0 0 0.6rem;
+        color: var(--text-muted);
+      }
+
+      .info-card code {
+        font-size: 0.85rem;
+        background: rgba(15, 23, 42, 0.9);
+        padding: 0.12rem 0.3rem;
+        border-radius: 4px;
+      }
+
+      pre {
+        margin: 0.4rem 0 0;
+        padding: 0.7rem 0.8rem;
+        border-radius: 10px;
+        background: rgba(15, 23, 42, 0.96);
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        font-size: 0.8rem;
+        overflow-x: auto;
+      }
+
+      code {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+      }
+
+      .badge-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.5);
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .badge-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 999px;
+        background: #4ade80;
+      }
+
+      a.link {
+        color: var(--accent-strong);
+        text-decoration: none;
+      }
+
+      a.link:hover {
+        text-decoration: underline;
+      }
+
+      .callout {
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.1rem;
+        border: 1px dashed rgba(148, 163, 184, 0.6);
+        background: rgba(15, 23, 42, 0.9);
+        font-size: 0.88rem;
+        color: var(--text-muted);
+      }
+
+      .callout strong {
+        color: var(--accent-strong);
+      }
+
+      /* Footer */
+      .site-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: #020308;
+      }
+
+      .site-footer__inner {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        font-size: 0.78rem;
+        color: var(--text-soft);
+      }
+
+      /* Mobile */
+      @media (max-width: 880px) {
+        .site-header__inner {
+          padding-inline: 1rem;
+        }
+
+        .site-header__nav {
+          display: none;
+        }
+
+        .subhero__inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .subhero__meta {
+          text-align: left;
+        }
+
+        .grid--3,
+        .grid--2 {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .site-footer__inner {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page-shell">
+      <!-- HEADER -->
+      <header class="site-header">
+        <div class="site-header__inner container">
+          <a href="/" class="site-header__brand">
+            <div class="site-header__logo-orb"></div>
+            <div class="site-header__text">
+              <span class="site-header__title">CommandLayer</span>
+              <span class="site-header__subtitle">
+                Verb &amp; schema layer for agents
+              </span>
+            </div>
+          </a>
+
+          <nav class="site-header__nav">
+            <a href="/" class="site-header__link">Overview</a>
+            <a href="/commons.html" class="site-header__link">Commons</a>
+            <a href="/commercial.html" class="site-header__link">Commercial</a>
+            <a href="/agent-cards.html" class="site-header__link">
+              Agent Cards
+            </a>
+            <a
+              href="/docs.html"
+              class="site-header__link site-header__link--active"
+            >
+              Docs
+            </a>
+            <a
+              href="https://github.com/commandlayer"
+              class="site-header__link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="page-main">
+        <!-- SUBHERO -->
+        <section class="subhero">
+          <div class="container subhero__inner">
+            <div>
+              <div class="subhero__eyebrow">Docs</div>
+              <h1 class="subhero__title">Getting started with CommandLayer</h1>
+              <p class="subhero__subtitle">
+                Three moving parts: <strong>Commons</strong> verbs,
+                <strong>schemas</strong>, and <strong>Agent Cards</strong>.
+                This page shows how to call a verb, validate payloads, and
+                describe your own agent in a way others can discover.
+              </p>
+            </div>
+            <div class="subhero__meta">
+              <div>Protocol v1.0.0</div>
+              <div>Commons + Commercial + Agent Cards</div>
+              <div style="margin-top:0.3rem;">
+                NPM:
+                <code>@commandlayer/protocol-commons</code>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 1. HIGH-LEVEL OVERVIEW -->
+        <section class="section">
+          <div class="container">
+            <div class="section__header">
+              <h2>How to think about the protocol</h2>
+              <p>
+                At minimum, you only need two things to integrate:
+                <strong>a verb</strong> and its <strong>schemas</strong>. If
+                you also want others to discover your agent, you publish an
+                <strong>Agent Card</strong>.
+              </p>
+            </div>
+
+            <div class="grid grid--3">
+              <article class="info-card">
+                <h3>1. Pick a verb</h3>
+                <p>
+                  Choose a verb from <a href="/commons.html" class="link">Commons</a>
+                  (e.g. <code>summarize</code>, <code>analyze</code>) or from
+                  <a href="/commercial.html" class="link">Commercial</a>
+                  (e.g. <code>checkout</code>).
+                </p>
+                <p>
+                  You are not inventing a new format. You’re opting into a
+                  shared one.
+                </p>
+              </article>
+
+              <article class="info-card">
+                <h3>2. Use the schemas</h3>
+                <p>
+                  Take the <code>*.request</code> and
+                  <code>*.receipt</code> JSON Schemas for that verb and use
+                  them as the contract between your client and your agent.
+                </p>
+                <p>
+                  You can validate with any JSON Schema 2020-12 validator.
+                </p>
+              </article>
+
+              <article class="info-card">
+                <h3>3. Publish an Agent Card</h3>
+                <p>
+                  If you want others to call you, publish an
+                  <a href="/agent-cards.html" class="link">Agent Card JSON</a>
+                  that says: “this ENS name serves these verbs at these x402
+                  endpoints”.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. CALLING A COMMONS VERB -->
+        <section class="section section--muted">
+          <div class="container">
+            <div class="section__header">
+              <h2>Example: calling <code>summarize</code></h2>
+              <p>
+                A typical integration is: client builds a
+                <code>summarize.request</code> payload, validates it against
+                the Commons schema, sends it to an agent endpoint, and receives
+                a <code>summarize.receipt</code>.
+              </p>
+            </div>
+
+            <div class="grid grid--2">
+              <article class="info-card">
+                <h3>1. Inspect the schemas</h3>
+                <p>
+                  Both schemas are public:
+                </p>
+                <p>
+                  <a
+                    href="https://commandlayer.org/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json"
+                    class="link"
+                    target="_blank"
+                    >summarize.request.schema.json</a
+                  ><br />
+                  <a
+                    href="https://commandlayer.org/schemas/v1.0.0/commons/summarize/receipts/summarize.receipt.schema.json"
+                    class="link"
+                    target="_blank"
+                    >summarize.receipt.schema.json</a
+                  >
+                </p>
+                <div class="badge-row">
+                  <span class="badge"
+                    ><span class="badge-dot"></span> JSON Schema 2020-12</span
+                  >
+                  <span class="badge">version: v1.0.0</span>
+                </div>
+              </article>
+
+              <article class="info-card">
+                <h3>2. Shape a request</h3>
+                <p>Minimal pseudo-example:</p>
+                <pre><code>{
+  "x402": {
+    "verb": "summarize",
+    "version": "1.0.0",
+    "network": "eip155:1"
+  },
+  "input": {
+    "content": "Long article text here...",
+    "content_type": "text/plain"
+  },
+  "constraints": {
+    "max_tokens": 300,
+    "style": "neutral"
+  },
+  "trace": {
+    "idempotency_key": "abc-123",
+    "client_id": "my-client"
+  }
+}</code></pre>
+              </article>
+            </div>
+
+            <div style="margin-top:1.5rem;" class="grid grid--2">
+              <article class="info-card">
+                <h3>3. Validate before sending</h3>
+                <p>
+                  In Node.js with Ajv (example only):
+                </p>
+                <pre><code>import Ajv from "ajv";
+
+const ajv = new Ajv({ strict: true });
+
+const schema = await fetch(
+  "https://commandlayer.org/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json"
+).then(r =&gt; r.json());
+
+const validate = ajv.compile(schema);
+
+if (!validate(payload)) {
+  console.error("Invalid summarize.request", validate.errors);
+}</code></pre>
+              </article>
+
+              <article class="info-card">
+                <h3>4. Send &amp; receive a receipt</h3>
+                <p>
+                  Where you send it depends on the agent. For reference agents,
+                  you’ll typically hit an x402-compatible HTTP endpoint from an
+                  Agent Card.
+                </p>
+                <pre><code>const res = await fetch("https://&lt;agent-endpoint&gt;/summarize", {
+  method: "POST",
+  headers: {
+    "content-type": "application/json"
+  },
+  body: JSON.stringify(payload)
+});
+
+const receipt = await res.json();
+// validate against summarize.receipt.schema.json</code></pre>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. DEFINING AN AGENT CARD -->
+        <section class="section">
+          <div class="container">
+            <div class="section__header">
+              <h2>Defining your own Agent Card</h2>
+              <p>
+                If you operate an agent and want others to discover and call it,
+                you describe it with an Agent Card JSON file and host it at a
+                stable URL under your control.
+              </p>
+            </div>
+
+            <div class="grid grid--2">
+              <article class="info-card">
+                <h3>1. Start from the template</h3>
+                <p>
+                  For Commons agents, cards live under:
+                  <code>/agent-cards/v1.0.0/commons/&lt;ens&gt;.json</code>
+                </p>
+                <p>
+                  Example (structure only, not full spec):
+                </p>
+                <pre><code>{
+  "ens": "summarizeagent.eth",
+  "owner": "commandlayer.eth",
+  "contact": "dev@commandlayer.org",
+  "verbs": [
+    {
+      "name": "summarize",
+      "schema_version": "1.0.0",
+      "tier": "commons"
+    }
+  ],
+  "x402": [
+    {
+      "network": "eip155:1",
+      "entry": "x402://summarizeagent.eth/summarize/v1"
+    }
+  ]
+}</code></pre>
+              </article>
+
+              <article class="info-card">
+                <h3>2. Host and reference it</h3>
+                <p>
+                  Once the JSON file is in place (and ideally pinned on IPFS),
+                  you can:
+                </p>
+                <ul style="margin:0 0 0.5rem 1.1rem;padding:0;font-size:0.88rem;color:var(--text-muted);">
+                  <li>Link to it from <a href="/agent-cards.html" class="link">Agent Cards</a>.</li>
+                  <li>Reference it from ENS TXT records.</li>
+                  <li>Share it with integrators and registries.</li>
+                </ul>
+                <p style="margin:0;font-size:0.86rem;color:var(--text-muted);">
+                  The important bit is that the card unambiguously ties an
+                  <strong>ENS name</strong> to <strong>verbs</strong>,
+                  <strong>schemas</strong>, and <strong>x402 entrypoints</strong>.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. WHERE TO GO NEXT -->
+        <section class="section section--muted">
+          <div class="container">
+            <div class="card-block callout">
+              <strong>Where to go next</strong>
+              <ul style="margin:0.6rem 0 0 1.1rem;padding:0;font-size:0.88rem;">
+                <li>
+                  Browse the verb set on <a href="/commons.html" class="link">Commons</a>.
+                </li>
+                <li>
+                  Inspect economic verbs on
+                  <a href="/commercial.html" class="link">Commercial</a>.
+                </li>
+                <li>
+                  See how Agent Cards are laid out on
+                  <a href="/agent-cards.html" class="link">Agent Cards</a>.
+                </li>
+                <li>
+                  Wire a single verb into your stack, validate against the
+                  schema, and treat everything else as optional.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container site-footer__inner">
+          <span>© CommandLayer Protocol</span>
+          <span class="site-footer__meta">
+            Protocol v1.0.0 · Commons + Commercial · Agent Cards
+          </span>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
