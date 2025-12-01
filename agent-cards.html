@@ -423,7 +423,7 @@
               </p>
             </div>
             <div class="subhero__meta">
-              <div>Commons &amp; early Commercial agents</div>
+              <div>Commons &amp; Commercial agents</div>
               <div>One JSON per ENS agent</div>
               <div style="margin-top: 0.3rem">
                 Path pattern:
@@ -619,24 +619,22 @@
           </div>
         </section>
 
-        <!-- COMMERCIAL PREVIEW TABLE -->
+        <!-- COMMERCIAL TABLE -->
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>Commercial Agents (early)</h2>
+              <h2>Commercial Agents — v1.0.0</h2>
               <p>
-                Early Commercial verbs reserved for higher-value flows. These
-                Agent Cards are placeholders and will evolve as the Commercial
-                layer stabilizes.
+                These agents implement the first Commercial verbs for economic flows:
+                authorization, checkout, purchase, shipping, and verification.
               </p>
             </div>
 
             <div class="card-block">
-              <h3 class="card-block__title">Commercial registry (preview)</h3>
+              <h3 class="card-block__title">Commercial registry</h3>
               <p class="card-block__subtitle">
-                Initial reserved endpoints for economic verbs like
-                <code>checkout</code>, <code>pay</code>, and
-                <code>refund</code>.
+                Reference Agent Cards for the initial
+                <strong>5 Commercial verbs</strong>, aligned with x402 payment flows.
               </p>
 
               <div class="table-wrapper">
@@ -645,15 +643,24 @@
                     <tr>
                       <th>Verb</th>
                       <th>ENS Name</th>
-                      <th>Status</th>
                       <th>Agent Card JSON</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
+                      <td><code>authorize</code></td>
+                      <td><code>authorizeagent.eth</code></td>
+                      <td>
+                        <a
+                          href="/agent-cards/v1.0.0/commercial/authorizeagent.eth.json"
+                          target="_blank"
+                          >view JSON</a
+                        >
+                      </td>
+                    </tr>
+                    <tr>
                       <td><code>checkout</code></td>
                       <td><code>checkoutagent.eth</code></td>
-                      <td>reserved / placeholder</td>
                       <td>
                         <a
                           href="/agent-cards/v1.0.0/commercial/checkoutagent.eth.json"
@@ -662,7 +669,39 @@
                         >
                       </td>
                     </tr>
-                    <!-- Add more Commercial agents here as you publish them -->
+                    <tr>
+                      <td><code>purchase</code></td>
+                      <td><code>purchaseagent.eth</code></td>
+                      <td>
+                        <a
+                          href="/agent-cards/v1.0.0/commercial/purchaseagent.eth.json"
+                          target="_blank"
+                          >view JSON</a
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><code>ship</code></td>
+                      <td><code>shipagent.eth</code></td>
+                      <td>
+                        <a
+                          href="/agent-cards/v1.0.0/commercial/shipagent.eth.json"
+                          target="_blank"
+                          >view JSON</a
+                        >
+                      </td>
+                    </tr>
+                    <tr>
+                      <td><code>verify</code></td>
+                      <td><code>verifyagent.eth</code></td>
+                      <td>
+                        <a
+                          href="/agent-cards/v1.0.0/commercial/verifyagent.eth.json"
+                          target="_blank"
+                          >view JSON</a
+                        >
+                      </td>
+                    </tr>
                   </tbody>
                 </table>
               </div>
