@@ -320,6 +320,13 @@
         color: var(--accent-strong);
       }
 
+      .card-block {
+        border-radius: var(--radius-lg);
+        padding: 1rem 1.1rem;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        background: rgba(15, 23, 42, 0.9);
+      }
+
       /* Footer */
       .site-footer {
         border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -449,9 +456,9 @@
                 <p>
                   Choose a verb from <a href="/commons.html" class="link">Commons</a>
                   (e.g. <code>summarize</code>, <code>analyze</code>). Commercial
-                  is reserved for economic verbs (e.g. <code>checkout</code>) and
-                  will roll out as a separate tier, so most integrations should
-                  start with Commons.
+                  v1.0.0 currently covers a small set of economic verbs
+                  (e.g. <code>checkout</code>, <code>purchase</code>) and you
+                  only need it if your flow moves money or triggers fulfillment.
                 </p>
                 <p>
                   You are not inventing a new format. You’re opting into a
@@ -658,21 +665,34 @@ const receipt = await res.json();
                 </p>
               </article>
             </div>
+
+            <div style="margin-top:1.3rem;">
+              <div class="card-block">
+                <strong>Commercial agents</strong>
+                <p style="margin:0.4rem 0 0;font-size:0.86rem;color:var(--text-muted);">
+                  Commercial agents follow the same pattern, typically under
+                  <code>/agent-cards/v1.0.0/commercial/&lt;ens&gt;.json</code>,
+                  with verbs such as <code>authorize</code>, <code>checkout</code>,
+                  <code>purchase</code>, <code>ship</code>, and <code>verify</code>,
+                  and corresponding x402 entries for paid flows.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
         <!-- 4. WHERE TO GO NEXT -->
         <section class="section section--muted">
           <div class="container">
-            <div class="card-block callout">
+            <div class="callout">
               <strong>Where to go next</strong>
               <ul style="margin:0.6rem 0 0 1.1rem;padding:0;font-size:0.88rem;">
                 <li>
                   Browse the verb set on <a href="/commons.html" class="link">Commons</a>.
                 </li>
                 <li>
-                  Preview economic verbs on
-                  <a href="/commercial.html" class="link">Commercial</a> (design in progress).
+                  Review the 5 economic verbs on
+                  <a href="/commercial.html" class="link">Commercial</a> (v1.0.0 live).
                 </li>
                 <li>
                   See how Agent Cards are laid out on
