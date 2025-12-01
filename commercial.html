@@ -9,7 +9,7 @@
     />
     <meta
       name="description"
-      content="CommandLayer Commercial — economic verbs and schema layer for agents, covering checkout, payments, refunds, shipping, and more."
+      content="CommandLayer Commercial — economic verbs and schema layer for agents, covering payments, fulfillment, logistics, and verification."
     />
 
     <!-- Same metallic layout system as homepage / Commons / Agent Cards -->
@@ -97,7 +97,7 @@
         height: 28px;
         object-fit: contain;
         display: block;
-        border-radius: 6px; /* remove if you don't want rounded corners */
+        border-radius: 6px;
         box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
           0 14px 40px rgba(0, 0, 0, 0.9);
       }
@@ -372,7 +372,7 @@
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
               <span class="site-header__subtitle">
-                Verb &amp; schema layer for agents
+                Semantic verb &amp; schema layer for agents
               </span>
             </div>
           </a>
@@ -406,17 +406,16 @@
           <div class="container subhero__inner">
             <div>
               <div class="subhero__eyebrow">Commercial</div>
-              <h1 class="subhero__title">Commercial Verbs (v1.0.0&nbsp;preview)</h1>
+              <h1 class="subhero__title">Commercial Verbs (v1.0.0)</h1>
               <p class="subhero__subtitle">
-                The economic side of CommandLayer — verbs for
-                <strong>checkout</strong>, <strong>payments</strong>,
-                <strong>refunds</strong>, <strong>shipping</strong>, and other
-                money-moving flows. Designed to sit on top of Commons and plug
-                into x402 / ERC-8004 payment and agent rails.
+                The economic side of CommandLayer — verbs for payments,
+                fulfillment, logistics, authorization, and verification.
+                Designed to sit on top of Commons and plug into x402 / ERC-8004
+                payment and agent rails.
               </p>
             </div>
             <div class="subhero__meta">
-              <div>Commercial v1.0.0 (preview)</div>
+              <div>Commercial v1.0.0</div>
               <div>Economic verbs · higher-value flows</div>
               <div style="margin-top: 0.3rem">
                 Path pattern:<br />
@@ -438,9 +437,9 @@
               <h2>What the Commercial layer is for</h2>
               <p>
                 Commercial verbs capture the high-value actions agents perform:
-                taking payments, handling refunds, shipping goods, scheduling
-                services, verifying identities. Where Commons is universal,
-                Commercial is explicitly economic.
+                taking payments, settling purchases, shipping goods, scheduling
+                services, verifying identities, and enforcing authorization.
+                Where Commons is universal, Commercial is explicitly economic.
               </p>
             </div>
 
@@ -448,9 +447,8 @@
               <article class="info-card">
                 <h3>Economic primitives</h3>
                 <p>
-                  Verbs like <code>checkout</code>, <code>pay</code>,
-                  <code>refund</code>, and <code>ship</code> that map directly
-                  to real-world flows and revenue.
+                  Verbs that map directly to real-world flows and revenue:
+                  purchases, settlement, shipping, identity checks, and more.
                 </p>
               </article>
 
@@ -458,7 +456,7 @@
                 <h3>Paid integrations</h3>
                 <p>
                   These verbs are designed to plug into processors, wallets, and
-                  rails via x402, with clear room for premium / licensed use.
+                  rails via x402, with clear room for premium or licensed use.
                 </p>
               </article>
 
@@ -477,20 +475,20 @@
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
-              <h2>Commercial verbs — registry (v1.0.0 preview)</h2>
+              <h2>Commercial verbs — registry (v1.0.0)</h2>
               <p>
-                Initial set of economic verbs. Schemas can be implemented and
-                versioned per verb, without touching Commons. Status indicates
-                how mature each definition is.
+                Initial set of economic verbs. Schemas are defined and versioned
+                per verb, without touching Commons. Status indicates how mature
+                each definition is.
               </p>
             </div>
 
             <div class="card-block">
               <h3 class="card-block__title">Commercial schema index</h3>
               <p class="card-block__subtitle">
-                These links reserve the namespace and paths for v1.0.0. They can
-                start as stubs and harden over time without breaking earlier
-                adopters.
+                These links are stable for v1.0.0. Future changes will ship as
+                new versions (<code>v1.1.0</code>, <code>v2.0.0</code>) without
+                breaking early adopters.
               </p>
 
               <div class="table-wrapper">
@@ -508,7 +506,7 @@
                     <tr>
                       <td><code>checkout</code></td>
                       <td>Commerce / cart</td>
-                      <td>reserved / design</td>
+                      <td>stable / v1.0.0</td>
                       <td>
                         <a
                           href="https://commandlayer.org/schemas/v1.0.0/commercial/checkout/requests/checkout.request.schema.json"
@@ -526,39 +524,19 @@
                     </tr>
 
                     <tr>
-                      <td><code>pay</code></td>
-                      <td>Payments</td>
-                      <td>reserved / design</td>
+                      <td><code>purchase</code></td>
+                      <td>Commerce / order</td>
+                      <td>stable / v1.0.0</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commercial/pay/requests/pay.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.0.0/commercial/purchase/requests/purchase.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commercial/pay/receipts/pay.receipt.schema.json"
-                          target->_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><code>refund</code></td>
-                      <td>Payments</td>
-                      <td>reserved / design</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commercial/refund/requests/refund.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commercial/refund/receipts/refund.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.0.0/commercial/purchase/receipts/purchase.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -567,8 +545,8 @@
 
                     <tr>
                       <td><code>ship</code></td>
-                      <td>Logistics</td>
-                      <td>reserved / design</td>
+                      <td>Logistics / fulfillment</td>
+                      <td>stable / v1.0.0</td>
                       <td>
                         <a
                           href="https://commandlayer.org/schemas/v1.0.0/commercial/ship/requests/ship.request.schema.json"
@@ -586,29 +564,9 @@
                     </tr>
 
                     <tr>
-                      <td><code>register</code></td>
-                      <td>Accounts / onboarding</td>
-                      <td>reserved / design</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commercial/register/requests/register.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commercial/register/receipts/register.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
                       <td><code>verify</code></td>
                       <td>Identity / checks</td>
-                      <td>reserved / design</td>
+                      <td>stable / v1.0.0</td>
                       <td>
                         <a
                           href="https://commandlayer.org/schemas/v1.0.0/commercial/verify/requests/verify.request.schema.json"
@@ -628,7 +586,7 @@
                     <tr>
                       <td><code>authorize</code></td>
                       <td>Auth / permissions</td>
-                      <td>reserved / design</td>
+                      <td>stable / v1.0.0</td>
                       <td>
                         <a
                           href="https://commandlayer.org/schemas/v1.0.0/commercial/authorize/requests/authorize.request.schema.json"
@@ -639,26 +597,6 @@
                       <td>
                         <a
                           href="https://commandlayer.org/schemas/v1.0.0/commercial/authorize/receipts/authorize.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><code>schedule</code></td>
-                      <td>Bookings / services</td>
-                      <td>reserved / design</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commercial/schedule/requests/schedule.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commercial/schedule/receipts/schedule.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -686,8 +624,9 @@
                 The exact licensing model for Commercial verbs (usage tiers,
                 premium integrations, etc.) can evolve over time, but the
                 <strong>names</strong> and <strong>paths</strong> reserved here
-                are stable for v1.0.0. Implementations can start as stubs, then
-                harden into full schemas as demand and partners crystallize.
+                are stable for v1.0.0. Implementations can iterate behind the
+                same schema contracts, with breaking changes moving to new
+                versions.
               </p>
             </div>
           </div>
@@ -696,9 +635,9 @@
 
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <span>© CommandLayer Protocol</span>
+          <span>© CommandLayer — Established 2025</span>
           <span class="site-footer__meta">
-            Commercial v1.0.0 preview · economic verbs · x402-aligned
+            Protocol v1.0.0 · Commons v1.0.0 · Commercial v1.0.0 · Agent Cards v1.0.0
           </span>
         </div>
       </footer>
