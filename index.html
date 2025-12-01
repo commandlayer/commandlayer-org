@@ -9,7 +9,7 @@
     />
     <meta
       name="description"
-      content="CommandLayer is the semantic verb + schema layer that sits on top of x402 and ERC-8004 — Commons verbs live today, Commercial economic verbs in design, and Agent Cards so agents can advertise what they do, not how they’re wired."
+      content="CommandLayer is the semantic verb + schema layer that sits on top of x402 and ERC-8004 — Commons verbs live today, the first Commercial economic verbs implemented, and Agent Cards so agents can advertise what they do, not how they’re wired."
     />
 
     <style>
@@ -355,6 +355,10 @@
         color: var(--text-soft);
       }
 
+      .site-footer__meta {
+        font-size: 0.78rem;
+      }
+
       /* Mobile */
       @media (max-width: 880px) {
         .site-header__inner {
@@ -434,8 +438,10 @@
               <p class="hero__subtitle">
                 x402 moves money. ERC-8004 helps you find agents.
                 CommandLayer defines <em>what they do</em>. A small, stable set
-                of <strong>Commons verbs</strong> you can use today, a growing
-                tier of <strong>Commercial verbs</strong> for economic flows,
+                of <strong>Commons verbs</strong> you can use today, the first
+                <strong>Commercial verbs</strong> for economic flows
+                (<code>authorize</code>, <code>checkout</code>,
+                <code>purchase</code>, <code>ship</code>, <code>verify</code>),
                 and <strong>Agent Cards</strong> bound to ENS and x402 so agents
                 can advertise capabilities in a shared language.
               </p>
@@ -452,8 +458,8 @@
               </div>
 
               <div class="hero__meta">
-                <span class="hero__meta-pill">Protocol v1.0.0 · Commons live</span>
-                <span class="hero__meta-pill">Expanded verb backlog in design</span>
+                <span class="hero__meta-pill">Commons v1.0.0 · 10 verbs live</span>
+                <span class="hero__meta-pill">Commercial v1.0.0-pre · 5 economic verbs</span>
               </div>
             </div>
 
@@ -509,10 +515,11 @@
               <article class="info-card">
                 <h3>Commercial</h3>
                 <p>
-                  Economic verbs like <code>checkout</code>,
-                  <code>pay</code>, <code>refund</code>, and
-                  <code>ship</code>. Designed for money-moving flows and
-                  premium integrations, rolling out as a separate tier.
+                  Economic verbs for moving value:
+                  <code>authorize</code>, <code>checkout</code>,
+                  <code>purchase</code>, <code>ship</code>, and
+                  <code>verify</code>. Implemented as a separate tier that
+                  builds on Commons semantics and x402 transport.
                 </p>
                 <p style="margin-top:0.6rem;">
                   <a href="/commercial.html">View Commercial verbs →</a>
@@ -535,9 +542,9 @@
                 <h3>Roadmap</h3>
                 <p>
                   CommandLayer ships high-value verbs on a steady release
-                  cadence. Commercial verbs are in active development,
-                  and more are staged for rollout as x402 and ERC-8004 adoption
-                  accelerates.
+                  cadence. The first Commercial verbs are live, with more
+                  economic and workflow verbs staged for rollout as x402 and
+                  ERC-8004 adoption accelerates.
                 </p>
                 <p style="margin-top:0.6rem;">
                   <a href="/roadmap.html">See the roadmap →</a>
@@ -583,9 +590,10 @@
                 margin-top:2rem;
               "
             >
-              Today: 10 Commons. Next: financial flows, fulfillment,
-              compliance, identity — and a growing library of verbs that frame
-              how agents talk to each other.
+              Today: 10 Commons verbs and 5 Commercial economic verbs. Next:
+              additional financial flows, fulfillment, compliance, identity —
+              and a growing library of verbs that frame how agents talk to each
+              other.
             </p>
           </div>
         </section>
@@ -595,7 +603,7 @@
         <div class="container site-footer__inner">
           <span>© CommandLayer Protocol</span>
           <span class="site-footer__meta">
-            Protocol v1.0.0 · Commons + Commercial · Agent Cards
+            Protocol v1.0.0 · Commons v1.0.0 (10 verbs) · Commercial v1.0.0-pre (5 verbs) · Agent Cards v1.0.0
           </span>
         </div>
       </footer>
