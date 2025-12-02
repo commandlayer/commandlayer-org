@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CommandLayer Commerce Demo — Inner</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      :root {
+        --bg: #020617;
+        --card: #020617;
+        --border: rgba(148, 163, 184, 0.5);
+        --accent: #e5e7eb;
+        --accent-soft: #9ca3c7;
+        --text: #f9fafb;
+        --muted: #9ca3af;
+        --radius: 14px;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+        background: radial-gradient(circle at 0 0, #020617, #000000);
+        color: var(--text);
+      }
+      body {
+        min-height: 100vh;
+        padding: 1rem;
+      }
+      .shell {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .header {
+        margin-bottom: 0.75rem;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 1rem;
+      }
+      .header p {
+        margin: 0.25rem 0 0;
+        font-size: 0.78rem;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        gap: 0.9rem;
+      }
+      .card {
+        background: radial-gradient(circle at 0 0, #020617, #020617);
+        border-radius: var(--radius);
+        border: 1px solid var(--border);
+        padding: 0.75rem 0.9rem;
+      }
+      .card h2 {
+        margin: 0 0 0.4rem;
+        font-size: 0.9rem;
+      }
+      .card p {
+        margin: 0 0 0.5rem;
+        font-size: 0.8rem;
+        color: var(--muted);
+      }
+      .btn-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-bottom: 0.5rem;
+      }
+      button {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        background: #020617;
+        color: var(--accent);
+        font-size: 0.78rem;
+        padding: 0.35rem 0.7rem;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #020617;
+        border-color: var(--accent);
+      }
+      button.primary {
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        color: #020617;
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+      .field-row {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.4rem;
+        margin-bottom: 0.5rem;
+      }
+      label {
+        display: block;
+        font-size: 0.75rem;
+        color: var(--muted);
+        margin-bottom: 0.1rem;
+      }
+      input {
+        width: 100%;
+        border-radius: 10px;
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        background: #020617;
+        color: var(--accent);
+        font-size: 0.78rem;
+        padding: 0.25rem 0.4rem;
+      }
+      input:focus {
+        outline: none;
+        border-color: var(--accent);
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border-radius: 999px;
+        border: 1px solid rgba(52, 211, 153, 0.7);
+        padding: 0.2rem 0.55rem;
+        font-size: 0.7rem;
+        color: #a7f3d0;
+        background: rgba(6, 95, 70, 0.3);
+      }
+      .status-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: #22c55e;
+      }
+      pre {
+        margin: 0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 0.75rem;
+        color: var(--accent-soft);
+        background: #020617;
+        border-radius: 10px;
+        border: 1px solid rgba(55, 65, 81, 0.9);
+        padding: 0.5rem;
+        max-height: 320px;
+        overflow: auto;
+      }
+      .trace-info {
+        margin-top: 0.55rem;
+        font-size: 0.72rem;
+        color: var(--muted);
+      }
+      .trace-info code {
+        font-size: 0.72rem;
+      }
+      @media (max-width: 800px) {
+        .grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <div class="header">
+        <h1>CommandLayer Commerce Demo (Internal)</h1>
+        <p>
+          Chains <code>authorize</code> → <code>checkout</code> → <code>purchase</code> → <code>ship</code> → <code>verify</code>
+          using JSON receipts and a shared <code>trace_id</code>.
+        </p>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Controls</h2>
+          <p>Run a single step or the full flow. All calls hit <code>/api/*</code> on this origin.</p>
+
+          <div class="field-row">
+            <div>
+              <label>Buyer</label>
+              <input id="buyer" value="0xBEEF" />
+            </div>
+            <div>
+              <label>Chain ID</label>
+              <input id="chain_id" value="eip155:84532" />
+            </div>
+            <div>
+              <label>Order ID</label>
+              <input id="order_id" value="order_demo_1" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div>
+              <label>Item SKU</label>
+              <input id="sku" value="demo-sticker-pack" />
+            </div>
+            <div>
+              <label>Qty</label>
+              <input id="qty" value="1" />
+            </div>
+            <div>
+              <label>Total (ETH)</label>
+              <input id="total_amount" value="0.0001" />
+            </div>
+          </div>
+
+          <div class="field-row">
+            <div>
+              <label>Currency</label>
+              <input id="currency" value="ETH" />
+            </div>
+            <div>
+              <label>Ship To</label>
+              <input id="address" value="123 Demo Street" />
+            </div>
+            <div>
+              <label>Trace ID (optional)</label>
+              <input id="trace_id" placeholder="auto if blank" />
+            </div>
+          </div>
+
+          <div class="btn-row">
+            <button onclick="runStep('authorize')">Authorize</button>
+            <button onclick="runStep('checkout')">Checkout</button>
+            <button onclick="runStep('purchase')">Purchase</button>
+            <button onclick="runStep('ship')">Ship</button>
+            <button onclick="runStep('verify')">Verify</button>
+          </div>
+
+          <div class="btn-row">
+            <button class="primary" onclick="runFlow()">Run full flow</button>
+            <button onclick="resetState()">Reset state</button>
+          </div>
+
+          <div class="trace-info" id="trace_info">
+            <span class="status-pill" id="status_pill" style="display:none;">
+              <span class="status-dot"></span>
+              <span id="status_text">Trace active</span>
+            </span>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Latest receipt</h2>
+          <p>Each call returns a JSON receipt from the corresponding verb.</p>
+          <pre id="output">{}</pre>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let state = {
+        trace_id: null,
+        last_order_id: null,
+        last_shipment_id: null,
+      };
+
+      function getBasePayload() {
+        return {
+          buyer: document.getElementById('buyer').value,
+          chain_id: document.getElementById('chain_id').value,
+          order_id: document.getElementById('order_id').value,
+          sku: document.getElementById('sku').value,
+          qty: Number(document.getElementById('qty').value || 1),
+          total_amount: document.getElementById('total_amount').value,
+          currency: document.getElementById('currency').value,
+          address: document.getElementById('address').value,
+        };
+      }
+
+      function updateOutput(data) {
+        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+
+        if (data.trace_id) {
+          state.trace_id = data.trace_id;
+          const traceInput = document.getElementById('trace_id');
+          if (!traceInput.value) traceInput.value = data.trace_id;
+
+          const pill = document.getElementById('status_pill');
+          const text = document.getElementById('status_text');
+          pill.style.display = 'inline-flex';
+          text.textContent = `Trace active: ${data.trace_id}`;
+        }
+
+        if (data.order_id) state.last_order_id = data.order_id;
+        if (data.shipment_id) state.last_shipment_id = data.shipment_id;
+      }
+
+      function resetState() {
+        state = { trace_id: null, last_order_id: null, last_shipment_id: null };
+        document.getElementById('trace_id').value = '';
+        document.getElementById('status_pill').style.display = 'none';
+        document.getElementById('output').textContent = '{}';
+      }
+
+      async function callApi(path, payload) {
+        const res = await fetch(path, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`HTTP ${res.status}: ${text}`);
+        }
+        return res.json();
+      }
+
+      async function runStep(step) {
+        try {
+          const base = getBasePayload();
+          const explicit_trace = document.getElementById('trace_id').value || null;
+          const trace_id = explicit_trace || state.trace_id || undefined;
+
+          let payload = { trace_id, ...base };
+
+          if (step === 'checkout') {
+            payload = {
+              trace_id,
+              items: [{ sku: base.sku, qty: base.qty }],
+              total_amount: base.total_amount,
+              currency: base.currency,
+            };
+          } else if (step === 'purchase') {
+            payload = {
+              trace_id,
+              order_id: state.last_order_id || base.order_id,
+              total_amount: base.total_amount,
+              currency: base.currency,
+            };
+          } else if (step === 'ship') {
+            payload = {
+              trace_id,
+              order_id: state.last_order_id || base.order_id,
+              address: base.address,
+            };
+          } else if (step === 'verify') {
+            payload = {
+              trace_id,
+              order_id: state.last_order_id || base.order_id,
+              shipment_id: state.last_shipment_id || 'demo-shipment',
+            };
+          }
+
+          const data = await callApi(`/api/${step}`, payload);
+          updateOutput(data);
+        } catch (err) {
+          updateOutput({ error: err.message });
+        }
+      }
+
+      async function runFlow() {
+        try {
+          resetState();
+          const base = getBasePayload();
+
+          let resp = await callApi('/api/authorize', {
+            buyer: base.buyer,
+            chain_id: base.chain_id,
+          });
+          updateOutput(resp);
+          const trace_id = resp.trace_id;
+
+          resp = await callApi('/api/checkout', {
+            trace_id,
+            items: [{ sku: base.sku, qty: base.qty }],
+            total_amount: base.total_amount,
+            currency: base.currency,
+          });
+          updateOutput(resp);
+
+          resp = await callApi('/api/purchase', {
+            trace_id,
+            order_id: base.order_id,
+            total_amount: base.total_amount,
+            currency: base.currency,
+          });
+          updateOutput(resp);
+
+          resp = await callApi('/api/ship', {
+            trace_id,
+            order_id: base.order_id,
+            address: base.address,
+          });
+          updateOutput(resp);
+
+          resp = await callApi('/api/verify', {
+            trace_id,
+            order_id: base.order_id,
+            shipment_id: resp.shipment_id || 'demo-shipment',
+          });
+          updateOutput(resp);
+        } catch (err) {
+          updateOutput({ error: err.message });
+        }
+      }
+    </script>
+  </body>
+</html>
