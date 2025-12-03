@@ -1,8 +1,7 @@
 // /api/commons-flow.js
-// Commons flow demo with Ajv validation against receipt.base (no HTTP 500s)
+// Commons flow demo with Ajv validation against receipt.base (no ajv-formats)
 
 const Ajv = require('ajv');
-const addFormats = require('ajv-formats');
 const { randomUUID } = require('crypto');
 
 const COMMON_VERBS = [
@@ -179,7 +178,7 @@ const receiptBaseSchema = {
   required: ['x402', 'trace', 'status'],
 };
 
-// Minimal x402 schema stub so Ajv resolves the $ref
+// Minimal x402 stub so Ajv can resolve the $ref locally
 const x402Schema = {
   $id: 'https://commandlayer.org/schemas/v1.0.0/_shared/x402.schema.json',
   $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -194,16 +193,22 @@ const x402Schema = {
 };
 
 // --- Ajv setup ---
+// No ajv-formats here on purpose: less to go wrong at runtime.
 
-const ajv = new Ajv({
-  allErrors: true,
-  strict: false, // lenient for demo
-});
+let validateReceiptBase;
 
-addFormats(ajv);
+try {
+  const ajv = new Ajv({
+    allErrors: true,
+    strict: false, // demo mode: don't throw on anything strict
+  });
 
-ajv.addSchema(x402Schema);
-const validateReceiptBase = ajv.compile(receiptBaseSchema);
+  ajv.addSchema(x402Schema);
+  validateReceiptBase = ajv.compile(receiptBaseSchema);
+} catch (err) {
+  console.error('[commons-flow] Ajv setup failed; receipts will not be validated', err);
+  validateReceiptBase = null;
+}
 
 // --- Utilities ---
 
@@ -365,24 +370,30 @@ module.exports = async function handler(req, res) {
       },
     };
 
-    const valid = validateReceiptBase(receipt);
+    if (validateReceiptBase) {
+      const valid = validateReceiptBase(receipt);
+      if (!valid) {
+        console.error('[commons-flow] Receipt validation failed', validateReceiptBase.errors);
+        // For demo: DO NOT 500; return the invalid receipt with errors so you can see what’s wrong.
+        responseSteps.push({
+          index: step.index,
+          verb: step.verb,
+          request: { input: { text: step.text } },
+          receipt,
+          validation_errors: validateReceiptBase.errors,
+        });
+        continue;
+      }
+    }
 
-    const stepPayload = {
+    responseSteps.push({
       index: step.index,
       verb: step.verb,
       request: {
         input: { text: step.text },
       },
       receipt,
-      receipt_valid: !!valid,
-    };
-
-    if (!valid) {
-      console.error('[commons-flow] Receipt validation failed', validateReceiptBase.errors);
-      stepPayload.validation_errors = validateReceiptBase.errors;
-    }
-
-    responseSteps.push(stepPayload);
+    });
   }
 
   return res.status(200).json({
@@ -391,7 +402,7 @@ module.exports = async function handler(req, res) {
     meta: {
       demo: true,
       schema_alignment: 'receipt.base.v1.0.0',
-      all_receipts_valid: responseSteps.every((s) => s.receipt_valid),
+      ajv_validation: !!validateReceiptBase,
     },
   });
 };
