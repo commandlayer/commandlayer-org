@@ -2,14 +2,14 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>CommandLayer — Commons Composer Demo</title>
+    <title>CommandLayer — Commons Flow Composer</title>
     <meta
       name="viewport"
       content="width=device-width, initial-scale=1, viewport-fit=cover"
     />
     <meta
       name="description"
-      content="Interactive CommandLayer Commons demo — pick a verb, send a request, and inspect a structured receipt shaped like the v1.0.0 schemas."
+      content="Interactive CommandLayer Commons demo — compose up to three verbs, send a flow, and inspect structured receipts shaped like the v1.0.0 schemas."
     />
 
     <style>
@@ -347,7 +347,7 @@
         font-size: 0.88rem;
         font-family: inherit;
         resize: vertical;
-        min-height: 90px;
+        min-height: 72px;
       }
 
       .form-row select {
@@ -358,10 +358,29 @@
         color: #4b5563;
       }
 
+      .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.9rem;
+      }
+
+      .step-card {
+        background: rgba(15, 23, 42, 0.8);
+        border-radius: 12px;
+        padding: 0.8rem 0.8rem 0.9rem;
+        border: 1px solid rgba(31, 41, 55, 0.9);
+      }
+
+      .step-card h4 {
+        margin: 0 0 0.4rem;
+        font-size: 0.9rem;
+      }
+
       .form-actions {
         display: flex;
         gap: 0.6rem;
         margin-top: 0.9rem;
+        align-items: center;
       }
 
       .pill-row {
@@ -379,10 +398,10 @@
         color: var(--text-soft);
       }
 
-      .output-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr);
-        gap: 0.9rem;
+      .output-label {
+        font-size: 0.8rem;
+        color: var(--text-soft);
+        margin-bottom: 0.25rem;
       }
 
       .output-box {
@@ -394,16 +413,10 @@
           "Liberation Mono", "Courier New", monospace;
         font-size: 0.78rem;
         color: #e5e7eb;
-        max-height: 260px;
+        max-height: 340px;
         overflow: auto;
         white-space: pre-wrap;
         word-break: break-word;
-      }
-
-      .output-label {
-        font-size: 0.8rem;
-        color: var(--text-soft);
-        margin-bottom: 0.25rem;
       }
 
       .status-line {
@@ -456,6 +469,10 @@
           grid-template-columns: minmax(0, 1fr);
         }
 
+        .steps-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
         .site-footer__inner {
           flex-direction: column;
           gap: 0.5rem;
@@ -463,105 +480,6 @@
       }
     </style>
   </head>
-<script>
-  (function () {
-    const COMMON_VERBS = [
-      "analyze",
-      "classify",
-      "clean",
-      "convert",
-      "describe",
-      "explain",
-      "format",
-      "parse",
-      "summarize",
-      "fetch",
-    ];
-
-    const runButton = document.getElementById("run-flow");
-    const outputEl = document.getElementById("flow-output");
-
-    if (!runButton || !outputEl) {
-      console.warn(
-        "[composer] Missing run button or output element. Check IDs."
-      );
-      return;
-    }
-
-    function getStep(index) {
-      const verbSelect = document.getElementById(`step${index}-verb`);
-      const inputField = document.getElementById(`step${index}-input`);
-
-      if (!verbSelect || !inputField) return null;
-
-      const verb = verbSelect.value.trim();
-      const input = inputField.value.trim();
-
-      if (!verb || !COMMON_VERBS.includes(verb)) return null;
-      if (!input) return null;
-
-      return { verb, input };
-    }
-
-    function setOutput(data) {
-      try {
-        outputEl.textContent = JSON.stringify(data, null, 2);
-      } catch (e) {
-        outputEl.textContent = String(data);
-      }
-    }
-
-    async function runFlow() {
-      const steps = [];
-      for (let i = 1; i <= 3; i++) {
-        const step = getStep(i);
-        if (step) steps.push(step);
-      }
-
-      if (!steps.length) {
-        setOutput({
-          error:
-            "No valid steps selected. Pick at least one Commons verb and provide input.",
-        });
-        return;
-      }
-
-      setOutput({ status: "running", steps_count: steps.length });
-
-      try {
-        const res = await fetch("/api/commons-flow", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ steps }),
-        });
-
-        const data = await res.json().catch(() => ({}));
-
-        if (!res.ok) {
-          setOutput({
-            error: data.error || "Request failed",
-            status: res.status,
-          });
-          return;
-        }
-
-        setOutput(data);
-      } catch (err) {
-        setOutput({
-          error: "Network or runtime error",
-          detail: err.message || String(err),
-        });
-      }
-    }
-
-    runButton.addEventListener("click", function (event) {
-      event.preventDefault();
-      runFlow();
-    });
-  })();
-</script>
 
   <body>
     <div class="page-shell">
@@ -603,25 +521,27 @@
         <section class="hero">
           <div class="container hero__inner">
             <div>
-              <div class="hero__eyebrow">Demo #2 — Commons Composer</div>
+              <div class="hero__eyebrow">Demo #2 — Commons Flow Composer</div>
               <h1 class="hero__title">
-                <span>Compose multi-agent flows</span>
+                <span>Compose multi-step Commons flows</span>
                 <span class="hero__title-em">
-                  with Commons verbs and structured receipts.
+                  and inspect schema-shaped receipts.
                 </span>
               </h1>
               <p class="hero__subtitle">
-                This demo lets you send a single input through any of the 10 Commons verbs
+                Wire up to three Commons verbs
                 (<code>analyze</code>, <code>summarize</code>, <code>classify</code>,
                 <code>clean</code>, <code>convert</code>, <code>describe</code>,
                 <code>explain</code>, <code>format</code>, <code>parse</code>, <code>fetch</code>)
-                and see a schema-shaped receipt that looks like the v1.0.0 contracts.
+                into a single flow. The backend calls <code>/api/commons-flow</code> and
+                returns per-step receipts shaped like your v1.0.0 contracts with a shared
+                <code>trace_id</code>.
               </p>
 
               <div class="hero__cta-row">
                 <a href="#composer" class="btn btn--primary">
                   <span class="btn__icon">▶️</span>
-                  <span>Run a Commons verb</span>
+                  <span>Run a Commons flow</span>
                 </a>
                 <a href="/demo.html" class="btn btn--ghost">
                   <span class="btn__icon">💳</span>
@@ -638,15 +558,15 @@
             <aside class="hero__card">
               <h2>What this demo proves</h2>
               <p>
-                The Commons layer is a real, usable contract — not just words in a README.
+                Commons isn’t just a README — it’s a usable contract you can route through.
               </p>
               <ul>
-                <li>You pick the verb; the shapes stay stable.</li>
-                <li>Every call returns a <strong>typed</strong> receipt.</li>
-                <li>Trace IDs thread through calls for multi-agent workflows.</li>
+                <li>You pick the verbs and order; shapes stay stable.</li>
+                <li>Each step returns a typed <code>result</code> + <code>usage</code>.</li>
+                <li>A single <code>trace_id</code> threads the full flow.</li>
                 <li>
-                  It’s easy to swap this mock runtime for a real x402/8004 stack while
-                  keeping the same request/receipt contracts.
+                  You can swap this mock runtime for a real x402/8004 stack without changing
+                  request/receipt contracts.
                 </li>
               </ul>
             </aside>
@@ -657,91 +577,135 @@
         <section class="section section--composer" id="composer">
           <div class="container">
             <div class="section__header">
-              <h2>Pick a verb, send a request, inspect the receipt</h2>
+              <h2>Pick verbs, send a flow, inspect the receipts</h2>
               <p>
-                Under the hood this calls <code>/api/commons</code> on Vercel and returns
-                a receipt aligned with your v1.0.0 Commons contracts
-                (base receipt + verb-specific <code>result</code>).
+                Under the hood this calls <code>/api/commons-flow</code> on Vercel and returns
+                schema-shaped receipts aligned with your v1.0.0 Commons contracts. Max 3 steps
+                per flow for the demo.
               </p>
             </div>
 
             <div class="composer-grid">
-              <!-- Left: form -->
+              <!-- Left: flow builder -->
               <div class="card">
-                <h3>Commons request</h3>
+                <h3>Build a Commons flow</h3>
 
-                <form id="commons-form">
-                  <div class="form-row">
-                    <label for="verb">Verb</label>
-                    <select id="verb" name="verb" required>
-                      <option value="analyze">analyze</option>
-                      <option value="summarize">summarize</option>
-                      <option value="classify">classify</option>
-                      <option value="clean">clean</option>
-                      <option value="convert">convert</option>
-                      <option value="describe">describe</option>
-                      <option value="explain">explain</option>
-                      <option value="format">format</option>
-                      <option value="parse">parse</option>
-                      <option value="fetch">fetch</option>
-                    </select>
+                <div class="steps-grid">
+                  <!-- Step 1 -->
+                  <div class="step-card">
+                    <h4>Step 1</h4>
+                    <div class="form-row">
+                      <label for="step1-verb">Verb</label>
+                      <select id="step1-verb">
+                        <option value="">-- choose --</option>
+                        <option value="summarize">summarize</option>
+                        <option value="analyze">analyze</option>
+                        <option value="classify">classify</option>
+                        <option value="clean">clean</option>
+                        <option value="convert">convert</option>
+                        <option value="describe">describe</option>
+                        <option value="explain">explain</option>
+                        <option value="format">format</option>
+                        <option value="parse">parse</option>
+                        <option value="fetch">fetch</option>
+                      </select>
+                    </div>
+                    <div class="form-row">
+                      <label for="step1-input">Input</label>
+                      <textarea
+                        id="step1-input"
+                        rows="4"
+                        placeholder="Required. Text, URL, or payload for step 1."
+                      ></textarea>
+                    </div>
                   </div>
 
-                  <div class="form-row">
-                    <label for="input-text">Input payload (simple text)</label>
-                    <textarea
-                      id="input-text"
-                      name="input"
-                      placeholder="Paste any text, URL, or short description you want the agent to work on."
-                      required
-                    ></textarea>
+                  <!-- Step 2 -->
+                  <div class="step-card">
+                    <h4>Step 2 (optional)</h4>
+                    <div class="form-row">
+                      <label for="step2-verb">Verb</label>
+                      <select id="step2-verb">
+                        <option value="">-- none --</option>
+                        <option value="summarize">summarize</option>
+                        <option value="analyze">analyze</option>
+                        <option value="classify">classify</option>
+                        <option value="clean">clean</option>
+                        <option value="convert">convert</option>
+                        <option value="describe">describe</option>
+                        <option value="explain">explain</option>
+                        <option value="format">format</option>
+                        <option value="parse">parse</option>
+                        <option value="fetch">fetch</option>
+                      </select>
+                    </div>
+                    <div class="form-row">
+                      <label for="step2-input">Input</label>
+                      <textarea
+                        id="step2-input"
+                        rows="4"
+                        placeholder="Optional. Input for step 2."
+                      ></textarea>
+                    </div>
                   </div>
 
-                  <div class="form-row">
-                    <label for="extra-json">
-                      Optional extra context (JSON fragment — e.g. { "topic": "pricing" })
-                    </label>
-                    <textarea
-                      id="extra-json"
-                      name="extra"
-                      placeholder="{ &quot;topic&quot;: &quot;pricing&quot; }"
-                    ></textarea>
-                  </div>
-
-                  <div class="form-actions">
-                    <button type="submit" class="btn btn--primary">
-                      <span class="btn__icon">⚡</span>
-                      <span>Send Commons request</span>
-                    </button>
-                    <button type="button" id="reset-btn" class="btn btn--ghost">
-                      <span class="btn__icon">♻️</span>
-                      <span>Reset</span>
-                    </button>
-                  </div>
-
-                  <div class="pill-row">
-                    <span class="pill">10 Commons verbs</span>
-                    <span class="pill">v1.0.0 schema-shaped receipts</span>
-                    <span class="pill">Trace IDs for A2A workflows</span>
-                  </div>
-
-                  <div id="status-line" class="status-line"></div>
-                </form>
-              </div>
-
-              <!-- Right: request + receipt -->
-              <div class="card">
-                <h3>Request &amp; receipt</h3>
-                <div class="output-grid">
-                  <div>
-                    <div class="output-label">Request</div>
-                    <pre id="request-output" class="output-box">// Fill the form and hit "Send Commons request"…</pre>
-                  </div>
-                  <div>
-                    <div class="output-label">Receipt</div>
-                    <pre id="receipt-output" class="output-box">// …the structured receipt will appear here.</pre>
+                  <!-- Step 3 -->
+                  <div class="step-card">
+                    <h4>Step 3 (optional)</h4>
+                    <div class="form-row">
+                      <label for="step3-verb">Verb</label>
+                      <select id="step3-verb">
+                        <option value="">-- none --</option>
+                        <option value="summarize">summarize</option>
+                        <option value="analyze">analyze</option>
+                        <option value="classify">classify</option>
+                        <option value="clean">clean</option>
+                        <option value="convert">convert</option>
+                        <option value="describe">describe</option>
+                        <option value="explain">explain</option>
+                        <option value="format">format</option>
+                        <option value="parse">parse</option>
+                        <option value="fetch">fetch</option>
+                      </select>
+                    </div>
+                    <div class="form-row">
+                      <label for="step3-input">Input</label>
+                      <textarea
+                        id="step3-input"
+                        rows="4"
+                        placeholder="Optional. Input for step 3."
+                      ></textarea>
+                    </div>
                   </div>
                 </div>
+
+                <div class="form-actions">
+                  <button id="run-flow" class="btn btn--primary">
+                    <span class="btn__icon">⚡</span>
+                    <span>Run Commons flow</span>
+                  </button>
+                  <button id="reset-flow" class="btn btn--ghost" type="button">
+                    <span class="btn__icon">♻️</span>
+                    <span>Reset</span>
+                  </button>
+                </div>
+
+                <div class="pill-row">
+                  <span class="pill">10 Commons verbs</span>
+                  <span class="pill">v1.0.0 schema-shaped receipts</span>
+                  <span class="pill">Shared trace_id across steps</span>
+                </div>
+
+                <div id="status-line" class="status-line"></div>
+              </div>
+
+              <!-- Right: output -->
+              <div class="card">
+                <h3>Flow output</h3>
+                <div class="output-label">Trace + steps</div>
+                <pre id="flow-output" class="output-box">
+// Configure your steps on the left and hit "Run Commons flow"…
+                </pre>
               </div>
             </div>
           </div>
@@ -760,102 +724,145 @@
 
     <script>
       (function () {
-        const form = document.getElementById("commons-form");
-        const resetBtn = document.getElementById("reset-btn");
-        const requestOut = document.getElementById("request-output");
-        const receiptOut = document.getElementById("receipt-output");
+        const COMMON_VERBS = [
+          "analyze",
+          "classify",
+          "clean",
+          "convert",
+          "describe",
+          "explain",
+          "format",
+          "parse",
+          "summarize",
+          "fetch",
+        ];
+
+        const runButton = document.getElementById("run-flow");
+        const resetButton = document.getElementById("reset-flow");
+        const outputEl = document.getElementById("flow-output");
         const statusLine = document.getElementById("status-line");
 
-        function safeParseJSON(str) {
-          if (!str || !str.trim()) return null;
+        if (!runButton || !outputEl) {
+          console.warn(
+            "[commons-flow] Missing run button or output element. Check IDs."
+          );
+          return;
+        }
+
+        function getStep(index) {
+          const verbSelect = document.getElementById("step" + index + "-verb");
+          const inputField = document.getElementById("step" + index + "-input");
+
+          if (!verbSelect || !inputField) return null;
+
+          const verb = (verbSelect.value || "").trim();
+          const input = (inputField.value || "").trim();
+
+          if (!verb || !COMMON_VERBS.includes(verb)) return null;
+          if (!input) return null;
+
+          return { verb, input };
+        }
+
+        function setOutput(data) {
           try {
-            return JSON.parse(str);
-          } catch (_e) {
-            return null;
+            outputEl.textContent = JSON.stringify(data, null, 2);
+          } catch (e) {
+            outputEl.textContent = String(data);
           }
         }
 
-        function pretty(obj) {
-          try {
-            return JSON.stringify(obj, null, 2);
-          } catch (_e) {
-            return String(obj);
-          }
+        function setStatus(html) {
+          statusLine.innerHTML = html || "";
         }
 
-        form.addEventListener("submit", async function (e) {
-          e.preventDefault();
+        async function runFlow() {
+          const steps = [];
+          for (let i = 1; i <= 3; i++) {
+            const step = getStep(i);
+            if (step) steps.push(step);
+          }
 
-          const verbEl = document.getElementById("verb");
-          const inputEl = document.getElementById("input-text");
-          const extraEl = document.getElementById("extra-json");
-
-          const verb = verbEl.value;
-          const text = inputEl.value || "";
-          const extraRaw = extraEl.value;
-
-          if (!text.trim()) {
-            statusLine.innerHTML = "<strong>Missing input</strong> — provide some text.";
+          if (!steps.length) {
+            setOutput({
+              error:
+                "No valid steps selected. Pick at least one Commons verb and provide input.",
+            });
+            setStatus(
+              "<strong>Missing steps</strong> — configure at least step 1."
+            );
             return;
           }
 
-          const extra = safeParseJSON(extraRaw);
-          if (extraRaw && !extra) {
-            statusLine.innerHTML =
-              "<strong>Warning</strong>: extra context is not valid JSON; ignoring it.";
-          } else {
-            statusLine.textContent = "";
-          }
-
-          const payload = {
-            verb,
-            input: {
-              text
-            },
-            context: extra || undefined
-          };
-
-          requestOut.textContent = pretty({
-            method: "POST",
-            url: "/api/commons",
-            body: payload
-          });
-
-          receiptOut.textContent = "// Waiting for receipt…";
+          setOutput({ status: "running", steps_count: steps.length });
+          setStatus(
+            "<strong>Running</strong> — sending flow to /api/commons-flow…"
+          );
 
           try {
-            const res = await fetch("/api/commons", {
+            const res = await fetch("/api/commons-flow", {
               method: "POST",
               headers: {
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
               },
-              body: JSON.stringify(payload)
+              body: JSON.stringify({ steps }),
             });
 
-            const json = await res.json();
+            const data = await res.json().catch(() => ({}));
 
-            receiptOut.textContent = pretty(json);
-            statusLine.innerHTML =
-              "<strong>OK</strong> — receipt returned; shapes are demo-aligned with v1 Commons.";
+            if (!res.ok) {
+              setOutput({
+                error: data.error || "Request failed",
+                status: res.status,
+              });
+              setStatus(
+                "<strong>Error</strong> — backend returned " +
+                  res.status +
+                  "."
+              );
+              return;
+            }
+
+            setOutput(data);
+            setStatus(
+              "<strong>OK</strong> — flow executed; receipts are demo-aligned with v1 Commons."
+            );
           } catch (err) {
-            receiptOut.textContent = pretty({
-              error: "request_failed",
-              message: err && err.message ? err.message : String(err)
+            setOutput({
+              error: "Network or runtime error",
+              detail: err && err.message ? err.message : String(err),
             });
-            statusLine.innerHTML =
-              "<strong>Error</strong> — demo request failed; check console/network.";
+            setStatus(
+              "<strong>Error</strong> — network/runtime failure; check console."
+            );
           }
+        }
+
+        function resetFlow() {
+          for (let i = 1; i <= 3; i++) {
+            const verbSelect = document.getElementById("step" + i + "-verb");
+            const inputField = document.getElementById("step" + i + "-input");
+            if (verbSelect) verbSelect.value = "";
+            if (inputField) inputField.value = "";
+          }
+
+          setOutput(
+            '// Configure your steps on the left and hit "Run Commons flow"…'
+          );
+          setStatus("");
+        }
+
+        runButton.addEventListener("click", function (event) {
+          event.preventDefault();
+          runFlow();
         });
 
-        resetBtn.addEventListener("click", function () {
-          document.getElementById("input-text").value = "";
-          document.getElementById("extra-json").value = "";
-          requestOut.textContent =
-            "// Fill the form and hit \"Send Commons request\"…";
-          receiptOut.textContent =
-            "// …the structured receipt will appear here.";
-          statusLine.textContent = "";
-        });
+        if (resetButton) {
+          resetButton.addEventListener("click", function (event) {
+            event.preventDefault();
+            resetFlow();
+          });
+        }
       })();
     </script>
   </body>
