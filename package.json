@@ -1,0 +1,15 @@
+{
+  "name": "commandlayer-org",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CommandLayer static site + Vercel API demos",
+  "scripts": {
+    "lint": "echo \"no-op\"",
+    "build": "echo \"static site\"",
+    "test": "echo \"no tests\""
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}
