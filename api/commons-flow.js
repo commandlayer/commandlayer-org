@@ -1,5 +1,5 @@
 // /api/commons-flow.js
-// Commons flow demo with Ajv validation against receipt.base
+// Commons flow demo with Ajv validation against receipt.base (no HTTP 500s)
 
 const Ajv = require('ajv');
 const addFormats = require('ajv-formats');
@@ -179,9 +179,7 @@ const receiptBaseSchema = {
   required: ['x402', 'trace', 'status'],
 };
 
-// NOTE: x402.schema.json is referenced but not fully enforced here.
-// We just give a minimal stub so Ajv is happy and our receipts (verb+version) validate.
-
+// Minimal x402 schema stub so Ajv resolves the $ref
 const x402Schema = {
   $id: 'https://commandlayer.org/schemas/v1.0.0/_shared/x402.schema.json',
   $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -199,7 +197,7 @@ const x402Schema = {
 
 const ajv = new Ajv({
   allErrors: true,
-  strict: false, // be lenient for demo
+  strict: false, // lenient for demo
 });
 
 addFormats(ajv);
@@ -368,22 +366,23 @@ module.exports = async function handler(req, res) {
     };
 
     const valid = validateReceiptBase(receipt);
-    if (!valid) {
-      console.error('[commons-flow] Receipt validation failed', validateReceiptBase.errors);
-      return res.status(500).json({
-        error: 'Receipt did not validate against receipt.base',
-        details: validateReceiptBase.errors,
-      });
-    }
 
-    responseSteps.push({
+    const stepPayload = {
       index: step.index,
       verb: step.verb,
       request: {
         input: { text: step.text },
       },
       receipt,
-    });
+      receipt_valid: !!valid,
+    };
+
+    if (!valid) {
+      console.error('[commons-flow] Receipt validation failed', validateReceiptBase.errors);
+      stepPayload.validation_errors = validateReceiptBase.errors;
+    }
+
+    responseSteps.push(stepPayload);
   }
 
   return res.status(200).json({
@@ -392,6 +391,7 @@ module.exports = async function handler(req, res) {
     meta: {
       demo: true,
       schema_alignment: 'receipt.base.v1.0.0',
+      all_receipts_valid: responseSteps.every((s) => s.receipt_valid),
     },
   });
 };
