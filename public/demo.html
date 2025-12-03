@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>CommandLayer — Commerce Demo</title>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="Interactive CommandLayer commerce demo — run authorize, checkout, purchase, ship, and verify flows backed by Protocol-Commons and Commercial verbs."
+    />
+
+    <style>
+      :root {
+        --bg: #05060a;
+        --bg-elevated: #0a0c14;
+        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+        --border-soft: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.18);
+        --accent: #c5cbe0;
+        --accent-strong: #e3e7ff;
+        --accent-muted: #8f96b5;
+        --text-main: #f7f8ff;
+        --text-muted: #9ca3c7;
+        --text-soft: #6b7280;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+        --max-width: 1120px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+          "Inter", sans-serif;
+        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+        color: var(--text-main);
+      }
+
+      body {
+        min-height: 100vh;
+      }
+
+      .page-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page-main {
+        flex: 1;
+      }
+
+      .container {
+        width: 100%;
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Header */
+      .site-header {
+        background: var(--bg-header);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(18px);
+      }
+
+      .site-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.5rem;
+      }
+
+      .site-header__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .site-header__logo-img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        display: block;
+        border-radius: 6px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
+          0 14px 40px rgba(0, 0, 0, 0.9);
+      }
+
+      .site-header__text {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .site-header__title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+
+      .site-header__subtitle {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .site-header__nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .site-header__link {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        text-decoration: none;
+        color: var(--text-muted);
+        border: 1px solid transparent;
+      }
+
+      .site-header__link:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__link--active {
+        color: #020617;
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.6rem 1.1rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .btn--primary {
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        color: #020617;
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      }
+
+      .btn--primary:hover {
+        filter: brightness(1.03);
+      }
+
+      .btn--ghost {
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--accent-strong);
+        border-color: rgba(148, 163, 184, 0.6);
+      }
+
+      .btn--ghost:hover {
+        background: rgba(15, 23, 42, 1);
+      }
+
+      .btn__icon {
+        font-size: 1rem;
+      }
+
+      /* Hero */
+      .hero {
+        padding: 3.2rem 0 2.0rem;
+        border-bottom: 1px solid var(--border-soft);
+        background: radial-gradient(circle at 0 0, #111827, #020308);
+      }
+
+      .hero__inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
+        align-items: flex-start;
+        gap: 2.5rem;
+      }
+
+      .hero__eyebrow {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent-muted);
+        margin-bottom: 0.8rem;
+      }
+
+      .hero__title {
+        margin: 0 0 0.8rem;
+        font-size: 2.0rem;
+        line-height: 1.15;
+      }
+
+      .hero__title-em {
+        background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .hero__subtitle {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.98rem;
+        max-width: 36rem;
+        line-height: 1.7;
+      }
+
+      .hero__cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 1.6rem;
+      }
+
+      .hero__meta {
+        margin-top: 1.3rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.8rem;
+        color: var(--text-soft);
+      }
+
+      .hero__meta-pill {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        padding: 0.18rem 0.55rem;
+      }
+
+      .hero__card {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-xl);
+        padding: 1.4rem 1.4rem 1.6rem;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        font-size: 0.9rem;
+      }
+
+      .hero__card h2 {
+        margin: 0 0 0.6rem;
+        font-size: 1.0rem;
+      }
+
+      .hero__card p {
+        margin: 0;
+        color: var(--text-muted);
+      }
+
+      .hero__card ul {
+        margin: 0.8rem 0 0;
+        padding-left: 1.1rem;
+      }
+
+      .hero__card li {
+        margin-bottom: 0.3rem;
+      }
+
+      /* Demo section */
+      .section {
+        padding: 2.4rem 0 3rem;
+      }
+
+      .section--demo {
+        background: rgb(6, 9, 18);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .section__header {
+        max-width: 40rem;
+        margin-bottom: 1.2rem;
+      }
+
+      .section__header h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.4rem;
+      }
+
+      .section__header p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+      }
+
+      .demo-iframe-wrapper {
+        border-radius: var(--radius-xl);
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: radial-gradient(circle at 0 0, #020617, #020308);
+        overflow: hidden;
+        box-shadow: var(--shadow-soft);
+        margin-top: 1.4rem;
+      }
+
+      .demo-iframe-toolbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.6rem 0.9rem;
+        border-bottom: 1px solid rgba(15, 23, 42, 1);
+        background: linear-gradient(135deg, #020617, #020617);
+        font-size: 0.8rem;
+        color: var(--text-soft);
+      }
+
+      .demo-iframe-dot-row {
+        display: flex;
+        gap: 0.25rem;
+      }
+
+      .demo-iframe-dot {
+        width: 9px;
+        height: 9px;
+        border-radius: 999px;
+        background: #4b5563;
+      }
+
+      .demo-iframe-dot:nth-child(1) {
+        background: #f97373;
+      }
+      .demo-iframe-dot:nth-child(2) {
+        background: #facc15;
+      }
+      .demo-iframe-dot:nth-child(3) {
+        background: #4ade80;
+      }
+
+      .demo-iframe-url {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 0.78rem;
+        color: #9ca3af;
+      }
+
+      .demo-iframe {
+        width: 100%;
+        height: 640px;
+        border: none;
+        background: #020617;
+      }
+
+      .demo-note {
+        margin-top: 0.8rem;
+        font-size: 0.8rem;
+        color: var(--text-soft);
+      }
+
+      /* Footer */
+      .site-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: #020308;
+      }
+
+      .site-footer__inner {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 1.5rem;
+        font-size: 0.78rem;
+        color: var(--text-soft);
+      }
+
+      .site-footer__meta {
+        font-size: 0.78rem;
+      }
+
+      /* Mobile */
+      @media (max-width: 880px) {
+        .site-header__inner {
+          padding-inline: 1rem;
+        }
+
+        .site-header__nav {
+          display: none;
+        }
+
+        .hero__inner {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .hero__card {
+          margin-top: 1.5rem;
+        }
+
+        .demo-iframe {
+          height: 520px;
+        }
+
+        .site-footer__inner {
+          flex-direction: column;
+          gap: 0.5rem;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page-shell">
+      <!-- HEADER -->
+      <header class="site-header">
+        <div class="site-header__inner container">
+          <a href="/" class="site-header__brand">
+            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+            <div class="site-header__text">
+              <span class="site-header__title">CommandLayer</span>
+              <span class="site-header__subtitle">
+                Semantic verb &amp; schema layer for agents
+              </span>
+            </div>
+          </a>
+
+          <nav class="site-header__nav">
+            <a href="/" class="site-header__link">Overview</a>
+            <a href="/commons.html" class="site-header__link">Commons</a>
+            <a href="/commercial.html" class="site-header__link">Commercial</a>
+            <a href="/agent-cards.html" class="site-header__link">Agent Cards</a>
+            <a href="/docs.html" class="site-header__link">Docs</a>
+            <a href="/roadmap.html" class="site-header__link">Roadmap</a>
+            <a href="/demo.html" class="site-header__link site-header__link--active">Demo</a>
+            <a
+              href="https://github.com/commandlayer"
+              class="site-header__link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="page-main">
+        <!-- HERO -->
+        <section class="hero">
+          <div class="container hero__inner">
+            <div>
+              <div class="hero__eyebrow">Demo #1 — Commerce Flow</div>
+              <h1 class="hero__title">
+                <span>Run Commercial verbs</span>
+                <span class="hero__title-em">
+                  authorize → checkout → purchase → ship → verify.
+                </span>
+              </h1>
+              <p class="hero__subtitle">
+                This demo chains <code>authorize</code> → <code>checkout</code>
+                → <code>purchase</code> → <code>ship</code> → <code>verify</code>
+                using the Commercial verb shapes. It returns structured receipts with
+                trace IDs so you can see how a full e-commerce workflow looks when it’s
+                wired on top of CommandLayer.
+              </p>
+
+              <div class="hero__cta-row">
+                <a href="#demo-frame" class="btn btn--primary">
+                  <span class="btn__icon">▶️</span>
+                  <span>Run commerce flow in-page</span>
+                </a>
+                <a href="/composer.html" class="btn btn--ghost">
+                  <span class="btn__icon">🧩</span>
+                  <span>Try Commons Composer (Demo #2)</span>
+                </a>
+              </div>
+
+              <div class="hero__meta">
+                <span class="hero__meta-pill">5 Commercial verbs wired</span>
+                <span class="hero__meta-pill">Structured receipts + trace IDs</span>
+              </div>
+            </div>
+
+            <aside class="hero__card">
+              <h2>What this demo shows</h2>
+              <p>
+                A concrete, inspectable execution of the commercial layer:
+              </p>
+              <ul>
+                <li>Each step returns a typed JSON receipt.</li>
+                <li>Trace IDs thread the flow end-to-end.</li>
+                <li>All verbs map to CommandLayer semantics — no one-off APIs.</li>
+                <li>Easy to port to x402 + ERC-8004 environments later.</li>
+              </ul>
+            </aside>
+          </div>
+        </section>
+
+        <!-- DEMO IFRAME -->
+        <section class="section section--demo" id="demo-frame">
+          <div class="container">
+            <div class="section__header">
+              <h2>Interactive CommandLayer commerce demo</h2>
+              <p>
+                The iframe below loads the reference implementation of the commerce flow.
+                You can trigger individual verbs or run the entire chain and inspect the
+                receipts as they come back.
+              </p>
+            </div>
+
+            <div class="demo-iframe-wrapper">
+              <div class="demo-iframe-toolbar">
+                <div class="demo-iframe-dot-row">
+                  <span class="demo-iframe-dot"></span>
+                  <span class="demo-iframe-dot"></span>
+                  <span class="demo-iframe-dot"></span>
+                </div>
+                <div class="demo-iframe-url">
+                  https://commandlayer.org/demo-inner.html
+                </div>
+                <div></div>
+              </div>
+
+              <iframe
+                class="demo-iframe"
+                src="/demo-inner.html"
+                title="CommandLayer Commerce Demo"
+                loading="lazy"
+              ></iframe>
+            </div>
+
+            <p class="demo-note">
+              If the demo doesn’t load, ensure the demo API routes
+              (<code>/api/authorize</code>, <code>/api/checkout</code>,
+              <code>/api/purchase</code>, <code>/api/ship</code>,
+              <code>/api/verify</code>) are deployed. You can also inspect the source
+              in the <code>commandlayer-org</code> repository.
+            </p>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container site-footer__inner">
+          <span>© CommandLayer Protocol</span>
+          <span class="site-footer__meta">
+            Protocol v1.0.0 · Commons v1.0.0 · Commercial v1.0.0 · Agent Cards v1.0.0
+          </span>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
