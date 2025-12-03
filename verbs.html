@@ -425,7 +425,7 @@
 
       .tag {
         border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.55);
+        border: 1px solid rgba(148, 163, 184, 55%);
         padding: 0.08rem 0.45rem;
         font-size: 0.72rem;
         color: var(--text-soft);
@@ -723,21 +723,20 @@
           status: "live",
           tier: "free",
           description: "Condense content into structured, machine-verifiable summaries.",
-          docsUrl:  "https://www.commandlayer.org/docs.html",
-          cardUrl: "https://www.commandlayer.org/agent-cards.html",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
-       {
-  verb: "analyze",
-  ens: "analyzeagent.eth",
-  category: "ai",
-  type: "commons",
-  status: "live",
-  tier: "free",
-  description: "Perform structured analysis over inputs with traceable receipts.",
-  docsUrl: "https://www.commandlayer.org/docs.html",
-  cardUrl: "https://www.commandlayer.org/agent-cards.html"
-},
-
+        {
+          verb: "analyze",
+          ens: "analyzeagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Perform structured analysis over inputs with traceable receipts.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
         {
           verb: "classify",
           ens: "classifyagent.eth",
@@ -746,8 +745,8 @@
           status: "live",
           tier: "free",
           description: "Assign labels or categories with verifiable classification receipts.",
-          docsUrl: "/docs.html#save",
-          cardUrl: "/agent-cards.html
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
         {
           verb: "parse",
@@ -756,7 +755,9 @@
           type: "commons",
           status: "live",
           tier: "free",
-          description: "Parse unstructured inputs into structured JSON shapes for other agents."
+          description: "Parse unstructured inputs into structured JSON shapes for other agents.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
         {
           verb: "format",
@@ -765,7 +766,9 @@
           type: "commons",
           status: "live",
           tier: "free",
-          description: "Reformat content into required layouts, schemas, or text surfaces."
+          description: "Reformat content into required layouts, schemas, or text surfaces.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
         {
           verb: "clean",
@@ -774,7 +777,9 @@
           type: "commons",
           status: "live",
           tier: "free",
-          description: "Clean and normalize noisy inputs before downstream processing."
+          description: "Clean and normalize noisy inputs before downstream processing.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
         {
           verb: "convert",
@@ -783,7 +788,9 @@
           type: "commons",
           status: "live",
           tier: "free",
-          description: "Convert between formats, encodings, or representations."
+          description: "Convert between formats, encodings, or representations.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
         {
           verb: "describe",
@@ -792,7 +799,9 @@
           type: "commons",
           status: "live",
           tier: "free",
-          description: "Produce detailed, structured descriptions of inputs or resources."
+          description: "Produce detailed, structured descriptions of inputs or resources.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
         {
           verb: "explain",
@@ -801,7 +810,9 @@
           type: "commons",
           status: "live",
           tier: "free",
-          description: "Explain decisions, results, or content in human-readable form."
+          description: "Explain decisions, results, or content in human-readable form.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
         {
           verb: "fetch",
@@ -810,7 +821,9 @@
           type: "commons",
           status: "live",
           tier: "free",
-          description: "Retrieve and normalize external resources for downstream agents."
+          description: "Retrieve and normalize external resources for downstream agents.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
 
         // AI & intelligence (portfolio extensions)
@@ -1042,15 +1055,6 @@
           description: "Calculate values, metrics, or aggregates."
         },
         {
-          verb: "convert",
-          ens: "convertagent.eth",
-          category: "operations",
-          type: "commons",
-          status: "reserved",
-          tier: "unpriced",
-          description: "Convert data between formats or units."
-        },
-        {
           verb: "rewrite",
           ens: "rewriteagent.eth",
           category: "operations",
@@ -1095,7 +1099,9 @@
           type: "commercial",
           status: "live",
           tier: "premium",
-          description: "Coordinate carts, totals, and payment authorization as a unified flow."
+          description: "Coordinate carts, totals, and payment authorization as a unified flow.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
         {
           verb: "authorize",
@@ -1104,7 +1110,9 @@
           type: "commercial",
           status: "live",
           tier: "premium",
-          description: "Perform payment authorizations with trace IDs and structured receipts."
+          description: "Perform payment authorizations with trace IDs and structured receipts.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
         {
           verb: "purchase",
@@ -1113,7 +1121,9 @@
           type: "commercial",
           status: "live",
           tier: "premium",
-          description: "Complete settlement events once authorization and risk checks pass."
+          description: "Complete settlement events once authorization and risk checks pass.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
         {
           verb: "refund",
@@ -1131,7 +1141,9 @@
           type: "commercial",
           status: "live",
           tier: "premium",
-          description: "Perform identity, KYC, or eligibility checks as reusable verification flows."
+          description: "Perform identity, KYC, or eligibility checks as reusable verification flows.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
 
         // Finance (Commercial portfolio)
@@ -1226,24 +1238,6 @@
           description: "Create and manage recurring subscription or billing agreements."
         },
         {
-          verb: "checkout",
-          ens: "checkoutagent.eth",
-          category: "finance",
-          type: "commercial",
-          status: "reserved",
-          tier: "unpriced",
-          description: "Execute checkout flows for carts or orders."
-        },
-        {
-          verb: "refund",
-          ens: "refundagent.eth",
-          category: "finance",
-          type: "commercial",
-          status: "reserved",
-          tier: "unpriced",
-          description: "Issue refunds with structured references."
-        },
-        {
           verb: "deposit",
           ens: "depositagent.eth",
           category: "finance",
@@ -1315,7 +1309,9 @@
           type: "commercial",
           status: "live",
           tier: "premium",
-          description: "Encode fulfillment, carrier selection, and tracking into a shared verb."
+          description: "Encode fulfillment, carrier selection, and tracking into a shared verb.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
         },
         {
           verb: "track",
@@ -1740,6 +1736,17 @@
               ? "Commons"
               : "Other";
 
+          // Build links only for live verbs
+          let linksHtml = "";
+          if (v.status === "live") {
+            if (v.docsUrl) {
+              linksHtml += `<a href="${v.docsUrl}" class="verb-card__link" target="_blank" rel="noopener noreferrer">Docs</a>`;
+            }
+            if (v.cardUrl) {
+              linksHtml += `<a href="${v.cardUrl}" class="verb-card__link" target="_blank" rel="noopener noreferrer">Agent Cards</a>`;
+            }
+          }
+
           card.innerHTML = `
             <div class="verb-card__header">
               <div>
@@ -1756,7 +1763,9 @@
             <div class="verb-card__description">
               ${v.description || ""}
             </div>
-            <div class="verb-card__links"></div>
+            <div class="verb-card__links">
+              ${linksHtml}
+            </div>
           `;
 
           verbGrid.appendChild(card);
