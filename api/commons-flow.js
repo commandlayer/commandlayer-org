@@ -1,6 +1,3 @@
-cd ~/commandlayer-org
-
-cat > api/commons-flow.js << 'EOF'
 // /api/commons-flow.js
 // Commons flow demo — simple, schema-shaped receipts (no Ajv yet)
 
@@ -171,4 +168,3 @@ module.exports = async function handler(req, res) {
     });
   }
 };
-EOF
