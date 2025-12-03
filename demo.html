@@ -9,7 +9,7 @@
     />
     <meta
       name="description"
-      content="Interactive CommandLayer commerce demo — run authorize, checkout, purchase, ship, and verify flows backed by Protocol-Commons and Commercial verbs with structured receipts and trace IDs."
+      content="Interactive CommandLayer commerce demo — run authorize, checkout, purchase, ship, and verify flows backed by Protocol-Commons and Commercial verbs."
     />
 
     <style>
@@ -454,65 +454,48 @@
         <section class="hero">
           <div class="container hero__inner">
             <div>
-              <div class="hero__eyebrow">Live demos · Commons + Commercial</div>
+              <div class="hero__eyebrow">Demo #1 — Commerce Flow</div>
               <h1 class="hero__title">
-                <span>Watch Commercial verbs run</span>
+                <span>Run Commercial verbs</span>
                 <span class="hero__title-em">
-                  with the same shapes as the protocol.
+                  authorize → checkout → purchase → ship → verify.
                 </span>
               </h1>
               <p class="hero__subtitle">
-                Demo #1 chains <code>authorize</code> → <code>checkout</code>
+                This demo chains <code>authorize</code> → <code>checkout</code>
                 → <code>purchase</code> → <code>ship</code> → <code>verify</code>
-                using the same request/receipt contracts you define in
-                Protocol-Commons and the Commercial layer. No wallets here —
-                it’s a reference execution you can inspect, including
-                structured receipts and shared <code>trace_id</code>.
-                Demo #2 (coming from this page) lets you compose flows out of the
-                Commons verbs and see the simulated receipts.
+                using the Commercial verb shapes. It returns structured receipts with
+                trace IDs so you can see how a full e-commerce workflow looks when it’s
+                wired on top of CommandLayer.
               </p>
 
               <div class="hero__cta-row">
                 <a href="#demo-frame" class="btn btn--primary">
                   <span class="btn__icon">▶️</span>
-                  <span>Run Demo #1 in-page</span>
+                  <span>Run commerce flow in-page</span>
                 </a>
-                <a
-                  href="/composer.html"
-                  class="btn btn--ghost"
-                >
-                  <span class="btn__icon">🔮</span>
-                  <span>Try Demo #2 — Commons workflow composer</span>
+                <a href="/composer.html" class="btn btn--ghost">
+                  <span class="btn__icon">🧩</span>
+                  <span>Try Commons Composer (Demo #2)</span>
                 </a>
               </div>
 
               <div class="hero__meta">
-                <span class="hero__meta-pill">10 Commons verbs (Protocol-Commons v1.0.0)</span>
-                <span class="hero__meta-pill">5 Commercial verbs (authorize, checkout, purchase, ship, verify)</span>
+                <span class="hero__meta-pill">5 Commercial verbs wired</span>
                 <span class="hero__meta-pill">Structured receipts + trace IDs</span>
               </div>
             </div>
 
             <aside class="hero__card">
-              <h2>What this page gives you</h2>
+              <h2>What this demo shows</h2>
               <p>
-                Two ways to see CommandLayer in action, aligned with your schemas:
+                A concrete, inspectable execution of the commercial layer:
               </p>
               <ul>
-                <li>
-                  <strong>Demo #1 — Commerce:</strong> step through authorize /
-                  checkout / purchase / ship / verify and inspect the JSON receipts
-                  and trace identifiers.
-                </li>
-                <li>
-                  <strong>Demo #2 — Commons composer:</strong> pick from the 10 Commons verbs
-                  and simulate a multi-step workflow using the same request/receipt
-                  shapes you get from <code>@commandlayer/protocol-commons</code>.
-                </li>
-                <li>
-                  Everything uses the same canonical verb layer — you’re seeing the
-                  protocol semantics, not a one-off API.
-                </li>
+                <li>Each step returns a typed JSON receipt.</li>
+                <li>Trace IDs thread the flow end-to-end.</li>
+                <li>All verbs map to CommandLayer semantics — no one-off APIs.</li>
+                <li>Easy to port to x402 + ERC-8004 environments later.</li>
               </ul>
             </aside>
           </div>
@@ -522,12 +505,11 @@
         <section class="section section--demo" id="demo-frame">
           <div class="container">
             <div class="section__header">
-              <h2>Demo #1 — Interactive CommandLayer commerce flow</h2>
+              <h2>Interactive CommandLayer commerce demo</h2>
               <p>
                 The iframe below loads the reference implementation of the commerce flow.
                 You can trigger individual verbs or run the entire chain and inspect the
-                receipts as they come back. Payloads and receipts mirror the shapes defined
-                in your Commercial + Commons schemas.
+                receipts as they come back.
               </p>
             </div>
 
@@ -553,17 +535,11 @@
             </div>
 
             <p class="demo-note">
-              This demo runs entirely on <code>commandlayer.org</code> using simple
-              Vercel API routes. In a production environment, these same verbs would
-              be wired to x402 transports, ERC-8004 discovery, and your real execution
-              environment — the request/receipt contracts stay the same.
-            </p>
-
-            <p class="demo-note" style="margin-top:1.4rem;">
-              When Demo #2 is live at <code>/composer.html</code>, you’ll be able to pick
-              any of the 10 Commons verbs, chain them into a workflow, and see simulated
-              receipts that follow the same schema contracts — no custom formats, just
-              Protocol-Commons and Commercial semantics.
+              If the demo doesn’t load, ensure the demo API routes
+              (<code>/api/authorize</code>, <code>/api/checkout</code>,
+              <code>/api/purchase</code>, <code>/api/ship</code>,
+              <code>/api/verify</code>) are deployed. You can also inspect the source
+              in the <code>commandlayer-org</code> repository.
             </p>
           </div>
         </section>
