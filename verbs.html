@@ -410,8 +410,8 @@
       }
 
       .verb-card__ens {
-        font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
-          monospace;
+        font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono",
+          "Courier New", monospace;
         font-size: 0.78rem;
         color: var(--accent-muted);
       }
@@ -455,6 +455,12 @@
       .tag--tier-free {
         border-color: rgba(129, 140, 248, 0.8);
         color: #a5b4fc;
+      }
+
+      .tag--tier-unpriced {
+        border-color: rgba(148, 163, 184, 0.6);
+        color: var(--text-soft);
+        opacity: 0.9;
       }
 
       .verb-card__description {
@@ -706,395 +712,375 @@
     </div>
 
     <script>
-      // Sample Tier 2 verbs. Expand this list to 200–300 as needed.
+      // Sample Tier 1 + Tier 2 verbs. Expand as needed.
       const verbs = [
-        // AI & intelligence (Commons)
-     // AI & intelligence (Commons) — full 10
-{
-  verb: "summarize",
-  ens: "summarizeagent.eth",
-  category: "ai",
-  type: "commons",
-  status: "live",
-  tier: "free",
-  description: "Condense content into structured, machine-verifiable summaries.",
-  docsUrl: "/docs.html#summarize",
-  cardUrl: "/agent-cards.html"
-},
-{
-  verb: "analyze",
-  ens: "analyzeagent.eth",
-  category: "ai",
-  type: "commons",
-  status: "live",
-  tier: "free",
-  description: "Perform structured analysis over inputs with traceable receipts.",
-  docsUrl: "/docs.html#analyze",
-  cardUrl: "/agent-cards.html"
-},
-{
-  verb: "classify",
-  ens: "classifyagent.eth",
-  category: "ai",
-  type: "commons",
-  status: "live",
-  tier: "free",
-  description: "Assign labels or categories with verifiable classification receipts.",
-  docsUrl: "/docs.html#classify",
-  cardUrl: "/agent-cards.html"
-},
-{
-  verb: "parse",
-  ens: "parseagent.eth",
-  category: "ai",
-  type: "commons",
-  status: "live",
-  tier: "free",
-  description: "Parse unstructured inputs into structured JSON shapes for other agents.",
-  docsUrl: "/docs.html#parse",
-  cardUrl: "/agent-cards.html"
-},
-{
-  verb: "format",
-  ens: "formatagent.eth",
-  category: "ai",
-  type: "commons",
-  status: "live",
-  tier: "free",
-  description: "Reformat content into required layouts, schemas, or text surfaces.",
-  docsUrl: "/docs.html#format",
-  cardUrl: "/agent-cards.html"
-},
-{
-  verb: "clean",
-  ens: "cleanagent.eth",
-  category: "ai",
-  type: "commons",
-  status: "live",
-  tier: "free",
-  description: "Clean and normalize noisy inputs before downstream processing.",
-  docsUrl: "/docs.html#clean",
-  cardUrl: "/agent-cards.html"
-},
-{
-  verb: "convert",
-  ens: "convertagent.eth",
-  category: "ai",
-  type: "commons",
-  status: "live",
-  tier: "free",
-  description: "Convert between formats, encodings, or representations.",
-  docsUrl: "/docs.html#convert",
-  cardUrl: "/agent-cards.html"
-},
-{
-  verb: "describe",
-  ens: "describeagent.eth",
-  category: "ai",
-  type: "commons",
-  status: "live",
-  tier: "free",
-  description: "Produce detailed, structured descriptions of inputs or resources.",
-  docsUrl: "/docs.html#describe",
-  cardUrl: "/agent-cards.html"
-},
-{
-  verb: "explain",
-  ens: "explainagent.eth",
-  category: "ai",
-  type: "commons",
-  status: "live",
-  tier: "free",
-  description: "Explain decisions, results, or content in human-readable form.",
-  docsUrl: "/docs.html#explain",
-  cardUrl: "/agent-cards.html"
-},
-{
-  verb: "fetch",
-  ens: "fetchagent.eth",
-  category: "ai",
-  type: "commons",
-  status: "live",
-  tier: "free",
-  description: "Retrieve and normalize external resources for downstream agents.",
-  docsUrl: "/docs.html#fetch",
-  cardUrl: "/agent-cards.html"
-},
- {
-    verb: "generate",
-    ens: "generateagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Generate new content or data from prompts."
-  },
-  {
-    verb: "optimize",
-    ens: "optimizeagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Optimize plans, routes, or allocations under constraints."
-  },
-  {
-    verb: "anticipate",
-    ens: "anticipateagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Anticipate future states or events from context."
-  },
-  {
-    verb: "evaluate",
-    ens: "evaluateagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Evaluate quality, performance, or compliance."
-  },
-  {
-    verb: "assess",
-    ens: "assessagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Assess risk, value, or suitability of options."
-  },
-  {
-    verb: "compute",
-    ens: "computeagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Compute derived values or metrics."
-  },
-  {
-    verb: "learn",
-    ens: "learnagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Learn from data or feedback to improve behavior."
-  },
-  {
-    verb: "plan",
-    ens: "planagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Plan multi-step tasks or workflows for agents."
-  },
-  {
-    verb: "train",
-    ens: "trainagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Train models or agents on data or feedback."
-  },
-  {
-    verb: "filter",
-    ens: "filteragent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Filter items based on rules or predicates."
-  },
-  {
-    verb: "compress",
-    ens: "compressagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Compress data or content while retaining meaning."
-  },
-  {
-    verb: "extract",
-    ens: "extractagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Extract fields or entities from unstructured input."
-  },
-  {
-    verb: "visualize",
-    ens: "visualizeagent.eth",
-    category: "ai",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Visualize data or results as charts or graphics."
-  },
- {
-    verb: "accept",
-    ens: "acceptagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Accept offers, requests, or invitations."
-  },
-  {
-    verb: "cancel",
-    ens: "cancelagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Cancel pending jobs, orders, or workflows."
-  },
-  {
-    verb: "create",
-    ens: "createagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Create new entities, resources, or records."
-  },
-  {
-    verb: "delete",
-    ens: "deleteagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Delete resources or records in a controlled way."
-  },
-  {
-    verb: "update",
-    ens: "updateagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Update existing entities or records with changes."
-  },
-  {
-    verb: "save",
-    ens: "saveagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Save state, drafts, or checkpoints."
-  },
-  {
-    verb: "file",
-    ens: "fileagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "File documents, tickets, or forms into systems."
-  },
-  {
-    verb: "store",
-    ens: "storeagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Store data or artifacts in designated locations."
-  },
-  {
-    verb: "record",
-    ens: "recordagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Record events, logs, or observations."
-  },
-  {
-    verb: "list",
-    ens: "listagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "List collections of entities or records."
-  },
-  {
-    verb: "query",
-    ens: "queryagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Query data sources or indexes."
-  },
-  {
-    verb: "calculate",
-    ens: "calculateagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Calculate values, metrics, or aggregates."
-  },
-  {
-    verb: "convert",
-    ens: "convertagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Convert data between formats or units."
-  },
+        // AI & intelligence (Commons — Tier 1)
+        {
+          verb: "summarize",
+          ens: "summarizeagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Condense content into structured, machine-verifiable summaries."
+        },
+        {
+          verb: "analyze",
+          ens: "analyzeagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Perform structured analysis over inputs with traceable receipts."
+        },
+        {
+          verb: "classify",
+          ens: "classifyagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Assign labels or categories with verifiable classification receipts."
+        },
+        {
+          verb: "parse",
+          ens: "parseagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Parse unstructured inputs into structured JSON shapes for other agents."
+        },
+        {
+          verb: "format",
+          ens: "formatagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Reformat content into required layouts, schemas, or text surfaces."
+        },
+        {
+          verb: "clean",
+          ens: "cleanagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Clean and normalize noisy inputs before downstream processing."
+        },
+        {
+          verb: "convert",
+          ens: "convertagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Convert between formats, encodings, or representations."
+        },
+        {
+          verb: "describe",
+          ens: "describeagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Produce detailed, structured descriptions of inputs or resources."
+        },
+        {
+          verb: "explain",
+          ens: "explainagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Explain decisions, results, or content in human-readable form."
+        },
+        {
+          verb: "fetch",
+          ens: "fetchagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Retrieve and normalize external resources for downstream agents."
+        },
 
-  {
-    verb: "rewrite",
-    ens: "rewriteagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Rewrite content with new constraints or tone."
-  },
-  {
-    verb: "compose",
-    ens: "composeagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Compose new content from instructions or context."
-  },
-  {
-    verb: "copy",
-    ens: "copyagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Copy resources, files, or content."
-  },
-  {
-    verb: "print",
-    ens: "printagent.eth",
-    category: "operations",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Print or render outputs to physical or virtual media."
-  },
+        // AI & intelligence (portfolio extensions)
+        {
+          verb: "generate",
+          ens: "generateagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Generate new content or data from prompts."
+        },
+        {
+          verb: "optimize",
+          ens: "optimizeagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Optimize plans, routes, or allocations under constraints."
+        },
+        {
+          verb: "anticipate",
+          ens: "anticipateagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Anticipate future states or events from context."
+        },
+        {
+          verb: "evaluate",
+          ens: "evaluateagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Evaluate quality, performance, or compliance."
+        },
+        {
+          verb: "assess",
+          ens: "assessagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Assess risk, value, or suitability of options."
+        },
+        {
+          verb: "compute",
+          ens: "computeagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Compute derived values or metrics."
+        },
+        {
+          verb: "learn",
+          ens: "learnagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Learn from data or feedback to improve behavior."
+        },
+        {
+          verb: "plan",
+          ens: "planagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Plan multi-step tasks or workflows for agents."
+        },
+        {
+          verb: "train",
+          ens: "trainagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Train models or agents on data or feedback."
+        },
+        {
+          verb: "filter",
+          ens: "filteragent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Filter items based on rules or predicates."
+        },
+        {
+          verb: "compress",
+          ens: "compressagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Compress data or content while retaining meaning."
+        },
+        {
+          verb: "extract",
+          ens: "extractagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Extract fields or entities from unstructured input."
+        },
+        {
+          verb: "visualize",
+          ens: "visualizeagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Visualize data or results as charts or graphics."
+        },
 
+        // Operations / workflow / CRUD (Commons, mostly reserved)
+        {
+          verb: "accept",
+          ens: "acceptagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Accept offers, requests, or invitations."
+        },
+        {
+          verb: "cancel",
+          ens: "cancelagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Cancel pending jobs, orders, or workflows."
+        },
+        {
+          verb: "create",
+          ens: "createagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Create new entities, resources, or records."
+        },
+        {
+          verb: "delete",
+          ens: "deleteagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Delete resources or records in a controlled way."
+        },
+        {
+          verb: "update",
+          ens: "updateagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Update existing entities or records with changes."
+        },
+        {
+          verb: "save",
+          ens: "saveagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Save state, drafts, or checkpoints."
+        },
+        {
+          verb: "file",
+          ens: "fileagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "File documents, tickets, or forms into systems."
+        },
+        {
+          verb: "store",
+          ens: "storeagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Store data or artifacts in designated locations."
+        },
+        {
+          verb: "record",
+          ens: "recordagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Record events, logs, or observations."
+        },
+        {
+          verb: "list",
+          ens: "listagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "List collections of entities or records."
+        },
+        {
+          verb: "query",
+          ens: "queryagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Query data sources or indexes."
+        },
+        {
+          verb: "calculate",
+          ens: "calculateagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Calculate values, metrics, or aggregates."
+        },
+        {
+          verb: "convert",
+          ens: "convertagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Convert data between formats or units."
+        },
+        {
+          verb: "rewrite",
+          ens: "rewriteagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Rewrite content with new constraints or tone."
+        },
+        {
+          verb: "compose",
+          ens: "composeagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Compose new content from instructions or context."
+        },
+        {
+          verb: "copy",
+          ens: "copyagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Copy resources, files, or content."
+        },
+        {
+          verb: "print",
+          ens: "printagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Print or render outputs to physical or virtual media."
+        },
 
-        
-        // Commerce & payments (Commercial)
+        // Commerce & payments (Commercial — Tier 1)
         {
           verb: "checkout",
           ens: "checkoutagent.eth",
@@ -1102,9 +1088,7 @@
           type: "commercial",
           status: "live",
           tier: "premium",
-          description: "Coordinate carts, totals, and payment authorization as a unified flow.",
-          docsUrl: "/commercial.html#checkout",
-          cardUrl: "/agent-cards.html"
+          description: "Coordinate carts, totals, and payment authorization as a unified flow."
         },
         {
           verb: "authorize",
@@ -1113,20 +1097,16 @@
           type: "commercial",
           status: "live",
           tier: "premium",
-          description: "Perform payment authorizations with trace IDs and structured receipts.",
-          docsUrl: "/commercial.html#authorize",
-          cardUrl: "/agent-cards.html"
+          description: "Perform payment authorizations with trace IDs and structured receipts."
         },
         {
           verb: "purchase",
           ens: "purchaseagent.eth",
           category: "commerce",
           type: "commercial",
-          status:"live",
+          status: "live",
           tier: "premium",
-          description: "Complete settlement events once authorization and risk checks pass.",
-          docsUrl: "/commercial.html#purchase",
-          cardUrl: "/agent-cards.html"
+          description: "Complete settlement events once authorization and risk checks pass."
         },
         {
           verb: "refund",
@@ -1135,9 +1115,7 @@
           type: "commercial",
           status: "reserved",
           tier: "premium",
-          description: "Standardize how refunds are requested, processed, and proved.",
-          docsUrl: "/commercial.html#refund",
-          cardUrl: "/agent-cards.html"
+          description: "Standardize how refunds are requested, processed, and proved."
         },
         {
           verb: "verify",
@@ -1146,192 +1124,183 @@
           type: "commercial",
           status: "live",
           tier: "premium",
-          description: "Perform identity, KYC, or eligibility checks as reusable verification flows.",
-          docsUrl: "/commercial.html#verify",
-          cardUrl: "/agent-cards.html"
+          description: "Perform identity, KYC, or eligibility checks as reusable verification flows."
         },
-{
-    verb: "bill",
-    ens: "billagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Bill accounts or customers for usage or services."
-  },
-  {
-    verb: "invoice",
-    ens: "invoiceagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Issue invoices as structured, payable documents."
-  },
-  {
-    verb: "charge",
-    ens: "chargeagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Charge accounts or payment methods."
-  },
-  {
-    verb: "fund",
-    ens: "fundagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Fund wallets, positions, or balances."
-  },
-  {
-    verb: "disburse",
-    ens: "disburseagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Disburse funds to one or many recipients."
-  },
-  {
-    verb: "remit",
-    ens: "remitagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Remit funds across accounts, regions, or rails."
-  },
-  {
-    verb: "reimburse",
-    ens: "reimburseagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Reimburse expenses or claims with proof."
-  },
-  {
-    verb: "payout",
-    ens: "payoutagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Coordinate payouts to multiple recipients."
-  },
-  {
-    verb: "stream",
-    ens: "streamagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Stream data or payments over time."
-  },
-  {
-    verb: "subscribe",
-    ens: "subscribeagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Create and manage recurring subscription or billing agreements."
-  },
-  {
-    verb: "checkout",
-    ens: "checkoutagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Execute checkout flows for carts or orders."
-  },
-  {
-    verb: "refund",
-    ens: "refundagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Issue refunds with structured references."
-  },
-  {
-    verb: "deposit",
-    ens: "depositagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Handle deposits into accounts or contracts."
-  },
-  {
-    verb: "order",
-    ens: "orderagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Place orders for goods, services, or workloads."
-  },
-  {
-    verb: "statement",
-    ens: "statementagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Produce account or activity statements."
-  },
-  {
-    verb: "license",
-    ens: "licenseagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Grant, update, or revoke usage licenses under clear terms."
-  },
-  {
-    verb: "issue",
-    ens: "issueagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Issue credentials, cards, or instruments as structured events."
-  },
-  {
-    verb: "lend",
-    ens: "lendagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Lend assets under defined terms."
-  },
-  {
-    verb: "lending",
-    ens: "lendingagent.eth",
-    category: "finance",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Coordinate lending marketplaces or flows."
-  },
 
+        // Finance (Commercial portfolio)
+        {
+          verb: "bill",
+          ens: "billagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Bill accounts or customers for usage or services."
+        },
+        {
+          verb: "invoice",
+          ens: "invoiceagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Issue invoices as structured, payable documents."
+        },
+        {
+          verb: "charge",
+          ens: "chargeagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Charge accounts or payment methods."
+        },
+        {
+          verb: "fund",
+          ens: "fundagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Fund wallets, positions, or balances."
+        },
+        {
+          verb: "disburse",
+          ens: "disburseagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Disburse funds to one or many recipients."
+        },
+        {
+          verb: "remit",
+          ens: "remitagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Remit funds across accounts, regions, or rails."
+        },
+        {
+          verb: "reimburse",
+          ens: "reimburseagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Reimburse expenses or claims with proof."
+        },
+        {
+          verb: "payout",
+          ens: "payoutagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Coordinate payouts to multiple recipients."
+        },
+        {
+          verb: "stream",
+          ens: "streamagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Stream data or payments over time."
+        },
+        {
+          verb: "subscribe",
+          ens: "subscribeagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Create and manage recurring subscription or billing agreements."
+        },
+        {
+          verb: "checkout",
+          ens: "checkoutagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Execute checkout flows for carts or orders."
+        },
+        {
+          verb: "refund",
+          ens: "refundagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Issue refunds with structured references."
+        },
+        {
+          verb: "deposit",
+          ens: "depositagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Handle deposits into accounts or contracts."
+        },
+        {
+          verb: "order",
+          ens: "orderagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Place orders for goods, services, or workloads."
+        },
+        {
+          verb: "statement",
+          ens: "statementagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Produce account or activity statements."
+        },
+        {
+          verb: "license",
+          ens: "licenseagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Grant, update, or revoke usage licenses under clear terms."
+        },
+        {
+          verb: "issue",
+          ens: "issueagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Issue credentials, cards, or instruments as structured events."
+        },
+        {
+          verb: "lend",
+          ens: "lendagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Lend assets under defined terms."
+        },
+        {
+          verb: "lending",
+          ens: "lendingagent.eth",
+          category: "finance",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Coordinate lending marketplaces or flows."
+        },
 
-
-
-
-
-
-
-
-        
-        // Operations & logistics
+        // Operations & logistics (Commons + Commercial)
         {
           verb: "ship",
           ens: "shipagent.eth",
@@ -1339,9 +1308,7 @@
           type: "commercial",
           status: "live",
           tier: "premium",
-          description: "Encode fulfillment, carrier selection, and tracking into a shared verb.",
-          docsUrl: "/commercial.html#ship",
-          cardUrl: "/agent-cards.html"
+          description: "Encode fulfillment, carrier selection, and tracking into a shared verb."
         },
         {
           verb: "track",
@@ -1350,9 +1317,7 @@
           type: "commons",
           status: "reserved",
           tier: "free",
-          description: "Track assets, shipments, or jobs with consistent state transitions.",
-          docsUrl: "/docs.html#track",
-          cardUrl: "/agent-cards.html"
+          description: "Track assets, shipments, or jobs with consistent state transitions."
         },
         {
           verb: "schedule",
@@ -1361,9 +1326,7 @@
           type: "commons",
           status: "reserved",
           tier: "free",
-          description: "Negotiate and confirm time windows across calendars and systems.",
-          docsUrl: "/docs.html#schedule",
-          cardUrl: "/agent-cards.html"
+          description: "Negotiate and confirm time windows across calendars and systems."
         },
         {
           verb: "allocate",
@@ -1372,120 +1335,118 @@
           type: "commons",
           status: "reserved",
           tier: "free",
-          description: "Allocate resources like inventory, compute, or staff to tasks.",
-          docsUrl: "/docs.html#allocate",
-          cardUrl: "/agent-cards.html"
- {
-    verb: "deliver",
-    ens: "deliveragent.eth",
-    category: "logistics",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Deliver digital or physical items to a destination."
-  },
-  {
-    verb: "return",
-    ens: "returnagent.eth",
-    category: "logistics",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Handle returns for orders with structured outcomes."
-  },
- {
-    verb: "scan",
-    ens: "scanagent.eth",
-    category: "logistics",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Scan items, barcodes, or environments."
-  },
-  {
-    verb: "dispatch",
-    ens: "dispatchagent.eth",
-    category: "logistics",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Dispatch jobs, couriers, or workloads."
-  },
-  {
-    verb: "locate",
-    ens: "locateagent.eth",
-    category: "logistics",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Locate assets, people, or resources."
-  },
-  {
-    verb: "shipment",
-    ens: "shipmentagent.eth",
-    category: "logistics",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Manage shipments and their status."
-  },
-  {
-    verb: "receipt",
-    ens: "receiptagent.eth",
-    category: "logistics",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Represent receipts for deliveries or payments."
-  },
-  {
-    verb: "cart",
-    ens: "cartagent.eth",
-    category: "logistics",
-    type: "commercial",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Manage carts and items before checkout."
-  },
-  {
-    verb: "load",
-    ens: "loadagent.eth",
-    category: "logistics",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Load resources, items, or environments."
-  },
-  {
-    verb: "reach",
-    ens: "reachagent.eth",
-    category: "logistics",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Reach destinations, endpoints, or targets."
-  },
-  {
-    verb: "move",
-    ens: "moveagent.eth",
-    category: "logistics",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Move assets, items, or data between locations."
-  },
-  {
-    verb: "sync",
-    ens: "syncagent.eth",
-    category: "logistics",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Sync data or state across systems."
-  },
+          description: "Allocate resources like inventory, compute, or staff to tasks."
+        },
+        {
+          verb: "deliver",
+          ens: "deliveragent.eth",
+          category: "operations",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Deliver digital or physical items to a destination."
+        },
+        {
+          verb: "return",
+          ens: "returnagent.eth",
+          category: "operations",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Handle returns for orders with structured outcomes."
+        },
+        {
+          verb: "scan",
+          ens: "scanagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Scan items, barcodes, or environments."
+        },
+        {
+          verb: "dispatch",
+          ens: "dispatchagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Dispatch jobs, couriers, or workloads."
+        },
+        {
+          verb: "locate",
+          ens: "locateagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Locate assets, people, or resources."
+        },
+        {
+          verb: "shipment",
+          ens: "shipmentagent.eth",
+          category: "operations",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Manage shipments and their status."
+        },
+        {
+          verb: "receipt",
+          ens: "receiptagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Represent receipts for deliveries or payments."
+        },
+        {
+          verb: "cart",
+          ens: "cartagent.eth",
+          category: "operations",
+          type: "commercial",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Manage carts and items before checkout."
+        },
+        {
+          verb: "load",
+          ens: "loadagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Load resources, items, or environments."
+        },
+        {
+          verb: "reach",
+          ens: "reachagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Reach destinations, endpoints, or targets."
+        },
+        {
+          verb: "move",
+          ens: "moveagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Move assets, items, or data between locations."
+        },
+        {
+          verb: "sync",
+          ens: "syncagent.eth",
+          category: "operations",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Sync data or state across systems."
+        },
 
-
-        // Finance & risk
+        // Finance & risk (Commercial premium)
         {
           verb: "price",
           ens: "priceagent.eth",
@@ -1493,9 +1454,7 @@
           type: "commercial",
           status: "reserved",
           tier: "premium",
-          description: "Quote deterministic prices for assets, services, or bundles.",
-          docsUrl: "/commercial.html#price",
-          cardUrl: "/agent-cards.html"
+          description: "Quote deterministic prices for assets, services, or bundles."
         },
         {
           verb: "quote",
@@ -1504,9 +1463,7 @@
           type: "commercial",
           status: "reserved",
           tier: "premium",
-          description: "Respond with time-bound quotes that can be consumed by other agents.",
-          docsUrl: "/commercial.html#quote",
-          cardUrl: "/agent-cards.html"
+          description: "Respond with time-bound quotes that can be consumed by other agents."
         },
         {
           verb: "hedge",
@@ -1515,9 +1472,7 @@
           type: "commercial",
           status: "reserved",
           tier: "premium",
-          description: "Express hedging strategies as structured instructions between agents.",
-          docsUrl: "/commercial.html#hedge",
-          cardUrl: "/agent-cards.html"
+          description: "Express hedging strategies as structured instructions between agents."
         },
         {
           verb: "payout",
@@ -1526,9 +1481,7 @@
           type: "commercial",
           status: "reserved",
           tier: "premium",
-          description: "Coordinate payouts to multiple recipients with clear trace IDs.",
-          docsUrl: "/commercial.html#payout",
-          cardUrl: "/agent-cards.html"
+          description: "Coordinate payouts to multiple recipients with clear trace IDs."
         },
 
         // Comms & outreach
@@ -1539,9 +1492,7 @@
           type: "commons",
           status: "reserved",
           tier: "free",
-          description: "Send structured notifications across channels with delivery receipts.",
-          docsUrl: "/docs.html#notify",
-          cardUrl: "/agent-cards.html"
+          description: "Send structured notifications across channels with delivery receipts."
         },
         {
           verb: "broadcast",
@@ -1550,9 +1501,7 @@
           type: "commons",
           status: "reserved",
           tier: "free",
-          description: "Broadcast messages to many recipients with explicit fan-out semantics.",
-          docsUrl: "/docs.html#broadcast",
-          cardUrl: "/agent-cards.html"
+          description: "Broadcast messages to many recipients with explicit fan-out semantics."
         },
         {
           verb: "invite",
@@ -1561,128 +1510,126 @@
           type: "commons",
           status: "reserved",
           tier: "free",
-          description: "Issue structured invitations that agents can accept, decline, or delegate.",
-          docsUrl: "/docs.html#invite",
-          cardUrl: "/agent-cards.html"
+          description: "Issue structured invitations that agents can accept, decline, or delegate."
         },
- {
-    verb: "alert",
-    ens: "alertagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Send high-priority alerts with severity."
-  },
+        {
+          verb: "alert",
+          ens: "alertagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Send high-priority alerts with severity."
+        },
+        {
+          verb: "message",
+          ens: "messageagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Send generic messages between agents or users."
+        },
+        {
+          verb: "email",
+          ens: "emailagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Send and receive email-style messages."
+        },
+        {
+          verb: "dm",
+          ens: "dmagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Send direct messages between agents or users."
+        },
+        {
+          verb: "send",
+          ens: "sendagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Send payloads or items to recipients."
+        },
+        {
+          verb: "text",
+          ens: "textagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Send SMS-style text messages."
+        },
+        {
+          verb: "follow",
+          ens: "followagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Follow entities to receive updates."
+        },
+        {
+          verb: "notifymy",
+          ens: "notifymyagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Notify a specific user or agent with targeted updates."
+        },
+        {
+          verb: "chatwith",
+          ens: "chatwithagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Chat interactively with an agent."
+        },
+        {
+          verb: "talk",
+          ens: "talkagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Carry on voice or text conversations."
+        },
+        {
+          verb: "reply",
+          ens: "replyagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Reply to prior messages or threads."
+        },
+        {
+          verb: "ring",
+          ens: "ringagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Ring or call attention to a target."
+        },
+        {
+          verb: "converse",
+          ens: "converseagent.eth",
+          category: "comms",
+          type: "commons",
+          status: "reserved",
+          tier: "unpriced",
+          description: "Maintain multi-turn conversations with context."
+        },
 
-  {
-    verb: "message",
-    ens: "messageagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Send generic messages between agents or users."
-  },
-  {
-    verb: "email",
-    ens: "emailagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Send and receive email-style messages."
-  },
-  {
-    verb: "dm",
-    ens: "dmagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Send direct messages between agents or users."
-  },
-  {
-    verb: "send",
-    ens: "sendagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Send payloads or items to recipients."
-  },
-  {
-    verb: "text",
-    ens: "textagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Send SMS-style text messages."
-  },
-  {
-    verb: "follow",
-    ens: "followagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Follow entities to receive updates."
-  },
-  {
-    verb: "notifymy",
-    ens: "notifymyagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Notify a specific user or agent with targeted updates."
-  },
-  {
-    verb: "chatwith",
-    ens: "chatwithagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Chat interactively with an agent."
-  },
-  {
-    verb: "talk",
-    ens: "talkagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Carry on voice or text conversations."
-  },
-  {
-    verb: "reply",
-    ens: "replyagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Reply to prior messages or threads."
-  },
-  {
-    verb: "ring",
-    ens: "ringagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Ring or call attention to a target."
-  },
-  {
-    verb: "converse",
-    ens: "converseagent.eth",
-    category: "comms",
-    type: "commons",
-    status: "reserved",
-    tier: "unpriced",
-    description: "Maintain multi-turn conversations with context."
-  },
         // Other / system
         {
           verb: "register",
@@ -1691,9 +1638,7 @@
           type: "commons",
           status: "reserved",
           tier: "free",
-          description: "Register resources, agents, or capabilities into shared registries.",
-          docsUrl: "/docs.html#register",
-          cardUrl: "/agent-cards.html"
+          description: "Register resources, agents, or capabilities into shared registries."
         },
         {
           verb: "attest",
@@ -1702,9 +1647,7 @@
           type: "commercial",
           status: "reserved",
           tier: "premium",
-          description: "Produce signed attestations that can be reused by other protocols.",
-          docsUrl: "/commercial.html#attest",
-          cardUrl: "/agent-cards.html"
+          description: "Produce signed attestations that can be reused by other protocols."
         },
         {
           verb: "govern",
@@ -1713,9 +1656,7 @@
           type: "commercial",
           status: "reserved",
           tier: "premium",
-          description: "Express proposals, votes, and resolutions as structured governance flows.",
-          docsUrl: "/commercial.html#govern",
-          cardUrl: "/agent-cards.html"
+          description: "Express proposals, votes, and resolutions as structured governance flows."
         }
       ];
 
@@ -1776,10 +1717,21 @@
               ? "tag tag--status-inflight"
               : "tag tag--status-reserved";
 
-          const tierClass =
-            v.tier === "premium" ? "tag tag--tier-premium" : "tag tag--tier-free";
+          let tierClass;
+          if (v.tier === "premium") {
+            tierClass = "tag tag--tier-premium";
+          } else if (v.tier === "free") {
+            tierClass = "tag tag--tier-free";
+          } else {
+            tierClass = "tag tag--tier-unpriced";
+          }
 
-          const typeLabel = v.type === "commercial" ? "Commercial" : "Commons";
+          const typeLabel =
+            v.type === "commercial"
+              ? "Commercial"
+              : v.type === "commons"
+              ? "Commons"
+              : "Other";
 
           card.innerHTML = `
             <div class="verb-card__header">
@@ -1797,18 +1749,7 @@
             <div class="verb-card__description">
               ${v.description || ""}
             </div>
-            <div class="verb-card__links">
-              ${
-                v.docsUrl
-                  ? `<a href="${v.docsUrl}" class="verb-card__link">Docs</a>`
-                  : ""
-              }
-              ${
-                v.cardUrl
-                  ? `<a href="${v.cardUrl}" class="verb-card__link">Agent Cards</a>`
-                  : ""
-              }
-            </div>
+            <div class="verb-card__links"></div>
           `;
 
           verbGrid.appendChild(card);
@@ -1853,8 +1794,10 @@
           case "premium":
             return "Premium";
           case "free":
-          default:
             return "Free / Commons";
+          case "unpriced":
+          default:
+            return "Unpriced";
         }
       }
 
