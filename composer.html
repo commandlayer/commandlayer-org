@@ -463,6 +463,105 @@
       }
     </style>
   </head>
+<script>
+  (function () {
+    const COMMON_VERBS = [
+      "analyze",
+      "classify",
+      "clean",
+      "convert",
+      "describe",
+      "explain",
+      "format",
+      "parse",
+      "summarize",
+      "fetch",
+    ];
+
+    const runButton = document.getElementById("run-flow");
+    const outputEl = document.getElementById("flow-output");
+
+    if (!runButton || !outputEl) {
+      console.warn(
+        "[composer] Missing run button or output element. Check IDs."
+      );
+      return;
+    }
+
+    function getStep(index) {
+      const verbSelect = document.getElementById(`step${index}-verb`);
+      const inputField = document.getElementById(`step${index}-input`);
+
+      if (!verbSelect || !inputField) return null;
+
+      const verb = verbSelect.value.trim();
+      const input = inputField.value.trim();
+
+      if (!verb || !COMMON_VERBS.includes(verb)) return null;
+      if (!input) return null;
+
+      return { verb, input };
+    }
+
+    function setOutput(data) {
+      try {
+        outputEl.textContent = JSON.stringify(data, null, 2);
+      } catch (e) {
+        outputEl.textContent = String(data);
+      }
+    }
+
+    async function runFlow() {
+      const steps = [];
+      for (let i = 1; i <= 3; i++) {
+        const step = getStep(i);
+        if (step) steps.push(step);
+      }
+
+      if (!steps.length) {
+        setOutput({
+          error:
+            "No valid steps selected. Pick at least one Commons verb and provide input.",
+        });
+        return;
+      }
+
+      setOutput({ status: "running", steps_count: steps.length });
+
+      try {
+        const res = await fetch("/api/commons-flow", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ steps }),
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          setOutput({
+            error: data.error || "Request failed",
+            status: res.status,
+          });
+          return;
+        }
+
+        setOutput(data);
+      } catch (err) {
+        setOutput({
+          error: "Network or runtime error",
+          detail: err.message || String(err),
+        });
+      }
+    }
+
+    runButton.addEventListener("click", function (event) {
+      event.preventDefault();
+      runFlow();
+    });
+  })();
+</script>
 
   <body>
     <div class="page-shell">
