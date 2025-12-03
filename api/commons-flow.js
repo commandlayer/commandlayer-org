@@ -19,10 +19,10 @@ const COMMON_VERBS = [
 ];
 
 // --- Inline receipt.base schema (v1.0.0) ---
+// IMPORTANT: no "$schema" anywhere here, so Ajv does NOT try to load the metaschema.
 
 const receiptBaseSchema = {
   $id: 'https://commandlayer.org/schemas/v1.0.0/_shared/receipt.base.schema.json',
-  $schema: 'https://json-schema.org/draft/2020-12/schema',
   title: 'receipt.base',
   description:
     'Base structure for all CommandLayer receipts, extended on a per-verb basis. Designed for A2A, Swarm-style delegation, and x402 alignment.',
@@ -179,10 +179,11 @@ const receiptBaseSchema = {
   required: ['x402', 'trace', 'status'],
 };
 
-// Minimal x402 stub so Ajv is happy with the $ref
+// Minimal x402 stub so Ajv is happy with the $ref.
+// Again: NO "$schema" here.
+
 const x402Schema = {
   $id: 'https://commandlayer.org/schemas/v1.0.0/_shared/x402.schema.json',
-  $schema: 'https://json-schema.org/draft/2020-12/schema',
   title: 'x402.envelope.minimal',
   type: 'object',
   additionalProperties: true,
@@ -207,12 +208,7 @@ try {
   addFormats(ajv);
 
   ajv.addSchema(x402Schema);
-
-  // Strip $schema so Ajv doesn't try to load the 2020-12 metaschema
-  const receiptBaseSchemaForAjv = JSON.parse(JSON.stringify(receiptBaseSchema));
-  delete receiptBaseSchemaForAjv.$schema;
-
-  validateReceiptBase = ajv.compile(receiptBaseSchemaForAjv);
+  validateReceiptBase = ajv.compile(receiptBaseSchema);
 } catch (err) {
   console.error('[commons-flow] Ajv setup failed; receipts will not be validated', err);
   ajvSetupError = err && err.message ? err.message : String(err);
