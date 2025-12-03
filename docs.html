@@ -9,7 +9,7 @@
     />
     <meta
       name="description"
-      content="CommandLayer docs — how to integrate Commons verbs, use schemas, and register Agent Cards for agents on top of x402 and ERC-8004."
+      content="CommandLayer docs — how to integrate Commons verbs, use schemas, register Agent Cards, and see live schema-validated demos on top of x402 and ERC-8004."
     />
 
     <!-- Same metallic layout system as the other pages -->
@@ -388,24 +388,23 @@
             </div>
           </a>
 
-         <nav class="site-header__nav">
-  <a href="/" class="site-header__link">Overview</a>
-  <a href="/commons.html" class="site-header__link">Commons</a>
-  <a href="/commercial.html" class="site-header__link">Commercial</a>
-  <a href="/agent-cards.html" class="site-header__link">Agent Cards</a>
-  <a href="/docs.html" class="site-header__link site-header__link--active">Docs
-  <a href="/roadmap.html" class="site-header__link">Roadmap</a>
-  <a href="/demo.html" class="site-header__link">Demo</a>
-  <a
-    href="https://github.com/commandlayer"
-    class="site-header__link"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    GitHub
-  </a>
-</nav>
-
+          <nav class="site-header__nav">
+            <a href="/" class="site-header__link">Overview</a>
+            <a href="/commons.html" class="site-header__link">Commons</a>
+            <a href="/commercial.html" class="site-header__link">Commercial</a>
+            <a href="/agent-cards.html" class="site-header__link">Agent Cards</a>
+            <a href="/docs.html" class="site-header__link site-header__link--active">Docs</a>
+            <a href="/roadmap.html" class="site-header__link">Roadmap</a>
+            <a href="/demo.html" class="site-header__link">Demo</a>
+            <a
+              href="https://github.com/commandlayer"
+              class="site-header__link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          </nav>
         </div>
       </header>
 
@@ -419,9 +418,8 @@
               <p class="subhero__subtitle">
                 Three moving parts: <strong>Commons</strong> verbs,
                 <strong>schemas</strong>, and <strong>Agent Cards</strong>.
-                This page shows how to call a verb, validate payloads, and
-                describe your own agent in a way others can discover — on top of
-                x402 and ERC-8004.
+                This page shows how to call a verb, validate payloads, describe your own agent,
+                and see live Ajv-validated flows — all on top of x402 and ERC-8004.
               </p>
             </div>
             <div class="subhero__meta">
@@ -603,6 +601,60 @@ const receipt = await res.json();
           </div>
         </section>
 
+        <!-- 2.5 LIVE COMMONS FLOW DEMO -->
+        <section class="section">
+          <div class="container">
+            <div class="section__header">
+              <h2>Live demo: Commons flow with Ajv validation</h2>
+              <p>
+                The <strong>Commons Flow Composer</strong> demo shows how multiple verbs can be
+                chained into a single flow with a shared <code>trace_id</code>, and how receipts
+                are validated against the shared base receipt schema.
+              </p>
+            </div>
+
+            <div class="grid grid--2">
+              <article class="info-card">
+                <h3>What the demo does</h3>
+                <p>
+                  The UI at <a href="/demo.html" class="link">Demo</a> &rarr; “Commons Flow Composer”
+                  builds a list of up to three steps, each with:
+                </p>
+                <ul style="margin:0 0 0.5rem 1.1rem;padding:0;font-size:0.86rem;color:var(--text-muted);">
+                  <li>a Commons verb (from 10 live verbs),</li>
+                  <li>a simple text input, and</li>
+                  <li>an index in the flow.</li>
+                </ul>
+                <p style="margin:0;font-size:0.86rem;color:var(--text-muted);">
+                  The frontend POSTs these steps to
+                  <code>/api/commons-flow</code> on Vercel. The backend generates a
+                  <code>trace_id</code>, per-step <code>x402</code> envelopes, trace blocks,
+                  <code>status</code>, <code>result</code>, and <code>usage</code>, then
+                  validates each receipt with Ajv before returning the full flow.
+                </p>
+              </article>
+
+              <article class="info-card">
+                <h3>What is actually enforced</h3>
+                <p>
+                  Today the demo enforces the shared base receipt contract:
+                </p>
+                <pre><code>- receipt.base v1.0.0 (inline mirror of
+  _shared/receipt.base.schema.json)
+- minimal x402 envelope:
+  { "verb": &lt;commons-verb&gt;, "version": "1.0.0" }</code></pre>
+                <p style="margin-top:0.6rem;font-size:0.86rem;color:var(--text-muted);">
+                  The demo does <strong>not yet</strong> validate verb-specific
+                  <code>result</code> payloads against their individual Commons
+                  <code>*.receipt</code> schemas. The result objects follow the expected shapes
+                  (e.g. summary + bullets, labels, tokens) but only the shared
+                  <code>receipt.base</code> structure is strictly enforced in this runtime.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
         <!-- 3. DEFINING AN AGENT CARD -->
         <section class="section">
           <div class="container">
@@ -689,7 +741,7 @@ const receipt = await res.json();
                   Browse the verb set on <a href="/commons.html" class="link">Commons</a>.
                 </li>
                 <li>
-                  Review the 5 economic verbs on
+                  Review the economic verbs on
                   <a href="/commercial.html" class="link">Commercial</a> (v1.0.0 live).
                 </li>
                 <li>
@@ -697,8 +749,9 @@ const receipt = await res.json();
                   <a href="/agent-cards.html" class="link">Agent Cards</a>.
                 </li>
                 <li>
-                  Wire a single verb into your stack, validate against the
-                  schema, and treat everything else as optional.
+                  Try the live flows on
+                  <a href="/demo.html" class="link">Demo</a>, then wire a single verb into your
+                  own stack and validate against the schemas.
                 </li>
               </ul>
             </div>
