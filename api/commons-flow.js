@@ -196,17 +196,19 @@ const x402Schema = {
 // No ajv-formats here on purpose: less to go wrong at runtime.
 
 let validateReceiptBase;
+let ajvSetupError = null;
 
 try {
   const ajv = new Ajv({
     allErrors: true,
-    strict: false, // demo mode: don't throw on anything strict
+    strict: false,
   });
 
   ajv.addSchema(x402Schema);
   validateReceiptBase = ajv.compile(receiptBaseSchema);
 } catch (err) {
   console.error('[commons-flow] Ajv setup failed; receipts will not be validated', err);
+  ajvSetupError = String(err && err.message ? err.message : err);
   validateReceiptBase = null;
 }
 
@@ -397,12 +399,13 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(200).json({
-    trace_id: traceId,
-    steps: responseSteps,
-    meta: {
-      demo: true,
-      schema_alignment: 'receipt.base.v1.0.0',
-      ajv_validation: !!validateReceiptBase,
+  trace_id: traceId,
+  steps: responseSteps,
+  meta: {
+    demo: true,
+    schema_alignment: 'receipt.base.v1.0.0',
+    ajv_validation: !!validateReceiptBase,
+    ajv_setup_error: ajvSetupError || null,
     },
   });
 };
