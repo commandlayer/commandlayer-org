@@ -1,314 +1,202 @@
-/ api/commons-flow.js
-//
-// Multi-step Commons flow demo.
-// Accepts up to 3 Commons verbs and returns chained, schema-shaped receipts.
-//
-// Expected request:
-// POST /api/commons-flow
-// {
-//   "steps": [
-//     { "verb": "summarize", "input": "text to summarize" },
-//     { "verb": "analyze", "input": "text to analyze" },
-//     { "verb": "fetch", "input": "https://example.com" }
-//   ]
-// }
-// Vercel serverless function for CommandLayer Commons flows.
-// Accepts an array of steps: [{ verb, input: { text }, context? }]
-// Returns a trace_id and one receipt per step, shaped like v1 Commons receipts.
+// /api/commons-flow.js
+// Minimal Commons flow demo — no Ajv, but schema-shaped receipts.
+
+const crypto = require("crypto");
 
 const COMMON_VERBS = [
   "analyze",
-@@ -26,191 +17,187 @@ const COMMON_VERBS = [
+  "classify",
+  "clean",
+  "convert",
+  "describe",
+  "explain",
+  "format",
+  "parse",
+  "summarize",
   "fetch",
 ];
 
 function makeTraceId() {
-  return `trace-${Date.now()}-${Math.random().toString(16).slice(2, 8)}`;
-/**
- * Cheap unique-ish id for demo purposes.
- */
-function makeId(prefix) {
-  return `${prefix}_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return crypto.randomBytes(16).toString("hex");
 }
 
-function makeReceiptId(verb, idx) {
-  return `rcpt-${verb}-${idx}-${Date.now()}`;
-}
-/**
- * Build a base receipt skeleton similar to receipt.base + x402 overlay.
- */
-function makeBaseReceipt(verb, traceId) {
-  const now = new Date().toISOString();
-
-function makeBaseReceipt(verb, idx, traceId) {
+function baseReceipt(verb, index, traceId) {
   return {
-    // This roughly matches what your receipt.base + x402 layer expect.
-    id: makeReceiptId(verb, idx),
-    id: makeId("rcpt"),
-    verb,
-    version: "1.0.0",
+    // loosely shaped like your receipt.base:
     trace_id: traceId,
-    created_at: new Date().toISOString(),
+    step_index: index,
     status: "ok",
-    created_at: now,
+    verb,
+    schema_version: "1.0.0",
+    // x402 envelope stubbed:
     x402: {
       verb,
       version: "1.0.0",
-      // Demo-only; in real x402 envelopes you’d have more structure.
-      intent: `${verb}.receipt`,
-      // These are demo-only fields; real runtimes would wire real values.
-      chain_id: "eip155:84532",
-      payer: "0xDEMO_PAYER",
-      payee: "0xDEMO_AGENT",
-      intent_id: makeId("intent"),
+    },
+    usage: {
+      input_tokens: 0,
+      output_tokens: 0,
+      total_tokens: 0,
     },
   };
 }
 
-// Very lightweight, schema-shaped "result" block per verb.
-// This is **demo only** – no Ajv validation, but fields line up with your patterns.
-function makeResultForVerb(verb, input, stepIdx) {
-  const baseSummary = `Demo ${verb} result for step ${stepIdx + 1}`;
-/**
- * Build a verb-specific `result` payload that roughly matches the
- * spirit of the v1 Commons schemas. This is *demo* logic only.
- */
-function makeResultForVerb(verb, text, idx) {
-  const snippet = (text || "").slice(0, 180);
+function makeResult(verb, inputText) {
+  const text = String(inputText || "").slice(0, 2000);
 
   switch (verb) {
-    case "analyze":
-      return {
-        summary: baseSummary,
-        summary: `Analysis of input #${idx + 1}: ${snippet}`,
-        insights: [
-          "Input was accepted and processed in a demo context.",
-          "No external providers were called.",
-          "Detected structure and key themes.",
-          "Identified potential signals / anomalies.",
-        ],
-        labels: ["demo", "commons"],
-        score: 0.42,
-        labels: ["demo", "commons", "analyze"],
-        score: 0.82,
-      };
-
     case "summarize":
       return {
-        summary: `Summarized: ${
-          typeof input === "string"
-            ? input.slice(0, 120)
-            : "structured request payload"
-        }`,
-        insights: ["Compression applied in a non-lossless demo mode."],
-        summary: `Summary: ${snippet}`,
-        highlights: ["Key information compressed.", "Non-essential detail dropped."],
+        summary: text.length
+          ? `Demo summary for input (${text.length} chars).`
+          : "Demo summary: no input provided.",
+        highlights: [
+          "This is a demo-only summarize.result",
+          "Real agents would map exactly to summarize.receipt schema.",
+        ],
+      };
+
+    case "analyze":
+      return {
+        summary: `Demo analysis for: "${text.slice(0, 120)}"`,
+        insights: [
+          "Insight 1: this is a synthetic analysis.",
+          "Insight 2: the shapes map to analyze.receipt.result.",
+        ],
+        labels: ["demo", "commons", "analyze"],
+        score: 0.7,
       };
 
     case "classify":
       return {
-        summary: baseSummary,
-        insights: ["Classified into a synthetic label set."],
-        labels: ["demo_label_A", "demo_label_B"],
-        summary: `Classification result for: ${snippet}`,
-        labels: ["demo_label_a", "demo_label_b"],
+        labels: ["demo", "classified"],
+        primary_label: "demo",
+        confidence: 0.95,
       };
 
     case "clean":
       return {
-        summary: "Input was normalized / cleaned in a demo pipeline.",
-        insights: ["Whitespace trimmed.", "Obvious noise removed."],
-        summary: `Cleaned input (whitespace / noise removed).`,
-        transformed_preview: snippet.replace(/\s+/g, " "),
+        cleaned_text: text.replace(/\s+/g, " ").trim(),
+        operations: ["normalize_whitespace"],
       };
 
     case "convert":
       return {
-        summary: "Input converted between representations in a demo pipeline.",
-        insights: ["No external codecs involved."],
-        summary: `Converted representation of input.`,
-        from: "text/plain",
-        to: "demo/structured",
+        summary: "Demo convert: no-op, just echoes input.",
+        raw: text,
+        target_format: "demo",
       };
 
     case "describe":
       return {
-        summary: "High-level description generated for the provided input.",
-        summary: `Description of the input.`,
-        attributes: ["demo_attribute_a", "demo_attribute_b"],
+        description: `Demo description of: "${text.slice(0, 120)}"`,
+        tags: ["demo", "describe"],
       };
 
     case "explain":
       return {
-        summary: "Causal / relational explanation generated for the input.",
-        summary: `Explanation of how/why for this input.`,
+        explanation: "Demo explain: this would normally unpack the input.",
         steps: [
-          "Interpret input.",
-          "Apply demo reasoning.",
-          "Produce a natural language explanation.",
+          "Parse input.",
+          "Apply explanation model.",
+          "Return narrative explanation.",
         ],
       };
 
     case "format":
       return {
-        summary: "Output formatted into a structured, presentable shape.",
-        summary: `Formatted output for presentation.`,
-        format: "markdown",
-        preview: `> ${snippet}`,
+        formatted: text.toUpperCase(),
+        style: "DEMO_UPPERCASE",
       };
 
     case "parse":
       return {
-        summary: "Structured meaning parsed from raw content.",
-        summary: `Parsed structure extracted from raw input.`,
-        fields: ["demo_field_a", "demo_field_b"],
+        parsed: {
+          demo: true,
+          length: text.length,
+        },
+        notes: "Demo parse: structured echo of your input.",
       };
 
     case "fetch":
       return {
-        summary:
-          "Fetch simulated; no real network calls made in this demonstration.",
-        insights: [
-          "In a real runtime this would retrieve remote data.",
-          "Here we just echo a synthetic payload.",
-        ],
-        summary: `Fetched data based on input.`,
-        source: "demo://commons-fetch",
+        source: text || "https://example.com/demo",
+        content: "Demo fetch: this is placeholder content, not real network IO.",
       };
 
     default:
       return {
-        summary: baseSummary,
-        summary: `Result for verb "${verb}" on input: ${snippet}`,
+        note: "Unknown verb in demo result; this should not happen if frontend clamps verbs.",
       };
   }
 }
 
-function makeUsage(stepIdx) {
-  // Completely synthetic usage – just enough to show shape.
-/**
- * Build a small usage block (tokens/cost/etc.) for demo purposes.
- */
-function makeUsage() {
-  return {
-    input_tokens: 128 + stepIdx * 10,
-    output_tokens: 256 + stepIdx * 20,
-    total_tokens: 384 + stepIdx * 30,
-    input_tokens: Math.floor(Math.random() * 500) + 50,
-    output_tokens: Math.floor(Math.random() * 300) + 50,
-    total_tokens: Math.floor(Math.random() * 800) + 100,
-    cost: 0,
-  };
-}
-
-module.exports = (req, res) => {
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed" });
-    return res.status(405).json({ error: "method_not_allowed" });
   }
 
   try {
     const body = req.body || {};
-    const inputSteps = Array.isArray(body.steps) ? body.steps : [];
     const steps = Array.isArray(body.steps) ? body.steps : [];
 
-    if (!inputSteps.length) {
     if (!steps.length) {
       return res.status(400).json({
-        error: "No steps provided. Expected { steps: [{ verb, input }, ...] }",
-        error: "invalid_request",
-        detail: "Expected 'steps' array with at least one item.",
+        error: "No steps provided",
+        detail: "Body must be { steps: [{ verb, input }] } with at least one step.",
       });
     }
-
-    // Only allow known Commons verbs and max 3 steps for demo.
-    const steps = inputSteps
-      .slice(0, 3)
-      .filter(
-        (s) =>
-          s &&
-          typeof s.verb === "string" &&
-          COMMON_VERBS.includes(s.verb.toLowerCase())
-      );
-    const traceId = makeId("trace");
-
-    if (!steps.length) {
-      return res.status(400).json({
-        error:
-          "No valid Commons verbs provided. Allowed verbs: " +
-          COMMON_VERBS.join(", "),
-      });
-    }
-    const receipts = steps.map((step, idx) => {
-      const verb = String(step.verb || "").toLowerCase();
-      const input = step.input || {};
-      const text = typeof input.text === "string" ? input.text : "";
 
     const traceId = makeTraceId();
 
-    const flowSteps = steps.map((step, idx) => {
-      const verb = step.verb.toLowerCase();
-      const input = step.input ?? "";
-      const requestSchemaBase =
-        "https://commandlayer.org/schemas/v1.0.0/commons";
+    const receipts = steps.slice(0, 3).map((step, idx) => {
+      const verb = (step.verb || "").trim();
+      const input = (step.input || "").trim();
 
-      const request = {
-        verb,
-        trace_id: traceId,
-        // Where the canonical request schema lives for this verb.
-        schemas: {
-          request: `${requestSchemaBase}/${verb}/requests/${verb}.request.schema.json`,
-          receipt: `${requestSchemaBase}/${verb}/receipts/${verb}.receipt.schema.json`,
-        },
-        payload: {
-          // Demo-only: we just echo input.
-          input,
-        },
-      };
       if (!COMMON_VERBS.includes(verb)) {
         return {
-          error: "unsupported_verb",
+          error: "invalid_verb",
           verb,
           index: idx,
+          message: "Verb must be one of Commons v1.0.0 verbs.",
         };
       }
 
-      const receipt = {
-        ...makeBaseReceipt(verb, idx, traceId),
-        result: makeResultForVerb(verb, input, idx),
-        usage: makeUsage(idx),
-      };
-      const base = makeBaseReceipt(verb, traceId);
-      const result = makeResultForVerb(verb, text, idx);
-      const usage = makeUsage();
+      if (!input) {
+        return {
+          error: "missing_input",
+          verb,
+          index: idx,
+          message: "Input text is required for each step.",
+        };
+      }
+
+      const receipt = baseReceipt(verb, idx, traceId);
+      receipt.result = makeResult(verb, input);
 
       return {
-        step_index: idx,
+        index: idx,
         verb,
-        request,
+        request: { input: { text: input } },
         receipt,
-        ...base,
-        result,
-        usage,
       };
     });
 
     return res.status(200).json({
       trace_id: traceId,
-      steps: flowSteps,
       steps: receipts,
+      meta: {
+        demo: true,
+        schema_alignment: "loosely_aligned_v1_commons_receipts",
+      },
     });
   } catch (err) {
-    console.error("[commons-flow] error:", err);
-    console.error("[api/commons-flow] error:", err);
+    console.error("[commons-flow] fatal error", err);
     return res.status(500).json({
-      error: "Internal error in commons flow demo",
-      detail: err.message,
       error: "internal_error",
-      detail: err && err.message ? err.message : String(err),
+      message: err && err.message ? err.message : String(err),
     });
   }
 };
-}
