@@ -1,7 +1,8 @@
 // /api/commons-flow.js
-// Commons flow demo with Ajv validation against receipt.base (no ajv-formats)
+// Commons flow demo with Ajv validation against receipt.base
 
 const Ajv = require('ajv');
+const addFormats = require('ajv-formats');
 const { randomUUID } = require('crypto');
 
 const COMMON_VERBS = [
@@ -178,7 +179,7 @@ const receiptBaseSchema = {
   required: ['x402', 'trace', 'status'],
 };
 
-// Minimal x402 stub so Ajv can resolve the $ref locally
+// Minimal x402 stub so Ajv is happy with the $ref
 const x402Schema = {
   $id: 'https://commandlayer.org/schemas/v1.0.0/_shared/x402.schema.json',
   $schema: 'https://json-schema.org/draft/2020-12/schema',
@@ -193,7 +194,6 @@ const x402Schema = {
 };
 
 // --- Ajv setup ---
-// No ajv-formats here on purpose: less to go wrong at runtime.
 
 let validateReceiptBase;
 let ajvSetupError = null;
@@ -201,14 +201,21 @@ let ajvSetupError = null;
 try {
   const ajv = new Ajv({
     allErrors: true,
-    strict: false,
+    strict: false, // lenient for demo
   });
 
+  addFormats(ajv);
+
   ajv.addSchema(x402Schema);
-  validateReceiptBase = ajv.compile(receiptBaseSchema);
+
+  // Strip $schema so Ajv doesn't try to load the 2020-12 metaschema
+  const receiptBaseSchemaForAjv = JSON.parse(JSON.stringify(receiptBaseSchema));
+  delete receiptBaseSchemaForAjv.$schema;
+
+  validateReceiptBase = ajv.compile(receiptBaseSchemaForAjv);
 } catch (err) {
   console.error('[commons-flow] Ajv setup failed; receipts will not be validated', err);
-  ajvSetupError = String(err && err.message ? err.message : err);
+  ajvSetupError = err && err.message ? err.message : String(err);
   validateReceiptBase = null;
 }
 
@@ -376,15 +383,10 @@ module.exports = async function handler(req, res) {
       const valid = validateReceiptBase(receipt);
       if (!valid) {
         console.error('[commons-flow] Receipt validation failed', validateReceiptBase.errors);
-        // For demo: DO NOT 500; return the invalid receipt with errors so you can see what’s wrong.
-        responseSteps.push({
-          index: step.index,
-          verb: step.verb,
-          request: { input: { text: step.text } },
-          receipt,
-          validation_errors: validateReceiptBase.errors,
+        return res.status(500).json({
+          error: 'Receipt did not validate against receipt.base',
+          details: validateReceiptBase.errors,
         });
-        continue;
       }
     }
 
@@ -399,13 +401,13 @@ module.exports = async function handler(req, res) {
   }
 
   return res.status(200).json({
-  trace_id: traceId,
-  steps: responseSteps,
-  meta: {
-    demo: true,
-    schema_alignment: 'receipt.base.v1.0.0',
-    ajv_validation: !!validateReceiptBase,
-    ajv_setup_error: ajvSetupError || null,
+    trace_id: traceId,
+    steps: responseSteps,
+    meta: {
+      demo: true,
+      schema_alignment: 'receipt.base.v1.0.0',
+      ajv_validation: !!validateReceiptBase,
+      ajv_setup_error: ajvSetupError,
     },
   });
 };
