@@ -256,11 +256,18 @@
       }
 
       .hero__subtitle {
-        margin: 0;
+        margin: 0 0 0.8rem;
         color: var(--text-muted);
         font-size: 0.98rem;
         max-width: 36rem;
         line-height: 1.7;
+      }
+
+      .hero__list {
+        margin: 0.4rem 0 0;
+        padding-left: 1.1rem;
+        font-size: 0.9rem;
+        color: var(--text-muted);
       }
 
       .hero__cta-row {
@@ -541,14 +548,18 @@
                   semantic verb &amp; schema layer for agents.
                 </span>
               </h1>
+
               <p class="hero__subtitle">
                 x402 moves money. ERC-8004 helps you find agents.
                 CommandLayer defines <em>what they do</em>.
-                It gives you a small, stable set of <strong>Commons verbs</strong> you can drop in today,
-                the first <strong>Commercial verbs</strong> for economic flows
-                (<code>authorize</code>, <code>checkout</code>, <code>purchase</code>, <code>ship</code>, <code>verify</code>),
-                a growing <strong>Manifest</strong> of reserved future verbs, and
-                <strong>Agent Cards</strong> bound to ENS and x402 so agents can advertise capabilities in a shared language.
+              </p>
+              <ul class="hero__list">
+                <li>A small, stable set of Commons verbs you can drop in today.</li>
+                <li>The first Commercial verbs for economic flows (<code>authorize</code>, <code>checkout</code>, <code>purchase</code>, <code>ship</code>, <code>verify</code>).</li>
+                <li>A growing Manifest of reserved future verbs for the agent economy.</li>
+                <li>Agent Cards bound to ENS and x402 so agents can advertise capabilities in a shared language.</li>
+              </ul>
+              <p class="hero__subtitle" style="margin-top:0.9rem;">
                 All schemas are permanently free — the economics live in execution, not in the verb language.
               </p>
 
@@ -568,7 +579,7 @@
                 <span class="hero__meta-pill">Commons v1.0.0 · MIT · schemas free</span>
                 <span class="hero__meta-pill">Commercial v1.0.0 · Apache-2.0</span>
                 <span class="hero__meta-pill">Agent Cards v1.0.0 · Apache-2.0</span>
-                <span class="hero__meta-pill">Runtime layer · BUSL</span>
+                <span class="hero__meta-pill">Runtime (planned) · BUSL · execution layer</span>
               </div>
             </div>
 
@@ -578,7 +589,7 @@
                 Use CommandLayer as the <strong>language contract</strong> between clients and agents —
                 the piece that standardizes exit names, request shapes, and receipts on top of x402:
               </p>
-              <ul class="hero__card-list">
+              <ol class="hero__card-list">
                 <li>Pick a Commons verb (e.g. <code>summarize</code>).</li>
                 <li>Validate payloads against the pinned, free schemas.</li>
                 <li>
@@ -586,15 +597,15 @@
                   <a href="/agent-cards.html">Agent Card</a> so it can be discovered and routed to.
                 </li>
                 <li>
-                  As x402 / ERC-8004 rails and Runtime endpoints come online, keep the same contracts —
+                  As x402 / ERC-8004 rails and Runtime endpoints come online, you keep the same contracts —
                   only the execution layer changes.
                 </li>
-              </ul>
+              </ol>
             </aside>
           </div>
         </section>
 
-        <!-- QUICK LINKS -->
+        <!-- STRUCTURE SECTION -->
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
@@ -645,7 +656,8 @@
                 <h3>Manifest</h3>
                 <p>
                   Tier 2 verb portfolio — 200+ reserved verbs for AI, commerce, finance, operations, and comms.
-                  The canonical map of future machine intent that CommandLayer will standardize as the ecosystem grows.
+                  The canonical map of future machine intent CommandLayer will standardize; not all verbs are live yet,
+                  but the namespace is staked out.
                 </p>
                 <p style="margin-top:0.6rem;">
                   <a href="/manifest.html">Explore the Manifest →</a>
@@ -655,9 +667,9 @@
               <article class="info-card">
                 <h3>Runtime (coming online)</h3>
                 <p>
-                  Execution endpoints for Commons and Commercial verbs.
-                  Where paid flows, routing decisions, and guarantees live — reusing the same free schemas,
-                  so semantics stay stable while economics evolve.
+                  Execution endpoints for Commons and Commercial verbs — where paid flows, routing decisions,
+                  and guarantees live, reusing the same free schemas so semantics stay stable while economics evolve.
+                  Today, the focus is on schemas and Agent Cards; Runtime endpoints will come online in step with x402 adoption.
                 </p>
                 <p style="margin-top:0.6rem;">
                   <a href="/runtime.html">See Runtime plans →</a>
@@ -668,7 +680,7 @@
                 <h3>Roadmap</h3>
                 <p>
                   See what’s already pinned and what’s next: expanded Commons verbs, additional Commercial flows,
-                  more Agent Cards, and the Runtime layer rolling out in step with x402 and ERC-8004 adoption.
+                  more Agent Cards, and the Runtime layer rolling out alongside x402 and ERC-8004 adoption.
                 </p>
                 <p style="margin-top:0.6rem;">
                   <a href="/roadmap.html">See the roadmap →</a>
@@ -693,16 +705,15 @@
             <div class="info-card">
               <h3 style="margin-top:0;">Start with <code>summarize</code></h3>
               <p style="margin-top:0.4rem;">
-                Head to the Docs for a step-by-step example: building a
-                <code>summarize.request</code>, validating it with JSON Schema 2020-12,
-                and receiving a <code>summarize.receipt</code> from an agent.
+                See a complete example: build a <code>summarize.request</code>, validate it with JSON Schema 2020-12,
+                and receive a <code>summarize.receipt</code> from an agent — all using the Commons v1.0.0 contracts.
               </p>
               <p style="margin-top:0.7rem;">
                 <a href="/docs.html">Open the getting-started guide →</a>
               </p>
               <p style="margin-top:0.4rem; font-size:0.85rem; color:#6b7280;">
-                Start with one verb now. As x402 and ERC-8004 adoption grows and Runtime endpoints come online,
-                the same free schemas and Agent Cards keep your agents speaking the shared language.
+                Start with one verb. As x402 and ERC-8004 adoption grows, the same free schemas and Agent Cards
+                scale across more agents, runtimes, and payment rails.
               </p>
             </div>
 
@@ -725,7 +736,7 @@
       <footer class="site-footer">
         <div class="container site-footer__inner">
           <div>
-            © CommandLayer Protocol — Semantic layer for autonomous agents
+            © CommandLayer — semantic layer for autonomous agents
           </div>
           <div>
             Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free
