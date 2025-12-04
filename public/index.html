@@ -9,7 +9,7 @@
     />
     <meta
       name="description"
-      content="CommandLayer is the semantic verb + schema layer that sits on top of x402 and ERC-8004 — Commons verbs live today, the first Commercial economic verbs implemented, and Agent Cards so agents can advertise what they do, not how they’re wired."
+      content="CommandLayer is the semantic verb + schema layer that sits on top of x402 and ERC-8004 — Commons verbs live today, the first Commercial economic verbs implemented, Agent Cards so agents can advertise what they do, and a Manifest of future verbs for the agent economy."
     />
 
     <style>
@@ -130,6 +130,7 @@
         text-decoration: none;
         color: var(--text-muted);
         border: 1px solid transparent;
+        white-space: nowrap;
       }
 
       .site-header__link:hover {
@@ -142,6 +143,77 @@
         color: #020617;
         background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
         border-color: rgba(255, 255, 255, 0.25);
+      }
+
+      /* Docs dropdown */
+      .site-header__dropdown {
+        position: relative;
+      }
+
+      .site-header__dropdown-btn {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+      }
+
+      .site-header__dropdown-btn:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__dropdown-menu {
+        position: absolute;
+        top: 2.3rem;
+        right: 0;
+        background: rgba(15, 23, 42, 0.98);
+        border-radius: 14px;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        padding: 0.5rem 0.4rem;
+        min-width: 210px;
+        display: none;
+      }
+
+      .site-header__dropdown-menu a {
+        display: block;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.82rem;
+        text-decoration: none;
+        color: var(--text-muted);
+        border-radius: 999px;
+      }
+
+      .site-header__dropdown-menu a:hover {
+        color: var(--accent-strong);
+        background: rgba(31, 41, 55, 0.95);
+      }
+
+      .site-header--docs-open .site-header__dropdown-menu {
+        display: block;
+      }
+
+      /* Mobile toggle */
+      .site-header__toggle {
+        display: none;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--text-main);
+        padding: 0.25rem 0.6rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .site-header__toggle:hover {
+        background: rgba(15, 23, 42, 1);
       }
 
       /* Hero */
@@ -280,7 +352,7 @@
 
       /* Sections */
       .section {
-        padding: 2.5rem 0;
+        padding: 2.8rem 0;
       }
 
       .section--muted {
@@ -291,7 +363,7 @@
 
       .section__header {
         max-width: 40rem;
-        margin-bottom: 1.4rem;
+        margin-bottom: 1.6rem;
       }
 
       .section__header h2 {
@@ -348,15 +420,22 @@
       }
 
       .site-footer__inner {
-        display: flex;
-        justify-content: space-between;
-        padding: 1rem 1.5rem;
+        padding: 1rem 1.5rem 1.6rem;
         font-size: 0.78rem;
         color: var(--text-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
       }
 
-      .site-footer__meta {
-        font-size: 0.78rem;
+      .site-footer__links a {
+        color: var(--accent);
+        text-decoration: none;
+        margin-right: 0.6rem;
+      }
+
+      .site-footer__links a:hover {
+        text-decoration: underline;
       }
 
       /* Mobile */
@@ -365,8 +444,22 @@
           padding-inline: 1rem;
         }
 
+        .site-header__toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
         .site-header__nav {
           display: none;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin-top: 0.8rem;
+        }
+
+        .site-header.site-header--open .site-header__nav {
+          display: flex;
         }
 
         .hero__inner {
@@ -378,8 +471,7 @@
         }
 
         .site-footer__inner {
-          flex-direction: column;
-          gap: 0.5rem;
+          padding-inline: 1rem;
         }
       }
     </style>
@@ -400,25 +492,40 @@
             </div>
           </a>
 
-        <nav class="site-header__nav">
-  <a href="/" class="site-header__link site-header__link--active">
-    Overview
-  <a href="/commons.html" class="site-header__link">Commons</a>
-  <a href="/commercial.html" class="site-header__link">Commercial</a>
-  <a href="/agent-cards.html" class="site-header__link">Agent Cards</a>
-  <a href="/docs.html" class="site-header__link">Docs</a>
-  <a href="/roadmap.html" class="site-header__link">Roadmap</a>
-  <a href="/demo.html" class="site-header__link">Demo</a>
-  <a
-    href="https://github.com/commandlayer"
-    class="site-header__link"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    GitHub
-  </a>
-</nav>
+          <!-- Mobile toggle -->
+          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
+            ☰
+          </button>
 
+          <nav class="site-header__nav">
+            <a href="/" class="site-header__link site-header__link--active">Overview</a>
+            <a href="/manifest.html" class="site-header__link">Manifest</a>
+
+            <div class="site-header__dropdown">
+              <button class="site-header__dropdown-btn" type="button">
+                Docs ▾
+              </button>
+              <div class="site-header__dropdown-menu">
+                <a href="/commons.html">Commons</a>
+                <a href="/commercial.html">Commercial</a>
+                <a href="/agent-cards.html">Agent Cards</a>
+                <a href="/runtime.html">Runtime</a>
+                <a href="/roadmap.html">Roadmap</a>
+                <a href="/licensing.html">Licensing</a>
+                <a href="/about.html">About CommandLayer</a>
+              </div>
+            </div>
+
+            <a href="/demo.html" class="site-header__link">Live Demo</a>
+            <a
+              href="https://github.com/commandlayer"
+              class="site-header__link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          </nav>
         </div>
       </header>
 
@@ -441,6 +548,7 @@
                 <strong>Commercial verbs</strong> for economic flows
                 (<code>authorize</code>, <code>checkout</code>,
                 <code>purchase</code>, <code>ship</code>, <code>verify</code>),
+                a growing <strong>Manifest</strong> of reserved future verbs,
                 and <strong>Agent Cards</strong> bound to ENS and x402 so agents
                 can advertise capabilities in a shared language.
               </p>
@@ -450,15 +558,18 @@
                   <span class="btn__icon">📚</span>
                   <span>Read the docs</span>
                 </a>
-                <a href="/docs.html" class="btn btn--ghost">
+                <a href="/docs.html#summarize" class="btn btn--ghost">
                   <span class="btn__icon">⚡</span>
                   <span>Start with summarize</span>
                 </a>
               </div>
 
               <div class="hero__meta">
-                <span class="hero__meta-pill">Commons v1.0.0 · 10 verbs live</span>
-                <span class="hero__meta-pill">Commercial v1.0.0-pre · 5 economic verbs</span>
+                <span class="hero__meta-pill">Protocol v1.0.0</span>
+                <span class="hero__meta-pill">Commons v1.0.0 · MIT</span>
+                <span class="hero__meta-pill">Commercial v1.0.0 · Apache-2.0</span>
+                <span class="hero__meta-pill">Agent Cards v1.0.0 · Apache-2.0</span>
+                <span class="hero__meta-pill">Runtime · BUSL · schemas always free</span>
               </div>
             </div>
 
@@ -468,18 +579,18 @@
                 Use CommandLayer as the
                 <strong>language contract</strong> between clients and agents — the
                 part that standardizes the “exit names” and traffic rules on top
-                of x402 and ERC-8004:
+                of x402:
               </p>
               <ul class="hero__card-list">
                 <li>Pick a Commons verb (e.g. <code>summarize</code>).</li>
                 <li>Validate payloads against the pinned schemas.</li>
                 <li>
-                  Optionally describe your agent with an
-                  <a href="/agent-cards.html">Agent Card</a>.
+                  Describe your agent with an
+                  <a href="/agent-cards.html">Agent Card</a> so it can be discovered.
                 </li>
                 <li>
                   Route through x402 / ERC-8004 compatible rails as they become
-                  available.
+                  available and Runtime endpoints come online.
                 </li>
               </ul>
             </aside>
@@ -490,7 +601,7 @@
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
-              <h2>The three pieces of the semantic layer</h2>
+              <h2>The four moving parts of the semantic layer</h2>
               <p>
                 You don’t need the whole stack to start. One verb + its schemas
                 is enough. As x402 and ERC-8004 roll out, the same vocabulary
@@ -526,6 +637,18 @@
               </article>
 
               <article class="info-card">
+                <h3>Manifest</h3>
+                <p>
+                  Tier 2 verb portfolio — 200+ reserved verbs for AI, commerce,
+                  finance, and comms. Defines the future semantic surface area
+                  for agents.
+                </p>
+                <p style="margin-top:0.6rem;">
+                  <a href="/manifest.html">Explore the Manifest →</a>
+                </p>
+              </article>
+
+              <article class="info-card">
                 <h3>Agent Cards</h3>
                 <p>
                   JSON descriptors that tie ENS names to verbs, schema
@@ -542,8 +665,8 @@
                 <p>
                   CommandLayer ships high-value verbs on a steady release
                   cadence. The first Commercial verbs are live, with more
-                  economic and workflow verbs staged for rollout as x402 and
-                  ERC-8004 adoption accelerates.
+                  economic and workflow verbs staged, alongside the Runtime
+                  execution layer.
                 </p>
                 <p style="margin-top:0.6rem;">
                   <a href="/roadmap.html">See the roadmap →</a>
@@ -576,8 +699,9 @@
                 <a href="/docs.html">Open the getting-started guide →</a>
               </p>
               <p style="margin-top:0.4rem; font-size:0.85rem; color:#6b7280;">
-                Start with one verb now; as x402 and ERC-8004 adoption grows,
-                your agents are already speaking the shared language.
+                Start with one verb now; as x402 and ERC-8004 adoption grows and
+                Runtime endpoints come online, your agents are already speaking
+                the shared language.
               </p>
             </div>
 
@@ -591,7 +715,7 @@
             >
               Today: 10 Commons verbs and 5 Commercial economic verbs. Next:
               additional financial flows, fulfillment, compliance, identity —
-              and a growing library of verbs that frame how agents talk to each
+              and a growing Manifest of verbs that frame how agents talk to each
               other.
             </p>
           </div>
@@ -600,12 +724,45 @@
 
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <span>© CommandLayer Protocol</span>
-          <span class="site-footer__meta">
-            Protocol v1.0.0 · Commons v1.0.0 · Commercial v1.0.0 · Agent Cards v1.0.0
-          </span>
+          <div>
+            <strong>CommandLayer Protocol</strong> — Semantic layer for autonomous agents
+          </div>
+          <div>
+            Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL
+          </div>
+          <div>
+            Protocol v1.0.0 · x402-aligned · ERC-8004-compatible · Pinned &amp; verifiable artifacts
+          </div>
+          <div class="site-footer__links">
+            <a href="/manifest.html">Manifest</a>
+            <a href="/licensing.html">Licensing</a>
+            <a href="/about.html">About</a>
+            <a href="mailto:security@commandlayer.org">Security</a>
+            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
         </div>
       </footer>
     </div>
+
+    <script>
+      (function () {
+        const header = document.querySelector(".site-header");
+        const toggle = document.querySelector(".site-header__toggle");
+        const docsBtn = document.querySelector(".site-header__dropdown-btn");
+
+        if (toggle && header) {
+          toggle.addEventListener("click", () => {
+            const isOpen = header.classList.toggle("site-header--open");
+            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          });
+        }
+
+        if (docsBtn && header) {
+          docsBtn.addEventListener("click", () => {
+            header.classList.toggle("site-header--docs-open");
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
