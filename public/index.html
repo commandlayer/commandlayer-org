@@ -427,22 +427,82 @@
       }
 
       .site-footer__inner {
-        padding: 1rem 1.5rem 1.6rem;
+        padding: 1.4rem 1.5rem 1.8rem;
         font-size: 0.78rem;
         color: var(--text-soft);
         display: flex;
         flex-direction: column;
         gap: 0.4rem;
+        align-items: center;
+        text-align: center;
+      }
+
+      .site-footer__links {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+        margin-top: 0.2rem;
       }
 
       .site-footer__links a {
         color: var(--accent);
         text-decoration: none;
-        margin-right: 0.6rem;
       }
 
       .site-footer__links a:hover {
         text-decoration: underline;
+      }
+
+      /* Toggle example block */
+      .mini-toggle {
+        display: inline-flex;
+        border-radius: 999px;
+        border: 1px solid var(--border-soft);
+        overflow: hidden;
+        margin-bottom: 0.6rem;
+      }
+
+      .mini-toggle__btn {
+        font-size: 0.78rem;
+        padding: 0.25rem 0.7rem;
+        background: transparent;
+        border: none;
+        color: var(--text-muted);
+        cursor: pointer;
+      }
+
+      .mini-toggle__btn--active {
+        background: rgba(31, 41, 55, 0.95);
+        color: var(--accent-strong);
+      }
+
+      .mini-example {
+        font-size: 0.85rem;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid var(--border-soft);
+        padding: 1rem;
+        border-radius: var(--radius-lg);
+        overflow-x: auto;
+        margin-top: 1.2rem;
+      }
+
+      .mini-example pre {
+        margin: 0;
+        white-space: pre;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 0.82rem;
+      }
+
+      .mini-example__label {
+        opacity: 0.9;
+        margin-bottom: 0.4rem;
+      }
+
+      .mini-example__note {
+        opacity: 0.7;
+        margin-top: 0.6rem;
+        font-size: 0.8rem;
       }
 
       /* Mobile */
@@ -601,6 +661,47 @@
                   only the execution layer changes.
                 </li>
               </ol>
+
+              <!-- Mini toggle example -->
+              <div class="mini-example" id="mini-example">
+                <div class="mini-toggle">
+                  <button
+                    type="button"
+                    class="mini-toggle__btn mini-toggle__btn--active"
+                    data-mini-target="request"
+                  >
+                    summarize.request
+                  </button>
+                  <button
+                    type="button"
+                    class="mini-toggle__btn"
+                    data-mini-target="receipt"
+                  >
+                    summarize.receipt
+                  </button>
+                </div>
+
+                <div id="mini-example-request">
+                  <div class="mini-example__label">// summarize.request</div>
+                  <pre>{
+  "verb": "summarize",
+  "content": "CommandLayer defines what agents do on x402."
+}</pre>
+                </div>
+
+                <div id="mini-example-receipt" style="display:none;">
+                  <div class="mini-example__label">// summarize.receipt</div>
+                  <pre>{
+  "verb": "summarize",
+  "result": "Semantic verb layer describing agent behavior on x402.",
+  "trace": "bafybeieoynknza..."
+}</pre>
+                </div>
+
+                <div class="mini-example__note">
+                  Real verbs, real receipts — the same shapes across agents, runtimes, and payment rails.
+                </div>
+              </div>
             </aside>
           </div>
         </section>
@@ -694,7 +795,7 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>Ready to wire your first verb?</h2>
+              <h2 style="font-size:1.75rem;">Ready to wire your first verb?</h2>
               <p>
                 If you only implement one thing, start with <code>summarize</code>.
                 The Docs walk through the full request/receipt flow, how to validate against the free schemas,
@@ -766,6 +867,30 @@
         if (docsBtn && header) {
           docsBtn.addEventListener("click", () => {
             header.classList.toggle("site-header--docs-open");
+          });
+        }
+
+        // Mini toggle UX for summarize.request / summarize.receipt
+        const exampleRoot = document.getElementById("mini-example");
+        if (exampleRoot) {
+          const buttons = exampleRoot.querySelectorAll(".mini-toggle__btn");
+          const requestBlock = document.getElementById("mini-example-request");
+          const receiptBlock = document.getElementById("mini-example-receipt");
+
+          buttons.forEach((btn) => {
+            btn.addEventListener("click", () => {
+              const target = btn.getAttribute("data-mini-target");
+              buttons.forEach((b) => b.classList.remove("mini-toggle__btn--active"));
+              btn.classList.add("mini-toggle__btn--active");
+
+              if (target === "request") {
+                if (requestBlock) requestBlock.style.display = "block";
+                if (receiptBlock) receiptBlock.style.display = "none";
+              } else {
+                if (requestBlock) requestBlock.style.display = "none";
+                if (receiptBlock) receiptBlock.style.display = "block";
+              }
+            });
           });
         }
       })();
