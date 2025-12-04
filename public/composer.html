@@ -9,7 +9,7 @@
     />
     <meta
       name="description"
-      content="Interactive CommandLayer Commons demo — compose up to three verbs, send a flow, and inspect structured receipts shaped like the v1.0.0 schemas."
+      content="Interactive CommandLayer Commons demo — compose up to three verbs, send a flow, and inspect receipts that are validated with Ajv against the v1.0.0 base receipt schema."
     />
 
     <style>
@@ -525,17 +525,19 @@
               <h1 class="hero__title">
                 <span>Compose multi-step Commons flows</span>
                 <span class="hero__title-em">
-                  and inspect schema-shaped receipts.
+                  and inspect Ajv-validated receipts.
                 </span>
               </h1>
+              
               <p class="hero__subtitle">
                 Wire up to three Commons verbs
                 (<code>analyze</code>, <code>summarize</code>, <code>classify</code>,
                 <code>clean</code>, <code>convert</code>, <code>describe</code>,
                 <code>explain</code>, <code>format</code>, <code>parse</code>, <code>fetch</code>)
-                into a single flow. The backend calls <code>/api/commons-flow</code> and
-                returns per-step receipts shaped like your v1.0.0 contracts with a shared
-                <code>trace_id</code>.
+                into a single flow. The backend calls <code>/api/commons-flow</code> and returns
+                per-step receipts with <code>x402</code>, <code>trace</code>, <code>status</code>,
+                <code>result</code>, and <code>usage</code> that are validated with Ajv against
+                the shared <code>receipt.base</code> v1.0.0 schema.
               </p>
 
               <div class="hero__cta-row">
@@ -551,22 +553,26 @@
 
               <div class="hero__meta">
                 <span class="hero__meta-pill">10 Commons verbs wired</span>
-                <span class="hero__meta-pill">Structured receipts + trace IDs</span>
+                <span class="hero__meta-pill">Ajv-validated <code>receipt.base</code></span>
               </div>
             </div>
 
             <aside class="hero__card">
               <h2>What this demo proves</h2>
               <p>
-                Commons isn’t just a README — it’s a usable contract you can route through.
+                Commons isn’t just a README — it’s a usable contract you can route through and validate.
               </p>
               <ul>
-                <li>You pick the verbs and order; shapes stay stable.</li>
-                <li>Each step returns a typed <code>result</code> + <code>usage</code>.</li>
+                <li>You pick the verbs and order; the base receipt shape stays stable.</li>
+                <li>
+                  Each step returns a typed <code>result</code> + <code>usage</code> folded into
+                  a common <code>receipt.base</code> envelope.
+                </li>
                 <li>A single <code>trace_id</code> threads the full flow.</li>
                 <li>
-                  You can swap this mock runtime for a real x402/8004 stack without changing
-                  request/receipt contracts.
+                  Every receipt is validated with Ajv against
+                  <code>receipt.base</code> v1.0.0 (plus a minimal <code>x402</code> envelope),
+                  mirroring the protocol-commons <code>_shared</code> schema.
                 </li>
               </ul>
             </aside>
@@ -580,8 +586,9 @@
               <h2>Pick verbs, send a flow, inspect the receipts</h2>
               <p>
                 Under the hood this calls <code>/api/commons-flow</code> on Vercel and returns
-                schema-shaped receipts aligned with your v1.0.0 Commons contracts. Max 3 steps
-                per flow for the demo.
+                receipts aligned with the shared <code>receipt.base</code> v1.0.0 schema used in
+                Commons. For this demo, up to three steps share a single <code>trace_id</code> and
+                each step’s receipt is validated with Ajv before it’s returned.
               </p>
             </div>
 
@@ -692,8 +699,8 @@
 
                 <div class="pill-row">
                   <span class="pill">10 Commons verbs</span>
-                  <span class="pill">v1.0.0 schema-shaped receipts</span>
-                  <span class="pill">Shared trace_id across steps</span>
+                  <span class="pill">Ajv-validated <code>receipt.base</code> v1.0.0</span>
+                  <span class="pill">Shared <code>trace_id</code> across steps</span>
                 </div>
 
                 <div id="status-line" class="status-line"></div>
@@ -825,7 +832,7 @@
 
             setOutput(data);
             setStatus(
-              "<strong>OK</strong> — flow executed; receipts are demo-aligned with v1 Commons."
+              "<strong>OK</strong> — flow executed; receipts validated against receipt.base v1.0.0."
             );
           } catch (err) {
             setOutput({
