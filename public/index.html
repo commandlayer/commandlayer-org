@@ -340,19 +340,22 @@
       }
 
       .hero__card-title {
-        margin: 0 0 0.7rem;
-        font-size: 1rem;
+        margin: 0 0 0.5rem;
+        font-size: 1.3rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
       }
 
       .hero__card-body {
         margin: 0;
-        font-size: 0.9rem;
-        color: var(--text-muted);
+        font-size: 0.95rem;
+        color: var(--text-main);
+        margin-left: 0.1rem; /* slight indent under heading */
       }
 
       .hero__card-list {
-        margin: 0.8rem 0 0;
-        padding-left: 1.1rem;
+        margin: 0.9rem 0 0;
+        padding-left: 1.15rem;
         font-size: 0.86rem;
         color: var(--text-muted);
       }
@@ -427,7 +430,7 @@
         border: 1px solid var(--border-soft);
         padding: 1rem;
         border-radius: var(--radius-lg);
-        margin-top: 1.4rem;
+        margin-top: 1.6rem;
       }
 
       .mini-example--dual {
@@ -462,12 +465,23 @@
       }
 
       .mini-example__note a {
-        color: var(--accent-strong);
         text-decoration: none;
       }
 
       .mini-example__note a:hover {
         text-decoration: underline;
+      }
+
+      /* Always-blue links (no purple visited) */
+      .cl-blue-link {
+        color: #7ca8ff !important;
+        text-decoration: none;
+      }
+      .cl-blue-link:hover {
+        text-decoration: underline;
+      }
+      .cl-blue-link:visited {
+        color: #7ca8ff !important;
       }
 
       /* Footer */
@@ -648,15 +662,16 @@
             <aside class="hero__card">
               <h2 class="hero__card-title">What you can do right now</h2>
               <p class="hero__card-body">
-                Use CommandLayer as the <strong>language contract</strong> between clients and agents —
-                the piece that standardizes exit names, request shapes, and receipts on top of x402:
+                CommandLayer is the <strong>language contract</strong> between clients and agents —
+                the part that standardizes exit names, request shapes, and receipts on top of x402.
               </p>
               <ol class="hero__card-list">
                 <li>Pick a Commons verb (e.g. <code>summarize</code>).</li>
                 <li>Validate payloads against the pinned, free schemas.</li>
                 <li>
                   Describe your agent with an
-                  <a href="/agent-cards.html">Agent Card</a> so it can be discovered and routed to.
+                  <a href="/agent-cards.html" class="cl-blue-link">Agent Card</a>
+                  so it can be discovered and routed to.
                 </li>
                 <li>
                   As x402 / ERC-8004 rails and Runtime endpoints come online, you keep the same contracts —
@@ -664,20 +679,17 @@
                 </li>
               </ol>
 
-                           <!-- Side-by-side request/receipt example (indented) -->
-              <div
-                class="mini-example mini-example--dual"
-                style="margin-top:1.4rem; margin-left:0.6rem; border-left:2px solid rgba(148,163,184,0.7); padding-left:0.9rem;"
-              >
+              <!-- Side-by-side request/receipt example (no indent) -->
+              <div class="mini-example mini-example--dual">
                 <div class="mini-example__column">
-                  <div class="mini-example__label">summarize.request</div>
+                  <div class="mini-example__label">// summarize.request</div>
                   <pre>{
   "verb": "summarize",
   "content": "CommandLayer defines what agents do on x402."
 }</pre>
                 </div>
                 <div class="mini-example__column">
-                  <div class="mini-example__label">summarize.receipt</div>
+                  <div class="mini-example__label">// summarize.receipt</div>
                   <pre>{
   "result": "Semantic verb layer describing agent behavior on x402.",
   "trace": "bafybeieoynknza..."
@@ -685,10 +697,9 @@
                 </div>
                 <div class="mini-example__note">
                   <strong>Real verbs, real receipts</strong> — the same shapes across agents, runtimes, and payment rails.
-                  <a href="/demo.html">See it live →</a>
+                  <a href="/demo.html" class="cl-blue-link">See it live →</a>
                 </div>
               </div>
-
             </aside>
           </div>
         </section>
@@ -758,7 +769,7 @@
                 <p>
                   Execution & guarantees for every verb — where paid flows, routing decisions, and SLAs live,
                   reusing the same free schemas so semantics stay stable while economics evolve.
-                  Runtime expands into x402 rails as they land — same schemas, more guarantees.
+                  Runtime expands into x402 rails as they land.
                 </p>
                 <p style="margin-top:0.6rem;">
                   <a href="/runtime.html">See Runtime plans →</a>
@@ -791,13 +802,13 @@
             </div>
 
             <div class="info-card">
-              <h3 style="margin-top:0;">Start with <code>classify</code></h3>
+              <h3 style="margin-top:0;">Start with <code>summarize</code></h3>
               <p style="margin-top:0.4rem;">
-                See a complete example: build a <code>classify.request</code>, validate it with JSON Schema 2020-12,
-                and receive a <code>classify.receipt</code> from an agent — all using the Commons v1.0.0 contracts.
+                See a complete example: build a <code>summarize.request</code>, validate it with JSON Schema 2020-12,
+                and receive a <code>summarize.receipt</code> from an agent — all using the Commons v1.0.0 contracts.
               </p>
               <p style="margin-top:0.7rem;">
-                <a href="/docs.html">Open the getting-started guide →</a>
+                <a href="/docs.html" class="cl-blue-link">Open the getting-started guide →</a>
               </p>
               <p style="margin-top:0.4rem; font-size:0.85rem; color:#6b7280;">
                 Start with one verb. As x402 and ERC-8004 adoption grows, the same free schemas and Agent Cards
