@@ -9,10 +9,10 @@
     />
     <meta
       name="description"
-      content="CommandLayer docs — how to integrate Commons verbs, use schemas, register Agent Cards, and see live schema-validated demos on top of x402 and ERC-8004."
+      content="Getting started with CommandLayer — Commons verbs, Commercial flows, Agent Cards, and the Runtime layer on top of x402 and ERC-8004."
     />
 
-    <!-- Same metallic layout system as the other pages -->
+    <!-- Same metallic layout system as index / Commons -->
     <style>
       :root {
         --bg: #05060a;
@@ -131,6 +131,7 @@
         text-decoration: none;
         color: var(--text-muted);
         border: 1px solid transparent;
+        white-space: nowrap;
       }
 
       .site-header__link:hover {
@@ -147,7 +148,7 @@
 
       /* Subhero */
       .subhero {
-        padding: 2.8rem 0 2rem;
+        padding: 2.8rem 0 2.1rem;
         border-bottom: 1px solid var(--border-soft);
         background: radial-gradient(circle at 0 0, #111827, #020308);
       }
@@ -178,6 +179,10 @@
         max-width: 40rem;
         font-size: 0.96rem;
         line-height: 1.6;
+      }
+
+      .subhero__subtitle strong {
+        color: var(--accent-strong);
       }
 
       .subhero__meta {
@@ -211,7 +216,7 @@
 
       .section__header h2 {
         margin: 0 0 0.5rem;
-        font-size: 1.4rem;
+        font-size: 1.5rem; /* slightly larger for Docs key sections */
       }
 
       .section__header p {
@@ -229,10 +234,6 @@
         grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
-      .grid--2 {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
       .info-card {
         background: rgba(15, 23, 42, 0.95);
         padding: 1.1rem;
@@ -247,84 +248,90 @@
       }
 
       .info-card p {
-        margin: 0 0 0.6rem;
+        margin: 0;
         color: var(--text-muted);
       }
 
-      .info-card code {
-        font-size: 0.85rem;
-        background: rgba(15, 23, 42, 0.9);
-        padding: 0.12rem 0.3rem;
-        border-radius: 4px;
+      /* Card block */
+      .card-block {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-xl);
+        padding: 1.4rem 1.4rem 1.6rem;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
       }
 
-      pre {
+      .card-block__title {
+        margin: 0 0 0.5rem;
+        font-size: 1.2rem;
+      }
+
+      .card-block__subtitle {
+        margin: 0 0 0.9rem;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+      }
+
+      .card-block ul {
         margin: 0.4rem 0 0;
-        padding: 0.7rem 0.8rem;
-        border-radius: 10px;
-        background: rgba(15, 23, 42, 0.96);
-        border: 1px solid rgba(148, 163, 184, 0.4);
-        font-size: 0.8rem;
-        overflow-x: auto;
-      }
-
-      code {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-          "Liberation Mono", "Courier New", monospace;
-      }
-
-      .badge-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
-      }
-
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.2rem 0.6rem;
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.5);
-        font-size: 0.78rem;
+        padding-left: 1.1rem;
+        font-size: 0.9rem;
         color: var(--text-muted);
       }
 
-      .badge-dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 999px;
-        background: #4ade80;
+      .card-block ul li {
+        margin-bottom: 0.25rem;
       }
 
-      a.link {
-        color: var(--accent-strong);
+      /* Request/receipt example block */
+      .example-block {
+        margin-top: 1.2rem;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .example-card {
+        background: rgba(15, 23, 42, 0.98);
+        border-radius: 14px;
+        border: 1px solid var(--border-soft);
+        padding: 0.9rem 1rem;
+        font-size: 0.85rem;
+      }
+
+      .example-card__label {
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent-muted);
+        margin-bottom: 0.4rem;
+      }
+
+      .example-card pre {
+        margin: 0;
+        padding: 0.6rem 0.7rem;
+        background: rgba(15, 23, 42, 0.92);
+        border-radius: 10px;
+        border: 1px solid rgba(15, 23, 42, 0.9);
+        overflow-x: auto;
+        font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 0.8rem;
+      }
+
+      .example-caption {
+        margin-top: 0.7rem;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+      }
+
+      .example-caption a {
+        color: #60a5fa;
         text-decoration: none;
       }
 
-      a.link:hover {
+      .example-caption a:hover {
         text-decoration: underline;
-      }
-
-      .callout {
-        border-radius: var(--radius-lg);
-        padding: 1rem 1.1rem;
-        border: 1px dashed rgba(148, 163, 184, 0.6);
-        background: rgba(15, 23, 42, 0.9);
-        font-size: 0.88rem;
-        color: var(--text-muted);
-      }
-
-      .callout strong {
-        color: var(--accent-strong);
-      }
-
-      .card-block {
-        border-radius: var(--radius-lg);
-        padding: 1rem 1.1rem;
-        border: 1px solid rgba(148, 163, 184, 0.6);
-        background: rgba(15, 23, 42, 0.9);
       }
 
       /* Footer */
@@ -334,11 +341,30 @@
       }
 
       .site-footer__inner {
-        display: flex;
-        justify-content: space-between;
-        padding: 1rem 1.5rem;
+        padding: 1.4rem 1.5rem 1.8rem;
         font-size: 0.78rem;
         color: var(--text-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        align-items: center;
+        text-align: center;
+      }
+
+      .site-footer__links {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+        margin-top: 0.2rem;
+      }
+
+      .site-footer__links a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .site-footer__links a:hover {
+        text-decoration: underline;
       }
 
       /* Mobile */
@@ -360,14 +386,16 @@
           text-align: left;
         }
 
-        .grid--3,
-        .grid--2 {
+        .grid--3 {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .example-block {
           grid-template-columns: minmax(0, 1fr);
         }
 
         .site-footer__inner {
-          flex-direction: column;
-          gap: 0.5rem;
+          padding-inline: 1rem;
         }
       }
     </style>
@@ -395,7 +423,7 @@
             <a href="/agent-cards.html" class="site-header__link">Agent Cards</a>
             <a href="/docs.html" class="site-header__link site-header__link--active">Docs</a>
             <a href="/roadmap.html" class="site-header__link">Roadmap</a>
-            <a href="/demo.html" class="site-header__link">Demo</a>
+            <a href="/demo.html" class="site-header__link">Live Demo</a>
             <a
               href="https://github.com/commandlayer"
               class="site-header__link"
@@ -416,155 +444,199 @@
               <div class="subhero__eyebrow">Docs</div>
               <h1 class="subhero__title">Getting started with CommandLayer</h1>
               <p class="subhero__subtitle">
-                Three moving parts: <strong>Commons</strong> verbs,
-                <strong>schemas</strong>, and <strong>Agent Cards</strong>.
-                This page shows how to call a verb, validate payloads, describe your own agent,
-                and see live Ajv-validated flows — all on top of x402 and ERC-8004.
+                Four pieces work together on top of <strong>x402</strong> and
+                <strong>ERC-8004</strong>: Commons verbs, Commercial verbs, Agent Cards, and the
+                Runtime execution layer. This page shows how to call a verb, validate payloads,
+                describe your own agent, and see how everything lines up.
               </p>
             </div>
             <div class="subhero__meta">
               <div>Protocol v1.0.0</div>
-              <div>Commons + Commercial + Agent Cards</div>
-              <div style="margin-top:0.3rem;">
-                NPM:
-                <code>@commandlayer/protocol-commons</code>
+              <div>Commons v1.0.0 · MIT</div>
+              <div>Commercial v1.0.0 · Apache-2.0</div>
+              <div>Agent Cards v1.0.0 · Apache-2.0</div>
+              <div>Runtime layer · BUSL (coming online)</div>
+              <div style="margin-top:0.4rem;">
+                <strong>Schemas are permanently free</strong> — economics live in the Runtime and execution layer, not in the verb language.
               </div>
             </div>
           </div>
         </section>
 
-        <!-- 1. HIGH-LEVEL OVERVIEW -->
+        <!-- HOW TO THINK ABOUT THE PROTOCOL -->
         <section class="section">
           <div class="container">
             <div class="section__header">
               <h2>How to think about the protocol</h2>
               <p>
-                At minimum, you only need two things to integrate:
-                <strong>a verb</strong> and its <strong>schemas</strong>. If
-                you also want others to discover your agent, you publish an
-                <strong>Agent Card</strong>.
+                At minimum, you only need two things to integrate: a <strong>verb</strong> and its
+                <strong>schemas</strong>. If you also want others to discover and route to your
+                agent, you publish an <strong>Agent Card</strong>. When Runtime endpoints come
+                online, they reuse the same contracts — only execution changes, not semantics.
               </p>
             </div>
 
             <div class="grid grid--3">
               <article class="info-card">
-                <h3>1. Pick a verb</h3>
+                <h3>Commons verbs</h3>
                 <p>
-                  Choose a verb from <a href="/commons.html" class="link">Commons</a>
-                  (e.g. <code>summarize</code>, <code>analyze</code>). Commercial
-                  v1.0.0 currently covers a small set of economic verbs
-                  (e.g. <code>checkout</code>, <code>purchase</code>) and you
-                  only need it if your flow moves money or triggers fulfillment.
-                </p>
-                <p>
-                  You are not inventing a new format. You’re opting into a
-                  shared one.
+                  Universal verbs like <code>summarize</code>, <code>analyze</code>,
+                  <code>parse</code>, and <code>fetch</code>. Each one has a strict
+                  <code>*.request</code> and <code>*.receipt</code> JSON Schema you can plug into
+                  any agent.
                 </p>
               </article>
 
               <article class="info-card">
-                <h3>2. Use the schemas</h3>
+                <h3>Commercial verbs</h3>
                 <p>
-                  Take the <code>*.request</code> and
-                  <code>*.receipt</code> JSON Schemas for that verb and use
-                  them as the contract between your client and your agent.
-                </p>
-                <p>
-                  You can validate with any JSON Schema 2020-12 validator.
+                  Economic flows — <code>authorize</code>, <code>checkout</code>,
+                  <code>purchase</code>, <code>ship</code>, <code>verify</code> — designed to sit
+                  on x402 rails and tie into payments, fulfillment, and risk.
                 </p>
               </article>
 
               <article class="info-card">
-                <h3>3. Publish an Agent Card</h3>
+                <h3>Agent Cards &amp; Runtime</h3>
                 <p>
-                  If you want others to call you, publish an
-                  <a href="/agent-cards.html" class="link">Agent Card JSON</a>
-                  that says: “this ENS name serves these verbs at these x402
-                  endpoints”.
+                  Agent Cards bind ENS names to verbs and x402 entrypoints. Runtime endpoints
+                  execute those verbs with receipts and guarantees, while the verb language and
+                  schemas stay free and stable.
                 </p>
               </article>
             </div>
           </div>
         </section>
 
-        <!-- 2. CALLING A COMMONS VERB -->
+        <!-- WHAT YOU CAN DO RIGHT NOW -->
         <section class="section section--muted">
+          <div class="container">
+            <div class="section__header">
+              <h2>What you can do right now</h2>
+              <p>
+                Use CommandLayer as the <strong>language contract</strong> between clients and
+                agents — the piece that standardizes exit names, request shapes, and receipts on top
+                of x402 and ERC-8004.
+              </p>
+            </div>
+
+            <div class="card-block">
+              <h3 class="card-block__title">One simple flow to start</h3>
+              <p class="card-block__subtitle">
+                The fastest way in is to wire a single Commons verb. The pattern is always the same:
+                pick a verb, shape a request, validate, send, and check the receipt.
+              </p>
+              <ul>
+                <li>
+                  Pick a Commons verb (e.g. <code>summarize</code>) from
+                  <a href="/commons.html" style="color:#60a5fa;text-decoration:none;">Commons</a>.
+                </li>
+                <li>Take its <code>*.request</code> and <code>*.receipt</code> schemas as your contract.</li>
+                <li>
+                  Validate payloads against the pinned, free schemas with any JSON Schema 2020-12
+                  validator.
+                </li>
+                <li>
+                  Describe your agent with an Agent Card so it can be discovered and routed to by
+                  x402 / ERC-8004-aware registries.
+                </li>
+                <li>
+                  As x402 rails and Runtime endpoints come online, you keep the same contracts —
+                  only the execution layer changes.
+                </li>
+              </ul>
+
+              <!-- Example request / receipt block -->
+              <div class="example-block">
+                <div class="example-card">
+                  <div class="example-card__label">summarize.request</div>
+                  <pre>{
+  "verb": "summarize",
+  "version": "1.0.0",
+  "content": "CommandLayer defines what agents do on x402.",
+  "constraints": {
+    "max_tokens": 120,
+    "style": "neutral"
+  }
+}</pre>
+                </div>
+                <div class="example-card">
+                  <div class="example-card__label">summarize.receipt</div>
+                  <pre>{
+  "verb": "summarize",
+  "version": "1.0.0",
+  "result": "Semantic verb layer describing agent behavior on x402.",
+  "trace": "bafybeieoynknza...",
+  "status": "ok"
+}</pre>
+                </div>
+              </div>
+
+              <p class="example-caption">
+                Real verbs, real receipts — the same shapes across agents, runtimes, and payment rails.
+                <a href="/demo.html">See it live →</a>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- EXAMPLE: CALLING SUMMARIZE -->
+        <section class="section">
           <div class="container">
             <div class="section__header">
               <h2>Example: calling <code>summarize</code></h2>
               <p>
-                A typical integration is: client builds a
-                <code>summarize.request</code> payload, validates it against
-                the Commons schema, sends it to an agent endpoint, and receives
-                a <code>summarize.receipt</code>.
+                A typical integration is: client builds a <code>summarize.request</code> payload,
+                validates it against the Commons schema, sends it to an agent endpoint, and receives
+                a <code>summarize.receipt</code>. The same pattern applies to every Commons verb.
               </p>
             </div>
 
-            <div class="grid grid--2">
-              <article class="info-card">
-                <h3>1. Inspect the schemas</h3>
-                <p>
-                  Both schemas are public:
-                </p>
-                <p>
+            <div class="card-block">
+              <h3 class="card-block__title">1. Inspect the schemas</h3>
+              <p class="card-block__subtitle">
+                Both schemas are public and versioned under
+                <code>https://commandlayer.org/schemas/v1.0.0/commons/summarize/</code>:
+              </p>
+              <ul>
+                <li>
                   <a
                     href="https://commandlayer.org/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json"
-                    class="link"
                     target="_blank"
                     >summarize.request.schema.json</a
-                  ><br />
+                  >
+                </li>
+                <li>
                   <a
                     href="https://commandlayer.org/schemas/v1.0.0/commons/summarize/receipts/summarize.receipt.schema.json"
-                    class="link"
                     target="_blank"
                     >summarize.receipt.schema.json</a
                   >
-                </p>
-                <div class="badge-row">
-                  <span class="badge"
-                    ><span class="badge-dot"></span> JSON Schema 2020-12</span
-                  >
-                  <span class="badge">version: v1.0.0</span>
-                </div>
-              </article>
-
-              <article class="info-card">
-                <h3>2. Shape a request</h3>
-                <p>
-                  Minimal pseudo-example. The <code>trace</code> block is
-                  optional in Commons v1.0.0 and only needed if your agent uses
-                  tracing.
-                </p>
-                <pre><code>{
-  "x402": {
-    "verb": "summarize",
-    "version": "1.0.0",
-    "network": "eip155:1"
-  },
-  "input": {
-    "content": "Long article text here...",
-    "content_type": "text/plain"
-  },
-  "constraints": {
-    "max_tokens": 300,
-    "style": "neutral"
-  },
-  "trace": {
-    "trace_id": "c81f9f56-2c3a-4a6c-bc5b-8d5f8b372901",
-    "span_id": "s1",
-    "timestamp": "2025-11-26T00:00:00Z"
-  }
-}</code></pre>
-              </article>
+                </li>
+              </ul>
+              <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem;">
+                All Commons schemas follow the same pattern:
+                <code>/schemas/v1.0.0/commons/&lt;verb&gt;/requests/&lt;verb&gt;.request.schema.json</code>
+                and
+                <code>/schemas/v1.0.0/commons/&lt;verb&gt;/receipts/&lt;verb&gt;.receipt.schema.json</code>.
+              </p>
             </div>
 
-            <div style="margin-top:1.5rem;" class="grid grid--2">
-              <article class="info-card">
-                <h3>3. Validate before sending</h3>
-                <p>
-                  In Node.js with Ajv (example only):
-                </p>
-                <pre><code>import Ajv from "ajv";
+            <div class="card-block" style="margin-top:1.4rem;">
+              <h3 class="card-block__title">2. Validate before sending</h3>
+              <p class="card-block__subtitle">
+                In Node.js with Ajv (example only — any JSON Schema 2020-12 validator works):
+              </p>
+              <pre style="
+                margin:0;
+                padding:0.9rem 1rem;
+                background:rgba(15,23,42,0.98);
+                border-radius:12px;
+                border:1px solid var(--border-soft);
+                font-family:'SF Mono',ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;
+                font-size:0.82rem;
+                overflow-x:auto;
+              ">import Ajv from "ajv";
 
 const ajv = new Ajv({ strict: true });
 
@@ -576,17 +648,26 @@ const validate = ajv.compile(schema);
 
 if (!validate(payload)) {
   console.error("Invalid summarize.request", validate.errors);
-}</code></pre>
-              </article>
+}</pre>
+            </div>
 
-              <article class="info-card">
-                <h3>4. Send &amp; receive a receipt</h3>
-                <p>
-                  Where you send it depends on the agent. When reference agents
-                  are available, you’ll typically hit an x402-compatible HTTP
-                  endpoint listed in an Agent Card.
-                </p>
-                <pre><code>const res = await fetch("https://&lt;agent-endpoint&gt;/summarize", {
+            <div class="card-block" style="margin-top:1.4rem;">
+              <h3 class="card-block__title">3. Send &amp; receive a receipt</h3>
+              <p class="card-block__subtitle">
+                Where you send the request depends on the agent. When reference agents are
+                available, you’ll typically hit an x402-compatible HTTP endpoint listed in an Agent
+                Card.
+              </p>
+              <pre style="
+                margin:0;
+                padding:0.9rem 1rem;
+                background:rgba(15,23,42,0.98);
+                border-radius:12px;
+                border:1px solid var(--border-soft);
+                font-family:'SF Mono',ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;
+                font-size:0.82rem;
+                overflow-x:auto;
+              ">const res = await fetch("https://&lt;agent-endpoint&gt;/summarize", {
   method: "POST",
   headers: {
     "content-type": "application/json"
@@ -595,89 +676,38 @@ if (!validate(payload)) {
 });
 
 const receipt = await res.json();
-// validate against summarize.receipt.schema.json</code></pre>
-              </article>
+// validate against summarize.receipt.schema.json</pre>
             </div>
           </div>
         </section>
 
-        <!-- 2.5 LIVE COMMONS FLOW DEMO -->
-        <section class="section">
-          <div class="container">
-            <div class="section__header">
-              <h2>Live demo: Commons flow with Ajv validation</h2>
-              <p>
-                The <strong>Commons Flow Composer</strong> demo shows how multiple verbs can be
-                chained into a single flow with a shared <code>trace_id</code>, and how receipts
-                are validated against the shared base receipt schema.
-              </p>
-            </div>
-
-            <div class="grid grid--2">
-              <article class="info-card">
-                <h3>What the demo does</h3>
-                <p>
-                  The UI at <a href="/demo.html" class="link">Demo</a> &rarr; “Commons Flow Composer”
-                  builds a list of up to three steps, each with:
-                </p>
-                <ul style="margin:0 0 0.5rem 1.1rem;padding:0;font-size:0.86rem;color:var(--text-muted);">
-                  <li>a Commons verb (from 10 live verbs),</li>
-                  <li>a simple text input, and</li>
-                  <li>an index in the flow.</li>
-                </ul>
-                <p style="margin:0;font-size:0.86rem;color:var(--text-muted);">
-                  The frontend POSTs these steps to
-                  <code>/api/commons-flow</code> on Vercel. The backend generates a
-                  <code>trace_id</code>, per-step <code>x402</code> envelopes, trace blocks,
-                  <code>status</code>, <code>result</code>, and <code>usage</code>, then
-                  validates each receipt with Ajv before returning the full flow.
-                </p>
-              </article>
-
-              <article class="info-card">
-                <h3>What is actually enforced</h3>
-                <p>
-                  Today the demo enforces the shared base receipt contract:
-                </p>
-                <pre><code>- receipt.base v1.0.0 (inline mirror of
-  _shared/receipt.base.schema.json)
-- minimal x402 envelope:
-  { "verb": &lt;commons-verb&gt;, "version": "1.0.0" }</code></pre>
-                <p style="margin-top:0.6rem;font-size:0.86rem;color:var(--text-muted);">
-                  The demo does <strong>not yet</strong> validate verb-specific
-                  <code>result</code> payloads against their individual Commons
-                  <code>*.receipt</code> schemas. The result objects follow the expected shapes
-                  (e.g. summary + bullets, labels, tokens) but only the shared
-                  <code>receipt.base</code> structure is strictly enforced in this runtime.
-                </p>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <!-- 3. DEFINING AN AGENT CARD -->
-        <section class="section">
+        <!-- DEFINING YOUR OWN AGENT CARD -->
+        <section class="section section--muted">
           <div class="container">
             <div class="section__header">
               <h2>Defining your own Agent Card</h2>
               <p>
-                If you operate an agent and want others to discover and call it,
-                you describe it with an Agent Card JSON file and host it at a
-                stable URL under your control.
+                If you operate an agent and want others to discover and call it, you describe it
+                with an Agent Card JSON file and host it at a stable URL under your control.
               </p>
             </div>
 
-            <div class="grid grid--2">
-              <article class="info-card">
-                <h3>1. Start from the template</h3>
-                <p>
-                  For Commons agents, cards live under:
-                  <code>/agent-cards/v1.0.0/commons/&lt;ens&gt;.json</code>
-                </p>
-                <p>
-                  Example (structure only, not full spec):
-                </p>
-                <pre><code>{
+            <div class="card-block">
+              <h3 class="card-block__title">1. Start from the template</h3>
+              <p class="card-block__subtitle">
+                For Commons agents, cards live under:
+                <code>/agent-cards/v1.0.0/commons/&lt;ens&gt;.json</code>
+              </p>
+              <pre style="
+                margin:0;
+                padding:0.9rem 1rem;
+                background:rgba(15,23,42,0.98);
+                border-radius:12px;
+                border:1px solid var(--border-soft);
+                font-family:'SF Mono',ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;
+                font-size:0.82rem;
+                overflow-x:auto;
+              ">{
   "ens": "summarizeagent.eth",
   "owner": "commandlayer.eth",
   "contact": "dev@commandlayer.org",
@@ -694,77 +724,72 @@ const receipt = await res.json();
       "entry": "x402://summarizeagent.eth/summarize/v1"
     }
   ]
-}</code></pre>
-              </article>
-
-              <article class="info-card">
-                <h3>2. Host and reference it</h3>
-                <p>
-                  Once the JSON file is in place (and ideally pinned on IPFS),
-                  you can:
-                </p>
-                <ul style="margin:0 0 0.5rem 1.1rem;padding:0;font-size:0.88rem;color:var(--text-muted);">
-                  <li>Link to it from <a href="/agent-cards.html" class="link">Agent Cards</a>.</li>
-                  <li>Reference it from ENS TXT records.</li>
-                  <li>Share it with integrators and registries.</li>
-                </ul>
-                <p style="margin:0;font-size:0.86rem;color:var(--text-muted);">
-                  The important bit is that the card unambiguously ties an
-                  <strong>ENS name</strong> to <strong>verbs</strong>,
-                  <strong>schemas</strong>, and <strong>x402 entrypoints</strong>.
-                </p>
-              </article>
+}</pre>
+              <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.6rem;">
+                Commercial agents follow the same pattern under
+                <code>/agent-cards/v1.0.0/commercial/&lt;ens&gt;.json</code>, with verbs such as
+                <code>authorize</code>, <code>checkout</code>, <code>purchase</code>,
+                <code>ship</code>, and <code>verify</code>.
+              </p>
             </div>
 
-            <div style="margin-top:1.3rem;">
-              <div class="card-block">
-                <strong>Commercial agents</strong>
-                <p style="margin:0.4rem 0 0;font-size:0.86rem;color:var(--text-muted);">
-                  Commercial agents follow the same pattern, typically under
-                  <code>/agent-cards/v1.0.0/commercial/&lt;ens&gt;.json</code>,
-                  with verbs such as <code>authorize</code>, <code>checkout</code>,
-                  <code>purchase</code>, <code>ship</code>, and <code>verify</code>,
-                  and corresponding x402 entries for paid flows.
-                </p>
-              </div>
+            <div class="card-block" style="margin-top:1.4rem;">
+              <h3 class="card-block__title">2. Host and reference it</h3>
+              <p class="card-block__subtitle">
+                Once the JSON file is in place (and ideally pinned on IPFS), you can:
+              </p>
+              <ul>
+                <li>Link to it from the <a href="/agent-cards.html" style="color:#60a5fa;text-decoration:none;">Agent Cards</a> registry.</li>
+                <li>Reference it from ENS TXT records.</li>
+                <li>Share it with integrators, wallets, and registries.</li>
+              </ul>
+              <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.6rem;">
+                The important bit is that the card unambiguously ties an ENS name to verbs, schema
+                versions, and x402 entrypoints. Everything else — ranking, routing, pricing — can
+                sit on top.
+              </p>
             </div>
           </div>
         </section>
 
-        <!-- 4. WHERE TO GO NEXT -->
-        <section class="section section--muted">
+        <!-- WHERE TO GO NEXT -->
+        <section class="section">
           <div class="container">
-            <div class="callout">
-              <strong>Where to go next</strong>
-              <ul style="margin:0.6rem 0 0 1.1rem;padding:0;font-size:0.88rem;">
+            <div class="card-block">
+              <h3 class="card-block__title">Where to go next</h3>
+              <p class="card-block__subtitle">
+                You don’t need the whole stack to start. One verb + its schemas is enough. As x402
+                and ERC-8004 roll out, the same vocabulary scales across more agents, networks, and
+                payment rails.
+              </p>
+              <ul>
                 <li>
-                  Browse the verb set on <a href="/commons.html" class="link">Commons</a>.
+                  Browse the verb set on <a href="/commons.html" style="color:#60a5fa;text-decoration:none;">Commons</a>.
                 </li>
+                <li>Review the economic verbs on <a href="/commercial.html" style="color:#60a5fa;text-decoration:none;">Commercial</a>.</li>
+                <li>See how Agent Cards are laid out on <a href="/agent-cards.html" style="color:#60a5fa;text-decoration:none;">Agent Cards</a>.</li>
+                <li>Try the live flows on <a href="/demo.html" style="color:#60a5fa;text-decoration:none;">Live Demo</a>.</li>
                 <li>
-                  Review the economic verbs on
-                  <a href="/commercial.html" class="link">Commercial</a> (v1.0.0 live).
-                </li>
-                <li>
-                  See how Agent Cards are laid out on
-                  <a href="/agent-cards.html" class="link">Agent Cards</a>.
-                </li>
-                <li>
-                  Try the live flows on
-                  <a href="/demo.html" class="link">Demo</a>, then wire a single verb into your
-                  own stack and validate against the schemas.
+                  Wire a single verb into your stack, validate against the schema, and treat
+                  everything else as optional until you need it.
                 </li>
               </ul>
             </div>
           </div>
         </section>
       </main>
- 
+
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <span>© CommandLayer Protocol</span>
-          <span class="site-footer__meta">
-            Protocol v1.0.0 · Commons + Commercial · Agent Cards
-          </span>
+          <div>© CommandLayer — semantic layer for autonomous agents</div>
+          <div>
+            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free
+          </div>
+          <div class="site-footer__links">
+            <a href="/docs.html">Docs</a>
+            <a href="/commons.html">Commons</a>
+            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
         </div>
       </footer>
     </div>
