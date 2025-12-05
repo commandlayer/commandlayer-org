@@ -1,64 +1,333 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <title>Licensing — CommandLayer</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <style>
-    :root {
-      --bg: #05060a;
-      --bg-elevated: #0a0c14;
-      --border-soft: rgba(255, 255, 255, 0.06);
-      --text-main: #f5f5ff;
-      --text-muted: #9ca3c7;
-    }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: system-ui, sans-serif;
-      background: var(--bg);
-      color: var(--text-main);
-      display: flex;
-      justify-content: center;
-      padding: 48px 16px;
-    }
-    .card {
-      max-width: 860px;
-      width: 100%;
-      border-radius: 24px;
-      border: 1px solid var(--border-soft);
-      background: var(--bg-elevated);
-      padding: 32px;
-    }
-    .dropdown {
-      display: flex;
-      justify-content: flex-end;
-      margin-bottom: 16px;
-    }
-    select {
-      background: var(--bg);
-      color: var(--text-main);
-      border-radius: 999px;
-      padding: 6px 10px;
-      border: 1px solid var(--border-soft);
-    }
-    h1 { margin: 0 0 16px; font-size: 22px; }
-    p { color: var(--text-muted); }
-  </style>
-</head>
-<body>
-  <div class="card">
-    <div class="dropdown">
-      <select onchange="if(this.value) location.href=this.value;">
-        <option value="">Protocol docs…</option>
-        <option value="/docs.html">Docs</option>
-        <option value="/governance.html">Governance</option>
-        <option value="/manifest.html">Manifest</option>
-        <option value="/licensing.html" selected>Licensing</option>
-      </select>
-    </div>
-    <h1>Licensing</h1>
-    <p>Coming soon.</p>
-  </div>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Licensing — CommandLayer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description"
+      content="Licensing for CommandLayer: Commons MIT and free forever, Commercial and Agent Cards under Apache-2.0, and Runtime under BUSL. Schemas are permanently free—economic value lives in execution." />
+
+    <style>
+      :root {
+        --bg: #05060a;
+        --bg-elevated: #0a0c14;
+        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+        --border-soft: rgba(255, 255, 255, 0.06);
+        --accent: #c5cbe0;
+        --accent-strong: #e3e7ff;
+        --accent-muted: #8f96b5;
+        --text-main: #f7f8ff;
+        --text-muted: #9ca3c7;
+        --text-soft: #6b7280;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+        --max-width: 1120px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      /* Base */
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, Inter, sans-serif;
+        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+        color: var(--text-main);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container {
+        width: 100%;
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Header + Nav (identical to homepage) */
+      .site-header {
+        background: var(--bg-header);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(18px);
+      }
+      .site-header__inner {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.9rem 1.5rem;
+      }
+      .site-header__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: inherit;
+        text-decoration: none;
+      }
+      .site-header__logo-img {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+      }
+      .site-header__nav {
+        display: flex;
+        gap: 1rem;
+      }
+      .site-header__link {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        color: var(--text-muted);
+        border: 1px solid transparent;
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .site-header__link:hover,
+      .site-header__dropdown-btn:hover {
+        color: var(--accent-strong);
+        background: rgba(15, 23, 42, 0.7);
+        border-color: rgba(255, 255, 255, 0.18);
+      }
+      .site-header__link--active {
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        color: #020617;
+      }
+
+      /* Dropdown */
+      .site-header__dropdown {
+        position: relative;
+      }
+      .site-header__dropdown-btn {
+        background: transparent;
+        border: 1px solid transparent;
+        cursor: pointer;
+        color: var(--text-muted);
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+      }
+      .site-header__dropdown-menu {
+        position: absolute;
+        top: 2.3rem;
+        right: 0;
+        background: rgba(15, 23, 42, 0.98);
+        border: 1px solid var(--border-soft);
+        border-radius: 14px;
+        display: none;
+        padding: 0.5rem;
+      }
+      .site-header--docs-open .site-header__dropdown-menu {
+        display: block;
+      }
+
+      /* Page sections */
+      main {
+        flex: 1;
+        padding: 3rem 0;
+      }
+      h1 {
+        font-size: 2rem;
+        margin-bottom: 0.8rem;
+      }
+      h2 {
+        font-size: 1.4rem;
+        margin-top: 2.2rem;
+        margin-bottom: 0.5rem;
+      }
+      p {
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+      code {
+        font-size: 0.85rem;
+        background: rgba(15, 23, 42, 0.8);
+        padding: 0.1rem 0.3rem;
+        border-radius: 4px;
+      }
+
+      table {
+        width: 100%;
+        margin-top: 1rem;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+      }
+      th, td {
+        padding: 0.6rem;
+        border: 1px solid rgba(255,255,255,0.08);
+        text-align: left;
+      }
+      th {
+        background: rgba(255,255,255,0.06);
+      }
+
+      /* Footer */
+      footer {
+        text-align: center;
+        color: var(--text-soft);
+        padding: 1.5rem 1rem 2rem;
+        font-size: 0.8rem;
+        border-top: 1px solid rgba(255,255,255,0.12);
+      }
+      footer a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+      footer a:hover {
+        text-decoration: underline;
+      }
+
+      /* Mobile tweaks */
+      @media(max-width: 880px) {
+        .site-header__nav {
+          display: none;
+          flex-direction: column;
+        }
+        .site-header--open .site-header__nav {
+          display: flex;
+          padding-top: 0.5rem;
+        }
+        .site-header__toggle {
+          display: inline-flex;
+        }
+      }
+      .site-header__toggle {
+        display: none;
+        background: rgba(15,23,42,.9);
+        padding: .25rem .6rem;
+        border:1px solid rgba(148,163,184,.7);
+        border-radius:999px;
+        color:var(--text-main);
+        cursor:pointer;
+      }
+    </style>
+  </head>
+
+  <body>
+    <header class="site-header">
+      <div class="site-header__inner container">
+        <a href="/" class="site-header__brand">
+          <img src="icon2.png" class="site-header__logo-img" alt="CommandLayer" />
+          <div>
+            <div class="site-header__title">CommandLayer</div>
+            <div class="site-header__subtitle">Semantic verb & schema layer for agents</div>
+          </div>
+        </a>
+
+        <button class="site-header__toggle" aria-expanded="false">☰</button>
+
+        <nav class="site-header__nav">
+          <a href="/" class="site-header__link">Overview</a>
+          <a href="/manifest.html" class="site-header__link">Manifest</a>
+
+          <div class="site-header__dropdown">
+            <button class="site-header__dropdown-btn">Docs ▾</button>
+            <div class="site-header__dropdown-menu">
+              <a href="/commons.html">Commons</a>
+              <a href="/commercial.html">Commercial</a>
+              <a href="/agent-cards.html">Agent Cards</a>
+              <a href="/runtime.html">Runtime</a>
+              <a href="/roadmap.html">Roadmap</a>
+              <a href="/licensing.html" class="site-header__link--active">Licensing</a>
+              <a href="/about.html">About</a>
+            </div>
+          </div>
+
+          <a href="/demo.html" class="site-header__link">Live Demo</a>
+          <a href="https://github.com/commandlayer" class="site-header__link" target="_blank">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="container">
+      <h1>Licensing</h1>
+      <p>
+        CommandLayer is designed as a **public semantic layer** for autonomous agents:
+        <strong>schemas are permanently free;</strong> economics live entirely in execution.
+      </p>
+
+      <table>
+        <tr>
+          <th>Component</th>
+          <th>License</th>
+          <th>Meaning</th>
+        </tr>
+        <tr>
+          <td><strong>Commons</strong> (schemas)</td>
+          <td>MIT</td>
+          <td>
+            Free forever. Anyone can build, sell, or modify agents that use Commons verbs — without permission.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Commercial</strong> (schemas)</td>
+          <td>Apache-2.0</td>
+          <td>
+            Free to use and extend. Clear patent rights.<br />
+            Standard for economic verbs like <code>authorize</code> or <code>purchase</code>.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Agent Cards</strong></td>
+          <td>Apache-2.0</td>
+          <td>
+            Identity metadata, discovery, routing info — free and open, but with enforcement against misrepresentation.
+          </td>
+        </tr>
+        <tr>
+          <td><strong>Runtime</strong> (execution)</td>
+          <td>BUSL-1.1</td>
+          <td>
+            Open to use, but production deployment requires a commercial agreement once revenue scales.<br />
+            Keeps economic value in execution, not semantics.
+          </td>
+        </tr>
+      </table>
+
+      <h2>Why this structure?</h2>
+      <p>
+        Verbs and schemas are <strong>infrastructure</strong> — the shared language. They must remain public goods.
+        Runtime is where **guarantees, routing, uptime, and paid flows** happen — so that’s where monetization belongs.
+      </p>
+
+      <h2>Developer freedom</h2>
+      <ul>
+        <li>Build agents under MIT/Apache-2.0 without restriction.</li>
+        <li>Run any Commons or Commercial verbs locally for free.</li>
+        <li>Use Agent Cards to broadcast capability to registries.</li>
+        <li>Opt into Runtime only when SLAs or value transfer matter.</li>
+      </ul>
+
+      <p>
+        In short: <strong>CommandLayer will never charge for semantics.</strong>  
+        The business is in making the agent economy <strong>execute</strong>.
+      </p>
+    </main>
+
+    <footer>
+      <div>© CommandLayer — semantic layer for autonomous agents</div>
+      <div>Protocol v1.0.0 · Commons MIT · Commercial & Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free</div>
+      <div><a href="/docs.html">Docs</a> · <a href="/manifest.html">Manifest</a> · <a href="https://github.com/commandlayer" target="_blank">GitHub</a></div>
+    </footer>
+
+    <script>
+      (() => {
+        const header = document.querySelector(".site-header");
+        const toggle = document.querySelector(".site-header__toggle");
+        const docsBtn = document.querySelector(".site-header__dropdown-btn");
+
+        toggle?.addEventListener("click", () => {
+          const isOpen = header.classList.toggle("site-header--open");
+          toggle.setAttribute("aria-expanded", isOpen);
+        });
+
+        docsBtn?.addEventListener("click", () => {
+          header.classList.toggle("site-header--docs-open");
+        });
+      })();
+    </script>
+  </body>
 </html>
