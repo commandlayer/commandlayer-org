@@ -9,10 +9,9 @@
     />
     <meta
       name="description"
-      content="Getting started with CommandLayer — Commons verbs, Commercial flows, Agent Cards, and the Runtime layer on top of x402 and ERC-8004."
+      content="Getting started with CommandLayer — Commons verbs, Commercial flows, Agent Cards, and the Runtime layer on top of x402 and ERC-8004. Schemas are always free; value lives in execution."
     />
 
-    <!-- Same metallic layout system as index / Commons -->
     <style>
       :root {
         --bg: #05060a;
@@ -146,61 +145,288 @@
         border-color: rgba(255, 255, 255, 0.25);
       }
 
-      /* Subhero */
-      .subhero {
-        padding: 2.8rem 0 2.1rem;
+      /* Docs dropdown */
+      .site-header__dropdown {
+        position: relative;
+      }
+
+      .site-header__dropdown-btn {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+      }
+
+      .site-header__dropdown-btn:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__dropdown-menu {
+        position: absolute;
+        top: 2.3rem;
+        right: 0;
+        background: rgba(15, 23, 42, 0.98);
+        border-radius: 14px;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        padding: 0.5rem 0.4rem;
+        min-width: 210px;
+        display: none;
+      }
+
+      .site-header__dropdown-menu a {
+        display: block;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.82rem;
+        text-decoration: none;
+        color: var(--text-muted);
+        border-radius: 999px;
+      }
+
+      .site-header__dropdown-menu a:hover {
+        color: var(--accent-strong);
+        background: rgba(31, 41, 55, 0.95);
+      }
+
+      .site-header--docs-open .site-header__dropdown-menu {
+        display: block;
+      }
+
+      /* Mobile toggle */
+      .site-header__toggle {
+        display: none;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--text-main);
+        padding: 0.25rem 0.6rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .site-header__toggle:hover {
+        background: rgba(15, 23, 42, 1);
+      }
+
+      /* Hero (Docs) */
+      .hero {
+        padding: 3.2rem 0 2.8rem;
         border-bottom: 1px solid var(--border-soft);
         background: radial-gradient(circle at 0 0, #111827, #020308);
       }
 
-      .subhero__inner {
-        display: flex;
-        justify-content: space-between;
-        gap: 2rem;
-        align-items: flex-end;
+      .hero__inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
+        align-items: center;
+        gap: 2.5rem;
       }
 
-      .subhero__eyebrow {
+      .hero__eyebrow {
         font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 0.14em;
         color: var(--accent-muted);
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.8rem;
       }
 
-      .subhero__title {
-        margin: 0 0 0.6rem;
-        font-size: 2rem;
+      .hero__title {
+        margin: 0 0 0.8rem;
+        font-size: 2.2rem;
+        line-height: 1.15;
       }
 
-      .subhero__subtitle {
-        margin: 0;
+      .hero__subtitle {
+        margin: 0 0 0.8rem;
         color: var(--text-muted);
-        max-width: 40rem;
-        font-size: 0.96rem;
-        line-height: 1.6;
+        font-size: 0.98rem;
+        max-width: 36rem;
+        line-height: 1.7;
       }
 
-      .subhero__subtitle strong {
+      .hero__subtitle strong {
         color: var(--accent-strong);
       }
 
-      .subhero__meta {
-        font-size: 0.85rem;
-        color: var(--text-soft);
-        text-align: right;
+      .hero__list {
+        margin: 0.4rem 0 0;
+        padding-left: 1.1rem;
+        font-size: 0.9rem;
+        color: var(--text-muted);
       }
 
-      .subhero__meta code {
-        background: rgba(15, 23, 42, 0.9);
-        padding: 0.2rem 0.4rem;
-        border-radius: 4px;
+      .hero__meta {
+        margin-top: 1.3rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
         font-size: 0.8rem;
+        color: var(--text-soft);
+      }
+
+      .hero__meta-pill {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        padding: 0.18rem 0.55rem;
+      }
+
+      .hero__side-meta {
+        font-size: 0.85rem;
+        color: var(--text-soft);
+      }
+
+      .hero__side-meta div + div {
+        margin-top: 0.25rem;
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.6rem 1.1rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .btn--primary {
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        color: #020617;
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      }
+
+      .btn--primary:hover {
+        filter: brightness(1.03);
+      }
+
+      .btn--ghost {
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--accent-strong);
+        border-color: rgba(148, 163, 184, 0.6);
+      }
+
+      .btn--ghost:hover {
+        background: rgba(15, 23, 42, 1);
+      }
+
+      .btn__icon {
+        font-size: 1rem;
+      }
+
+      .hero__cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 1.6rem;
+      }
+
+      /* Card in hero */
+      .hero__card {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-xl);
+        padding: 1.4rem 1.4rem 1.6rem;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .hero__card-title {
+        margin: 0 0 0.5rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+
+      .hero__card-body {
+        margin: 0;
+        font-size: 0.92rem;
+        color: var(--text-main);
+      }
+
+      .hero__card-list {
+        margin: 0.9rem 0 0;
+        padding-left: 1.15rem;
+        font-size: 0.86rem;
+        color: var(--text-muted);
+      }
+
+      /* Mini example (dual) */
+      .mini-example {
+        font-size: 0.85rem;
+        background: rgba(15, 23, 42, 0.9);
+        border: 1px solid var(--border-soft);
+        padding: 1rem;
+        border-radius: var(--radius-lg);
+        margin-top: 1.6rem;
+      }
+
+      .mini-example--dual {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .mini-example__column {
+        min-width: 0;
+      }
+
+      .mini-example__label {
+        opacity: 0.9;
+        margin-bottom: 0.4rem;
+      }
+
+      .mini-example pre {
+        margin: 0;
+        white-space: pre;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", "Courier New", monospace;
+        font-size: 0.82rem;
+        overflow-x: auto;
+      }
+
+      .mini-example__note {
+        grid-column: 1 / -1;
+        opacity: 0.9;
+        margin-top: 0.7rem;
+        font-size: 0.82rem;
+      }
+
+      .mini-example__note a {
+        text-decoration: none;
+      }
+
+      .mini-example__note a:hover {
+        text-decoration: underline;
+      }
+
+      /* Always-blue links */
+      .cl-blue-link {
+        color: #7ca8ff !important;
+        text-decoration: none;
+      }
+      .cl-blue-link:hover {
+        text-decoration: underline;
+      }
+      .cl-blue-link:visited {
+        color: #7ca8ff !important;
       }
 
       /* Sections */
       .section {
-        padding: 2.5rem 0;
+        padding: 2.8rem 0;
       }
 
       .section--muted {
@@ -211,12 +437,12 @@
 
       .section__header {
         max-width: 40rem;
-        margin-bottom: 1.4rem;
+        margin-bottom: 1.6rem;
       }
 
       .section__header h2 {
         margin: 0 0 0.5rem;
-        font-size: 1.5rem; /* slightly larger for Docs key sections */
+        font-size: 1.5rem;
       }
 
       .section__header p {
@@ -252,13 +478,23 @@
         color: var(--text-muted);
       }
 
-      /* Card block */
+      .info-card a {
+        color: var(--accent-strong);
+        text-decoration: none;
+      }
+
+      .info-card a:hover {
+        text-decoration: underline;
+      }
+
+      /* Generic code block card */
       .card-block {
         background: rgba(15, 23, 42, 0.95);
         border-radius: var(--radius-xl);
         padding: 1.4rem 1.4rem 1.6rem;
         border: 1px solid var(--border-soft);
         box-shadow: var(--shadow-soft);
+        font-size: 0.9rem;
       }
 
       .card-block__title {
@@ -283,55 +519,16 @@
         margin-bottom: 0.25rem;
       }
 
-      /* Request/receipt example block */
-      .example-block {
-        margin-top: 1.2rem;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1rem;
-      }
-
-      .example-card {
-        background: rgba(15, 23, 42, 0.98);
-        border-radius: 14px;
-        border: 1px solid var(--border-soft);
-        padding: 0.9rem 1rem;
-        font-size: 0.85rem;
-      }
-
-      .example-card__label {
-        font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--accent-muted);
-        margin-bottom: 0.4rem;
-      }
-
-      .example-card pre {
+      .card-block pre {
         margin: 0;
-        padding: 0.6rem 0.7rem;
-        background: rgba(15, 23, 42, 0.92);
-        border-radius: 10px;
-        border: 1px solid rgba(15, 23, 42, 0.9);
-        overflow-x: auto;
+        padding: 0.9rem 1rem;
+        background: rgba(15, 23, 42, 0.98);
+        border-radius: 12px;
+        border: 1px solid var(--border-soft);
         font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas,
           "Liberation Mono", "Courier New", monospace;
-        font-size: 0.8rem;
-      }
-
-      .example-caption {
-        margin-top: 0.7rem;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-      }
-
-      .example-caption a {
-        color: #60a5fa;
-        text-decoration: none;
-      }
-
-      .example-caption a:hover {
-        text-decoration: underline;
+        font-size: 0.82rem;
+        overflow-x: auto;
       }
 
       /* Footer */
@@ -373,24 +570,33 @@
           padding-inline: 1rem;
         }
 
+        .site-header__toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
         .site-header__nav {
           display: none;
-        }
-
-        .subhero__inner {
           flex-direction: column;
           align-items: flex-start;
+          gap: 0.5rem;
+          margin-top: 0.8rem;
         }
 
-        .subhero__meta {
-          text-align: left;
+        .site-header.site-header--open .site-header__nav {
+          display: flex;
         }
 
-        .grid--3 {
+        .hero__inner {
           grid-template-columns: minmax(0, 1fr);
         }
 
-        .example-block {
+        .hero__card {
+          margin-top: 1.5rem;
+        }
+
+        .mini-example--dual {
           grid-template-columns: minmax(0, 1fr);
         }
 
@@ -416,13 +622,30 @@
             </div>
           </a>
 
+          <!-- Mobile toggle -->
+          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
+            ☰
+          </button>
+
           <nav class="site-header__nav">
             <a href="/" class="site-header__link">Overview</a>
-            <a href="/commons.html" class="site-header__link">Commons</a>
-            <a href="/commercial.html" class="site-header__link">Commercial</a>
-            <a href="/agent-cards.html" class="site-header__link">Agent Cards</a>
-            <a href="/docs.html" class="site-header__link site-header__link--active">Docs</a>
-            <a href="/roadmap.html" class="site-header__link">Roadmap</a>
+            <a href="/manifest.html" class="site-header__link">Manifest</a>
+
+            <div class="site-header__dropdown">
+              <button class="site-header__dropdown-btn" type="button">
+                Docs ▾
+              </button>
+              <div class="site-header__dropdown-menu">
+                <a href="/commons.html">Commons</a>
+                <a href="/commercial.html">Commercial</a>
+                <a href="/agent-cards.html">Agent Cards</a>
+                <a href="/runtime.html">Runtime</a>
+                <a href="/roadmap.html">Roadmap</a>
+                <a href="/licensing.html">Licensing</a>
+                <a href="/about.html">About CommandLayer</a>
+              </div>
+            </div>
+
             <a href="/demo.html" class="site-header__link">Live Demo</a>
             <a
               href="https://github.com/commandlayer"
@@ -437,29 +660,92 @@
       </header>
 
       <main class="page-main">
-        <!-- SUBHERO -->
-        <section class="subhero">
-          <div class="container subhero__inner">
+        <!-- HERO (Docs) -->
+        <section class="hero">
+          <div class="container hero__inner">
             <div>
-              <div class="subhero__eyebrow">Docs</div>
-              <h1 class="subhero__title">Getting started with CommandLayer</h1>
-              <p class="subhero__subtitle">
+              <div class="hero__eyebrow">Docs</div>
+              <h1 class="hero__title">Getting started with CommandLayer</h1>
+              <p class="hero__subtitle">
                 Four pieces work together on top of <strong>x402</strong> and
                 <strong>ERC-8004</strong>: Commons verbs, Commercial verbs, Agent Cards, and the
                 Runtime execution layer. This page shows how to call a verb, validate payloads,
                 describe your own agent, and see how everything lines up.
               </p>
-            </div>
-            <div class="subhero__meta">
-              <div>Protocol v1.0.0</div>
-              <div>Commons v1.0.0 · MIT</div>
-              <div>Commercial v1.0.0 · Apache-2.0</div>
-              <div>Agent Cards v1.0.0 · Apache-2.0</div>
-              <div>Runtime layer · BUSL (coming online)</div>
-              <div style="margin-top:0.4rem;">
-                <strong>Schemas are permanently free</strong> — economics live in the Runtime and execution layer, not in the verb language.
+
+              <ul class="hero__list">
+                <li>Use Commons verbs as your baseline machine-intent grammar.</li>
+                <li>Layer in Commercial verbs for economic flows over x402.</li>
+                <li>Bind agents to ENS and entrypoints with Agent Cards.</li>
+                <li>Rely on Runtime for execution, guarantees, and economics — while schemas stay free.</li>
+              </ul>
+
+              <div class="hero__cta-row">
+                <a href="/commons.html" class="btn btn--primary">
+                  <span class="btn__icon">📚</span>
+                  <span>See Commons verbs</span>
+                </a>
+                <a href="#summarize-example" class="btn btn--ghost">
+                  <span class="btn__icon">⚡</span>
+                  <span>Jump to summarize flow</span>
+                </a>
+              </div>
+
+              <div class="hero__meta" style="margin-top:1.3rem;">
+                <span class="hero__meta-pill">Protocol v1.0.0</span>
+                <span class="hero__meta-pill">Commons v1.0.0 · MIT · schemas free</span>
+                <span class="hero__meta-pill">Commercial v1.0.0 · Apache-2.0</span>
+                <span class="hero__meta-pill">Agent Cards v1.0.0 · Apache-2.0</span>
+                <span class="hero__meta-pill">Runtime coming online · BUSL · execution layer</span>
               </div>
             </div>
+
+            <aside class="hero__card">
+              <h2 class="hero__card-title">One flow you can implement today</h2>
+              <p class="hero__card-body">
+                At minimum, you only need two things to integrate: a <strong>verb</strong> and its
+                <strong>schemas</strong>. If you also want others to discover and route to your
+                agent, you publish an <strong>Agent Card</strong>. When Runtime endpoints come
+                online, they reuse the same contracts — only execution changes, not semantics.
+              </p>
+
+              <ol class="hero__card-list">
+                <li>Pick a Commons verb (e.g. <code>summarize</code>).</li>
+                <li>Take its <code>*.request</code> and <code>*.receipt</code> schemas as your contract.</li>
+                <li>Validate payloads with any JSON Schema 2020-12 validator.</li>
+                <li>
+                  Describe your agent with an
+                  <a href="/agent-cards.html" class="cl-blue-link">Agent Card</a>
+                  so it can be discovered and routed to.
+                </li>
+                <li>
+                  As x402 rails and Runtime endpoints come online, you keep the same contracts —
+                  only the execution layer changes.
+                </li>
+              </ol>
+
+              <!-- Dual request/receipt example -->
+              <div class="mini-example mini-example--dual">
+                <div class="mini-example__column">
+                  <div class="mini-example__label">// summarize.request</div>
+                  <pre>{
+  "verb": "summarize",
+  "content": "CommandLayer defines what agents do on x402."
+}</pre>
+                </div>
+                <div class="mini-example__column">
+                  <div class="mini-example__label">// summarize.receipt</div>
+                  <pre>{
+  "result": "Semantic verb layer describing agent behavior on x402.",
+  "trace": "bafybeieoynknza..."
+}</pre>
+                </div>
+                <div class="mini-example__note">
+                  <strong>Real verbs, real receipts</strong> — the same shapes across agents, runtimes, and payment rails.
+                  <a href="/demo.html" class="cl-blue-link">See it live →</a>
+                </div>
+              </div>
+            </aside>
           </div>
         </section>
 
@@ -467,12 +753,12 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>How to think about the protocol</h2>
+              <h2>How the pieces fit together</h2>
               <p>
-                At minimum, you only need two things to integrate: a <strong>verb</strong> and its
-                <strong>schemas</strong>. If you also want others to discover and route to your
-                agent, you publish an <strong>Agent Card</strong>. When Runtime endpoints come
-                online, they reuse the same contracts — only execution changes, not semantics.
+                CommandLayer doesn’t compete with x402 or ERC-8004 — it completes the stack by
+                defining machine intent. Commons and Commercial verbs give you the vocabulary,
+                Agent Cards bind that vocabulary to agents, and Runtime turns it into execution and
+                guarantees.
               </p>
             </div>
 
@@ -481,7 +767,7 @@
                 <h3>Commons verbs</h3>
                 <p>
                   Universal verbs like <code>summarize</code>, <code>analyze</code>,
-                  <code>parse</code>, and <code>fetch</code>. Each one has a strict
+                  <code>parse</code>, and <code>fetch</code>. Each has a strict
                   <code>*.request</code> and <code>*.receipt</code> JSON Schema you can plug into
                   any agent.
                 </p>
@@ -497,18 +783,18 @@
               </article>
 
               <article class="info-card">
-                <h3>Agent Cards &amp; Runtime</h3>
+                <h3>Agent Cards & Runtime</h3>
                 <p>
-                  Agent Cards bind ENS names to verbs and x402 entrypoints. Runtime endpoints
-                  execute those verbs with receipts and guarantees, while the verb language and
-                  schemas stay free and stable.
+                  Agent Cards bind ENS names to verbs, schema versions, and x402 entrypoints.
+                  Runtime endpoints execute those verbs with receipts and guarantees, while the
+                  verb language and schemas stay free and stable.
                 </p>
               </article>
             </div>
           </div>
         </section>
 
-        <!-- WHAT YOU CAN DO RIGHT NOW -->
+        <!-- WHAT YOU CAN DO RIGHT NOW (DOCS DETAIL) -->
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
@@ -529,7 +815,7 @@
               <ul>
                 <li>
                   Pick a Commons verb (e.g. <code>summarize</code>) from
-                  <a href="/commons.html" style="color:#60a5fa;text-decoration:none;">Commons</a>.
+                  <a href="/commons.html" class="cl-blue-link">Commons</a>.
                 </li>
                 <li>Take its <code>*.request</code> and <code>*.receipt</code> schemas as your contract.</li>
                 <li>
@@ -545,48 +831,17 @@
                   only the execution layer changes.
                 </li>
               </ul>
-
-              <!-- Example request / receipt block -->
-              <div class="example-block">
-                <div class="example-card">
-                  <div class="example-card__label">summarize.request</div>
-                  <pre>{
-  "verb": "summarize",
-  "version": "1.0.0",
-  "content": "CommandLayer defines what agents do on x402.",
-  "constraints": {
-    "max_tokens": 120,
-    "style": "neutral"
-  }
-}</pre>
-                </div>
-                <div class="example-card">
-                  <div class="example-card__label">summarize.receipt</div>
-                  <pre>{
-  "verb": "summarize",
-  "version": "1.0.0",
-  "result": "Semantic verb layer describing agent behavior on x402.",
-  "trace": "bafybeieoynknza...",
-  "status": "ok"
-}</pre>
-                </div>
-              </div>
-
-              <p class="example-caption">
-                Real verbs, real receipts — the same shapes across agents, runtimes, and payment rails.
-                <a href="/demo.html">See it live →</a>
-              </p>
             </div>
           </div>
         </section>
 
         <!-- EXAMPLE: CALLING SUMMARIZE -->
-        <section class="section">
+        <section class="section" id="summarize-example">
           <div class="container">
             <div class="section__header">
               <h2>Example: calling <code>summarize</code></h2>
               <p>
-                A typical integration is: client builds a <code>summarize.request</code> payload,
+                A typical integration: the client builds a <code>summarize.request</code> payload,
                 validates it against the Commons schema, sends it to an agent endpoint, and receives
                 a <code>summarize.receipt</code>. The same pattern applies to every Commons verb.
               </p>
@@ -603,6 +858,7 @@
                   <a
                     href="https://commandlayer.org/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json"
                     target="_blank"
+                    class="cl-blue-link"
                     >summarize.request.schema.json</a
                   >
                 </li>
@@ -610,6 +866,7 @@
                   <a
                     href="https://commandlayer.org/schemas/v1.0.0/commons/summarize/receipts/summarize.receipt.schema.json"
                     target="_blank"
+                    class="cl-blue-link"
                     >summarize.receipt.schema.json</a
                   >
                 </li>
@@ -627,16 +884,7 @@
               <p class="card-block__subtitle">
                 In Node.js with Ajv (example only — any JSON Schema 2020-12 validator works):
               </p>
-              <pre style="
-                margin:0;
-                padding:0.9rem 1rem;
-                background:rgba(15,23,42,0.98);
-                border-radius:12px;
-                border:1px solid var(--border-soft);
-                font-family:'SF Mono',ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;
-                font-size:0.82rem;
-                overflow-x:auto;
-              ">import Ajv from "ajv";
+              <pre>import Ajv from "ajv";
 
 const ajv = new Ajv({ strict: true });
 
@@ -658,16 +906,7 @@ if (!validate(payload)) {
                 available, you’ll typically hit an x402-compatible HTTP endpoint listed in an Agent
                 Card.
               </p>
-              <pre style="
-                margin:0;
-                padding:0.9rem 1rem;
-                background:rgba(15,23,42,0.98);
-                border-radius:12px;
-                border:1px solid var(--border-soft);
-                font-family:'SF Mono',ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;
-                font-size:0.82rem;
-                overflow-x:auto;
-              ">const res = await fetch("https://&lt;agent-endpoint&gt;/summarize", {
+              <pre>const res = await fetch("https://&lt;agent-endpoint&gt;/summarize", {
   method: "POST",
   headers: {
     "content-type": "application/json"
@@ -693,21 +932,12 @@ const receipt = await res.json();
             </div>
 
             <div class="card-block">
-              <h3 class="card-block__title">1. Start from the template</h3>
+              <h3 class="card-block__title">Commons agent template</h3>
               <p class="card-block__subtitle">
                 For Commons agents, cards live under:
                 <code>/agent-cards/v1.0.0/commons/&lt;ens&gt;.json</code>
               </p>
-              <pre style="
-                margin:0;
-                padding:0.9rem 1rem;
-                background:rgba(15,23,42,0.98);
-                border-radius:12px;
-                border:1px solid var(--border-soft);
-                font-family:'SF Mono',ui-monospace,Menlo,Monaco,Consolas,'Liberation Mono','Courier New',monospace;
-                font-size:0.82rem;
-                overflow-x:auto;
-              ">{
+              <pre>{
   "ens": "summarizeagent.eth",
   "owner": "commandlayer.eth",
   "contact": "dev@commandlayer.org",
@@ -732,23 +962,6 @@ const receipt = await res.json();
                 <code>ship</code>, and <code>verify</code>.
               </p>
             </div>
-
-            <div class="card-block" style="margin-top:1.4rem;">
-              <h3 class="card-block__title">2. Host and reference it</h3>
-              <p class="card-block__subtitle">
-                Once the JSON file is in place (and ideally pinned on IPFS), you can:
-              </p>
-              <ul>
-                <li>Link to it from the <a href="/agent-cards.html" style="color:#60a5fa;text-decoration:none;">Agent Cards</a> registry.</li>
-                <li>Reference it from ENS TXT records.</li>
-                <li>Share it with integrators, wallets, and registries.</li>
-              </ul>
-              <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.6rem;">
-                The important bit is that the card unambiguously ties an ENS name to verbs, schema
-                versions, and x402 entrypoints. Everything else — ranking, routing, pricing — can
-                sit on top.
-              </p>
-            </div>
           </div>
         </section>
 
@@ -764,11 +977,17 @@ const receipt = await res.json();
               </p>
               <ul>
                 <li>
-                  Browse the verb set on <a href="/commons.html" style="color:#60a5fa;text-decoration:none;">Commons</a>.
+                  Browse the verb set on <a href="/commons.html" class="cl-blue-link">Commons</a>.
                 </li>
-                <li>Review the economic verbs on <a href="/commercial.html" style="color:#60a5fa;text-decoration:none;">Commercial</a>.</li>
-                <li>See how Agent Cards are laid out on <a href="/agent-cards.html" style="color:#60a5fa;text-decoration:none;">Agent Cards</a>.</li>
-                <li>Try the live flows on <a href="/demo.html" style="color:#60a5fa;text-decoration:none;">Live Demo</a>.</li>
+                <li>
+                  Review the economic verbs on <a href="/commercial.html" class="cl-blue-link">Commercial</a>.
+                </li>
+                <li>
+                  See how Agent Cards are laid out on <a href="/agent-cards.html" class="cl-blue-link">Agent Cards</a>.
+                </li>
+                <li>
+                  Try the live flows on <a href="/demo.html" class="cl-blue-link">Live Demo</a>.
+                </li>
                 <li>
                   Wire a single verb into your stack, validate against the schema, and treat
                   everything else as optional until you need it.
@@ -787,11 +1006,32 @@ const receipt = await res.json();
           </div>
           <div class="site-footer__links">
             <a href="/docs.html">Docs</a>
-            <a href="/commons.html">Commons</a>
+            <a href="/manifest.html">Manifest</a>
             <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
       </footer>
     </div>
+
+    <script>
+      (function () {
+        const header = document.querySelector(".site-header");
+        const toggle = document.querySelector(".site-header__toggle");
+        const docsBtn = document.querySelector(".site-header__dropdown-btn");
+
+        if (toggle && header) {
+          toggle.addEventListener("click", () => {
+            const isOpen = header.classList.toggle("site-header--open");
+            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          });
+        }
+
+        if (docsBtn && header) {
+          docsBtn.addEventListener("click", () => {
+            header.classList.toggle("site-header--docs-open");
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
