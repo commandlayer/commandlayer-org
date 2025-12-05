@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Manifest — CommandLayer</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg: #05060a;
+      --bg-elevated: #0a0c14;
+      --border-soft: rgba(255, 255, 255, 0.06);
+      --text-main: #f5f5ff;
+      --text-muted: #9ca3c7;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      padding: 48px 16px;
+    }
+    .card {
+      max-width: 860px;
+      width: 100%;
+      border-radius: 24px;
+      border: 1px solid var(--border-soft);
+      background: var(--bg-elevated);
+      padding: 32px;
+    }
+    .dropdown {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 16px;
+    }
+    select {
+      background: var(--bg);
+      color: var(--text-main);
+      border-radius: 999px;
+      padding: 6px 10px;
+      border: 1px solid var(--border-soft);
+    }
+    h1 { margin: 0 0 16px; font-size: 22px; }
+    p { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="dropdown">
+      <select onchange="if(this.value) location.href=this.value;">
+        <option value="">Protocol docs…</option>
+        <option value="/docs.html">Docs</option>
+        <option value="/governance.html">Governance</option>
+        <option value="/manifest.html" selected>Manifest</option>
+        <option value="/licensing.html">Licensing</option>
+      </select>
+    </div>
+    <h1>Manifest</h1>
+    <p>Coming soon.</p>
+  </div>
+</body>
+</html>
