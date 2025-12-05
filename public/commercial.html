@@ -9,10 +9,10 @@
     />
     <meta
       name="description"
-      content="CommandLayer Commercial — economic verbs and schema layer for agents, covering payments, fulfillment, logistics, and verification."
+      content="CommandLayer Commercial — economic verbs and JSON Schemas for payments, fulfillment, logistics, and verification. Built on Commons semantics, aligned with x402 and compatible with ERC-8004."
     />
 
-    <!-- Same metallic layout system as homepage / Commons / Agent Cards -->
+    <!-- Same metallic layout system as homepage / Commons -->
     <style>
       :root {
         --bg: #05060a;
@@ -131,6 +131,7 @@
         text-decoration: none;
         color: var(--text-muted);
         border: 1px solid transparent;
+        white-space: nowrap;
       }
 
       .site-header__link:hover {
@@ -145,9 +146,80 @@
         border-color: rgba(255, 255, 255, 0.25);
       }
 
+      /* Docs dropdown */
+      .site-header__dropdown {
+        position: relative;
+      }
+
+      .site-header__dropdown-btn {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+      }
+
+      .site-header__dropdown-btn:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__dropdown-menu {
+        position: absolute;
+        top: 2.3rem;
+        right: 0;
+        background: rgba(15, 23, 42, 0.98);
+        border-radius: 14px;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        padding: 0.5rem 0.4rem;
+        min-width: 210px;
+        display: none;
+      }
+
+      .site-header__dropdown-menu a {
+        display: block;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.82rem;
+        text-decoration: none;
+        color: var(--text-muted);
+        border-radius: 999px;
+      }
+
+      .site-header__dropdown-menu a:hover {
+        color: var(--accent-strong);
+        background: rgba(31, 41, 55, 0.95);
+      }
+
+      .site-header--docs-open .site-header__dropdown-menu {
+        display: block;
+      }
+
+      /* Mobile toggle */
+      .site-header__toggle {
+        display: none;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--text-main);
+        padding: 0.25rem 0.6rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .site-header__toggle:hover {
+        background: rgba(15, 23, 42, 1);
+      }
+
       /* Subhero */
       .subhero {
-        padding: 2.8rem 0 2rem;
+        padding: 2.8rem 0 2.1rem;
         border-bottom: 1px solid var(--border-soft);
         background: radial-gradient(circle at 0 0, #111827, #020308);
       }
@@ -178,6 +250,10 @@
         max-width: 40rem;
         font-size: 0.96rem;
         line-height: 1.6;
+      }
+
+      .subhero__subtitle strong {
+        color: var(--accent-strong);
       }
 
       .subhero__meta {
@@ -247,7 +323,7 @@
         color: var(--text-muted);
       }
 
-      /* Card block (for tables) */
+      /* Card block */
       .card-block {
         background: rgba(15, 23, 42, 0.95);
         border-radius: var(--radius-xl);
@@ -324,11 +400,30 @@
       }
 
       .site-footer__inner {
-        display: flex;
-        justify-content: space-between;
-        padding: 1rem 1.5rem;
+        padding: 1.4rem 1.5rem 1.8rem;
         font-size: 0.78rem;
         color: var(--text-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        align-items: center;
+        text-align: center;
+      }
+
+      .site-footer__links {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+        margin-top: 0.2rem;
+      }
+
+      .site-footer__links a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .site-footer__links a:hover {
+        text-decoration: underline;
       }
 
       /* Mobile */
@@ -337,8 +432,22 @@
           padding-inline: 1rem;
         }
 
+        .site-header__toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
         .site-header__nav {
           display: none;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin-top: 0.8rem;
+        }
+
+        .site-header.site-header--open .site-header__nav {
+          display: flex;
         }
 
         .subhero__inner {
@@ -355,8 +464,7 @@
         }
 
         .site-footer__inner {
-          flex-direction: column;
-          gap: 0.5rem;
+          padding-inline: 1rem;
         }
       }
     </style>
@@ -377,25 +485,40 @@
             </div>
           </a>
 
-            <nav class="site-header__nav">
-  <a href="/" class="site-header__link">Overview</a>
-  <a href="/commons.html" class="site-header__link">Commons<a/>
-  <a href="/commercial.html" class="site-header__link site-header__link--active">
-    Commercial  
-  <a href="/agent-cards.html" class="site-header__link">Agent Cards</a>
-  <a href="/docs.html" class="site-header__link">Docs</a>
-  <a href="/roadmap.html" class="site-header__link">Roadmap</a>
-  <a href="/demo.html" class="site-header__link">Demo</a>
-  <a
-    href="https://github.com/commandlayer"
-    class="site-header__link"
-    target="_blank"
-    rel="noopener noreferrer"
-  >
-    GitHub
-  </a>
-</nav>
+          <!-- Mobile toggle -->
+          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
+            ☰
+          </button>
 
+          <nav class="site-header__nav">
+            <a href="/" class="site-header__link">Overview</a>
+            <a href="/manifest.html" class="site-header__link">Manifest</a>
+
+            <div class="site-header__dropdown">
+              <button class="site-header__dropdown-btn" type="button">
+                Docs ▾
+              </button>
+              <div class="site-header__dropdown-menu">
+                <a href="/commons.html">Commons</a>
+                <a href="/commercial.html">Commercial (this page)</a>
+                <a href="/agent-cards.html">Agent Cards</a>
+                <a href="/runtime.html">Runtime</a>
+                <a href="/roadmap.html">Roadmap</a>
+                <a href="/licensing.html">Licensing</a>
+                <a href="/about.html">About CommandLayer</a>
+              </div>
+            </div>
+
+            <a href="/demo.html" class="site-header__link">Live Demo</a>
+            <a
+              href="https://github.com/commandlayer"
+              class="site-header__link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          </nav>
         </div>
       </header>
 
@@ -407,23 +530,21 @@
               <div class="subhero__eyebrow">Commercial</div>
               <h1 class="subhero__title">Commercial Verbs (v1.0.0)</h1>
               <p class="subhero__subtitle">
-                The economic side of CommandLayer — verbs for payments,
-                fulfillment, logistics, authorization, and verification.
-                Designed to sit on top of Commons and plug into x402 / ERC-8004
-                payment and agent rails.
+                The <strong>economic side</strong> of CommandLayer — verbs and schemas for
+                payments, settlement, fulfillment, and verification. Commercial builds on
+                Commons semantics and x402 transport, so agents can
+                <strong>authorize, checkout, purchase, ship, and verify</strong> with stable,
+                shared JSON contracts. <strong>All schemas are permanently free</strong>; the
+                economics live in execution, not in the verb language.
               </p>
             </div>
             <div class="subhero__meta">
               <div>Commercial v1.0.0</div>
-              <div>Economic verbs · higher-value flows</div>
+              <div>Apache-2.0 · schemas free to use</div>
               <div style="margin-top: 0.3rem">
                 Path pattern:<br />
-                <code
-                  >/schemas/v1.0.0/commercial/&lt;verb&gt;/requests/&lt;verb&gt;.request.schema.json</code
-                ><br />
-                <code
-                  >/schemas/v1.0.0/commercial/&lt;verb&gt;/receipts/&lt;verb&gt;.receipt.schema.json</code
-                >
+                <code>/schemas/v1.0.0/commercial/&lt;verb&gt;/requests/&lt;verb&gt;.request.schema.json</code><br />
+                <code>/schemas/v1.0.0/commercial/&lt;verb&gt;/receipts/&lt;verb&gt;.receipt.schema.json</code>
               </div>
             </div>
           </div>
@@ -433,12 +554,13 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>What the Commercial layer is for</h2>
+              <h2>What the Commercial layer is</h2>
               <p>
-                Commercial verbs capture the high-value actions agents perform:
-                taking payments, settling purchases, shipping goods, scheduling
-                services, verifying identities, and enforcing authorization.
-                Where Commons is universal, Commercial is explicitly economic.
+                Commercial verbs capture the higher-value actions agents perform when money,
+                risk, and fulfillment are involved: taking payments, settling purchases,
+                shipping goods, and verifying identities. Commons gives you the shared
+                language for analysis and formatting; Commercial extends that language into
+                economic flows that can plug cleanly into x402 and ERC-8004 rails.
               </p>
             </div>
 
@@ -446,48 +568,54 @@
               <article class="info-card">
                 <h3>Economic primitives</h3>
                 <p>
-                  Verbs that map directly to real-world flows and revenue:
-                  purchases, settlement, shipping, identity checks, and more.
+                  Verbs that map directly to real revenue events:
+                  <code>authorize</code>, <code>checkout</code>, <code>purchase</code>,
+                  <code>ship</code>, <code>verify</code>. Standardized shapes make these
+                  flows easier to route, audit, and compose across providers.
                 </p>
               </article>
 
               <article class="info-card">
-                <h3>Paid integrations</h3>
+                <h3>Built on Commons semantics</h3>
                 <p>
-                  These verbs are designed to plug into processors, wallets, and
-                  rails via x402, with clear room for premium or licensed use.
+                  Commercial assumes Commons exists. Analysis, summarization, parsing, and
+                  formatting wrap around payment and logistics flows, so you don’t invent
+                  new formats every time you connect an economic agent.
                 </p>
               </article>
 
               <article class="info-card">
-                <h3>Composable with Commons</h3>
+                <h3>Schemas free, execution priced</h3>
                 <p>
-                  Commercial verbs assume Commons exists: analyze, summarize,
-                  parse, and format often wrap around economic actions.
+                  Commercial schemas are versioned, pinned, and free to implement under
+                  Apache-2.0. Pricing, routing, SLAs, and guarantees live in the
+                  <strong>Runtime layer</strong>, not in the schema definitions.
                 </p>
               </article>
             </div>
           </div>
         </section>
 
-        <!-- COMMERCIAL VERBS TABLE -->
+        <!-- COMMERCIAL TABLE -->
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
               <h2>Commercial verbs — registry (v1.0.0)</h2>
               <p>
-                Initial set of economic verbs. Schemas are defined and versioned
-                per verb, without touching Commons. Status indicates how mature
-                each definition is.
+                Initial set of economic verbs. Each row lists the verb, its purpose, and direct
+                links to the <strong>request</strong> and <strong>receipt</strong> JSON Schemas
+                under <code>https://commandlayer.org</code>. These schemas are the stable contracts
+                for v1.0.0.
               </p>
             </div>
 
             <div class="card-block">
               <h3 class="card-block__title">Commercial schema index</h3>
               <p class="card-block__subtitle">
-                These links are stable for v1.0.0. Future changes will ship as
-                new versions (<code>v1.1.0</code>, <code>v2.0.0</code>) without
-                breaking early adopters.
+                These links are stable for v1.0.0. Future changes ship as new versions
+                (<code>v1.1.0</code>, <code>v2.0.0</code>) under
+                <code>/schemas/vX.Y.Z/commercial/...</code> — early adopters can keep targeting
+                v1.0.0 without churn.
               </p>
 
               <div class="table-wrapper">
@@ -496,16 +624,42 @@
                     <tr>
                       <th>Verb</th>
                       <th>Category</th>
-                      <th>Status</th>
+                      <th>Purpose</th>
                       <th>Request schema</th>
                       <th>Receipt schema</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
+                      <td><code>authorize</code></td>
+                      <td>Auth / payments</td>
+                      <td>
+                        Perform payment or access authorizations with traceable outcomes
+                        before money moves.
+                      </td>
+                      <td>
+                        <a
+                          href="https://commandlayer.org/schemas/v1.0.0/commercial/authorize/requests/authorize.request.schema.json"
+                          target="_blank"
+                          >request</a
+                        >
+                      </td>
+                      <td>
+                        <a
+                          href="https://commandlayer.org/schemas/v1.0.0/commercial/authorize/receipts/authorize.receipt.schema.json"
+                          target="_blank"
+                          >receipt</a
+                        >
+                      </td>
+                    </tr>
+
+                    <tr>
                       <td><code>checkout</code></td>
                       <td>Commerce / cart</td>
-                      <td>stable / v1.0.0</td>
+                      <td>
+                        Coordinate carts, totals, fees, and payment options as a unified
+                        pre-purchase flow.
+                      </td>
                       <td>
                         <a
                           href="https://commandlayer.org/schemas/v1.0.0/commercial/checkout/requests/checkout.request.schema.json"
@@ -525,7 +679,10 @@
                     <tr>
                       <td><code>purchase</code></td>
                       <td>Commerce / order</td>
-                      <td>stable / v1.0.0</td>
+                      <td>
+                        Capture and settle orders once authorization and risk checks have
+                        passed, with clear order IDs.
+                      </td>
                       <td>
                         <a
                           href="https://commandlayer.org/schemas/v1.0.0/commercial/purchase/requests/purchase.request.schema.json"
@@ -545,7 +702,10 @@
                     <tr>
                       <td><code>ship</code></td>
                       <td>Logistics / fulfillment</td>
-                      <td>stable / v1.0.0</td>
+                      <td>
+                        Encode fulfillment instructions, carrier selection, and tracking
+                        into a shared logistics verb.
+                      </td>
                       <td>
                         <a
                           href="https://commandlayer.org/schemas/v1.0.0/commercial/ship/requests/ship.request.schema.json"
@@ -565,7 +725,10 @@
                     <tr>
                       <td><code>verify</code></td>
                       <td>Identity / checks</td>
-                      <td>stable / v1.0.0</td>
+                      <td>
+                        Perform identity, KYC, eligibility, or policy checks with reusable,
+                        machine-verifiable verification receipts.
+                      </td>
                       <td>
                         <a
                           href="https://commandlayer.org/schemas/v1.0.0/commercial/verify/requests/verify.request.schema.json"
@@ -581,26 +744,6 @@
                         >
                       </td>
                     </tr>
-
-                    <tr>
-                      <td><code>authorize</code></td>
-                      <td>Auth / permissions</td>
-                      <td>stable / v1.0.0</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commercial/authorize/requests/authorize.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commercial/authorize/receipts/authorize.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
                   </tbody>
                 </table>
               </div>
@@ -608,24 +751,53 @@
           </div>
         </section>
 
-        <!-- NOTE ON LICENSING / ECONOMICS (TEXT-ONLY CARD) -->
+        <!-- HOW IT'S USED -->
         <section class="section">
           <div class="container">
             <div class="card-block">
-              <h3 class="card-block__title">Licensing &amp; economics</h3>
+              <h3 class="card-block__title">How Commercial is used in practice</h3>
               <p class="card-block__subtitle">
-                Commercial verbs are where most long-term revenue will sit.
-                They’re designed so operators, providers, and platforms can bolt
-                on pricing, routing, and premium guarantees without breaking the
-                open protocol.
+                A typical e-commerce or payments agent chains multiple Commercial verbs together —
+                for example:
+                <code>authorize → checkout → purchase → ship → verify</code> — while keeping the
+                same schema contracts across runtimes and rails.
+              </p>
+              <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem;">
+                In CommandLayer’s reference flows, the client builds a
+                <code>checkout.request</code>, validates it against the Commercial schema, sends it
+                into a runtime, and receives a <code>checkout.receipt</code> with trace IDs and
+                result fields. Later steps reuse the same pattern for
+                <code>purchase</code>, <code>ship</code>, and <code>verify</code> — only the verb
+                and result shape change.
               </p>
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">
-                The exact licensing model for Commercial verbs (usage tiers,
-                premium integrations, etc.) can evolve over time, but the
-                <strong>names</strong> and <strong>paths</strong> reserved here
-                are stable for v1.0.0. Implementations can iterate behind the
-                same schema contracts, with breaking changes moving to new
-                versions.
+                As x402 and ERC-8004 adoption grows, these same Commercial schemas slot into
+                x402-compatible payment and agent rails. Semantics stay fixed; routing, pricing,
+                and guarantees live in the Runtime layer.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- STABILITY / EVOLUTION -->
+        <section class="section">
+          <div class="container">
+            <div class="card-block">
+              <h3 class="card-block__title">Stability, licensing &amp; evolution</h3>
+              <p class="card-block__subtitle">
+                Commercial v1.0.0 names and schema paths are reserved and stable. Implementations
+                can iterate behind these contracts; breaking changes move to new versions.
+              </p>
+              <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem;">
+                Commercial schemas are published under <strong>Apache-2.0</strong> and treated as
+                open building blocks for the agent economy. Anyone can implement them; there is no
+                per-schema licensing. Monetization sits in Runtime endpoints, SLAs, and routing —
+                not in who is allowed to speak the verb language.
+              </p>
+              <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">
+                Future Commercial verbs (refunds, payouts, subscriptions, risk, and more) will
+                follow the same pattern: stable names, versioned schema contracts, and free access
+                to semantics so the ecosystem can converge on one economic vocabulary for agents.
               </p>
             </div>
           </div>
@@ -634,12 +806,38 @@
 
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <span>© CommandLayer Protocol</span>
-          <span class="site-footer__meta">
-            Commercial v1.0.0  · x402-aligned · ERC-8004-compatible
-          </span>
+          <div>© CommandLayer — semantic layer for autonomous agents</div>
+          <div>
+            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free
+          </div>
+          <div class="site-footer__links">
+            <a href="/docs.html">Docs</a>
+            <a href="/manifest.html">Manifest</a>
+            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
         </div>
       </footer>
     </div>
+
+    <script>
+      (function () {
+        const header = document.querySelector(".site-header");
+        const toggle = document.querySelector(".site-header__toggle");
+        const docsBtn = document.querySelector(".site-header__dropdown-btn");
+
+        if (toggle && header) {
+          toggle.addEventListener("click", () => {
+            const isOpen = header.classList.toggle("site-header--open");
+            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          });
+        }
+
+        if (docsBtn && header) {
+          docsBtn.addEventListener("click", () => {
+            header.classList.toggle("site-header--docs-open");
+          });
+        }
+      })();
+    </script>
   </body>
 </html>
