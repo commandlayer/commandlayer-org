@@ -223,12 +223,13 @@
         background: radial-gradient(circle at 0 0, #111827, #020308);
       }
 
-      .hero__inner {
-        display: grid;
-        grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
-        align-items: center;
-        gap: 2.5rem;
+     .hero__inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
+      align-items: stretch; /* or delete this line */
+      gap: 2.5rem;
       }
+
 
       .hero__eyebrow {
         font-size: 0.8rem;
