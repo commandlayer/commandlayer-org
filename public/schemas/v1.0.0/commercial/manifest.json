@@ -1,0 +1,13 @@
+{
+  "version": "1.0.0",
+  "class": "commercial",
+  "schemas_root": "schemas/v1.0.0",
+  "verbs": [
+    "authorize",
+    "checkout",
+    "purchase",
+    "ship",
+    "verify"
+  ],
+  "checksums_file": "checksums.txt"
+}

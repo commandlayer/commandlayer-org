@@ -1,0 +1,67 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.0.0/commercial/purchase/requests/purchase.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "purchase.request",
+  "description": "Request schema for a direct purchase (no complex cart semantics required).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "x402": {
+      "description": "x402 envelope describing the purchase verb and version.",
+      "allOf": [
+        {
+          "$ref": "https://commandlayer.org/schemas/v1.0.0/_shared/x402.schema.json"
+        }
+      ]
+    },
+    "trace": {
+      "description": "Trace envelope for correlating this purchase with logs and receipts.",
+      "allOf": [
+        {
+          "$ref": "https://commandlayer.org/schemas/v1.0.0/_shared/trace.schema.json"
+        }
+      ]
+    },
+    "payload": {
+      "description": "Purchase-specific payload.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "item_id": {
+          "description": "Primary product or service identifier.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "quantity": {
+          "description": "Quantity being purchased.",
+          "type": "number",
+          "minimum": 0.000001
+        },
+        "amount": {
+          "description": "Expected amount and asset.",
+          "allOf": [
+            {
+              "$ref": "https://commandlayer.org/schemas/v1.0.0/commercial/_shared/payment.amount.schema.json"
+            }
+          ]
+        },
+        "settlement": {
+          "description": "Expected settlement target.",
+          "allOf": [
+            {
+              "$ref": "https://commandlayer.org/schemas/v1.0.0/commercial/_shared/payment.settlement.schema.json"
+            }
+          ]
+        },
+        "metadata": {
+          "description": "Optional non-normative metadata (SKU variant, campaign, etc.).",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["item_id", "amount", "settlement"]
+    }
+  },
+  "required": ["x402", "trace", "payload"]
+}

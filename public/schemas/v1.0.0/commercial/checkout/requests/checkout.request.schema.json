@@ -1,0 +1,117 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.0.0/commercial/checkout/requests/checkout.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "checkout.request",
+  "description": "Request schema for initiating a commercial checkout operation (cart → order).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "x402": {
+      "description": "x402 envelope describing the checkout verb and version.",
+      "allOf": [
+        {
+          "$ref": "https://commandlayer.org/schemas/v1.0.0/_shared/x402.schema.json"
+        }
+      ]
+    },
+    "trace": {
+      "description": "Trace envelope for correlating this checkout with logs and receipts.",
+      "allOf": [
+        {
+          "$ref": "https://commandlayer.org/schemas/v1.0.0/_shared/trace.schema.json"
+        }
+      ]
+    },
+    "payload": {
+      "description": "Checkout-specific payload.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cart_id": {
+          "description": "Optional logical cart identifier.",
+          "type": "string",
+          "maxLength": 128
+        },
+        "items": {
+          "description": "Line items in the checkout cart.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sku", "quantity"],
+            "properties": {
+              "sku": {
+                "description": "Stock keeping unit or product identifier.",
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "quantity": {
+                "description": "Quantity requested.",
+                "type": "number",
+                "minimum": 0.000001
+              },
+              "unit_price": {
+                "description": "Optional unit price expectation for this item.",
+                "allOf": [
+                  {
+                    "$ref": "https://commandlayer.org/schemas/v1.0.0/commercial/_shared/payment.amount.schema.json"
+                  }
+                ]
+              },
+              "metadata": {
+                "description": "Optional per-item metadata.",
+                "type": "object",
+                "additionalProperties": true
+              }
+            }
+          }
+        },
+        "amount": {
+          "description": "Expected total amount for the checkout.",
+          "allOf": [
+            {
+              "$ref": "https://commandlayer.org/schemas/v1.0.0/commercial/_shared/payment.amount.schema.json"
+            }
+          ]
+        },
+        "settlement": {
+          "description": "Expected settlement destination for this checkout.",
+          "allOf": [
+            {
+              "$ref": "https://commandlayer.org/schemas/v1.0.0/commercial/_shared/payment.settlement.schema.json"
+            }
+          ]
+        },
+        "shipping_address": {
+          "description": "Optional shipping address for physical goods.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string", "maxLength": 256 },
+            "line1": { "type": "string", "maxLength": 256 },
+            "line2": { "type": "string", "maxLength": 256 },
+            "city": { "type": "string", "maxLength": 128 },
+            "state": { "type": "string", "maxLength": 128 },
+            "postal_code": { "type": "string", "maxLength": 32 },
+            "country": { "type": "string", "maxLength": 2 }
+          }
+        },
+        "payment_method_hint": {
+          "description": "Optional hint for what payment rail to use (card, stablecoin, on-chain, etc.).",
+          "type": "string",
+          "maxLength": 64
+        },
+        "metadata": {
+          "description": "Optional non-normative metadata.",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["items", "amount", "settlement"]
+    }
+  },
+  "required": ["x402", "trace", "payload"]
+}

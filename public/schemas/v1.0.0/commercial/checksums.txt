@@ -1,0 +1,17 @@
+9ecded47fb670f454ab0034af68fd9c25a48c98f4d2e3d7b6c4854b7d9d6e02b  schemas/v1.0.0/_shared/identity.schema.json
+06af7d20c7e01bea934d7bdfebb5355a4134458e1e9494777bdf56a5dcb69a20  schemas/v1.0.0/_shared/payment.amount.schema.json
+679d12e70c531f7604ea95e8edbd9d7eaaaca7b14163d1eaa097f78e178ea8c8  schemas/v1.0.0/_shared/payment.settlement.schema.json
+95401e31786c1123cbf6d144e5323503af8e97ce40cc40fffbaee02e00b0f51b  schemas/v1.0.0/_shared/receipt.base.schema.json
+be7b1639650b23f142062259d2fe1bf3d296c49b70a4a9f181e8c4945754e816  schemas/v1.0.0/_shared/trace.schema.json
+2187b9b6b3abc62d75378fcaf6daf0e019f8bf2fede83ebaa6ee908f9f8b5804  schemas/v1.0.0/_shared/verb.aliases.schema.json
+f98ff873303b221a8aed65227e579f8d30d3dd334a410c472053c6fefeaf9783  schemas/v1.0.0/_shared/x402.schema.json
+4cb5c57b43a938cacdcaed4538eed6e5733946cd4db1ac45cf3aa168bb42709a  schemas/v1.0.0/commercial/authorize/receipts/authorize.receipt.schema.json
+3a8bf1ce13e147fb6ade6679f40b104f45ae88c0c1219c86c8f0f67ea0f499a1  schemas/v1.0.0/commercial/authorize/requests/authorize.request.schema.json
+d9acf6d0f6ec6186bf6a3f2cfa80109e492fbb913ed60f68e96590af13d55323  schemas/v1.0.0/commercial/checkout/receipts/checkout.receipt.schema.json
+5cc9d3968a10a08bd909aeb1b49b22f2d6736c8d8b48a01821c1de39be83078f  schemas/v1.0.0/commercial/checkout/requests/checkout.request.schema.json
+da9f054b90e03bbf1779457770624badef4a0edcac95425c7bcbe43d6be2e8ea  schemas/v1.0.0/commercial/purchase/receipts/purchase.receipt.schema.json
+ead7ce460394619d55ebaf9d7bbae07635910f47eb17c7cac4c6407d0c1e518a  schemas/v1.0.0/commercial/purchase/requests/purchase.request.schema.json
+6330bc769f90c60c438c4214339a65cfa244912ba1e2bf7b9eab1b3d22f29e2e  schemas/v1.0.0/commercial/ship/receipts/ship.receipt.schema.json
+8b2413b03f502b7a4911c2de400775b642e92a335a9aa6caed2050d21aacf1e6  schemas/v1.0.0/commercial/ship/requests/ship.request.schema.json
+9bf58e3b6e3b9e7e7d92d1bd59a3bbab2a2cb5d10c780cf95316d9094127af29  schemas/v1.0.0/commercial/verify/receipts/verify.receipt.schema.json
+ea640ab37a179c85b8787800f8a56762d500f708a1c690ea7672755a2c1dbf97  schemas/v1.0.0/commercial/verify/requests/verify.request.schema.json

@@ -1,0 +1,38 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.0.0/commercial/_shared/payment.settlement.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "payment.settlement",
+  "description": "Destination and network context for settlement of commercial CommandLayer verbs.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["chain", "recipient"],
+  "properties": {
+    "chain": {
+      "description": "Network identifier (e.g. eip155:1, eip155:8453).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "recipient": {
+      "description": "Recipient address or ENS name for settlement.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "refund_address": {
+      "description": "Optional address or ENS for refunds, if different from recipient.",
+      "type": "string",
+      "maxLength": 256
+    },
+    "merchant_id": {
+      "description": "Optional logical merchant or account identifier inside the provider.",
+      "type": "string",
+      "maxLength": 128
+    },
+    "metadata": {
+      "description": "Optional settlement metadata (routing hints, payout channel, etc.).",
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}

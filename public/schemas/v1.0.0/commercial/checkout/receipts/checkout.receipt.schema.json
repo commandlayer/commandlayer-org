@@ -1,0 +1,75 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.0.0/commercial/checkout/receipts/checkout.receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "checkout.receipt",
+  "description": "Receipt schema for a completed or failed checkout operation.",
+  "allOf": [
+    {
+      "$ref": "https://commandlayer.org/schemas/v1.0.0/_shared/receipt.base.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "result": {
+          "description": "Checkout outcome payload.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["order_id", "status"],
+          "properties": {
+            "order_id": {
+              "description": "Provider-assigned canonical order identifier.",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "status": {
+              "description": "Order/checkout status.",
+              "type": "string",
+              "enum": ["created", "authorized", "captured", "failed", "canceled"]
+            },
+            "amount": {
+              "description": "Canonical settled or authorized amount.",
+              "allOf": [
+                {
+                  "$ref": "https://commandlayer.org/schemas/v1.0.0/commercial/_shared/payment.amount.schema.json"
+                }
+              ]
+            },
+            "settlement": {
+              "description": "Canonical settlement target.",
+              "allOf": [
+                {
+                  "$ref": "https://commandlayer.org/schemas/v1.0.0/commercial/_shared/payment.settlement.schema.json"
+                }
+              ]
+            },
+            "line_items": {
+              "description": "Resolved line items used in this order.",
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "reason": {
+              "description": "Optional explanation for failure or cancellation.",
+              "type": "string",
+              "maxLength": 1024
+            },
+            "metadata": {
+              "description": "Provider-specific non-normative metadata.",
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "usage": {
+          "description": "Optional resource usage metrics.",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["result"]
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.0.0/commercial/ship/requests/ship.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ship.request",
+  "description": "Request schema for triggering shipment / fulfillment for a confirmed order.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "x402": {
+      "description": "x402 envelope describing the ship verb and version.",
+      "allOf": [
+        {
+          "$ref": "https://commandlayer.org/schemas/v1.0.0/_shared/x402.schema.json"
+        }
+      ]
+    },
+    "trace": {
+      "description": "Trace envelope for correlating this shipment with logs and receipts.",
+      "allOf": [
+        {
+          "$ref": "https://commandlayer.org/schemas/v1.0.0/_shared/trace.schema.json"
+        }
+      ]
+    },
+    "payload": {
+      "description": "Shipment-specific payload.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "order_id": {
+          "description": "Canonical order ID to ship.",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "items": {
+          "description": "Optional subset of order items to ship (for partial shipments).",
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "sku": {
+                "type": "string",
+                "maxLength": 128
+              },
+              "quantity": {
+                "type": "number",
+                "minimum": 0.000001
+              }
+            }
+          }
+        },
+        "shipping_address": {
+          "description": "Shipping address override, if different from order-level.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "name": { "type": "string", "maxLength": 256 },
+            "line1": { "type": "string", "maxLength": 256 },
+            "line2": { "type": "string", "maxLength": 256 },
+            "city": { "type": "string", "maxLength": 128 },
+            "state": { "type": "string", "maxLength": 128 },
+            "postal_code": { "type": "string", "maxLength": 32 },
+            "country": { "type": "string", "maxLength": 2 }
+          }
+        },
+        "carrier_preference": {
+          "description": "Optional preferred carrier.",
+          "type": "string",
+          "maxLength": 64
+        },
+        "service_level": {
+          "description": "Optional shipping service level (standard, express, overnight, etc.).",
+          "type": "string",
+          "maxLength": 64
+        },
+        "metadata": {
+          "description": "Optional additional shipping metadata.",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["order_id"]
+    }
+  },
+  "required": ["x402", "trace", "payload"]
+}

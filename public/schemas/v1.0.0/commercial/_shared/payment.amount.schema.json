@@ -1,0 +1,33 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.0.0/commercial/_shared/payment.amount.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "payment.amount",
+  "description": "Canonical amount + asset pair for CommandLayer commercial verbs (checkout, purchase, refund, etc.).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["value", "asset"],
+  "properties": {
+    "value": {
+      "description": "Decimal amount as a string (e.g. \"10\", \"10.50\").",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "asset": {
+      "description": "Asset identifier (e.g. USDC, USD, ETH, or a token address/spec).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "pricing_tier": {
+      "description": "Optional provider-defined tier (e.g. basic, pro, enterprise). Non-normative.",
+      "type": "string",
+      "maxLength": 64
+    },
+    "metadata": {
+      "description": "Optional payment-related metadata (invoice IDs, internal refs, etc.).",
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
