@@ -1,0 +1,56 @@
+{
+  "$schema": "https://commandlayer.org/agent-cards/schemas/v1.0.0/_shared/agent.card.base.schema.json",
+  "$id": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/parseagent.eth.json",
+  "id": "parseagent.eth",
+  "slug": "parseagent",
+  "display_name": "Parse Agent (Protocol Reference)",
+  "description": "Reference agent for the parse verb. Converts unstructured or semi-structured content into structured representations according to the parse.request and parse.receipt schemas.",
+  "owner": "commandlayer.eth",
+  "ens": "parseagent.eth",
+  "version": "1.0.0",
+  "status": "protocol_reference",
+  "class": "commons",
+  "implements": [
+    "parse"
+  ],
+  "schemas": {
+    "request": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/parse/requests/parse.request.schema.json",
+    "receipt": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/parse/receipts/parse.receipt.schema.json"
+  },
+  "schemas_mirror": {
+    "request": "https://commandlayer.org/schemas/v1.0.0/commons/parse/requests/parse.request.schema.json",
+    "receipt": "https://commandlayer.org/schemas/v1.0.0/commons/parse/receipts/parse.receipt.schema.json"
+  },
+  "entry": "x402://parseagent.eth/parse/v1",
+  "capabilities": {
+    "operations": [
+      "extract_fields",
+      "parse_structured_blocks",
+      "entity_extraction"
+    ],
+    "input_types": [
+      "text/plain",
+      "text/markdown",
+      "application/json"
+    ],
+    "output_types": [
+      "application/json"
+    ]
+  },
+  "meta": {
+    "publisher": "CommandLayer",
+    "contact": "dev@commandlayer.org",
+    "pgp_fingerprint": "5016 D496 9F38 22B2 C5A2 FA40 99A2 6950 197D AB0A",
+    "tags": [
+      "parse",
+      "structure",
+      "protocol-reference"
+    ]
+  },
+  "networks": [
+    "eip155:1"
+  ],
+  "license": "Apache-2.0",
+  "created_at": "2025-11-22T00:00:00Z",
+  "updated_at": "2025-11-22T00:00:00Z"
+}

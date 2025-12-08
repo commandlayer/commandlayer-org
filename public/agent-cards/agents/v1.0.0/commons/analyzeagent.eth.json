@@ -1,0 +1,58 @@
+{
+  "$schema": "https://commandlayer.org/agent-cards/schemas/v1.0.0/_shared/agent.card.base.schema.json",
+  "$id": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/analyzeagent.eth.json",
+  "id": "analyzeagent.eth",
+  "slug": "analyzeagent",
+  "display_name": "Analyze Agent (Protocol Reference)",
+  "description": "Reference agent for the analyze verb. Performs structured analysis, insights extraction, and labeling according to the analyze.request and analyze.receipt schemas.",
+  "owner": "commandlayer.eth",
+  "ens": "analyzeagent.eth",
+  "version": "1.0.0",
+  "status": "protocol_reference",
+  "class": "commons",
+  "implements": [
+    "analyze"
+  ],
+  "schemas": {
+    "request": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/analyze/requests/analyze.request.schema.json",
+    "receipt": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/analyze/receipts/analyze.receipt.schema.json"
+  },
+  "schemas_mirror": {
+    "request": "https://commandlayer.org/schemas/v1.0.0/commons/analyze/requests/analyze.request.schema.json",
+    "receipt": "https://commandlayer.org/schemas/v1.0.0/commons/analyze/receipts/analyze.receipt.schema.json"
+  },
+  "entry": "x402://analyzeagent.eth/analyze/v1",
+  "capabilities": {
+    "operations": [
+      "derive_insights",
+      "score_content",
+      "label_segments",
+      "compare_sections"
+    ],
+    "input_types": [
+      "text/plain",
+      "text/markdown",
+      "application/json"
+    ],
+    "output_types": [
+      "application/json",
+      "text/markdown"
+    ]
+  },
+  "meta": {
+    "publisher": "CommandLayer",
+    "contact": "dev@commandlayer.org",
+    "pgp_fingerprint": "5016 D496 9F38 22B2 C5A2 FA40 99A2 6950 197D AB0A",
+    "tags": [
+      "analyze",
+      "insights",
+      "protocol-reference"
+    ]
+  },
+  "networks": [
+    "eip155:1"
+  ],
+  "license": "Apache-2.0",
+  "created_at": "2025-11-22T00:00:00Z",
+  "updated_at": "2025-11-22T00:00:00Z"
+}

@@ -1,0 +1,124 @@
+{
+  "name": "@commandlayer/agent-cards",
+  "version": "1.0.0",
+  "description": "Manifest for CommandLayer Commons AgentCards v1.0.0.",
+  "owner": "commandlayer.eth",
+  "contact": "dev@commandlayer.org",
+  "license": "Apache-2.0",
+
+  "agents_root": "agents/v1.0.0/commons",
+  "agents_cid": "bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we",
+
+  "entries": [
+    {
+      "id": "cleanagent.eth",
+      "class": "commons",
+      "ens": "cleanagent.eth",
+      "version": "1.0.0",
+      "status": "protocol_reference",
+      "networks": ["eip155:1"],
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/cleanagent.eth.json",
+      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/cleanagent.eth.json",
+      "checksum_agentcard": "sha256:d0e67f17fa54f0598efae30f4889e0b4ec8c62fbd2449bb97229a47e5213c96d"
+    },
+    {
+      "id": "analyzeagent.eth",
+      "class": "commons",
+      "ens": "analyzeagent.eth",
+      "version": "1.0.0",
+      "status": "protocol_reference",
+      "networks": ["eip155:1"],
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/analyzeagent.eth.json",
+      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/analyzeagent.eth.json",
+      "checksum_agentcard": "sha256:95eb36bcb7e2a86bb562bf417eb5fc810a6a0a078c54ceb866a4bc98ec649e19"
+    },
+    {
+      "id": "summarizeagent.eth",
+      "class": "commons",
+      "ens": "summarizeagent.eth",
+      "version": "1.0.0",
+      "status": "protocol_reference",
+      "networks": ["eip155:1"],
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/summarizeagent.eth.json",
+      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/summarizeagent.eth.json",
+      "checksum_agentcard": "sha256:cffb7a4534c0848767eacdf5e3a1775b73a093baa8117e09957ba5d9a145af19"
+    },
+    {
+      "id": "classifyagent.eth",
+      "class": "commons",
+      "ens": "classifyagent.eth",
+      "version": "1.0.0",
+      "status": "protocol_reference",
+      "networks": ["eip155:1"],
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/classifyagent.eth.json",
+      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/classifyagent.eth.json",
+      "checksum_agentcard": "sha256:044551628963441c19594c142b929276139907802c1ecd23eb56f66ba93997bf"
+    },
+    {
+      "id": "convertagent.eth",
+      "class": "commons",
+      "ens": "convertagent.eth",
+      "version": "1.0.0",
+      "status": "protocol_reference",
+      "networks": ["eip155:1"],
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/convertagent.eth.json",
+      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/convertagent.eth.json",
+      "checksum_agentcard": "sha256:8c6fbeb0eeb9d7fe37a5965245a4a92ab9cef9edd5e6e899c16ce7dbec331ff4"
+    },
+    {
+      "id": "describeagent.eth",
+      "class": "commons",
+      "ens": "describeagent.eth",
+      "version": "1.0.0",
+      "status": "protocol_reference",
+      "networks": ["eip155:1"],
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/describeagent.eth.json",
+      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/describeagent.eth.json",
+      "checksum_agentcard": "sha256:1f39017b6993b2671f440471f9c77c49d5ec529ed05f861a1b106eac00bcb7aa"
+    },
+    {
+      "id": "explainagent.eth",
+      "class": "commons",
+      "ens": "explainagent.eth",
+      "version": "1.0.0",
+      "status": "protocol_reference",
+      "networks": ["eip155:1"],
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/explainagent.eth.json",
+      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/explainagent.eth.json",
+      "checksum_agentcard": "sha256:0b0b5b37cb6ed84198e3427a0d88540eafab1a722940f592546ba564378cde1e"
+    },
+    {
+      "id": "fetchagent.eth",
+      "class": "commons",
+      "ens": "fetchagent.eth",
+      "version": "1.0.0",
+      "status": "protocol_reference",
+      "networks": ["eip155:1"],
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/fetchagent.eth.json",
+      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/fetchagent.eth.json",
+      "checksum_agentcard": "sha256:dd81d5ff0bdaee7c19518391d68f201295f8e011a5d1152b88548f3d7df0655f"
+    },
+    {
+      "id": "formatagent.eth",
+      "class": "commons",
+      "ens": "formatagent.eth",
+      "version": "1.0.0",
+      "status": "protocol_reference",
+      "networks": ["eip155:1"],
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/formatagent.eth.json",
+      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/formatagent.eth.json",
+      "checksum_agentcard": "sha256:739e0a399de539f0d9ba584e675d82572ccd0df7d5e60e54d834f20190879bac"
+    },
+    {
+      "id": "parseagent.eth",
+      "class": "commons",
+      "ens": "parseagent.eth",
+      "version": "1.0.0",
+      "status": "protocol_reference",
+      "networks": ["eip155:1"],
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.0.0/commons/parseagent.eth.json",
+      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/parseagent.eth.json",
+      "checksum_agentcard": "sha256:01dc12e9cf2166b182835574fd92058e0ac0fd8eb904d6ea8b4160f332d89dd0"
+    }
+  ]
+}

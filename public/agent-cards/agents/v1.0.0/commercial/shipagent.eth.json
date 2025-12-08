@@ -1,0 +1,52 @@
+{
+  "$schema": "https://commandlayer.org/agent-cards/schemas/v1.0.0/_shared/agent.card.base.schema.json",
+  "$id": "https://commandlayer.org/agent-cards/agents/v1.0.0/commercial/shipagent.eth.json",
+
+  "id": "shipagent.eth",
+  "slug": "shipagent",
+  "display_name": "Ship Agent (Commercial Reference)",
+  "description": "Commercial reference agent for the ship verb. Orchestrates label creation, tracking, and shipment status for orders.",
+
+  "owner": "commandlayer.eth",
+  "ens": "shipagent.eth",
+  "version": "1.0.0",
+  "status": "protocol_reference",
+  "class": "commercial",
+
+  "implements": ["ship"],
+
+  "schemas": {
+    "request": "https://commandlayer.org/schemas/v1.0.0/commercial/ship/requests/ship.request.schema.json",
+    "receipt": "https://commandlayer.org/schemas/v1.0.0/commercial/ship/receipts/ship.receipt.schema.json"
+  },
+  "schemas_mirror": {
+    "request": "https://ipfs.io/ipfs/COMMERCIAL_SCHEMAS_CID/commercial/ship/requests/ship.request.schema.json",
+    "receipt": "https://ipfs.io/ipfs/COMMERCIAL_SCHEMAS_CID/commercial/ship/receipts/ship.receipt.schema.json"
+  },
+
+  "entry": "x402://shipagent.eth/ship/v1",
+
+  "capabilities": {
+    "operations": [
+      "create_label",
+      "register_shipment",
+      "update_tracking",
+      "mark_delivered"
+    ],
+    "input_types": ["application/json"],
+    "output_types": ["application/json"]
+  },
+
+  "meta": {
+    "publisher": "CommandLayer",
+    "contact": "dev@commandlayer.org",
+    "pgp_fingerprint": "5016 D496 9F38 22B2 C5A2 FA40 99A2 6950 197D AB0A",
+    "tags": ["ship", "logistics", "fulfillment", "commercial"]
+  },
+
+  "networks": ["eip155:1"],
+  "license": "Apache-2.0",
+
+  "created_at": "2025-11-22T00:00:00Z",
+  "updated_at": "2025-11-22T00:00:00Z"
+}
