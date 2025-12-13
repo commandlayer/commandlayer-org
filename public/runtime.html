@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Runtime — CommandLayer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="CommandLayer Runtime — execution layer for verbs: guarantees, economics, receipts, and policy on top of stable Commons & Commercial schemas."
+    />
+
+    <style>
+      :root {
+        --bg: #05060a;
+        --bg-elevated: #0a0c14;
+        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+        --border-soft: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.18);
+        --accent: #c5cbe0;
+        --accent-strong: #e3e7ff;
+        --accent-muted: #8f96b5;
+        --text-main: #f7f8ff;
+        --text-muted: #9ca3c7;
+        --text-soft: #6b7280;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+        --max-width: 1120px;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+        color: var(--text-main);
+      }
+
+      body { min-height: 100vh; }
+
+      .page-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page-main { flex: 1; }
+
+      .container {
+        width: 100%;
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Header */
+      .site-header {
+        background: var(--bg-header);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(18px);
+      }
+
+      .site-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.5rem;
+      }
+
+      .site-header__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .site-header__logo-img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        display: block;
+        border-radius: 6px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
+      }
+
+      .site-header__text { display: flex; flex-direction: column; }
+
+      .site-header__title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+
+      .site-header__subtitle {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .site-header__nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .site-header__link {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        text-decoration: none;
+        color: var(--text-muted);
+        border: 1px solid transparent;
+        white-space: nowrap;
+      }
+
+      .site-header__link:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__link--active {
+        color: #020617;
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+
+      /* Docs dropdown */
+      .site-header__dropdown { position: relative; }
+
+      .site-header__dropdown-btn {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+      }
+
+      .site-header__dropdown-btn:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__dropdown-menu {
+        position: absolute;
+        top: 2.35rem;
+        right: 0;
+        background: rgba(15, 23, 42, 0.98);
+        border-radius: 14px;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        padding: 0.5rem 0.4rem;
+        min-width: 210px;
+        display: none;
+        z-index: 9999;           /* fix: ensure it's above everything */
+        pointer-events: auto;    /* fix: clickable links */
+      }
+
+      .site-header__dropdown-menu a {
+        display: block;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.82rem;
+        text-decoration: none;
+        color: var(--text-muted);
+        border-radius: 999px;
+      }
+
+      .site-header__dropdown-menu a:hover {
+        color: var(--accent-strong);
+        background: rgba(31, 41, 55, 0.95);
+      }
+
+      .site-header--docs-open .site-header__dropdown-menu { display: block; }
+
+      /* Mobile toggle */
+      .site-header__toggle {
+        display: none;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--text-main);
+        padding: 0.25rem 0.6rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .site-header__toggle:hover { background: rgba(15, 23, 42, 1); }
+
+      /* Always-blue links */
+      .cl-blue-link {
+        color: #7ca8ff !important;
+        text-decoration: none;
+      }
+      .cl-blue-link:hover { text-decoration: underline; }
+      .cl-blue-link:visited { color: #7ca8ff !important; }
+
+      /* Hero */
+      .hero {
+        padding: 3.0rem 0 2.2rem;
+        border-bottom: 1px solid var(--border-soft);
+        background: radial-gradient(circle at 0 0, #111827, #020308);
+      }
+
+      .hero__inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
+        gap: 2.4rem;
+        align-items: flex-start;
+      }
+
+      .hero__eyebrow {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent-muted);
+        margin-bottom: 0.8rem;
+      }
+
+      .hero__title {
+        margin: 0 0 0.8rem;
+        font-size: 2.05rem;
+        line-height: 1.15;
+      }
+
+      .hero__title-em {
+        background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .hero__subtitle {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.98rem;
+        max-width: 42rem;
+        line-height: 1.7;
+      }
+
+      .hero__cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 1.4rem;
+      }
+
+      .hero__meta {
+        margin-top: 1.1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.8rem;
+        color: var(--text-soft);
+      }
+
+      .hero__meta-pill {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        padding: 0.18rem 0.55rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.6rem 1.1rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .btn--primary {
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        color: #020617;
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      }
+      .btn--primary:hover { filter: brightness(1.03); }
+
+      .btn--ghost {
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--accent-strong);
+        border-color: rgba(148, 163, 184, 0.6);
+      }
+      .btn--ghost:hover { background: rgba(15, 23, 42, 1); }
+
+      .btn__icon { font-size: 1rem; }
+
+      .hero__card {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-xl);
+        padding: 1.4rem 1.4rem 1.6rem;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        font-size: 0.9rem;
+      }
+
+      .hero__card h2 {
+        margin: 0 0 0.6rem;
+        font-size: 1rem;
+      }
+
+      .hero__card p { margin: 0; color: var(--text-muted); }
+
+      .hero__card ul { margin: 0.9rem 0 0; padding-left: 1.1rem; }
+      .hero__card li { margin-bottom: 0.35rem; }
+
+      /* Sections */
+      .section { padding: 2.6rem 0; }
+
+      .section--muted {
+        background: rgb(6, 9, 18);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .section__header {
+        max-width: 46rem;
+        margin-bottom: 1.4rem;
+      }
+
+      .section__header h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.45rem;
+      }
+
+      .section__header p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+      }
+
+      .grid { display: grid; gap: 1.2rem; }
+      .grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+      .info-card {
+        background: rgba(15, 23, 42, 0.95);
+        padding: 1.1rem;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-soft);
+        font-size: 0.9rem;
+      }
+
+      .info-card h3 { margin: 0 0 0.45rem; font-size: 1rem; }
+      .info-card p { margin: 0; color: var(--text-muted); line-height: 1.65; }
+
+      .card-block {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-xl);
+        padding: 1.4rem 1.4rem 1.6rem;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        font-size: 0.92rem;
+      }
+
+      .card-block__title { margin: 0 0 0.5rem; font-size: 1.15rem; }
+      .card-block__subtitle { margin: 0 0 0.9rem; color: var(--text-muted); line-height: 1.7; }
+
+      .card-block ul {
+        margin: 0.4rem 0 0;
+        padding-left: 1.1rem;
+        color: var(--text-muted);
+        line-height: 1.7;
+      }
+
+      .card-block li { margin-bottom: 0.35rem; }
+
+      .card-block pre {
+        margin: 0;
+        padding: 0.95rem 1rem;
+        background: rgba(2, 6, 23, 0.75);
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        overflow-x: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 0.82rem;
+        color: #e5e7eb;
+      }
+
+      /* Footer */
+      .site-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: #020308;
+      }
+
+      .site-footer__inner {
+        padding: 1.4rem 1.5rem 1.8rem;
+        font-size: 0.78rem;
+        color: var(--text-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        align-items: center;
+        text-align: center;
+      }
+
+      .site-footer__links {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+        margin-top: 0.2rem;
+      }
+
+      .site-footer__links a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .site-footer__links a:hover { text-decoration: underline; }
+
+      /* Mobile */
+      @media (max-width: 880px) {
+        .site-header__inner { padding-inline: 1rem; }
+        .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
+        .site-header__nav {
+          display: none;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin-top: 0.8rem;
+        }
+        .site-header.site-header--open .site-header__nav { display: flex; }
+        .hero__inner { grid-template-columns: minmax(0, 1fr); }
+        .hero__card { margin-top: 1.2rem; }
+        .grid--3 { grid-template-columns: minmax(0, 1fr); }
+        .site-footer__inner { padding-inline: 1rem; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page-shell">
+      <!-- HEADER -->
+      <header class="site-header">
+        <div class="site-header__inner container">
+          <a href="/" class="site-header__brand">
+            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+            <div class="site-header__text">
+              <span class="site-header__title">CommandLayer</span>
+              <span class="site-header__subtitle">Semantic verb &amp; schema layer for agents</span>
+            </div>
+          </a>
+
+          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
+            ☰
+          </button>
+
+          <nav class="site-header__nav">
+            <a href="/" class="site-header__link">Overview</a>
+            <a href="/manifest.html" class="site-header__link">Manifest</a>
+
+            <div class="site-header__dropdown">
+              <button class="site-header__dropdown-btn" type="button" aria-haspopup="true" aria-expanded="false">
+                Docs ▾
+              </button>
+              <div class="site-header__dropdown-menu" role="menu" aria-label="Docs menu">
+                <a href="/docs.html">Docs</a>
+                <a href="/commons.html">Commons</a>
+                <a href="/commercial.html">Commercial</a>
+                <a href="/agent-cards.html">Agent Cards</a>
+                <a href="/runtime.html">Runtime (this page)</a>
+                <a href="/roadmap.html">Roadmap</a>
+                <a href="/licensing.html">Licensing</a>
+                <a href="/about.html">About CommandLayer</a>
+              </div>
+            </div>
+
+            <a href="/demo.html" class="site-header__link">Live Demo</a>
+            <a
+              href="https://github.com/commandlayer"
+              class="site-header__link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="page-main">
+        <!-- HERO -->
+        <section class="hero">
+          <div class="container hero__inner">
+            <div>
+              <div class="hero__eyebrow">Runtime</div>
+              <h1 class="hero__title">
+                Execution on top of stable schemas —
+                <span class="hero__title-em">guarantees, policy, and economics.</span>
+              </h1>
+
+              <p class="hero__subtitle">
+                Commons and Commercial define <strong>what</strong> a verb means (request + receipt shapes).
+                The Runtime defines <strong>how</strong> execution happens: routing, verification, pricing,
+                rate limits, retries, idempotency, audit logs, and end-to-end guarantees — while keeping the
+                <strong>semantic contract</strong> stable.
+              </p>
+
+              <div class="hero__cta-row">
+                <a href="/demo.html" class="btn btn--primary">
+                  <span class="btn__icon">▶️</span>
+                  <span>See live receipts</span>
+                </a>
+                <a href="/agent-cards.html" class="btn btn--ghost">
+                  <span class="btn__icon">🪪</span>
+                  <span>How routing works</span>
+                </a>
+              </div>
+
+              <div class="hero__meta">
+                <span class="hero__meta-pill">Schemas stay free</span>
+                <span class="hero__meta-pill">Runtime is the execution layer</span>
+                <span class="hero__meta-pill">Typed receipts + trace IDs</span>
+              </div>
+            </div>
+
+            <aside class="hero__card">
+              <h2>What Runtime is (and isn’t)</h2>
+              <p>
+                Runtime is not “the schemas.” It’s the part you pay for when you want outcomes, guarantees, and
+                production-grade execution.
+              </p>
+              <ul>
+                <li><strong>Is:</strong> execution endpoints + policy + proofs + economics.</li>
+                <li><strong>Is:</strong> stable receipts, auditability, and reliability controls.</li>
+                <li><strong>Is not:</strong> a competing verb language (Commons/Commercial already do that).</li>
+                <li><strong>Is not:</strong> a closed semantic system — contracts remain public and portable.</li>
+              </ul>
+            </aside>
+          </div>
+        </section>
+
+        <!-- HOW IT FITS -->
+        <section class="section">
+          <div class="container">
+            <div class="section__header">
+              <h2>Where Runtime sits in the stack</h2>
+              <p>
+                Runtime is the “execution plane.” It consumes the same pinned schemas used everywhere else, and returns
+                the same receipts — but adds operational guarantees so agents can be used like infrastructure.
+              </p>
+            </div>
+
+            <div class="grid grid--3">
+              <article class="info-card">
+                <h3>Inputs</h3>
+                <p>
+                  A verb invocation (Commons or Commercial) shaped exactly by the public JSON Schemas. Routing is
+                  discovered via Agent Cards and ENS metadata.
+                </p>
+              </article>
+
+              <article class="info-card">
+                <h3>Runtime policy</h3>
+                <p>
+                  Verification, authn/authz, idempotency keys, rate limits, retries/timeouts, safety filters, and
+                  vendor/model selection — without changing the request shape.
+                </p>
+              </article>
+
+              <article class="info-card">
+                <h3>Outputs</h3>
+                <p>
+                  Typed receipts with trace IDs and standardized status/usage. Same receipt contracts across agents,
+                  runtimes, and payment rails.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <!-- GUARANTEES -->
+        <section class="section section--muted">
+          <div class="container">
+            <div class="section__header">
+              <h2>What you get from Runtime</h2>
+              <p>
+                This is the “why pay” layer: predictable outcomes and guarantees you can build businesses on, while the
+                verb language remains public goods.
+              </p>
+            </div>
+
+            <div class="card-block">
+              <h3 class="card-block__title">Guarantees &amp; controls</h3>
+              <p class="card-block__subtitle">
+                Runtime adds enforceable operational behavior around schema-stable calls.
+              </p>
+              <ul>
+                <li><strong>Idempotency:</strong> safe retries for commercial flows (authorize/checkout/purchase/ship/verify).</li>
+                <li><strong>Traceability:</strong> consistent <code>trace_id</code> threading across steps and services.</li>
+                <li><strong>Policy:</strong> safety, compliance, allowlists/denylists, and “who can call what” rules.</li>
+                <li><strong>Reliability:</strong> timeouts, circuit breakers, retry budgets, and structured errors.</li>
+                <li><strong>Audit:</strong> receipts + logs that can be checked later without reinterpreting payloads.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ECONOMICS -->
+        <section class="section">
+          <div class="container">
+            <div class="card-block">
+              <h3 class="card-block__title">Economics: value lives in execution</h3>
+              <p class="card-block__subtitle">
+                Commons/Commercial schemas are always accessible. Runtime is where pricing, metering, and settlement live.
+              </p>
+
+              <ul>
+                <li><strong>Metering:</strong> standardized usage fields in receipts enable predictable billing.</li>
+                <li><strong>Pricing tiers:</strong> pay for SLA, throughput, latency targets, and policy bundles.</li>
+                <li><strong>Settlement:</strong> designed to sit cleanly on payment rails (x402-style envelopes later).</li>
+                <li><strong>Portability:</strong> if you self-host execution, you still keep the same verb contracts.</li>
+              </ul>
+
+              <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
+                The forward-looking bet: the world standardizes on a shared verb language. The winners are the runtimes
+                that can execute it reliably, prove what happened, and settle economically — without fragmenting semantics.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- EXAMPLE -->
+        <section class="section section--muted">
+          <div class="container">
+            <div class="section__header">
+              <h2>Runtime-style receipt envelope</h2>
+              <p>
+                Runtime returns the same typed receipts — plus operational fields you can rely on for billing, audit, and
+                debugging.
+              </p>
+            </div>
+
+            <div class="card-block">
+              <h3 class="card-block__title">Example receipt (illustrative)</h3>
+              <p class="card-block__subtitle">
+                This is the kind of stable “shape” you can build tooling and businesses around.
+              </p>
+              <pre>{
+  "x402": {
+    "verb": "checkout",
+    "version": "1.0.0"
+  },
+  "trace": {
+    "trace_id": "c0d48ff3-e20a-4be4-922f-7bf0478da3cb",
+    "started_at": "2025-12-12T20:19:00.000Z"
+  },
+  "status": {
+    "code": "ok",
+    "message": "checkout complete"
+  },
+  "result": {
+    "checkout_id": "chk_1734034740",
+    "total_amount": 129.99,
+    "currency": "USD"
+  },
+  "usage": {
+    "units": 1,
+    "compute_ms": 642,
+    "billable": true
+  }
+}</pre>
+              <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
+                The key point: clients don’t guess what happened. They read a typed receipt, tied to a known schema
+                version and a trace ID.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- ROADMAP -->
+        <section class="section">
+          <div class="container">
+            <div class="card-block">
+              <h3 class="card-block__title">Runtime roadmap (high level)</h3>
+              <p class="card-block__subtitle">
+                Keep this page honest: Runtime is “coming online.” Ship iteratively without overpromising.
+              </p>
+              <ul>
+                <li><strong>Phase 1:</strong> reference endpoints + receipts + trace IDs (demo-grade → prod-hardening).</li>
+                <li><strong>Phase 2:</strong> policy bundles (rate limits, auth, allowlists) + metering in receipts.</li>
+                <li><strong>Phase 3:</strong> multi-runtime portability: same contracts, different executors.</li>
+                <li><strong>Phase 4:</strong> settlement + proofs on standardized rails (as ecosystem norms mature).</li>
+              </ul>
+
+              <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
+                If you want a simple mental model: Commons/Commercial are the public language. Runtime is the business.
+                You can swap executors without breaking the contract.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container site-footer__inner">
+          <div>© CommandLayer — semantic layer for autonomous agents</div>
+          <div>
+            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free
+          </div>
+          <div class="site-footer__links">
+            <a href="/docs.html">Docs</a>
+            <a href="/manifest.html">Manifest</a>
+            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        const header = document.querySelector(".site-header");
+        const toggle = document.querySelector(".site-header__toggle");
+        const docsBtn = document.querySelector(".site-header__dropdown-btn");
+        const docsMenu = document.querySelector(".site-header__dropdown-menu");
+
+        function closeDocs() {
+          if (!header) return;
+          header.classList.remove("site-header--docs-open");
+          if (docsBtn) docsBtn.setAttribute("aria-expanded", "false");
+        }
+
+        function toggleDocs() {
+          if (!header) return;
+          const isOpen = header.classList.toggle("site-header--docs-open");
+          if (docsBtn) docsBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        }
+
+        if (toggle && header) {
+          toggle.addEventListener("click", () => {
+            const isOpen = header.classList.toggle("site-header--open");
+            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          });
+        }
+
+        if (docsBtn) {
+          docsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleDocs();
+          });
+        }
+
+        if (docsMenu) {
+          // If you click a link inside the menu, close it (but let navigation happen).
+          docsMenu.addEventListener("click", (e) => {
+            const a = e.target && e.target.closest ? e.target.closest("a") : null;
+            if (a) closeDocs();
+          });
+        }
+
+        // Click outside closes docs menu.
+        document.addEventListener("click", (e) => {
+          if (!header) return;
+          if (!header.classList.contains("site-header--docs-open")) return;
+          const dropdown = document.querySelector(".site-header__dropdown");
+          if (dropdown && dropdown.contains(e.target)) return;
+          closeDocs();
+        });
+
+        // ESC closes docs menu.
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeDocs();
+        });
+      })();
+    </script>
+  </body>
+</html>
