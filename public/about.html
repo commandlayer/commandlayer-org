@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>About — CommandLayer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="About CommandLayer — why it exists, what it enforces, and the economic rule: Commons executes free. Commercial is taxed."
+    />
+
+    <style>
+      :root {
+        --bg: #05060a;
+        --bg-elevated: #0a0c14;
+        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+        --border-soft: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.18);
+        --accent: #c5cbe0;
+        --accent-strong: #e3e7ff;
+        --accent-muted: #8f96b5;
+        --text-main: #f7f8ff;
+        --text-muted: #9ca3c7;
+        --text-soft: #6b7280;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+        --max-width: 1120px;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+        color: var(--text-main);
+      }
+
+      body { min-height: 100vh; }
+
+      .page-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page-main { flex: 1; }
+
+      .container {
+        width: 100%;
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Header */
+      .site-header {
+        background: var(--bg-header);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        backdrop-filter: blur(18px);
+      }
+
+      .site-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.5rem;
+      }
+
+      .site-header__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .site-header__logo-img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        display: block;
+        border-radius: 6px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
+      }
+
+      .site-header__text { display: flex; flex-direction: column; }
+
+      .site-header__title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+
+      .site-header__subtitle {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .site-header__nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .site-header__link {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        text-decoration: none;
+        color: var(--text-muted);
+        border: 1px solid transparent;
+        white-space: nowrap;
+      }
+
+      .site-header__link:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__link--active {
+        color: #020617;
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+
+      /* Docs dropdown */
+      .site-header__dropdown { position: relative; }
+
+      .site-header__dropdown-btn {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+      }
+
+      .site-header__dropdown-btn:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__dropdown-menu {
+        position: absolute;
+        top: 2.35rem;
+        right: 0;
+        background: rgba(15, 23, 42, 0.98);
+        border-radius: 14px;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        padding: 0.5rem 0.4rem;
+        min-width: 220px;
+        display: none;
+        z-index: 9999;
+        pointer-events: auto;
+      }
+
+      .site-header__dropdown-menu a {
+        display: block;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.82rem;
+        text-decoration: none;
+        color: var(--text-muted);
+        border-radius: 999px;
+      }
+
+      .site-header__dropdown-menu a:hover {
+        color: var(--accent-strong);
+        background: rgba(31, 41, 55, 0.95);
+      }
+
+      .site-header--docs-open .site-header__dropdown-menu { display: block; }
+
+      /* Mobile toggle */
+      .site-header__toggle {
+        display: none;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--text-main);
+        padding: 0.25rem 0.6rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .site-header__toggle:hover { background: rgba(15, 23, 42, 1); }
+
+      /* Hero */
+      .hero {
+        padding: 3.0rem 0 2.2rem;
+        border-bottom: 1px solid var(--border-soft);
+        background: radial-gradient(circle at 0 0, #111827, #020308);
+      }
+
+      .hero__inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(0, 1.15fr);
+        gap: 2.4rem;
+        align-items: flex-start;
+      }
+
+      .hero__eyebrow {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent-muted);
+        margin-bottom: 0.8rem;
+      }
+
+      .hero__title {
+        margin: 0 0 0.8rem;
+        font-size: 2.05rem;
+        line-height: 1.15;
+      }
+
+      .hero__title-em {
+        background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .hero__subtitle {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.98rem;
+        max-width: 44rem;
+        line-height: 1.75;
+      }
+
+      .hero__cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 1.4rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.6rem 1.1rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .btn--primary {
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        color: #020617;
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      }
+      .btn--primary:hover { filter: brightness(1.03); }
+
+      .btn--ghost {
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--accent-strong);
+        border-color: rgba(148, 163, 184, 0.6);
+      }
+      .btn--ghost:hover { background: rgba(15, 23, 42, 1); }
+
+      .btn__icon { font-size: 1rem; }
+
+      .hero__card {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-xl);
+        padding: 1.4rem 1.4rem 1.6rem;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        font-size: 0.9rem;
+      }
+
+      .hero__card h2 { margin: 0 0 0.6rem; font-size: 1rem; }
+      .hero__card p { margin: 0; color: var(--text-muted); line-height: 1.7; }
+      .hero__card ul { margin: 0.9rem 0 0; padding-left: 1.1rem; color: var(--text-muted); line-height: 1.7; }
+      .hero__card li { margin-bottom: 0.35rem; }
+
+      /* Sections */
+      .section { padding: 2.6rem 0; }
+
+      .section--muted {
+        background: rgb(6, 9, 18);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .section__header {
+        max-width: 52rem;
+        margin-bottom: 1.4rem;
+      }
+
+      .section__header h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.5rem;
+      }
+
+      .section__header p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        line-height: 1.75;
+      }
+
+      .grid { display: grid; gap: 1.2rem; }
+      .grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+      .info-card {
+        background: rgba(15, 23, 42, 0.95);
+        padding: 1.1rem;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-soft);
+        font-size: 0.9rem;
+      }
+
+      .info-card h3 { margin: 0 0 0.45rem; font-size: 1rem; }
+      .info-card p { margin: 0; color: var(--text-muted); line-height: 1.7; }
+
+      .card-block {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-xl);
+        padding: 1.4rem 1.4rem 1.6rem;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        font-size: 0.92rem;
+      }
+
+      .card-block__title { margin: 0 0 0.5rem; font-size: 1.15rem; }
+      .card-block__subtitle { margin: 0 0 0.9rem; color: var(--text-muted); line-height: 1.75; }
+
+      .big-rule {
+        display: grid;
+        gap: 1rem;
+        padding: 1.2rem 1.2rem 1.25rem;
+        border-radius: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        background: radial-gradient(circle at 0 0, rgba(165, 180, 252, 0.12), rgba(2, 6, 23, 0.15));
+      }
+
+      .big-rule__kicker {
+        font-size: 0.8rem;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--accent-muted);
+      }
+
+      .big-rule__headline {
+        margin: 0;
+        font-size: 1.7rem;
+        line-height: 1.2;
+      }
+
+      .big-rule__headline strong {
+        color: var(--accent-strong);
+      }
+
+      .legend {
+        display: grid;
+        gap: 0.35rem;
+        margin-top: 0.4rem;
+        padding-top: 0.9rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        font-size: 0.86rem;
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      .legend strong {
+        color: var(--accent-strong);
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.45rem;
+        margin-top: 0.85rem;
+      }
+
+      .pill {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        padding: 0.2rem 0.6rem;
+        color: var(--text-soft);
+        font-size: 0.8rem;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 1.2rem;
+        align-items: start;
+      }
+
+      .list {
+        margin: 0.7rem 0 0;
+        padding-left: 1.1rem;
+        color: var(--text-muted);
+        line-height: 1.75;
+      }
+
+      .list li { margin-bottom: 0.35rem; }
+
+      .codebox {
+        margin-top: 0.9rem;
+        padding: 0.95rem 1rem;
+        background: rgba(2, 6, 23, 0.75);
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        overflow-x: auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 0.82rem;
+        color: #e5e7eb;
+        white-space: pre-wrap;
+        word-break: break-word;
+      }
+
+      /* About-me block */
+      .about-me {
+        display: flex;
+        gap: 1.1rem;
+        align-items: center;
+      }
+
+      .avatar {
+        width: 74px;
+        height: 74px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: radial-gradient(circle at 30% 30%, rgba(165, 180, 252, 0.28), rgba(2, 6, 23, 0.65));
+        box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
+        overflow: hidden;
+        flex: 0 0 auto;
+      }
+
+      .avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .about-me h3 {
+        margin: 0 0 0.25rem;
+        font-size: 1.05rem;
+      }
+
+      .about-me p {
+        margin: 0;
+        color: var(--text-muted);
+        line-height: 1.7;
+        font-size: 0.92rem;
+      }
+
+      /* Footer */
+      .site-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: #020308;
+      }
+
+      .site-footer__inner {
+        padding: 1.4rem 1.5rem 1.8rem;
+        font-size: 0.78rem;
+        color: var(--text-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        align-items: center;
+        text-align: center;
+      }
+
+      .site-footer__links {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+        margin-top: 0.2rem;
+      }
+
+      .site-footer__links a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .site-footer__links a:hover { text-decoration: underline; }
+
+      /* Mobile */
+      @media (max-width: 880px) {
+        .site-header__inner { padding-inline: 1rem; }
+
+        .site-header__toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .site-header__nav {
+          display: none;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin-top: 0.8rem;
+        }
+
+        .site-header.site-header--open .site-header__nav { display: flex; }
+
+        .hero__inner { grid-template-columns: minmax(0, 1fr); }
+        .split { grid-template-columns: minmax(0, 1fr); }
+        .about-me { align-items: flex-start; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page-shell">
+      <!-- HEADER -->
+      <header class="site-header">
+        <div class="site-header__inner container">
+          <a href="/" class="site-header__brand">
+            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+            <div class="site-header__text">
+              <span class="site-header__title">CommandLayer</span>
+              <span class="site-header__subtitle">Semantic verb &amp; schema layer for agents</span>
+            </div>
+          </a>
+
+          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
+            ☰
+          </button>
+
+          <nav class="site-header__nav">
+            <a href="/" class="site-header__link">Overview</a>
+            <a href="/manifest.html" class="site-header__link">Manifest</a>
+
+            <div class="site-header__dropdown">
+              <button class="site-header__dropdown-btn" type="button" aria-haspopup="true" aria-expanded="false">
+                Docs ▾
+              </button>
+              <div class="site-header__dropdown-menu" role="menu" aria-label="Docs menu">
+                <a href="/docs.html">Docs</a>
+                <a href="/commons.html">Commons</a>
+                <a href="/commercial.html">Commercial</a>
+                <a href="/agent-cards.html">Agent Cards</a>
+                <a href="/runtime.html">Runtime</a>
+                <a href="/roadmap.html">Roadmap</a>
+                <a href="/licensing.html">Licensing</a>
+                <a href="/about.html">About (this page)</a>
+              </div>
+            </div>
+
+            <a href="/demo.html" class="site-header__link">Live Demo</a>
+            <a
+              href="https://github.com/commandlayer"
+              class="site-header__link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="page-main">
+        <!-- HERO -->
+        <section class="hero">
+          <div class="container hero__inner">
+            <div>
+              <div class="hero__eyebrow">About CommandLayer</div>
+              <h1 class="hero__title">
+                A protocol that makes agent meaning
+                <span class="hero__title-em">trustable, portable, and enforceable.</span>
+              </h1>
+              <p class="hero__subtitle">
+                Most “agent systems” are demos glued together by private prompt formats and one-off APIs.
+                CommandLayer is the opposite: a small set of canonical verbs, strict schemas, verifiable identity,
+                and receipts — so agents can interoperate across runtimes, vendors, and payment rails without breaking.
+              </p>
+
+              <div class="hero__cta-row">
+                <a href="/docs.html" class="btn btn--primary">
+                  <span class="btn__icon">📚</span>
+                  <span>Read the docs</span>
+                </a>
+                <a href="/demo.html" class="btn btn--ghost">
+                  <span class="btn__icon">▶️</span>
+                  <span>See receipts live</span>
+                </a>
+              </div>
+            </div>
+
+            <aside class="hero__card">
+              <h2>What CommandLayer actually is</h2>
+              <p>
+                A semantic contract for autonomous agents — verbs + schemas + identity + receipts — designed so
+                execution can be swapped without semantic chaos.
+              </p>
+              <ul>
+                <li><strong>Commons:</strong> public-good verbs + schemas (free forever).</li>
+                <li><strong>Commercial:</strong> same openness, but execution is metered.</li>
+                <li><strong>Agent Cards:</strong> identity + discovery bindings for routing.</li>
+                <li><strong>Runtime:</strong> where policy, guarantees, and economics live.</li>
+              </ul>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ECONOMIC RULE (GIANT) -->
+        <section class="section section--muted" id="economic-rule">
+          <div class="container">
+            <div class="section__header">
+              <h2>CommandLayer Economic Rule (Final)</h2>
+              <p>
+                This is the whole economic system, with no ambiguity. If someone misunderstands CommandLayer,
+                it’s because they don’t have this sentence in their head.
+              </p>
+            </div>
+
+            <div class="card-block">
+              <div class="big-rule">
+                <div class="big-rule__kicker">Economic Rule</div>
+                <h3 class="big-rule__headline">
+                  <strong>Commons executes free.</strong><br />
+                  <strong>Commercial is taxed.</strong>
+                </h3>
+
+                <!-- 3-line legend -->
+                <div class="legend">
+                  <div><strong>FREE</strong> → schemas, identity, discovery, Commons execution</div>
+                  <div><strong>TAXED</strong> → commercial execution, throughput, guarantees</div>
+                  <div><strong>NEVER TAXED</strong> → meaning, validation, interoperability</div>
+                </div>
+
+                <div class="pill-row">
+                  <span class="pill">No paywalled standards</span>
+                  <span class="pill">No schema gating</span>
+                  <span class="pill">Monetize outcomes, not access</span>
+                </div>
+              </div>
+
+              <div style="height: 1rem"></div>
+
+              <div class="split">
+                <div class="info-card" style="border-radius: 22px;">
+                  <h3>Protocol-Commons</h3>
+                  <p>Public goods layer. No rent. No tolls. No “open core” tricks.</p>
+                  <ul class="list">
+                    <li>Schemas: <strong>FREE</strong></li>
+                    <li>Agent-Cards: <strong>FREE</strong></li>
+                    <li>Discovery (ENS): <strong>FREE</strong></li>
+                    <li>Runtime execution: <strong>FREE</strong> (best-effort, reference-grade)</li>
+                  </ul>
+
+                  <div class="codebox">Commons exists to:
+- prove semantics
+- maximize adoption
+- eliminate friction
+- create trust</div>
+                </div>
+
+                <div class="info-card" style="border-radius: 22px;">
+                  <h3>Protocol-Commercial</h3>
+                  <p>Same openness — the tax is only on execution when money moves.</p>
+                  <ul class="list">
+                    <li>Schemas: <strong>FREE</strong></li>
+                    <li>Agent-Cards: <strong>FREE</strong></li>
+                    <li>Discovery: <strong>FREE</strong></li>
+                    <li>Runtime execution: <strong>TAXED</strong></li>
+                  </ul>
+
+                  <div class="codebox">The tax applies to:
+- execution of commercial verbs
+- throughput / volume
+- SLA guarantees
+- priority or certified execution
+- leasing of verb-bound agents</div>
+                </div>
+              </div>
+
+              <p style="margin: 1.1rem 0 0; color: var(--text-muted); line-height: 1.75;">
+                Access to meaning is free. Use of meaning in commerce is taxed.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- WHERE TAX LIVES + ENFORCEMENT -->
+        <section class="section">
+          <div class="container">
+            <div class="section__header">
+              <h2>Where the tax lives</h2>
+              <p>
+                The tax is not hidden. It is not embedded in standards. It lives at execution time inside
+                runtimes — because that’s where enforcement is natural and clean.
+              </p>
+            </div>
+
+            <div class="grid grid--3">
+              <article class="info-card">
+                <h3>The tax is not in</h3>
+                <p>
+                  The schema, the Agent-Card, ENS, or discovery. Meaning stays neutral and portable.
+                </p>
+              </article>
+
+              <article class="info-card">
+                <h3>The tax is in</h3>
+                <p>
+                  Execution: metering, guarantees, priority, certified delivery, and throughput control.
+                </p>
+              </article>
+
+              <article class="info-card">
+                <h3>Why this matters</h3>
+                <p>
+                  Standards-clean. Regulator-clean. Developer-trustworthy. No paywalled semantics.
+                </p>
+              </article>
+            </div>
+
+            <div style="height: 1.2rem"></div>
+
+            <div class="card-block">
+              <h3 class="card-block__title">Enforcement model</h3>
+              <p class="card-block__subtitle">
+                No semantic fork. No schema gating. No hidden rules.
+              </p>
+
+              <div class="codebox">Runtime resolves ENS + Agent-Card
+Runtime identifies verb class:
+  commons   → free execution
+  commercial → metered execution
+
+Runtime enforces:
+  pricing
+  quotas
+  receipts that reflect commercial execution</div>
+
+              <p style="margin: 0.9rem 0 0; color: var(--text-muted); line-height: 1.75;">
+                Lead sentence (use this everywhere): <strong>CommandLayer makes meaning free and taxes execution when money moves.</strong>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- WHY IT'S RIGHT (BLUNT) -->
+        <section class="section section--muted">
+          <div class="container">
+            <div class="section__header">
+              <h2>Why this architecture works</h2>
+              <p>
+                Most protocols try to tax access. CommandLayer taxes outcomes. That’s the difference between
+                “standards drama” and “standards gravity.”
+              </p>
+            </div>
+
+            <div class="card-block">
+              <ul class="list" style="margin-top:0;">
+                <li>You avoid paywalled standards.</li>
+                <li>You avoid “open core” backlash.</li>
+                <li>You align incentives with real value.</li>
+                <li>You monetize where enforcement is natural.</li>
+                <li>Semantics remain neutral — interoperability doesn’t get held hostage.</li>
+              </ul>
+
+              <p style="margin: 0.9rem 0 0; color: var(--text-muted); line-height: 1.75;">
+                This is now a coherent economic protocol, not just tech.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SMALL ABOUT ME -->
+        <section class="section">
+          <div class="container">
+            <div class="card-block">
+              <div class="about-me">
+                <div class="avatar">
+                  <!-- Replace the src with your image path, e.g. /img/greg.jpg -->
+                  <img src="greg.jpg" alt="Greg Soucy" onerror="this.style.display='none';" />
+                </div>
+                <div>
+                  <h3>Greg Soucy</h3>
+                  <p>
+                    Founder / Architect of CommandLayer. Focused on protocol-grade semantics: strict schemas,
+                    identity + discovery bindings, and receipts that make agent execution auditable and enforceable.
+                    CommandLayer is designed to scale into a multi-maintainer standard without breaking v1 behavior.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container site-footer__inner">
+          <div>© CommandLayer — semantic layer for autonomous agents</div>
+          <div>
+            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime execution taxed
+          </div>
+          <div class="site-footer__links">
+            <a href="/docs.html">Docs</a>
+            <a href="/manifest.html">Manifest</a>
+            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        const header = document.querySelector(".site-header");
+        const toggle = document.querySelector(".site-header__toggle");
+        const docsBtn = document.querySelector(".site-header__dropdown-btn");
+        const docsMenu = document.querySelector(".site-header__dropdown-menu");
+
+        function closeDocs() {
+          if (!header) return;
+          header.classList.remove("site-header--docs-open");
+          if (docsBtn) docsBtn.setAttribute("aria-expanded", "false");
+        }
+
+        function toggleDocs() {
+          if (!header) return;
+          const isOpen = header.classList.toggle("site-header--docs-open");
+          if (docsBtn) docsBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        }
+
+        if (toggle && header) {
+          toggle.addEventListener("click", () => {
+            const isOpen = header.classList.toggle("site-header--open");
+            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          });
+        }
+
+        if (docsBtn) {
+          docsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleDocs();
+          });
+        }
+
+        if (docsMenu) {
+          docsMenu.addEventListener("click", (e) => {
+            const a = e.target && e.target.closest ? e.target.closest("a") : null;
+            if (a) closeDocs();
+          });
+        }
+
+        document.addEventListener("click", (e) => {
+          if (!header) return;
+          if (!header.classList.contains("site-header--docs-open")) return;
+          const dropdown = document.querySelector(".site-header__dropdown");
+          if (dropdown && dropdown.contains(e.target)) return;
+          closeDocs();
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeDocs();
+        });
+      })();
+    </script>
+  </body>
+</html>
