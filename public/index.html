@@ -9,14 +9,19 @@
     />
     <meta
       name="description"
-      content="CommandLayer is the semantic verb + schema layer that sits on top of x402 and ERC-8004 — Commons verbs live today, Commercial economic verbs defined, a Manifest of future verbs, and Agent Cards so agents can advertise what they do in a shared language. Schemas are always free; value lives in execution."
+      content="CommandLayer is the semantic verb + schema layer on top of x402 and ERC-8004. Schemas and Agent-Cards are always free, versioned, immutable, and IPFS-mirrorable. Commons executes free on CommandLayer reference runtimes; Commercial execution is taxed at runtime."
     />
 
     <style>
       :root {
         --bg: #05060a;
         --bg-elevated: #0a0c14;
-        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+        --bg-header: radial-gradient(
+          circle at 0% 0%,
+          #525b70 0,
+          #1b1f2b 40%,
+          #05060a 100%
+        );
         --border-soft: rgba(255, 255, 255, 0.06);
         --border-strong: rgba(255, 255, 255, 0.18);
         --accent: #c5cbe0;
@@ -226,7 +231,7 @@
       .hero__inner {
         display: grid;
         grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
-        align-items: center;
+        align-items: start;
         gap: 2.5rem;
       }
 
@@ -259,7 +264,7 @@
         margin: 0 0 0.8rem;
         color: var(--text-muted);
         font-size: 0.98rem;
-        max-width: 36rem;
+        max-width: 38rem;
         line-height: 1.7;
       }
 
@@ -268,17 +273,18 @@
         padding-left: 1.1rem;
         font-size: 0.9rem;
         color: var(--text-muted);
+        line-height: 1.7;
       }
 
       .hero__cta-row {
         display: flex;
         flex-wrap: wrap;
         gap: 0.8rem;
-        margin-top: 1.6rem;
+        margin-top: 1.3rem;
       }
 
       .hero__meta {
-        margin-top: 1.3rem;
+        margin-top: 1.1rem;
         display: flex;
         flex-wrap: wrap;
         gap: 0.6rem;
@@ -351,6 +357,7 @@
         font-size: 0.95rem;
         color: var(--text-main);
         margin-left: 0.1rem;
+        line-height: 1.65;
       }
 
       .hero__card-list {
@@ -358,6 +365,57 @@
         padding-left: 1.15rem;
         font-size: 0.86rem;
         color: var(--text-muted);
+        line-height: 1.7;
+      }
+
+      /* Execution model block */
+      .exec-model {
+        margin-top: 1.35rem;
+        background: rgba(15, 23, 42, 0.92);
+        border: 1px solid var(--border-soft);
+        border-radius: var(--radius-xl);
+        padding: 1.1rem 1.1rem 1rem;
+        box-shadow: var(--shadow-soft);
+      }
+
+      .exec-model__title {
+        margin: 0 0 0.55rem;
+        font-size: 1.05rem;
+        letter-spacing: -0.01em;
+      }
+
+      .exec-model__subtitle {
+        margin: 0 0 0.85rem;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+        max-width: 46rem;
+      }
+
+      .exec-model__figure {
+        margin: 0;
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(2, 6, 23, 0.45);
+      }
+
+      .exec-model__img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      .exec-model__bullets {
+        margin: 0.9rem 0 0;
+        padding-left: 1.1rem;
+        color: var(--text-muted);
+        font-size: 0.88rem;
+        line-height: 1.6;
+      }
+
+      .exec-model__bullets code {
+        color: var(--accent-strong);
       }
 
       /* Sections */
@@ -372,7 +430,7 @@
       }
 
       .section__header {
-        max-width: 40rem;
+        max-width: 44rem;
         margin-bottom: 1.6rem;
       }
 
@@ -385,6 +443,7 @@
         margin: 0;
         font-size: 0.95rem;
         color: var(--text-muted);
+        line-height: 1.7;
       }
 
       .grid {
@@ -412,6 +471,7 @@
       .info-card p {
         margin: 0;
         color: var(--text-muted);
+        line-height: 1.7;
       }
 
       .info-card a {
@@ -499,6 +559,7 @@
         gap: 0.4rem;
         align-items: center;
         text-align: center;
+        line-height: 1.6;
       }
 
       .site-footer__links {
@@ -566,7 +627,11 @@
       <header class="site-header">
         <div class="site-header__inner container">
           <a href="/" class="site-header__brand">
-            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+            <img
+              src="icon2.png"
+              alt="CommandLayer Logo"
+              class="site-header__logo-img"
+            />
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
               <span class="site-header__subtitle">
@@ -576,12 +641,18 @@
           </a>
 
           <!-- Mobile toggle -->
-          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
+          <button
+            class="site-header__toggle"
+            aria-label="Toggle navigation"
+            aria-expanded="false"
+          >
             ☰
           </button>
 
           <nav class="site-header__nav">
-            <a href="/" class="site-header__link site-header__link--active">Overview</a>
+            <a href="/" class="site-header__link site-header__link--active"
+              >Overview</a
+            >
             <a href="/manifest.html" class="site-header__link">Manifest</a>
 
             <div class="site-header__dropdown">
@@ -618,27 +689,84 @@
           <div class="container hero__inner">
             <div>
               <div class="hero__eyebrow">Sits on top of x402 + ERC-8004</div>
+
               <h1 class="hero__title">
                 <span>CommandLayer is the</span>
-                <span class="hero__title-em">
-                  semantic verb &amp; schema layer for agents.
-                </span>
+                <span class="hero__title-em"
+                  >semantic verb &amp; schema layer for agents.</span
+                >
               </h1>
 
               <p class="hero__subtitle">
                 Agents speak. x402 moves money. ERC-8004 helps you find agents.
-                CommandLayer defines <em>what they do</em>.
+                CommandLayer defines <em>what they do</em> — in a versioned,
+                enforceable language.
               </p>
+
               <ul class="hero__list">
-                <li>A small, stable set of Commons verbs you can drop in today.</li>
-                <li>The first Commercial verbs for economic flows (<code>authorize</code>, <code>checkout</code>, <code>purchase</code>, <code>ship</code>, <code>verify</code>).</li>
-                <li>A growing Manifest of reserved future verbs for the agent economy.</li>
-                <li>Agent Cards bound to ENS and x402 so agents can advertise capabilities in a shared language.</li>
+                <li>
+                  A small, stable set of Commons verbs you can drop in today.
+                </li>
+                <li>
+                  The first Commercial verbs for economic flows
+                  (<code>authorize</code>, <code>checkout</code>,
+                  <code>purchase</code>, <code>ship</code>,
+                  <code>verify</code>).
+                </li>
+                <li>
+                  A growing Manifest of reserved future verbs for the agent
+                  economy.
+                </li>
+                <li>
+                  Agent Cards bound to ENS and x402 so agents can advertise
+                  capabilities in a shared language.
+                </li>
               </ul>
-              <p class="hero__subtitle" style="margin-top:0.9rem;">
-                All schemas are permanently free — the economics live in execution, not in the verb language.
-                Each verb’s request/receipt schema is pinned to IPFS, checksummed, and anchored to its canonical ENS name.
+
+              <p class="hero__subtitle" style="margin-top: 0.9rem">
+                <strong>Schemas and Agent-Cards are always free</strong> —
+                versioned, immutable, and IPFS-mirrorable. The economics live in
+                execution: Commons executes free on CommandLayer reference
+                runtimes; Commercial execution is taxed at runtime. Every verb’s
+                request/receipt schema is pinned to IPFS, checksummed, and
+                anchored to its canonical ENS name.
               </p>
+
+              <!-- Execution Model (Slide + Doctrine) -->
+              <div class="exec-model">
+                <h2 class="exec-model__title">Execution &amp; Economic Model</h2>
+                <p class="exec-model__subtitle">
+                  Make meaning free. Make identity free. Make discovery free.
+                  Enforce truth with schemas and receipts. Then tax commercial
+                  execution when money moves.
+                </p>
+
+                <figure class="exec-model__figure">
+                  <!-- TODO: replace with your real slide image filename -->
+                  <img
+                    src="slide-execution-model.png"
+                    alt="CommandLayer model: schemas and agent cards are free; Commons executes free; Commercial execution is taxed at runtime."
+                    class="exec-model__img"
+                    loading="lazy"
+                  />
+                </figure>
+
+                <ul class="exec-model__bullets">
+                  <li>
+                    <strong>Always free:</strong> schemas (Commons + Commercial)
+                    and Agent-Cards — versioned, immutable, IPFS-mirrorable.
+                  </li>
+                  <li>
+                    <strong>Commons:</strong> free execution (best-effort
+                    reference runtime) + canonical request/receipt validation.
+                  </li>
+                  <li>
+                    <strong>Commercial:</strong> schemas remain free; execution
+                    is <em>taxed</em> for throughput, guarantees, routing, and
+                    SLA-grade behavior.
+                  </li>
+                </ul>
+              </div>
 
               <div class="hero__cta-row">
                 <a href="/docs.html" class="btn btn--primary">
@@ -653,35 +781,54 @@
 
               <div class="hero__meta">
                 <span class="hero__meta-pill">Protocol v1.0.0</span>
-                <span class="hero__meta-pill">Commons v1.0.0 · MIT · schemas free</span>
-                <span class="hero__meta-pill">Commercial v1.0.0 · Apache-2.0</span>
-                <span class="hero__meta-pill">Agent Cards v1.0.0 · Apache-2.0</span>
-                <span class="hero__meta-pill">Pinned to IPFS · checksummed · ENS-bound verbs</span>
-                <span class="hero__meta-pill">Runtime coming online · BUSL · execution layer</span>
+                <span class="hero__meta-pill">Commons v1.0.0 · MIT · free</span>
+                <span class="hero__meta-pill"
+                  >Commercial v1.0.0 · Apache-2.0 · schemas free</span
+                >
+                <span class="hero__meta-pill"
+                  >Agent Cards v1.0.0 · Apache-2.0 · free</span
+                >
+                <span class="hero__meta-pill"
+                  >Pinned to IPFS · checksummed · ENS-bound</span
+                >
+                <span class="hero__meta-pill"
+                  >Commons execution: free (reference runtime)</span
+                >
+                <span class="hero__meta-pill"
+                  >Commercial execution: taxed (runtime)</span
+                >
               </div>
             </div>
 
             <aside class="hero__card">
               <h2 class="hero__card-title">What you can do right now</h2>
               <p class="hero__card-body">
-                CommandLayer is the <strong>language contract</strong> between clients and agents —
-                the part that standardizes exit names, request shapes, and receipts on top of x402.
+                CommandLayer is the <strong>language contract</strong> between
+                clients and agents — the part that standardizes verbs, request
+                shapes, and receipts on top of x402. Schemas + Agent-Cards are
+                free; interoperability comes from validation and receipts.
               </p>
+
               <ol class="hero__card-list">
-                <li>Pick a Commons verb (e.g. <code>summarize</code>).</li>
-                <li>Validate payloads against the pinned, free schemas.</li>
                 <li>
-                  Describe your agent with an
-                  <a href="/agent-cards.html" class="cl-blue-link">Agent Card</a>
-                  so it can be discovered and routed to.
+                  Pick a Commons verb (e.g. <code>summarize</code>) and validate
+                  requests against the canonical schema.
                 </li>
                 <li>
-                  As x402 / ERC-8004 rails and Runtime endpoints come online, you keep the same contracts —
-                  only the execution layer changes.
+                  Publish an
+                  <a href="/agent-cards.html" class="cl-blue-link">Agent Card</a>
+                  so clients can discover and route to your agent by ENS.
+                </li>
+                <li>
+                  Use the same request/receipt contracts across runtimes; only
+                  execution changes.
+                </li>
+                <li>
+                  When you move to Commercial verbs, schemas stay free — and
+                  execution becomes taxable by design.
                 </li>
               </ol>
 
-              <!-- Side-by-side request/receipt example (no indent) -->
               <div class="mini-example mini-example--dual">
                 <div class="mini-example__column">
                   <div class="mini-example__label">// summarize.request</div>
@@ -690,15 +837,18 @@
   "content": "CommandLayer defines what agents do on x402."
 }</pre>
                 </div>
+
                 <div class="mini-example__column">
                   <div class="mini-example__label">// summarize.receipt</div>
                   <pre>{
-  "result": "Semantic verb layer describing agent behavior on x402.",
-  "trace": "bafybeieoynknza..."
+  "result": "A semantic verb layer that standardizes agent behavior on x402.",
+  "trace_id": "trace_1734048000_ab12cd"
 }</pre>
                 </div>
+
                 <div class="mini-example__note">
-                  <strong>Real verbs, real receipts</strong> — the same shapes across agents, runtimes, and payment rails.
+                  <strong>Real verbs, real receipts</strong> — identical shapes
+                  across agents, runtimes, and payment rails.
                   <a href="/demo.html" class="cl-blue-link">See it live →</a>
                 </div>
               </div>
@@ -712,11 +862,16 @@
             <div class="section__header">
               <h2>How the semantic layer is structured</h2>
               <p>
-                You don’t need everything to start. One verb + its schemas is enough. As x402 and ERC-8004 roll out,
-                the same vocabulary stretches across more agents, networks, and payment rails — without changing your contracts.
-                All schemas are pinned to IPFS with published checksums and bound to canonical ENS verbs, so the language
-                stays stable even as runtimes and economics change. CommandLayer doesn’t compete with x402 or ERC-8004 —
-                it completes the stack by defining machine intent.
+                You don’t need everything to start. One verb + its schemas is
+                enough. <strong>Commons execution is free; Commercial execution
+                is taxed</strong> — the contracts stay identical. As x402 and
+                ERC-8004 roll out, the same vocabulary stretches across more
+                agents, networks, and payment rails without changing request or
+                receipt shapes. Schemas and Agent-Cards are pinned to IPFS with
+                published checksums and bound to canonical ENS verbs, so the
+                language stays stable even as runtimes and economics evolve.
+                CommandLayer doesn’t compete with x402 or ERC-8004 — it
+                completes the stack by defining machine intent.
               </p>
             </div>
 
@@ -724,11 +879,12 @@
               <article class="info-card">
                 <h3>Commons</h3>
                 <p>
-                  10 universal verbs for analysis, retrieval, summarization, and formatting.
-                  MIT-licensed, pinned to IPFS with published checksums, and treated as semantic public goods.
-                  Schemas are free forever.
+                  Universal verbs for analysis, retrieval, summarization, and
+                  formatting. MIT-licensed, pinned to IPFS with published
+                  checksums. Schemas are free forever — and Commons execution is
+                  free on CommandLayer reference runtimes.
                 </p>
-                <p style="margin-top:0.6rem;">
+                <p style="margin-top: 0.6rem">
                   <a href="/commons.html">View Commons verbs →</a>
                 </p>
               </article>
@@ -737,11 +893,12 @@
                 <h3>Commercial</h3>
                 <p>
                   Economic verbs for moving value:
-                  <code>authorize</code>, <code>checkout</code>, <code>purchase</code>,
-                  <code>ship</code>, and <code>verify</code>. A separate tier that builds on Commons semantics
-                  and fits cleanly inside x402 payment envelopes.
+                  <code>authorize</code>, <code>checkout</code>,
+                  <code>purchase</code>, <code>ship</code>, <code>verify</code>.
+                  Schemas stay free and immutable; execution is taxed at runtime
+                  for guarantees, throughput, routing, and SLA-grade behavior.
                 </p>
-                <p style="margin-top:0.6rem;">
+                <p style="margin-top: 0.6rem">
                   <a href="/commercial.html">View Commercial verbs →</a>
                 </p>
               </article>
@@ -749,10 +906,12 @@
               <article class="info-card">
                 <h3>Agent Cards</h3>
                 <p>
-                  JSON descriptors that tie ENS names to verbs, schema versions, and x402 entrypoints so
-                  registries and clients can discover, rank, and route to your agent — without guessing how it’s wired.
+                  The identity + discovery layer. Agent Cards bind ENS names to
+                  verbs, schema versions, and x402 entrypoints so registries and
+                  clients can discover, rank, and route to agents without
+                  guessing how they’re wired. Always free. Always verifiable.
                 </p>
-                <p style="margin-top:0.6rem;">
+                <p style="margin-top: 0.6rem">
                   <a href="/agent-cards.html">Browse Agent Cards →</a>
                 </p>
               </article>
@@ -760,34 +919,37 @@
               <article class="info-card">
                 <h3>Manifest</h3>
                 <p>
-                  Tier 2 verb portfolio — 200+ reserved verbs for AI, commerce, finance, operations, and comms.
-                  The canonical map of future machine intent CommandLayer will standardize; not all verbs are live yet,
-                  but the namespace is staked out.
+                  Reserved future verb namespace — a canonical map of machine
+                  intent CommandLayer will standardize. Not all verbs are live
+                  yet; the language is being staked out with protocol-grade
+                  stability.
                 </p>
-                <p style="margin-top:0.6rem;">
+                <p style="margin-top: 0.6rem">
                   <a href="/manifest.html">Explore the Manifest →</a>
                 </p>
               </article>
 
               <article class="info-card">
-                <h3>Runtime coming online</h3>
+                <h3>Runtime</h3>
                 <p>
-                  Execution & guarantees for every verb — where paid flows, routing decisions, and SLAs live,
-                  reusing the same free schemas so semantics stay stable while economics evolve.
-                  Runtime expands into x402 rails as they land.
+                  The execution surface. CommandLayer reference runtimes execute
+                  Commons for free and enforce request/receipt validation.
+                  Commercial execution is taxed — without changing the underlying
+                  schemas or identity contracts.
                 </p>
-                <p style="margin-top:0.6rem;">
-                  <a href="/runtime.html">See Runtime plans →</a>
+                <p style="margin-top: 0.6rem">
+                  <a href="/runtime.html">How execution works →</a>
                 </p>
               </article>
 
               <article class="info-card">
                 <h3>Roadmap</h3>
                 <p>
-                  See what’s already pinned and what’s next: expanded Commons verbs, additional Commercial flows,
-                  more Agent Cards, and the Runtime layer rolling out alongside x402 and ERC-8004 adoption.
+                  What’s pinned, what’s shipping, and what’s next: expanded
+                  Commons verbs, additional Commercial flows, more Agent Cards,
+                  and runtime rollout aligned with x402 and ERC-8004 adoption.
                 </p>
-                <p style="margin-top:0.6rem;">
+                <p style="margin-top: 0.6rem">
                   <a href="/roadmap.html">See the roadmap →</a>
                 </p>
               </article>
@@ -799,25 +961,30 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2 style="font-size:1.75rem;">Ready to wire your first verb?</h2>
+              <h2 style="font-size: 1.75rem">Ready to wire your first verb?</h2>
               <p>
-                The Docs walk through the full request/receipt flow, how to validate against the free schemas,
-                and how to publish your own Agent Card.
+                The Docs walk through the request/receipt flow, validation with
+                JSON Schema 2020-12, and how to publish an Agent Card. Start with
+                one verb. Everything else composes.
               </p>
             </div>
 
             <div class="info-card">
-              <h3 style="margin-top:0;">Start with <code>summarize</code></h3>
-              <p style="margin-top:0.4rem;">
-                See a complete example: build a <code>summarize.request</code>, validate it with JSON Schema 2020-12,
-                and receive a <code>summarize.receipt</code> from an agent — all using the Commons v1.0.0 contracts.
+              <h3 style="margin-top: 0">Start with <code>summarize</code></h3>
+              <p style="margin-top: 0.4rem">
+                Build a <code>summarize.request</code>, validate it, and produce
+                a <code>summarize.receipt</code> using Commons v1.0.0 contracts.
+                Same shapes across agents, runtimes, and payment rails.
               </p>
-              <p style="margin-top:0.7rem;">
-                <a href="/docs.html" class="cl-blue-link">Open the getting-started guide →</a>
+              <p style="margin-top: 0.7rem">
+                <a href="/docs.html" class="cl-blue-link"
+                  >Open the getting-started guide →</a
+                >
               </p>
-              <p style="margin-top:0.4rem; font-size:0.85rem; color:#6b7280;">
-                Start with one verb. As x402 and ERC-8004 adoption grows, the same free schemas and Agent Cards
-                scale across more agents, runtimes, and payment rails.
+              <p style="margin-top: 0.4rem; font-size: 0.85rem; color: #6b7280">
+                Schemas + Agent-Cards remain free and immutable. Commons executes
+                free on reference runtimes; Commercial execution is taxed at
+                runtime.
               </p>
             </div>
           </div>
@@ -826,16 +993,22 @@
 
       <footer class="site-footer">
         <div class="container site-footer__inner">
+          <div>© CommandLayer — semantic layer for autonomous agents</div>
           <div>
-            © CommandLayer — semantic layer for autonomous agents
-          </div>
-          <div>
-            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free, IPFS-pinned, checksummed, and ENS-anchored
+            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards
+            Apache-2.0 · Runtime BUSL · Schemas &amp; Agent-Cards always free,
+            IPFS-pinned, checksummed, and ENS-anchored · Commons execution free ·
+            Commercial execution taxed
           </div>
           <div class="site-footer__links">
             <a href="/docs.html">Docs</a>
             <a href="/manifest.html">Manifest</a>
-            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a
+              href="https://github.com/commandlayer"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub</a
+            >
           </div>
         </div>
       </footer>
