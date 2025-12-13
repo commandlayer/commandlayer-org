@@ -1,1038 +1,975 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>CommandLayer — The semantic layer for agents</title>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <meta
-      name="description"
-      content="CommandLayer is the semantic verb + schema layer on top of x402 and ERC-8004. Schemas and Agent-Cards are always free, versioned, immutable, and IPFS-mirrorable. Commons executes free on CommandLayer reference runtimes; Commercial execution is taxed at runtime."
-    />
-
-    <style>
-      :root {
-        --bg: #05060a;
-        --bg-elevated: #0a0c14;
-        --bg-header: radial-gradient(
-          circle at 0% 0%,
-          #525b70 0,
-          #1b1f2b 40%,
-          #05060a 100%
-        );
-        --border-soft: rgba(255, 255, 255, 0.06);
-        --border-strong: rgba(255, 255, 255, 0.18);
-        --accent: #c5cbe0;
-        --accent-strong: #e3e7ff;
-        --accent-muted: #8f96b5;
-        --text-main: #f7f8ff;
-        --text-muted: #9ca3c7;
-        --text-soft: #6b7280;
-        --radius-lg: 16px;
-        --radius-xl: 24px;
-        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
-        --max-width: 1120px;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-          "Inter", sans-serif;
-        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
-        color: var(--text-main);
-      }
-
-      body {
-        min-height: 100vh;
-      }
-
-      .page-shell {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .page-main {
-        flex: 1;
-      }
-
-      .container {
-        width: 100%;
-        max-width: var(--max-width);
-        margin: 0 auto;
-        padding: 0 1.5rem;
-      }
-
-      /* Header */
-      .site-header {
-        background: var(--bg-header);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        backdrop-filter: blur(18px);
-      }
-
-      .site-header__inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.9rem 1.5rem;
-      }
-
-      .site-header__brand {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-decoration: none;
-        color: inherit;
-      }
-
-      .site-header__logo-img {
-        width: 28px;
-        height: 28px;
-        object-fit: contain;
-        display: block;
-        border-radius: 6px;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
-          0 14px 40px rgba(0, 0, 0, 0.9);
-      }
-
-      .site-header__text {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .site-header__title {
-        font-size: 0.98rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-      }
-
-      .site-header__subtitle {
-        font-size: 0.78rem;
-        color: var(--text-muted);
-      }
-
-      .site-header__nav {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .site-header__link {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        text-decoration: none;
-        color: var(--text-muted);
-        border: 1px solid transparent;
-        white-space: nowrap;
-      }
-
-      .site-header__link:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__link--active {
-        color: #020617;
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        border-color: rgba(255, 255, 255, 0.25);
-      }
-
-      /* Docs dropdown */
-      .site-header__dropdown {
-        position: relative;
-      }
-
-      .site-header__dropdown-btn {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: var(--text-muted);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        cursor: pointer;
-      }
-
-      .site-header__dropdown-btn:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__dropdown-menu {
-        position: absolute;
-        top: 2.3rem;
-        right: 0;
-        background: rgba(15, 23, 42, 0.98);
-        border-radius: 14px;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        padding: 0.5rem 0.4rem;
-        min-width: 210px;
-        display: none;
-      }
-
-      .site-header__dropdown-menu a {
-        display: block;
-        padding: 0.35rem 0.7rem;
-        font-size: 0.82rem;
-        text-decoration: none;
-        color: var(--text-muted);
-        border-radius: 999px;
-      }
-
-      .site-header__dropdown-menu a:hover {
-        color: var(--accent-strong);
-        background: rgba(31, 41, 55, 0.95);
-      }
-
-      .site-header--docs-open .site-header__dropdown-menu {
-        display: block;
-      }
-
-      /* Mobile toggle */
-      .site-header__toggle {
-        display: none;
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.7);
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--text-main);
-        padding: 0.25rem 0.6rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-      }
-
-      .site-header__toggle:hover {
-        background: rgba(15, 23, 42, 1);
-      }
-
-      /* Hero */
-      .hero {
-        padding: 3.2rem 0 2.8rem;
-        border-bottom: 1px solid var(--border-soft);
-        background: radial-gradient(circle at 0 0, #111827, #020308);
-      }
-
-      .hero__inner {
-        display: grid;
-        grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
-        align-items: start;
-        gap: 2.5rem;
-      }
-
-      .hero__eyebrow {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--accent-muted);
-        margin-bottom: 0.8rem;
-      }
-
-      .hero__title {
-        margin: 0 0 0.8rem;
-        font-size: 2.4rem;
-        line-height: 1.1;
-      }
-
-      .hero__title span {
-        display: block;
-      }
-
-      .hero__title-em {
-        background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
-
-      .hero__subtitle {
-        margin: 0 0 0.8rem;
-        color: var(--text-muted);
-        font-size: 0.98rem;
-        max-width: 38rem;
-        line-height: 1.7;
-      }
-
-      .hero__list {
-        margin: 0.4rem 0 0;
-        padding-left: 1.1rem;
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        line-height: 1.7;
-      }
-
-      .hero__cta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.8rem;
-        margin-top: 1.3rem;
-      }
-
-      .hero__meta {
-        margin-top: 1.1rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.6rem;
-        font-size: 0.8rem;
-        color: var(--text-soft);
-      }
-
-      .hero__meta-pill {
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.6);
-        padding: 0.18rem 0.55rem;
-      }
-
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.45rem;
-        padding: 0.6rem 1.1rem;
-        border-radius: 999px;
-        font-size: 0.9rem;
-        text-decoration: none;
-        border: 1px solid transparent;
-        cursor: pointer;
-        white-space: nowrap;
-      }
-
-      .btn--primary {
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        color: #020617;
-        border-color: rgba(255, 255, 255, 0.3);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
-      }
-
-      .btn--primary:hover {
-        filter: brightness(1.03);
-      }
-
-      .btn--ghost {
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--accent-strong);
-        border-color: rgba(148, 163, 184, 0.6);
-      }
-
-      .btn--ghost:hover {
-        background: rgba(15, 23, 42, 1);
-      }
-
-      .btn__icon {
-        font-size: 1rem;
-      }
-
-      .hero__card {
-        background: rgba(15, 23, 42, 0.95);
-        border-radius: var(--radius-xl);
-        padding: 1.4rem 1.4rem 1.6rem;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-      }
-
-      .hero__card-title {
-        margin: 0 0 0.5rem;
-        font-size: 1.3rem;
-        font-weight: 700;
-        letter-spacing: -0.01em;
-      }
-
-      .hero__card-body {
-        margin: 0;
-        font-size: 0.95rem;
-        color: var(--text-main);
-        margin-left: 0.1rem;
-        line-height: 1.65;
-      }
-
-      .hero__card-list {
-        margin: 0.9rem 0 0;
-        padding-left: 1.15rem;
-        font-size: 0.86rem;
-        color: var(--text-muted);
-        line-height: 1.7;
-      }
-
-      /* Execution model block */
-      .exec-model {
-        margin-top: 1.35rem;
-        background: rgba(15, 23, 42, 0.92);
-        border: 1px solid var(--border-soft);
-        border-radius: var(--radius-xl);
-        padding: 1.1rem 1.1rem 1rem;
-        box-shadow: var(--shadow-soft);
-      }
-
-      .exec-model__title {
-        margin: 0 0 0.55rem;
-        font-size: 1.05rem;
-        letter-spacing: -0.01em;
-      }
-
-      .exec-model__subtitle {
-        margin: 0 0 0.85rem;
-        color: var(--text-muted);
-        font-size: 0.9rem;
-        line-height: 1.6;
-        max-width: 46rem;
-      }
-
-      .exec-model__figure {
-        margin: 0;
-        border-radius: 18px;
-        overflow: hidden;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        background: rgba(2, 6, 23, 0.45);
-      }
-
-      .exec-model__img {
-        display: block;
-        width: 100%;
-        height: auto;
-      }
-
-      .exec-model__bullets {
-        margin: 0.9rem 0 0;
-        padding-left: 1.1rem;
-        color: var(--text-muted);
-        font-size: 0.88rem;
-        line-height: 1.6;
-      }
-
-      .exec-model__bullets code {
-        color: var(--accent-strong);
-      }
-
-      /* Sections */
-      .section {
-        padding: 2.8rem 0;
-      }
-
-      .section--muted {
-        background: rgb(6, 9, 18);
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      }
-
-      .section__header {
-        max-width: 44rem;
-        margin-bottom: 1.6rem;
-      }
-
-      .section__header h2 {
-        margin: 0 0 0.5rem;
-        font-size: 1.4rem;
-      }
-
-      .section__header p {
-        margin: 0;
-        font-size: 0.95rem;
-        color: var(--text-muted);
-        line-height: 1.7;
-      }
-
-      .grid {
-        display: grid;
-        gap: 1.2rem;
-      }
-
-      .grid--3 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .info-card {
-        background: rgba(15, 23, 42, 0.95);
-        padding: 1.1rem;
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--border-soft);
-        font-size: 0.9rem;
-      }
-
-      .info-card h3 {
-        margin: 0 0 0.45rem;
-        font-size: 1rem;
-      }
-
-      .info-card p {
-        margin: 0;
-        color: var(--text-muted);
-        line-height: 1.7;
-      }
-
-      .info-card a {
-        color: var(--accent-strong);
-        text-decoration: none;
-      }
-
-      .info-card a:hover {
-        text-decoration: underline;
-      }
-
-      /* Mini example (dual) */
-      .mini-example {
-        font-size: 0.85rem;
-        background: rgba(15, 23, 42, 0.9);
-        border: 1px solid var(--border-soft);
-        padding: 1rem;
-        border-radius: var(--radius-lg);
-        margin-top: 1.6rem;
-      }
-
-      .mini-example--dual {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1rem;
-      }
-
-      .mini-example__column {
-        min-width: 0;
-      }
-
-      .mini-example__label {
-        opacity: 0.9;
-        margin-bottom: 0.4rem;
-      }
-
-      .mini-example pre {
-        margin: 0;
-        white-space: pre;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-          "Liberation Mono", "Courier New", monospace;
-        font-size: 0.82rem;
-        overflow-x: auto;
-      }
-
-      .mini-example__note {
-        grid-column: 1 / -1;
-        opacity: 0.9;
-        margin-top: 0.7rem;
-        font-size: 0.82rem;
-      }
-
-      .mini-example__note a {
-        text-decoration: none;
-      }
-
-      .mini-example__note a:hover {
-        text-decoration: underline;
-      }
-
-      /* Always-blue links */
-      .cl-blue-link {
-        color: #7ca8ff !important;
-        text-decoration: none;
-      }
-      .cl-blue-link:hover {
-        text-decoration: underline;
-      }
-      .cl-blue-link:visited {
-        color: #7ca8ff !important;
-      }
-
-      /* Footer */
-      .site-footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        background: #020308;
-      }
-
-      .site-footer__inner {
-        padding: 1.4rem 1.5rem 1.8rem;
-        font-size: 0.78rem;
-        color: var(--text-soft);
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        align-items: center;
-        text-align: center;
-        line-height: 1.6;
-      }
-
-      .site-footer__links {
-        display: flex;
-        gap: 0.8rem;
-        justify-content: center;
-        margin-top: 0.2rem;
-      }
-
-      .site-footer__links a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-
-      .site-footer__links a:hover {
-        text-decoration: underline;
-      }
-
-      /* Mobile */
-      @media (max-width: 880px) {
-        .site-header__inner {
-          padding-inline: 1rem;
-        }
-
-        .site-header__toggle {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .site-header__nav {
-          display: none;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
-          margin-top: 0.8rem;
-        }
-
-        .site-header.site-header--open .site-header__nav {
-          display: flex;
-        }
-
-        .hero__inner {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .hero__card {
-          margin-top: 1.5rem;
-        }
-
-        .mini-example--dual {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .site-footer__inner {
-          padding-inline: 1rem;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="page-shell">
-      <!-- HEADER -->
-      <header class="site-header">
-        <div class="site-header__inner container">
-          <a href="/" class="site-header__brand">
-            <img
-              src="icon2.png"
-              alt="CommandLayer Logo"
-              class="site-header__logo-img"
-            />
-            <div class="site-header__text">
-              <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">
-                Semantic verb &amp; schema layer for agents
-              </span>
-            </div>
-          </a>
-
-          <!-- Mobile toggle -->
-          <button
-            class="site-header__toggle"
-            aria-label="Toggle navigation"
-            aria-expanded="false"
-          >
-            ☰
-          </button>
-
-          <nav class="site-header__nav">
-            <a href="/" class="site-header__link site-header__link--active"
-              >Overview</a
-            >
-            <a href="/manifest.html" class="site-header__link">Manifest</a>
-
-            <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button">
-                Docs ▾
-              </button>
-              <div class="site-header__dropdown-menu">
-                <a href="/commons.html">Commons</a>
-                <a href="/commercial.html">Commercial</a>
-                <a href="/agent-cards.html">Agent Cards</a>
-                <a href="/runtime.html">Runtime</a>
-                <a href="/roadmap.html">Roadmap</a>
-                <a href="/licensing.html">Licensing</a>
-                <a href="/about.html">About CommandLayer</a>
-              </div>
-            </div>
-
-            <a href="/demo.html" class="site-header__link">Live Demo</a>
-            <a
-              href="https://github.com/commandlayer"
-              class="site-header__link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
-            </a>
-          </nav>
-        </div>
-      </header>
-
-      <main class="page-main">
-        <!-- HERO -->
-        <section class="hero">
-          <div class="container hero__inner">
-            <div>
-              <div class="hero__eyebrow">Sits on top of x402 + ERC-8004</div>
-
-              <h1 class="hero__title">
-                <span>CommandLayer is the</span>
-                <span class="hero__title-em"
-                  >semantic verb &amp; schema layer for agents.</span
-                >
-              </h1>
-
-              <p class="hero__subtitle">
-                Agents speak. x402 moves money. ERC-8004 helps you find agents.
-                CommandLayer defines <em>what they do</em> — in a versioned,
-                enforceable language.
-              </p>
-
-              <ul class="hero__list">
-                <li>
-                  A small, stable set of Commons verbs you can drop in today.
-                </li>
-                <li>
-                  The first Commercial verbs for economic flows
-                  (<code>authorize</code>, <code>checkout</code>,
-                  <code>purchase</code>, <code>ship</code>,
-                  <code>verify</code>).
-                </li>
-                <li>
-                  A growing Manifest of reserved future verbs for the agent
-                  economy.
-                </li>
-                <li>
-                  Agent Cards bound to ENS and x402 so agents can advertise
-                  capabilities in a shared language.
-                </li>
-              </ul>
-
-              <p class="hero__subtitle" style="margin-top: 0.9rem">
-                <strong>Schemas and Agent-Cards are always free</strong> —
-                versioned, immutable, and IPFS-mirrorable. The economics live in
-                execution: Commons executes free on CommandLayer reference
-                runtimes; Commercial execution is taxed at runtime. Every verb’s
-                request/receipt schema is pinned to IPFS, checksummed, and
-                anchored to its canonical ENS name.
-              </p>
-
-              <!-- Execution Model (Slide + Doctrine) -->
-              <div class="exec-model">
-                <h2 class="exec-model__title">Execution &amp; Economic Model</h2>
-                <p class="exec-model__subtitle">
-                  Make meaning free. Make identity free. Make discovery free.
-                  Enforce truth with schemas and receipts. Then tax commercial
-                  execution when money moves.
-                </p>
-
-                <figure class="exec-model__figure">
-                  <!-- TODO: replace with your real slide image filename -->
-                  <img
-                    src="slide-execution-model.png"
-                    alt="CommandLayer model: schemas and agent cards are free; Commons executes free; Commercial execution is taxed at runtime."
-                    class="exec-model__img"
-                    loading="lazy"
-                  />
-                </figure>
-
-                <ul class="exec-model__bullets">
-                  <li>
-                    <strong>Always free:</strong> schemas (Commons + Commercial)
-                    and Agent-Cards — versioned, immutable, IPFS-mirrorable.
-                  </li>
-                  <li>
-                    <strong>Commons:</strong> free execution (best-effort
-                    reference runtime) + canonical request/receipt validation.
-                  </li>
-                  <li>
-                    <strong>Commercial:</strong> schemas remain free; execution
-                    is <em>taxed</em> for throughput, guarantees, routing, and
-                    SLA-grade behavior.
-                  </li>
-                </ul>
-              </div>
-
-              <div class="hero__cta-row">
-                <a href="/docs.html" class="btn btn--primary">
-                  <span class="btn__icon">📚</span>
-                  <span>Read the docs</span>
-                </a>
-                <a href="/docs.html#summarize" class="btn btn--ghost">
-                  <span class="btn__icon">⚡</span>
-                  <span>Start with summarize</span>
-                </a>
-              </div>
-
-              <div class="hero__meta">
-                <span class="hero__meta-pill">Protocol v1.0.0</span>
-                <span class="hero__meta-pill">Commons v1.0.0 · MIT · free</span>
-                <span class="hero__meta-pill"
-                  >Commercial v1.0.0 · Apache-2.0 · schemas free</span
-                >
-                <span class="hero__meta-pill"
-                  >Agent Cards v1.0.0 · Apache-2.0 · free</span
-                >
-                <span class="hero__meta-pill"
-                  >Pinned to IPFS · checksummed · ENS-bound</span
-                >
-                <span class="hero__meta-pill"
-                  >Commons execution: free (reference runtime)</span
-                >
-                <span class="hero__meta-pill"
-                  >Commercial execution: taxed (runtime)</span
-                >
-              </div>
-            </div>
-
-            <aside class="hero__card">
-              <h2 class="hero__card-title">What you can do right now</h2>
-              <p class="hero__card-body">
-                CommandLayer is the <strong>language contract</strong> between
-                clients and agents — the part that standardizes verbs, request
-                shapes, and receipts on top of x402. Schemas + Agent-Cards are
-                free; interoperability comes from validation and receipts.
-              </p>
-
-              <ol class="hero__card-list">
-                <li>
-                  Pick a Commons verb (e.g. <code>summarize</code>) and validate
-                  requests against the canonical schema.
-                </li>
-                <li>
-                  Publish an
-                  <a href="/agent-cards.html" class="cl-blue-link">Agent Card</a>
-                  so clients can discover and route to your agent by ENS.
-                </li>
-                <li>
-                  Use the same request/receipt contracts across runtimes; only
-                  execution changes.
-                </li>
-                <li>
-                  When you move to Commercial verbs, schemas stay free — and
-                  execution becomes taxable by design.
-                </li>
-              </ol>
-
-              <div class="mini-example mini-example--dual">
-                <div class="mini-example__column">
-                  <div class="mini-example__label">// summarize.request</div>
-                  <pre>{
-  "verb": "summarize",
-  "content": "CommandLayer defines what agents do on x402."
+<head>
+<meta charset="UTF-8" />
+<title>CommandLayer — The semantic layer for agents</title>
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1, viewport-fit=cover"
+/>
+<meta
+name="description"
+content="CommandLayer is the semantic verb + schema layer that sits on top of x402 and ERC-8004 — Commons verbs live today, Commercial economic verbs defined, a Manifest of future verbs, and Agent Cards so agents can advertise what they do in a shared language. Schemas are always free; value lives in execution."
+/>
+
+
+<style>
+:root {
+--bg: #05060a;
+--bg-elevated: #0a0c14;
+--bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+--border-soft: rgba(255, 255, 255, 0.06);
+--border-strong: rgba(255, 255, 255, 0.18);
+--accent: #c5cbe0;
+--accent-strong: #e3e7ff;
+--accent-muted: #8f96b5;
+--text-main: #f7f8ff;
+--text-muted: #9ca3c7;
+--text-soft: #6b7280;
+--radius-lg: 16px;
+--radius-xl: 24px;
+--shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+--max-width: 1120px;
+}
+
+
+* {
+box-sizing: border-box;
+}
+
+
+html,
+body {
+margin: 0;
+padding: 0;
+font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+"Inter", sans-serif;
+background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+color: var(--text-main);
+}
+
+
+body {
+min-height: 100vh;
+}
+
+
+.page-shell {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+
+.page-main {
+flex: 1;
+}
+
+
+.container {
+width: 100%;
+max-width: var(--max-width);
+margin: 0 auto;
+padding: 0 1.5rem;
+}
+
+
+/* Header */
+.site-header {
+background: var(--bg-header);
+border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+position: sticky;
+top: 0;
+z-index: 20;
+backdrop-filter: blur(18px);
+}
+
+
+.site-header__inner {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0.9rem 1.5rem;
+}
+
+
+.site-header__brand {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+text-decoration: none;
+color: inherit;
+}
+
+
+.site-header__logo-img {
+width: 28px;
+height: 28px;
+object-fit: contain;
+display: block;
+border-radius: 6px;
+box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
+0 14px 40px rgba(0, 0, 0, 0.9);
+}
+
+
+.site-header__text {
+display: flex;
+flex-direction: column;
+}
+
+
+.site-header__title {
+font-size: 0.98rem;
+font-weight: 600;
+letter-spacing: 0.03em;
+}
+
+
+.site-header__subtitle {
+font-size: 0.78rem;
+color: var(--text-muted);
+}
+
+
+.site-header__nav {
+display: flex;
+gap: 1rem;
+align-items: center;
+}
+
+
+.site-header__link {
+font-size: 0.86rem;
+padding: 0.35rem 0.8rem;
+border-radius: 999px;
+text-decoration: none;
+color: var(--text-muted);
+border: 1px solid transparent;
+white-space: nowrap;
+}
+
+
+.site-header__link:hover {
+color: var(--accent-strong);
+border-color: rgba(255, 255, 255, 0.18);
+background: rgba(15, 23, 42, 0.7);
+}
+
+
+.site-header__link--active {
+color: #020617;
+background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+border-color: rgba(255, 255, 255, 0.25);
+}
+
+
+/* Docs dropdown */
+.site-header__dropdown {
+position: relative;
+}
+
+
+.site-header__dropdown-btn {
+font-size: 0.86rem;
+padding: 0.35rem 0.8rem;
+border-radius: 999px;
+border: 1px solid transparent;
+background: transparent;
+color: var(--text-muted);
+display: inline-flex;
+align-items: center;
+gap: 0.25rem;
+cursor: pointer;
+}
+
+
+.site-header__dropdown-btn:hover {
+color: var(--accent-strong);
+border-color: rgba(255, 255, 255, 0.18);
+background: rgba(15, 23, 42, 0.7);
+}
+
+
+.site-header__dropdown-menu {
+position: absolute;
+top: 2.3rem;
+right: 0;
+background: rgba(15, 23, 42, 0.98);
+border-radius: 14px;
+border: 1px solid var(--border-soft);
+box-shadow: var(--shadow-soft);
+padding: 0.5rem 0.4rem;
+min-width: 210px;
+display: none;
+}
+
+
+.site-header__dropdown-menu a {
+display: block;
+padding: 0.35rem 0.7rem;
+font-size: 0.82rem;
+text-decoration: none;
+color: var(--text-muted);
+border-radius: 999px;
+}
+
+
+.site-header__dropdown-menu a:hover {
+color: var(--accent-strong);
+background: rgba(31, 41, 55, 0.95);
+}
+
+
+.site-header--docs-open .site-header__dropdown-menu {
+display: block;
+}
+
+
+/* Mobile toggle */
+.site-header__toggle {
+display: none;
+border-radius: 999px;
+border: 1px solid rgba(148, 163, 184, 0.7);
+background: rgba(15, 23, 42, 0.9);
+color: var(--text-main);
+padding: 0.25rem 0.6rem;
+font-size: 0.9rem;
+cursor: pointer;
+}
+
+
+.site-header__toggle:hover {
+background: rgba(15, 23, 42, 1);
+}
+
+
+/* Hero */
+.hero {
+padding: 3.2rem 0 2.8rem;
+border-bottom: 1px solid var(--border-soft);
+background: radial-gradient(circle at 0 0, #111827, #020308);
+}
+
+
+.hero__inner {
+display: grid;
+grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
+align-items: center;
+gap: 2.5rem;
+}
+
+
+.hero__eyebrow {
+font-size: 0.8rem;
+text-transform: uppercase;
+letter-spacing: 0.14em;
+color: var(--accent-muted);
+margin-bottom: 0.8rem;
+}
+
+
+.hero__title {
+margin: 0 0 0.8rem;
+font-size: 2.4rem;
+line-height: 1.1;
+}
+
+
+.hero__title span {
+display: block;
+}
+
+
+.hero__title-em {
+background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
+-webkit-background-clip: text;
+background-clip: text;
+color: transparent;
+}
+
+
+.hero__subtitle {
+margin: 0 0 0.8rem;
+color: var(--text-muted);
+font-size: 0.98rem;
+max-width: 36rem;
+line-height: 1.7;
+}
+
+
+.hero__list {
+margin: 0.4rem 0 0;
+padding-left: 1.1rem;
+font-size: 0.9rem;
+color: var(--text-muted);
+}
+
+
+.hero__cta-row {
+display: flex;
+flex-wrap: wrap;
+gap: 0.8rem;
+margin-top: 1.6rem;
+}
+
+
+.hero__meta {
+margin-top: 1.3rem;
+display: flex;
+flex-wrap: wrap;
+gap: 0.6rem;
+font-size: 0.8rem;
+color: var(--text-soft);
+}
+
+
+.hero__meta-pill {
+border-radius: 999px;
+border: 1px solid rgba(148, 163, 184, 0.6);
+padding: 0.18rem 0.55rem;
+}
+
+
+.btn {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 0.45rem;
+padding: 0.6rem 1.1rem;
+border-radius: 999px;
+font-size: 0.9rem;
+text-decoration: none;
+border: 1px solid transparent;
+cursor: pointer;
+white-space: nowrap;
+}
+
+
+.btn--primary {
+background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+color: #020617;
+border-color: rgba(255, 255, 255, 0.3);
+box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+
+
+.btn--primary:hover {
+filter: brightness(1.03);
+}
+
+
+.btn--ghost {
+background: rgba(15, 23, 42, 0.9);
+color: var(--accent-strong);
+border-color: rgba(148, 163, 184, 0.6);
+}
+
+
+.btn--ghost:hover {
+background: rgba(15, 23, 42, 1);
+}
+
+
+.btn__icon {
+font-size: 1rem;
+}
+
+
+.hero__card {
+background: rgba(15, 23, 42, 0.95);
+border-radius: var(--radius-xl);
+padding: 1.4rem 1.4rem 1.6rem;
+border: 1px solid var(--border-soft);
+box-shadow: var(--shadow-soft);
+}
+
+
+.hero__card-title {
+margin: 0 0 0.5rem;
+font-size: 1.3rem;
+font-weight: 700;
+letter-spacing: -0.01em;
+}
+
+
+.hero__card-body {
+margin: 0;
+font-size: 0.95rem;
+color: var(--text-main);
+margin-left: 0.1rem;
+}
+
+
+.hero__card-list {
+margin: 0.9rem 0 0;
+padding-left: 1.15rem;
+font-size: 0.86rem;
+color: var(--text-muted);
+}
+
+
+/* Sections */
+.section {
+padding: 2.8rem 0;
+}
+
+
+.section--muted {
+background: rgb(6, 9, 18);
+border-top: 1px solid rgba(255, 255, 255, 0.06);
+border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+
+.section__header {
+max-width: 40rem;
+margin-bottom: 1.6rem;
+}
+
+
+.section__header h2 {
+margin: 0 0 0.5rem;
+font-size: 1.4rem;
+}
+
+
+.section__header p {
+margin: 0;
+font-size: 0.95rem;
+color: var(--text-muted);
+}
+
+
+.grid {
+display: grid;
+gap: 1.2rem;
+}
+
+
+.grid--3 {
+grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+
+.info-card {
+background: rgba(15, 23, 42, 0.95);
+padding: 1.1rem;
+border-radius: var(--radius-lg);
+border: 1px solid var(--border-soft);
+font-size: 0.9rem;
+}
+
+
+.info-card h3 {
+margin: 0 0 0.45rem;
+font-size: 1rem;
+}
+
+
+.info-card p {
+margin: 0;
+color: var(--text-muted);
+}
+
+
+.info-card a {
+color: var(--accent-strong);
+text-decoration: none;
+}
+
+
+.info-card a:hover {
+text-decoration: underline;
+}
+
+
+/* Mini example (dual) */
+.mini-example {
+font-size: 0.85rem;
+background: rgba(15, 23, 42, 0.9);
+border: 1px solid var(--border-soft);
+padding: 1rem;
+border-radius: var(--radius-lg);
+margin-top: 1.6rem;
+}
+
+
+.mini-example--dual {
+display: grid;
+grid-template-columns: repeat(2, minmax(0, 1fr));
+gap: 1rem;
+}
+
+
+.mini-example__column {
+min-width: 0;
+}
+
+
+.mini-example__label {
+opacity: 0.9;
+margin-bottom: 0.4rem;
+}
+
+
+.mini-example pre {
+margin: 0;
+white-space: pre;
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+"Liberation Mono", "Courier New", monospace;
+font-size: 0.82rem;
+overflow-x: auto;
+}
+
+
+.mini-example__note {
+grid-column: 1 / -1;
+opacity: 0.9;
+margin-top: 0.7rem;
+font-size: 0.82rem;
+}
+
+
+.mini-example__note a {
+text-decoration: none;
+}
+
+
+.mini-example__note a:hover {
+text-decoration: underline;
+}
+
+
+/* Always-blue links */
+.cl-blue-link {
+color: #7ca8ff !important;
+text-decoration: none;
+}
+.cl-blue-link:hover {
+text-decoration: underline;
+}
+.cl-blue-link:visited {
+color: #7ca8ff !important;
+}
+
+
+/* Footer */
+.site-footer {
+border-top: 1px solid rgba(255, 255, 255, 0.1);
+background: #020308;
+}
+
+
+.site-footer__inner {
+padding: 1.4rem 1.5rem 1.8rem;
+font-size: 0.78rem;
+color: var(--text-soft);
+display: flex;
+flex-direction: column;
+gap: 0.4rem;
+align-items: center;
+text-align: center;
+}
+
+
+.site-footer__links {
+display: flex;
+gap: 0.8rem;
+justify-content: center;
+margin-top: 0.2rem;
+}
+
+
+.site-footer__links a {
+color: var(--accent);
+text-decoration: none;
+}
+
+
+.site-footer__links a:hover {
+text-decoration: underline;
+}
+
+
+/* Mobile */
+@media (max-width: 880px) {
+.site-header__inner {
+padding-inline: 1rem;
+}
+
+
+.site-header__toggle {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+}
+
+
+.site-header__nav {
+display: none;
+flex-direction: column;
+align-items: flex-start;
+gap: 0.5rem;
+margin-top: 0.8rem;
+}
+
+
+.site-header.site-header--open .site-header__nav {
+display: flex;
+}
+
+
+.hero__inner {
+grid-template-columns: minmax(0, 1fr);
+}
+
+
+.hero__card {
+margin-top: 1.5rem;
+}
+
+
+.mini-example--dual {
+grid-template-columns: minmax(0, 1fr);
+}
+
+
+.site-footer__inner {
+padding-inline: 1rem;
+}
+}
+</style>
+</head>
+
+
+<body>
+<div class="page-shell">
+<!-- HEADER -->
+<header class="site-header">
+<div class="site-header__inner container">
+<a href="/" class="site-header__brand">
+<img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+<div class="site-header__text">
+<span class="site-header__title">CommandLayer</span>
+<span class="site-header__subtitle">
+Semantic verb &amp; schema layer for agents
+</span>
+</div>
+</a>
+
+
+<!-- Mobile toggle -->
+<button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
+☰
+</button>
+
+
+<nav class="site-header__nav">
+<a href="/" class="site-header__link site-header__link--active">Overview</a>
+<a href="/manifest.html" class="site-header__link">Manifest</a>
+
+
+<div class="site-header__dropdown">
+<button class="site-header__dropdown-btn" type="button">
+Docs ▾
+</button>
+<div class="site-header__dropdown-menu">
+<a href="/commons.html">Commons</a>
+<a href="/commercial.html">Commercial</a>
+<a href="/agent-cards.html">Agent Cards</a>
+<a href="/runtime.html">Runtime</a>
+<a href="/roadmap.html">Roadmap</a>
+<a href="/licensing.html">Licensing</a>
+<a href="/about.html">About CommandLayer</a>
+</div>
+</div>
+
+
+<a href="/demo.html" class="site-header__link">Live Demo</a>
+<a
+href="https://github.com/commandlayer"
+class="site-header__link"
+target="_blank"
+rel="noopener noreferrer"
+>
+GitHub
+</a>
+</nav>
+</div>
+</header>
+
+
+<main class="page-main">
+<!-- HERO -->
+<section class="hero">
+<div class="container hero__inner">
+<div>
+<div class="hero__eyebrow">Sits on top of x402 + ERC-8004</div>
+<h1 class="hero__title">
+<span>CommandLayer is the</span>
+<span class="hero__title-em">
+semantic verb &amp; schema layer for agents.
+</span>
+</h1>
+
+
+<p class="hero__subtitle">
+Agents speak. x402 moves money. ERC-8004 helps you find agents.
+CommandLayer defines <em>what they do</em>.
+</p>
+<ul class="hero__list">
+<li>A small, stable set of Commons verbs you can drop in today.</li>
+<li>The first Commercial verbs for economic flows (<code>authorize</code>, <code>checkout</code>, <code>purchase</code>, <code>ship</code>, <code>verify</code>).</li>
+<li>A growing Manifest of reserved future verbs for the agent economy.</li>
+<li>Agent Cards bound to ENS and x402 so agents can advertise capabilities in a shared language.</li>
+</ul>
+<p class="hero__subtitle" style="margin-top:0.9rem;">
+All schemas are permanently free — the economics live in execution, not in the verb language.
+Each verb’s request/receipt schema is pinned to IPFS, checksummed, and anchored to its canonical ENS name.
+</p>
+
+
+<div class="hero__cta-row">
+<a href="/docs.html" class="btn btn--primary">
+<span class="btn__icon">📚</span>
+<span>Read the docs</span>
+</a>
+<a href="/docs.html#summarize" class="btn btn--ghost">
+<span class="btn__icon">⚡</span>
+<span>Start with summarize</span>
+</a>
+</div>
+
+
+<div class="hero__meta">
+<span class="hero__meta-pill">Protocol v1.0.0</span>
+<span class="hero__meta-pill">Commons v1.0.0 · MIT · schemas free</span>
+<span class="hero__meta-pill">Commercial v1.0.0 · Apache-2.0</span>
+<span class="hero__meta-pill">Agent Cards v1.0.0 · Apache-2.0</span>
+<span class="hero__meta-pill">Pinned to IPFS · checksummed · ENS-bound verbs</span>
+<span class="hero__meta-pill">Runtime coming online · BUSL · execution layer</span>
+</div>
+</div>
+
+
+<aside class="hero__card">
+<h2 class="hero__card-title">What you can do right now</h2>
+<p class="hero__card-body">
+CommandLayer is the <strong>language contract</strong> between clients and agents —
+the part that standardizes exit names, request shapes, and receipts on top of x402.
+</p>
+<ol class="hero__card-list">
+<li>Pick a Commons verb (e.g. <code>summarize</code>).</li>
+<li>Validate payloads against the pinned, free schemas.</li>
+<li>
+Describe your agent with an
+<a href="/agent-cards.html" class="cl-blue-link">Agent Card</a>
+so it can be discovered and routed to.
+</li>
+<li>
+As x402 / ERC-8004 rails and Runtime endpoints come online, you keep the same contracts —
+only the execution layer changes.
+</li>
+</ol>
+
+
+<!-- Side-by-side request/receipt example (no indent) -->
+<div class="mini-example mini-example--dual">
+<div class="mini-example__column">
+<div class="mini-example__label">// summarize.request</div>
+<pre>{
+"verb": "summarize",
+"content": "CommandLayer defines what agents do on x402."
 }</pre>
-                </div>
-
-                <div class="mini-example__column">
-                  <div class="mini-example__label">// summarize.receipt</div>
-                  <pre>{
-  "result": "A semantic verb layer that standardizes agent behavior on x402.",
-  "trace_id": "trace_1734048000_ab12cd"
+</div>
+<div class="mini-example__column">
+<div class="mini-example__label">// summarize.receipt</div>
+<pre>{
+"result": "Semantic verb layer describing agent behavior on x402.",
+"trace": "bafybeieoynknza..."
 }</pre>
-                </div>
+</div>
+<div class="mini-example__note">
+<strong>Real verbs, real receipts</strong> — the same shapes across agents, runtimes, and payment rails.
+<a href="/demo.html" class="cl-blue-link">See it live →</a>
+</div>
+</div>
+</aside>
+</div>
+</section>
 
-                <div class="mini-example__note">
-                  <strong>Real verbs, real receipts</strong> — identical shapes
-                  across agents, runtimes, and payment rails.
-                  <a href="/demo.html" class="cl-blue-link">See it live →</a>
-                </div>
-              </div>
-            </aside>
-          </div>
-        </section>
 
-        <!-- STRUCTURE SECTION -->
-        <section class="section section--muted">
-          <div class="container">
-            <div class="section__header">
-              <h2>How the semantic layer is structured</h2>
-              <p>
-                You don’t need everything to start. One verb + its schemas is
-                enough. <strong>Commons execution is free; Commercial execution
-                is taxed</strong> — the contracts stay identical. As x402 and
-                ERC-8004 roll out, the same vocabulary stretches across more
-                agents, networks, and payment rails without changing request or
-                receipt shapes. Schemas and Agent-Cards are pinned to IPFS with
-                published checksums and bound to canonical ENS verbs, so the
-                language stays stable even as runtimes and economics evolve.
-                CommandLayer doesn’t compete with x402 or ERC-8004 — it
-                completes the stack by defining machine intent.
-              </p>
-            </div>
+<!-- STRUCTURE SECTION -->
+<section class="section section--muted">
+<div class="container">
+<div class="section__header">
+<h2>How the semantic layer is structured</h2>
+<p>
+You don’t need everything to start. One verb + its schemas is enough. As x402 and ERC-8004 roll out,
+the same vocabulary stretches across more agents, networks, and payment rails — without changing your contracts.
+All schemas are pinned to IPFS with published checksums and bound to canonical ENS verbs, so the language
+stays stable even as runtimes and economics change. CommandLayer doesn’t compete with x402 or ERC-8004 —
+it completes the stack by defining machine intent.
+</p>
+</div>
 
-            <div class="grid grid--3">
-              <article class="info-card">
-                <h3>Commons</h3>
-                <p>
-                  Universal verbs for analysis, retrieval, summarization, and
-                  formatting. MIT-licensed, pinned to IPFS with published
-                  checksums. Schemas are free forever — and Commons execution is
-                  free on CommandLayer reference runtimes.
-                </p>
-                <p style="margin-top: 0.6rem">
-                  <a href="/commons.html">View Commons verbs →</a>
-                </p>
-              </article>
 
-              <article class="info-card">
-                <h3>Commercial</h3>
-                <p>
-                  Economic verbs for moving value:
-                  <code>authorize</code>, <code>checkout</code>,
-                  <code>purchase</code>, <code>ship</code>, <code>verify</code>.
-                  Schemas stay free and immutable; execution is taxed at runtime
-                  for guarantees, throughput, routing, and SLA-grade behavior.
-                </p>
-                <p style="margin-top: 0.6rem">
-                  <a href="/commercial.html">View Commercial verbs →</a>
-                </p>
-              </article>
+<div class="grid grid--3">
+<article class="info-card">
+<h3>Commons</h3>
+<p>
+10 universal verbs for analysis, retrieval, summarization, and formatting.
+MIT-licensed, pinned to IPFS with published checksums, and treated as semantic public goods.
+Schemas are free forever.
+</p>
+<p style="margin-top:0.6rem;">
+<a href="/commons.html">View Commons verbs →</a>
+</p>
+</article>
 
-              <article class="info-card">
-                <h3>Agent Cards</h3>
-                <p>
-                  The identity + discovery layer. Agent Cards bind ENS names to
-                  verbs, schema versions, and x402 entrypoints so registries and
-                  clients can discover, rank, and route to agents without
-                  guessing how they’re wired. Always free. Always verifiable.
-                </p>
-                <p style="margin-top: 0.6rem">
-                  <a href="/agent-cards.html">Browse Agent Cards →</a>
-                </p>
-              </article>
 
-              <article class="info-card">
-                <h3>Manifest</h3>
-                <p>
-                  Reserved future verb namespace — a canonical map of machine
-                  intent CommandLayer will standardize. Not all verbs are live
-                  yet; the language is being staked out with protocol-grade
-                  stability.
-                </p>
-                <p style="margin-top: 0.6rem">
-                  <a href="/manifest.html">Explore the Manifest →</a>
-                </p>
-              </article>
+<article class="info-card">
+<h3>Commercial</h3>
+<p>
+Economic verbs for moving value:
+<code>authorize</code>, <code>checkout</code>, <code>purchase</code>,
+<code>ship</code>, and <code>verify</code>. A separate tier that builds on Commons semantics
+and fits cleanly inside x402 payment envelopes.
+</p>
+<p style="margin-top:0.6rem;">
+<a href="/commercial.html">View Commercial verbs →</a>
+</p>
+</article>
 
-              <article class="info-card">
-                <h3>Runtime</h3>
-                <p>
-                  The execution surface. CommandLayer reference runtimes execute
-                  Commons for free and enforce request/receipt validation.
-                  Commercial execution is taxed — without changing the underlying
-                  schemas or identity contracts.
-                </p>
-                <p style="margin-top: 0.6rem">
-                  <a href="/runtime.html">How execution works →</a>
-                </p>
-              </article>
 
-              <article class="info-card">
-                <h3>Roadmap</h3>
-                <p>
-                  What’s pinned, what’s shipping, and what’s next: expanded
-                  Commons verbs, additional Commercial flows, more Agent Cards,
-                  and runtime rollout aligned with x402 and ERC-8004 adoption.
-                </p>
-                <p style="margin-top: 0.6rem">
-                  <a href="/roadmap.html">See the roadmap →</a>
-                </p>
-              </article>
-            </div>
-          </div>
-        </section>
+<article class="info-card">
+<h3>Agent Cards</h3>
+<p>
+JSON descriptors that tie ENS names to verbs, schema versions, and x402 entrypoints so
+registries and clients can discover, rank, and route to your agent — without guessing how it’s wired.
+</p>
+<p style="margin-top:0.6rem;">
+<a href="/agent-cards.html">Browse Agent Cards →</a>
+</p>
+</article>
 
-        <!-- DOCS CTA SECTION -->
-        <section class="section">
-          <div class="container">
-            <div class="section__header">
-              <h2 style="font-size: 1.75rem">Ready to wire your first verb?</h2>
-              <p>
-                The Docs walk through the request/receipt flow, validation with
-                JSON Schema 2020-12, and how to publish an Agent Card. Start with
-                one verb. Everything else composes.
-              </p>
-            </div>
 
-            <div class="info-card">
-              <h3 style="margin-top: 0">Start with <code>summarize</code></h3>
-              <p style="margin-top: 0.4rem">
-                Build a <code>summarize.request</code>, validate it, and produce
-                a <code>summarize.receipt</code> using Commons v1.0.0 contracts.
-                Same shapes across agents, runtimes, and payment rails.
-              </p>
-              <p style="margin-top: 0.7rem">
-                <a href="/docs.html" class="cl-blue-link"
-                  >Open the getting-started guide →</a
-                >
-              </p>
-              <p style="margin-top: 0.4rem; font-size: 0.85rem; color: #6b7280">
-                Schemas + Agent-Cards remain free and immutable. Commons executes
-                free on reference runtimes; Commercial execution is taxed at
-                runtime.
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
+<article class="info-card">
+<h3>Manifest</h3>
+<p>
+Tier 2 verb portfolio — 200+ reserved verbs for AI, commerce, finance, operations, and comms.
+The canonical map of future machine intent CommandLayer will standardize; not all verbs are live yet,
+but the namespace is staked out.
+</p>
+<p style="margin-top:0.6rem;">
+<a href="/manifest.html">Explore the Manifest →</a>
+</p>
+</article>
 
-      <footer class="site-footer">
-        <div class="container site-footer__inner">
-          <div>© CommandLayer — semantic layer for autonomous agents</div>
-          <div>
-            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards
-            Apache-2.0 · Runtime BUSL · Schemas &amp; Agent-Cards always free,
-            IPFS-pinned, checksummed, and ENS-anchored · Commons execution free ·
-            Commercial execution taxed
-          </div>
-          <div class="site-footer__links">
-            <a href="/docs.html">Docs</a>
-            <a href="/manifest.html">Manifest</a>
-            <a
-              href="https://github.com/commandlayer"
-              target="_blank"
-              rel="noopener noreferrer"
-              >GitHub</a
-            >
-          </div>
-        </div>
-      </footer>
-    </div>
 
-    <script>
-      (function () {
-        const header = document.querySelector(".site-header");
-        const toggle = document.querySelector(".site-header__toggle");
-        const docsBtn = document.querySelector(".site-header__dropdown-btn");
+<article class="info-card">
+<h3>Runtime coming online</h3>
+<p>
+Execution & guarantees for every verb — where paid flows, routing decisions, and SLAs live,
+reusing the same free schemas so semantics stay stable while economics evolve.
+Runtime expands into x402 rails as they land.
+</p>
+<p style="margin-top:0.6rem;">
+<a href="/runtime.html">See Runtime plans →</a>
+</p>
+</article>
 
-        if (toggle && header) {
-          toggle.addEventListener("click", () => {
-            const isOpen = header.classList.toggle("site-header--open");
-            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-          });
-        }
 
-        if (docsBtn && header) {
-          docsBtn.addEventListener("click", () => {
-            header.classList.toggle("site-header--docs-open");
-          });
-        }
-      })();
-    </script>
-  </body>
+<article class="info-card">
+<h3>Roadmap</h3>
+<p>
+See what’s already pinned and what’s next: expanded Commons verbs, additional Commercial flows,
+more Agent Cards, and the Runtime layer rolling out alongside x402 and ERC-8004 adoption.
+</p>
+<p style="margin-top:0.6rem;">
+<a href="/roadmap.html">See the roadmap →</a>
+</p>
+</article>
+</div>
+</div>
+</section>
+
+
+<!-- DOCS CTA SECTION -->
+<section class="section">
+<div class="container">
+<div class="section__header">
+<h2 style="font-size:1.75rem;">Ready to wire your first verb?</h2>
+<p>
+The Docs walk through the full request/receipt flow, how to validate against the free schemas,
+and how to publish your own Agent Card.
+</p>
+</div>
+
+
+<div class="info-card">
+<h3 style="margin-top:0;">Start with <code>summarize</code></h3>
+<p style="margin-top:0.4rem;">
+See a complete example: build a <code>summarize.request</code>, validate it with JSON Schema 2020-12,
+and receive a <code>summarize.receipt</code> from an agent — all using the Commons v1.0.0 contracts.
+</p>
+<p style="margin-top:0.7rem;">
+<a href="/docs.html" class="cl-blue-link">Open the getting-started guide →</a>
+</p>
+<p style="margin-top:0.4rem; font-size:0.85rem; color:#6b7280;">
+Start with one verb. As x402 and ERC-8004 adoption grows, the same free schemas and Agent Cards
+scale across more agents, runtimes, and payment rails.
+</p>
+</div>
+</div>
+</section>
+</main>
+
+
+<footer class="site-footer">
+<div class="container site-footer__inner">
+<div>
+© CommandLayer — semantic layer for autonomous agents
+</div>
+<div>
+Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free, IPFS-pinned, checksummed, and ENS-anchored
+</div>
+<div class="site-footer__links">
+<a href="/docs.html">Docs</a>
+<a href="/manifest.html">Manifest</a>
+<a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+</div>
+</div>
+</footer>
+</div>
+
+
+<script>
+(function () {
+const header = document.querySelector(".site-header");
+const toggle = document.querySelector(".site-header__toggle");
+const docsBtn = document.querySelector(".site-header__dropdown-btn");
+
+
+if (toggle && header) {
+toggle.addEventListener("click", () => {
+const isOpen = header.classList.toggle("site-header--open");
+toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+});
+}
+
+
+if (docsBtn && header) {
+docsBtn.addEventListener("click", () => {
+header.classList.toggle("site-header--docs-open");
+});
+}
+})();
+</script>
+</body>
 </html>
+
+
+
+
