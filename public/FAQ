@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>FAQ — CommandLayer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="CommandLayer FAQ — what it is, how it works, why schemas are free, how commercial execution is taxed, and how ENS names anchor meaning, validation, and receipts."
+    />
+
+    <style>
+      :root {
+        --bg: #05060a;
+        --bg-elevated: #0a0c14;
+        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+        --border-soft: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.18);
+        --accent: #c5cbe0;
+        --accent-strong: #e3e7ff;
+        --accent-muted: #8f96b5;
+        --text-main: #f7f8ff;
+        --text-muted: #9ca3c7;
+        --text-soft: #6b7280;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+        --max-width: 1120px;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+        color: var(--text-main);
+      }
+
+      body { min-height: 100vh; }
+
+      .page-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page-main { flex: 1; }
+
+      .container {
+        width: 100%;
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Header */
+      .site-header {
+        background: var(--bg-header);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(18px);
+      }
+
+      .site-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.5rem;
+      }
+
+      .site-header__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .site-header__logo-img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        display: block;
+        border-radius: 6px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
+      }
+
+      .site-header__text { display: flex; flex-direction: column; }
+
+      .site-header__title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+
+      .site-header__subtitle {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .site-header__nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .site-header__link {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        text-decoration: none;
+        color: var(--text-muted);
+        border: 1px solid transparent;
+        white-space: nowrap;
+      }
+
+      .site-header__link:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__link--active {
+        color: #020617;
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+
+      /* Docs dropdown */
+      .site-header__dropdown { position: relative; }
+
+      .site-header__dropdown-btn {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+      }
+
+      .site-header__dropdown-btn:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__dropdown-menu {
+        position: absolute;
+        top: 2.3rem;
+        right: 0;
+        background: rgba(15, 23, 42, 0.98);
+        border-radius: 14px;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        padding: 0.5rem 0.4rem;
+        min-width: 210px;
+        display: none;
+      }
+
+      .site-header__dropdown-menu a {
+        display: block;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.82rem;
+        text-decoration: none;
+        color: var(--text-muted);
+        border-radius: 999px;
+      }
+
+      .site-header__dropdown-menu a:hover {
+        color: var(--accent-strong);
+        background: rgba(31, 41, 55, 0.95);
+      }
+
+      .site-header--docs-open .site-header__dropdown-menu { display: block; }
+
+      /* Mobile toggle */
+      .site-header__toggle {
+        display: none;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--text-main);
+        padding: 0.25rem 0.6rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .site-header__toggle:hover { background: rgba(15, 23, 42, 1); }
+
+      /* Hero */
+      .hero {
+        padding: 3.1rem 0 2.4rem;
+        border-bottom: 1px solid var(--border-soft);
+        background: radial-gradient(circle at 0 0, #111827, #020308);
+      }
+
+      .hero__inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.65fr) minmax(0, 1.1fr);
+        gap: 2.4rem;
+        align-items: start;
+      }
+
+      .hero__eyebrow {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent-muted);
+        margin-bottom: 0.8rem;
+      }
+
+      .hero__title {
+        margin: 0 0 0.8rem;
+        font-size: 2.15rem;
+        line-height: 1.12;
+      }
+
+      .hero__title-em {
+        background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .hero__subtitle {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.98rem;
+        line-height: 1.75;
+        max-width: 44rem;
+      }
+
+      .hero__pill-row {
+        margin-top: 1.2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+        color: var(--text-soft);
+        font-size: 0.8rem;
+      }
+
+      .hero__pill {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        padding: 0.18rem 0.55rem;
+      }
+
+      .card {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-xl);
+        padding: 1.4rem 1.4rem 1.6rem;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .card h2 {
+        margin: 0 0 0.6rem;
+        font-size: 1.05rem;
+      }
+
+      .card p {
+        margin: 0;
+        color: var(--text-muted);
+        line-height: 1.7;
+        font-size: 0.92rem;
+      }
+
+      .card .legend {
+        margin-top: 0.95rem;
+        display: grid;
+        gap: 0.55rem;
+      }
+
+      .legend__row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.55rem;
+        align-items: baseline;
+        color: var(--text-muted);
+        line-height: 1.6;
+        font-size: 0.92rem;
+      }
+
+      .legend__tag {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        padding: 0.15rem 0.6rem;
+        border: 1px solid rgba(148, 163, 184, 0.55);
+        background: rgba(2, 6, 23, 0.45);
+        color: var(--accent-strong);
+        font-size: 0.78rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        white-space: nowrap;
+      }
+
+      /* Sections */
+      .section { padding: 2.7rem 0; }
+
+      .section--muted {
+        background: rgb(6, 9, 18);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .section__header {
+        max-width: 58rem;
+        margin-bottom: 1.25rem;
+      }
+
+      .section__header h2 {
+        margin: 0 0 0.55rem;
+        font-size: 1.55rem;
+      }
+
+      .section__header p {
+        margin: 0;
+        font-size: 0.98rem;
+        color: var(--text-muted);
+        line-height: 1.75;
+      }
+
+      /* FAQ layout */
+      .faq-shell {
+        display: grid;
+        grid-template-columns: 320px minmax(0, 1fr);
+        gap: 1.2rem;
+        align-items: start;
+      }
+
+      .faq-nav {
+        position: sticky;
+        top: 90px;
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-xl);
+        padding: 1.0rem 1.0rem 1.05rem;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .faq-nav h3 {
+        margin: 0 0 0.6rem;
+        font-size: 0.95rem;
+        color: var(--accent-strong);
+      }
+
+      .faq-nav a {
+        display: block;
+        padding: 0.42rem 0.55rem;
+        border-radius: 10px;
+        text-decoration: none;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      .faq-nav a:hover {
+        color: var(--accent-strong);
+        background: rgba(2, 6, 23, 0.45);
+      }
+
+      .faq-list { display: grid; gap: 0.9rem; }
+
+      details.faq {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-soft);
+        overflow: hidden;
+      }
+
+      details.faq[open] {
+        border-color: rgba(148, 163, 184, 0.35);
+      }
+
+      details.faq summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 1.0rem 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        color: var(--accent-strong);
+        font-size: 0.98rem;
+        font-weight: 600;
+      }
+
+      details.faq summary::-webkit-details-marker { display: none; }
+
+      .faq__chev {
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.55);
+        background: rgba(2, 6, 23, 0.45);
+        display: grid;
+        place-items: center;
+        color: var(--accent-strong);
+        flex: 0 0 auto;
+        transition: transform 160ms ease;
+        font-size: 0.95rem;
+      }
+
+      details.faq[open] .faq__chev { transform: rotate(180deg); }
+
+      .faq__body {
+        padding: 0 1.1rem 1.05rem;
+        color: var(--text-muted);
+        line-height: 1.75;
+        font-size: 0.95rem;
+      }
+
+      .faq__body p { margin: 0.65rem 0 0; }
+      .faq__body p:first-child { margin-top: 0; }
+
+      .faq__body ul {
+        margin: 0.65rem 0 0;
+        padding-left: 1.15rem;
+      }
+
+      .faq__body li { margin-bottom: 0.35rem; }
+
+      .faq__body code {
+        background: rgba(2, 6, 23, 0.6);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        padding: 0.08rem 0.35rem;
+        border-radius: 6px;
+        font-size: 0.88em;
+        color: #e5e7eb;
+      }
+
+      .note {
+        margin-top: 0.75rem;
+        padding: 0.85rem 0.95rem;
+        border-radius: 14px;
+        background: rgba(2, 6, 23, 0.5);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        color: var(--text-muted);
+        font-size: 0.92rem;
+      }
+
+      .note strong { color: var(--accent-strong); }
+
+      /* Footer */
+      .site-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: #020308;
+      }
+
+      .site-footer__inner {
+        padding: 1.4rem 1.5rem 1.8rem;
+        font-size: 0.78rem;
+        color: var(--text-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        align-items: center;
+        text-align: center;
+      }
+
+      .site-footer__links {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+        margin-top: 0.2rem;
+      }
+
+      .site-footer__links a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .site-footer__links a:hover { text-decoration: underline; }
+
+      /* Mobile */
+      @media (max-width: 980px) {
+        .faq-shell { grid-template-columns: minmax(0, 1fr); }
+        .faq-nav { position: relative; top: 0; }
+      }
+
+      @media (max-width: 880px) {
+        .site-header__inner { padding-inline: 1rem; }
+        .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
+
+        .site-header__nav {
+          display: none;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin-top: 0.8rem;
+        }
+
+        .site-header.site-header--open .site-header__nav { display: flex; }
+
+        .hero__inner { grid-template-columns: minmax(0, 1fr); }
+        .card { margin-top: 1.2rem; }
+        .site-footer__inner { padding-inline: 1rem; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page-shell">
+      <!-- HEADER -->
+      <header class="site-header">
+        <div class="site-header__inner container">
+          <a href="/" class="site-header__brand">
+            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+            <div class="site-header__text">
+              <span class="site-header__title">CommandLayer</span>
+              <span class="site-header__subtitle">Semantic verb &amp; schema layer for agents</span>
+            </div>
+          </a>
+
+          <!-- Mobile toggle -->
+          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
+            ☰
+          </button>
+
+          <nav class="site-header__nav">
+            <a href="/" class="site-header__link">Overview</a>
+            <a href="/manifest.html" class="site-header__link">Manifest</a>
+
+            <div class="site-header__dropdown">
+              <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
+              <div class="site-header__dropdown-menu">
+                <a href="/commons.html">Commons</a>
+                <a href="/commercial.html">Commercial</a>
+                <a href="/agent-cards.html">Agent Cards</a>
+                <a href="/runtime.html">Runtime</a>
+                <a href="/roadmap.html">Roadmap</a>
+                <a href="/licensing.html">Licensing</a>
+                <a href="/about.html">About CommandLayer</a>
+                <a href="/faq.html">FAQ</a>
+              </div>
+            </div>
+
+            <a href="/demo.html" class="site-header__link">Live Demo</a>
+            <a
+              href="https://github.com/commandlayer"
+              class="site-header__link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              GitHub
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="page-main">
+        <!-- HERO -->
+        <section class="hero">
+          <div class="container hero__inner">
+            <div>
+              <div class="hero__eyebrow">FAQ</div>
+              <h1 class="hero__title">
+                Questions people will ask.<br />
+                <span class="hero__title-em">Answers that don’t wiggle.</span>
+              </h1>
+              <p class="hero__subtitle">
+                If someone is confused about CommandLayer, it’s usually one of these. This page bashes the
+                misunderstandings fast: what’s free, what’s taxed, what ENS actually anchors, and how receipts
+                become verifiable evidence across runtimes.
+              </p>
+              <div class="hero__pill-row">
+                <span class="hero__pill">Schemas are free</span>
+                <span class="hero__pill">Meaning never taxed</span>
+                <span class="hero__pill">Execution can be metered</span>
+                <span class="hero__pill">Receipts are evidence</span>
+              </div>
+            </div>
+
+            <aside class="card" aria-label="Economic legend">
+              <h2>Economic rule (memorize this)</h2>
+              <p><strong>Commons executes free. Commercial is taxed.</strong></p>
+              <div class="legend">
+                <div class="legend__row">
+                  <span class="legend__tag">FREE</span>
+                  <span>schemas, identity, discovery, Commons execution</span>
+                </div>
+                <div class="legend__row">
+                  <span class="legend__tag">TAXED</span>
+                  <span>commercial execution, throughput, guarantees</span>
+                </div>
+                <div class="legend__row">
+                  <span class="legend__tag">NEVER TAXED</span>
+                  <span>meaning, validation, interoperability</span>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- FAQ -->
+        <section class="section section--muted">
+          <div class="container">
+            <div class="section__header">
+              <h2>FAQ</h2>
+              <p>
+                Click a question. Deep answers, but still clean. If you want to add more later, just duplicate a
+                <code>&lt;details class="faq"&gt;</code> block.
+              </p>
+            </div>
+
+            <div class="faq-shell">
+              <aside class="faq-nav" aria-label="FAQ navigation">
+                <h3>Jump to</h3>
+                <a href="#q-what-is">What is CommandLayer?</a>
+                <a href="#q-why-exists">Why does it exist?</a>
+                <a href="#q-free-vs-tax">What’s free vs taxed?</a>
+                <a href="#q-tax-where">Where does the tax live?</a>
+                <a href="#q-ens-anchor">What does ENS anchor?</a>
+                <a href="#q-agent-cards">What are Agent Cards?</a>
+                <a href="#q-receipts">What is a receipt?</a>
+                <a href="#q-validate">How do I validate?</a>
+                <a href="#q-runtime">What is Runtime?</a>
+                <a href="#q-others-run">Can others run runtimes?</a>
+                <a href="#q-versioning">How does versioning work?</a>
+                <a href="#q-commercial-verbs">What are Commercial verbs?</a>
+                <a href="#q-not-compete">Does this compete with x402 / ERC-8004?</a>
+                <a href="#q-open-core">Is this “open core”?</a>
+                <a href="#q-get-started">How do I start?</a>
+              </aside>
+
+              <div class="faq-list">
+                <details class="faq" id="q-what-is">
+                  <summary>
+                    What is CommandLayer?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      CommandLayer is a <strong>semantic contract</strong> for autonomous agents:
+                      canonical verbs + strict JSON schemas + verifiable identity + receipts.
+                    </p>
+                    <p>
+                      It standardizes the part everyone keeps reinventing: <em>what the call means</em>,
+                      what the request shape is, what the receipt looks like, and how an agent claims it implements a verb.
+                    </p>
+                    <div class="note">
+                      <strong>One line:</strong> It makes meaning portable so execution can be swapped without breaking integrations.
+                    </div>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-why-exists">
+                  <summary>
+                    Why does CommandLayer exist?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      Because most “agent systems” are private prompt formats and one-off APIs. That doesn’t scale.
+                      The moment you change a vendor or runtime, everything breaks.
+                    </p>
+                    <p>
+                      CommandLayer locks down the semantics (verbs + schemas) so the ecosystem can compete on execution
+                      without fragmenting meaning.
+                    </p>
+                    <ul>
+                      <li>No guessing request formats.</li>
+                      <li>No brittle “prompt contracts.”</li>
+                      <li>Receipts you can verify across runtimes.</li>
+                    </ul>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-free-vs-tax">
+                  <summary>
+                    What’s free vs what’s taxed?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p><strong>Commons executes free. Commercial is taxed.</strong></p>
+                    <ul>
+                      <li><strong>FREE:</strong> schemas, identity, discovery, Commons execution (best-effort reference grade)</li>
+                      <li><strong>TAXED:</strong> commercial execution, throughput/volume, guarantees, priority/certified execution</li>
+                      <li><strong>NEVER TAXED:</strong> meaning, validation, interoperability</li>
+                    </ul>
+                    <div class="note">
+                      The protocol stays standards-clean because meaning is never paywalled.
+                    </div>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-tax-where">
+                  <summary>
+                    Where does the tax live (and where does it NOT live)?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      The tax is <strong>not</strong> in the schema, not in the Agent Card, not in ENS, and not in discovery.
+                      That stuff stays neutral.
+                    </p>
+                    <p>
+                      The tax lives at <strong>execution time</strong> inside runtimes (metering, guarantees, priority,
+                      certified delivery, throughput control).
+                    </p>
+                    <div class="note">
+                      <strong>Translation:</strong> access to meaning is free; use of meaning in commerce can be metered.
+                    </div>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-ens-anchor">
+                  <summary>
+                    What does an ENS name actually anchor in CommandLayer?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      An ENS name is the <strong>interface anchor</strong>: a single verifiable reference point
+                      that binds schemas, validation, versioning, trust continuity, and receipts.
+                    </p>
+                    <ul>
+                      <li>Human-readable entrypoint</li>
+                      <li>Schema authority via ENS TXT → CID/IPNS</li>
+                      <li>Validation pointer (“did this conform?”)</li>
+                      <li>Version boundary (pin or float)</li>
+                      <li>Receipt namespace (evidence tied to name + schema hash)</li>
+                      <li>Governance handle (ownership → updates)</li>
+                    </ul>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-agent-cards">
+                  <summary>
+                    What are Agent Cards?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      Agent Cards are JSON descriptors that bind an agent’s identity to what it implements:
+                      ENS name, verbs, schema versions, and entrypoints.
+                    </p>
+                    <p>
+                      They exist so clients can discover and route agents without guessing or scraping random docs.
+                    </p>
+                    <div class="note">
+                      Think: “capabilities + wiring diagram” in a strict, machine-readable format.
+                    </div>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-receipts">
+                  <summary>
+                    What is a receipt, and why is it important?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      A receipt is the standardized output evidence of an execution. It binds:
+                      verb, version, schema hash, trace info, and (optionally) execution class.
+                    </p>
+                    <p>
+                      Receipts let anyone verify after the fact that an execution conformed to the claimed schema —
+                      across runtimes.
+                    </p>
+                    <div class="note">
+                      Receipts are evidence, not logs. That’s how you get auditability without trusting a vendor.
+                    </div>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-validate">
+                  <summary>
+                    How do I validate requests and receipts?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      You validate against the published JSON Schemas (draft 2020-12). That’s the whole point:
+                      independent verification.
+                    </p>
+                    <ul>
+                      <li>Validate the request before sending.</li>
+                      <li>Validate the receipt after execution.</li>
+                      <li>Compare schema hashes / CIDs when you care about immutability.</li>
+                    </ul>
+                    <div class="note">
+                      If you can’t validate, you don’t have interoperability — you have vibes.
+                    </div>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-runtime">
+                  <summary>
+                    What is Runtime in CommandLayer?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      Runtime is the execution layer: routing, policy, guarantees, and economics.
+                      It consumes the same free schemas and emits standard receipts.
+                    </p>
+                    <p>
+                      Runtime is where “commercial is taxed” is enforced cleanly (metering, SLA, priority, certified execution).
+                    </p>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-others-run">
+                  <summary>
+                    Can other people run runtimes, or is it centralized?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      Others can run runtimes. The semantics are neutral; execution is competitive.
+                      A third-party runtime can still honor the same schemas and receipts.
+                    </p>
+                    <p>
+                      The key is that meaning stays portable — the ecosystem can compete on reliability, cost,
+                      latency, guarantees, and certification.
+                    </p>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-versioning">
+                  <summary>
+                    How does versioning work? Will v1 break?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      Versions are explicit. v1 schemas live under versioned paths and can be pinned.
+                      New behavior ships under v2 (or v1.1) without silently breaking existing integrations.
+                    </p>
+                    <div class="note">
+                      If it’s not versioned, it’s not a protocol.
+                    </div>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-commercial-verbs">
+                  <summary>
+                    What are “Commercial verbs”?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      Commercial verbs are the economic flow verbs (e.g. <code>authorize</code>, <code>checkout</code>,
+                      <code>purchase</code>, <code>ship</code>, <code>verify</code>) where money moves or guarantees matter.
+                    </p>
+                    <p>
+                      Schemas remain free. The execution can be metered and receipts can reflect commercial execution.
+                    </p>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-not-compete">
+                  <summary>
+                    Does CommandLayer compete with x402 or ERC-8004?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      No. x402 is a payment/transport rail. ERC-8004 is discovery/agent standards territory.
+                      CommandLayer defines <strong>machine intent</strong>: what the call means and how it’s validated.
+                    </p>
+                    <div class="note">
+                      x402 moves money. ERC-8004 helps you find agents. CommandLayer defines what they do.
+                    </div>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-open-core">
+                  <summary>
+                    Is this “open core”?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      No. “Open core” usually paywalls features or access to the standard itself.
+                      CommandLayer keeps standards open: meaning, schemas, identity, discovery, interoperability.
+                    </p>
+                    <p>
+                      Monetization is where it belongs: execution outcomes (throughput, guarantees, certified delivery).
+                    </p>
+                  </div>
+                </details>
+
+                <details class="faq" id="q-get-started">
+                  <summary>
+                    How do I start using CommandLayer today?
+                    <span class="faq__chev">▾</span>
+                  </summary>
+                  <div class="faq__body">
+                    <p>
+                      Start with a single Commons verb and do the boring thing correctly:
+                      validate request → execute → validate receipt.
+                    </p>
+                    <ul>
+                      <li>Pick a verb (e.g. <code>summarize</code>).</li>
+                      <li>Use the published schema to validate your payload.</li>
+                      <li>Generate/consume a receipt and validate it.</li>
+                      <li>If you’re publishing an agent, add an Agent Card.</li>
+                    </ul>
+                    <div class="note">
+                      The fastest on-ramp is “one verb, one receipt.” Everything else layers after.
+                    </div>
+                  </div>
+                </details>
+
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="section">
+          <div class="container">
+            <div class="section__header">
+              <h2>Still have a question?</h2>
+              <p>
+                If you add one more FAQ, make it one of these: “what does a receipt contain?”,
+                “how do I resolve ENS TXT to schemas?”, or “how do I know an agent actually implements a verb?”
+              </p>
+            </div>
+
+            <div class="card">
+              <h2>Next stop</h2>
+              <p>
+                Open the docs for the exact schema paths and a full request/receipt walkthrough, or jump into the live demo
+                to see receipts in motion.
+              </p>
+              <div style="margin-top:1.05rem; display:flex; gap:0.8rem; flex-wrap:wrap;">
+                <a href="/docs.html" class="btn btn--primary"><span class="btn__icon">📚</span><span>Read the docs</span></a>
+                <a href="/demo.html" class="btn btn--ghost"><span class="btn__icon">▶️</span><span>See receipts live</span></a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container site-footer__inner">
+          <div>© CommandLayer — semantic layer for autonomous agents</div>
+          <div>
+            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Meaning never taxed
+          </div>
+          <div class="site-footer__links">
+            <a href="/docs.html">Docs</a>
+            <a href="/manifest.html">Manifest</a>
+            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      (function () {
+        const header = document.querySelector(".site-header");
+        const toggle = document.querySelector(".site-header__toggle");
+        const docsBtn = document.querySelector(".site-header__dropdown-btn");
+        const docsMenu = document.querySelector(".site-header__dropdown-menu");
+
+        function closeDocs() {
+          if (!header) return;
+          header.classList.remove("site-header--docs-open");
+        }
+
+        if (toggle && header) {
+          toggle.addEventListener("click", () => {
+            const isOpen = header.classList.toggle("site-header--open");
+            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          });
+        }
+
+        if (docsBtn && header) {
+          docsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            header.classList.toggle("site-header--docs-open");
+          });
+        }
+
+        if (docsMenu) {
+          docsMenu.addEventListener("click", (e) => {
+            const a = e.target.closest("a");
+            if (a) closeDocs();
+          });
+        }
+
+        document.addEventListener("click", (e) => {
+          if (!header || !header.classList.contains("site-header--docs-open")) return;
+          const dropdown = document.querySelector(".site-header__dropdown");
+          if (dropdown && dropdown.contains(e.target)) return;
+          closeDocs();
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") closeDocs();
+        });
+
+        // Optional: open question from URL hash, e.g. /faq.html#q-runtime
+        function openFromHash() {
+          const id = (location.hash || "").replace("#", "");
+          if (!id) return;
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (el.tagName.toLowerCase() === "details") el.open = true;
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        window.addEventListener("hashchange", openFromHash);
+        openFromHash();
+      })();
+    </script>
+  </body>
+</html>
