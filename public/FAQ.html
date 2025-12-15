@@ -721,7 +721,7 @@
                   <div class="faq__body">
                     <p>
                       An ENS name is the <strong>interface anchor</strong>: a single verifiable reference point
-                      that binds schemas, validation, versioning, trust continuity, and receipts.
+                      that binds schemas, validation, versioning, trust continuity, and receipts. ENS provides continuity and coordination — not trust. Trust comes from schema hashes and validation.
                     </p>
                     <ul>
                       <li>Human-readable entrypoint</li>
@@ -787,6 +787,7 @@
                       <li>Validate the request before sending.</li>
                       <li>Validate the receipt after execution.</li>
                       <li>Compare schema hashes / CIDs when you care about immutability.</li>
+                      <li>If schema validation fails, execution MUST NOT occur and no receipt MUST be emitted.</li>
                     </ul>
                     <div class="note">
                       If you can’t validate, you don’t have interoperability — you have vibes.
