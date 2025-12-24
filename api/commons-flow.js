@@ -3,6 +3,7 @@
 
 const Ajv = require("ajv");
 const addFormats = require("ajv-formats");
+const crypto = require("crypto");
 
 const COMMON_VERBS = [
   "analyze",
@@ -19,11 +20,7 @@ const COMMON_VERBS = [
 
 const VERSION = "1.0.0";
 
-// IMPORTANT: set this in Vercel env
-// e.g. https://runtime-production-214f.up.railway.app
-const RUNTIME_BASE = process.env.RUNTIME_BASE_URL || "";
-
-// --- Inline receipt.base + x402 minimal (same idea as your mock) ---
+// --- Inline receipt.base + minimal x402 (Ajv-friendly, no $schema) ---
 const receiptBaseSchema = {
   $id: "https://commandlayer.org/schemas/v1.0.0/_shared/receipt.base.schema.json",
   title: "receipt.base",
@@ -31,12 +28,16 @@ const receiptBaseSchema = {
   additionalProperties: false,
   properties: {
     x402: {
-      allOf: [{ $ref: "https://commandlayer.org/schemas/v1.0.0/_shared/x402.schema.json" }],
+      allOf: [
+        { $ref: "https://commandlayer.org/schemas/v1.0.0/_shared/x402.schema.json" },
+      ],
     },
     trace: {
       type: "object",
       additionalProperties: false,
-      properties: { trace_id: { type: "string", minLength: 1, maxLength: 128 } },
+      properties: {
+        trace_id: { type: "string", minLength: 1, maxLength: 128 },
+      },
       required: ["trace_id"],
     },
     status: { type: "string", enum: ["success", "error", "delegated"] },
@@ -70,6 +71,7 @@ try {
   validateReceiptBase = ajv.compile(receiptBaseSchema);
 } catch (e) {
   ajvSetupError = e?.message || String(e);
+  validateReceiptBase = null;
 }
 
 function normalizeText(input) {
@@ -77,6 +79,11 @@ function normalizeText(input) {
   if (input && typeof input.text === "string") return input.text.trim();
   if (input && typeof input.content === "string") return input.content.trim();
   return "";
+}
+
+function makeTraceId() {
+  if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
+  return `trace_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
 async function postJson(url, body, timeoutMs = 20000) {
@@ -92,15 +99,22 @@ async function postJson(url, body, timeoutMs = 20000) {
     });
 
     const text = await res.text();
+
+    // Try to parse JSON; runtime sometimes returns HTML on error.
     let json = null;
-    try { json = JSON.parse(text); } catch { /* ignore */ }
+    try {
+      json = JSON.parse(text);
+    } catch {
+      json = null;
+    }
 
     if (!res.ok) {
       return {
         ok: false,
         status: res.status,
-        error: json?.error || text || `HTTP ${res.status}`,
+        error: (json && (json.error || json.message)) || text || `HTTP ${res.status}`,
         data: json || null,
+        raw: json ? null : text,
       };
     }
 
@@ -116,10 +130,13 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
+  // IMPORTANT: read env at request-time (avoids “baked empty string” issues on Vercel)
+  const RUNTIME_BASE = String(process.env.RUNTIME_BASE_URL || "").trim().replace(/\/$/, "");
+
   if (!RUNTIME_BASE) {
     return res.status(500).json({
       error: "Missing RUNTIME_BASE_URL on Vercel",
-      hint: "Set env var RUNTIME_BASE_URL to your Railway runtime base URL.",
+      hint: "Set env var RUNTIME_BASE_URL to your Railway runtime base URL (e.g. https://runtime-production-214f.up.railway.app) and redeploy.",
     });
   }
 
@@ -140,23 +157,20 @@ module.exports = async function handler(req, res) {
   if (!steps.length) {
     return res.status(400).json({
       error: "No valid steps provided. Each step needs a Commons verb and non-empty input.",
-      received_shape_hint: 'UI should send: { steps: [{ verb: "summarize", input: "text..." }] }',
+      expected: { steps: [{ verb: "summarize", input: { text: "hello" } }] },
     });
   }
 
-  // Single trace_id across the flow (your runtime may generate its own too; we pass ours as actor metadata)
-  const trace_id =
-    typeof crypto?.randomUUID === "function"
-      ? crypto.randomUUID()
-      : `trace_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  // One trace_id threads the whole flow. Runtime may also emit its own trace in receipts.
+  const trace_id = body.trace_id ? String(body.trace_id).trim() : makeTraceId();
 
   const responseSteps = [];
 
   for (const step of steps) {
-    const url = `${RUNTIME_BASE.replace(/\/$/, "")}/${step.verb}/v${VERSION}`;
+    // Your Railway runtime endpoints look like: /clean/v1.0.0
+    const runtimeUrl = `${RUNTIME_BASE}/${step.verb}/v${VERSION}`;
 
-    // This shape should match your real runtime request schemas.
-    // If your runtime expects input.content (not input.text), we send content.
+    // Match your runtime request shape (x402 + input.content is what you used in curl)
     const runtimeReq = {
       x402: {
         entry: `x402://${step.verb}agent.eth/${step.verb}/v${VERSION}`,
@@ -164,20 +178,21 @@ module.exports = async function handler(req, res) {
         version: VERSION,
       },
       actor: "composer.commandlayer.org",
-      trace: { trace_id }, // if your runtime ignores this, fine
-      input: { content: step.text }, // <- adjust to match your runtime (content vs text)
+      trace: { trace_id }, // safe if ignored
+      input: { content: step.text },
     };
 
-    const r = await postJson(url, runtimeReq, 20000);
+    const r = await postJson(runtimeUrl, runtimeReq, 20000);
 
     if (!r.ok) {
       return res.status(502).json({
         error: "Runtime call failed",
         verb: step.verb,
-        runtime_url: url,
+        runtime_url: runtimeUrl,
         status: r.status,
         detail: r.error,
         data: r.data,
+        raw: r.raw,
       });
     }
 
@@ -208,7 +223,6 @@ module.exports = async function handler(req, res) {
     trace_id,
     steps: responseSteps,
     meta: {
-      demo: true,
       mode: "runtime-backed",
       runtime_base: RUNTIME_BASE,
       receipt_base_validated: !!validateReceiptBase,
