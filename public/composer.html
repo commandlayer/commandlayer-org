@@ -1,1336 +1,1149 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>CommandLayer — Commons Flow Composer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta
-      name="description"
-      content="Interactive CommandLayer Commons demo — compose up to three verbs, chain outputs, verify receipts, and inspect proof checks live."
-    />
-
-    <style>
-      :root {
-        --bg: #05060a;
-        --bg-elevated: #0a0c14;
-        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
-        --border-soft: rgba(255, 255, 255, 0.06);
-        --border-strong: rgba(255, 255, 255, 0.18);
-        --accent: #c5cbe0;
-        --accent-strong: #e3e7ff;
-        --accent-muted: #8f96b5;
-        --text-main: #f7f8ff;
-        --text-muted: #9ca3c7;
-        --text-soft: #6b7280;
-        --radius-lg: 16px;
-        --radius-xl: 24px;
-        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
-        --max-width: 1120px;
-
-        --ok: rgba(34, 197, 94, 0.18);
-        --ok-border: rgba(34, 197, 94, 0.55);
-        --bad: rgba(239, 68, 68, 0.16);
-        --bad-border: rgba(239, 68, 68, 0.55);
-        --warn: rgba(234, 179, 8, 0.14);
-        --warn-border: rgba(234, 179, 8, 0.55);
-      }
-
-      * { box-sizing: border-box; }
-
-      html, body {
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
-        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
-        color: var(--text-main);
-      }
-
-      body { min-height: 100vh; }
-
-      .page-shell {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .page-main { flex: 1; }
-
-      .container {
-        width: 100%;
-        max-width: var(--max-width);
-        margin: 0 auto;
-        padding: 0 1.5rem;
-      }
-
-      /* Header */
-      .site-header {
-        background: var(--bg-header);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        backdrop-filter: blur(18px);
-      }
-
-      .site-header__inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.9rem 1.5rem;
-      }
-
-      .site-header__brand {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-decoration: none;
-        color: inherit;
-      }
-
-      .site-header__logo-img {
-        width: 28px;
-        height: 28px;
-        object-fit: contain;
-        display: block;
-        border-radius: 6px;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
-      }
-
-      .site-header__text {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .site-header__title {
-        font-size: 0.98rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-      }
-
-      .site-header__subtitle {
-        font-size: 0.78rem;
-        color: var(--text-muted);
-      }
-
-      .site-header__nav {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .site-header__link {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        text-decoration: none;
-        color: var(--text-muted);
-        border: 1px solid transparent;
-        white-space: nowrap;
-      }
-
-      .site-header__link:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__link--active {
-        color: #020617;
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        border-color: rgba(255, 255, 255, 0.25);
-      }
-
-      /* Docs dropdown */
-      .site-header__dropdown { position: relative; }
-
-      .site-header__dropdown-btn {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: var(--text-muted);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        cursor: pointer;
-      }
-
-      .site-header__dropdown-btn:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__dropdown-menu {
-        position: absolute;
-        top: 2.3rem;
-        right: 0;
-        background: rgba(15, 23, 42, 0.98);
-        border-radius: 14px;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        padding: 0.5rem 0.4rem;
-        min-width: 210px;
-        display: none;
-      }
-
-      .site-header__dropdown-menu a {
-        display: block;
-        padding: 0.35rem 0.7rem;
-        font-size: 0.82rem;
-        text-decoration: none;
-        color: var(--text-muted);
-        border-radius: 999px;
-      }
-
-      .site-header__dropdown-menu a:hover {
-        color: var(--accent-strong);
-        background: rgba(31, 41, 55, 0.95);
-      }
-
-      .site-header--docs-open .site-header__dropdown-menu { display: block; }
-
-      /* Mobile toggle */
-      .site-header__toggle {
-        display: none;
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.7);
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--text-main);
-        padding: 0.25rem 0.6rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-      }
-
-      .site-header__toggle:hover { background: rgba(15, 23, 42, 1); }
-
-      /* Buttons */
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.45rem;
-        padding: 0.6rem 1.1rem;
-        border-radius: 999px;
-        font-size: 0.9rem;
-        text-decoration: none;
-        border: 1px solid transparent;
-        cursor: pointer;
-        white-space: nowrap;
-      }
-
-      .btn--primary {
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        color: #020617;
-        border-color: rgba(255, 255, 255, 0.3);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
-      }
-
-      .btn--primary:hover { filter: brightness(1.03); }
-
-      .btn--ghost {
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--accent-strong);
-        border-color: rgba(148, 163, 184, 0.6);
-      }
-
-      .btn--ghost:hover { background: rgba(15, 23, 42, 1); }
-
-      .btn__icon { font-size: 1rem; }
-
-      /* Hero */
-      .hero {
-        padding: 3rem 0 2.4rem;
-        border-bottom: 1px solid var(--border-soft);
-        background: radial-gradient(circle at 0 0, #111827, #020308);
-      }
-
-      .hero__inner {
-        display: grid;
-        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
-        gap: 2.4rem;
-        align-items: flex-start;
-      }
-
-      .hero__eyebrow {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--accent-muted);
-        margin-bottom: 0.8rem;
-      }
-
-      .hero__title {
-        margin: 0 0 0.8rem;
-        font-size: 2rem;
-        line-height: 1.15;
-      }
-
-      .hero__title-em {
-        background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
-
-      .hero__subtitle {
-        margin: 0;
-        color: var(--text-muted);
-        font-size: 0.98rem;
-        max-width: 36rem;
-        line-height: 1.7;
-      }
-
-      .hero__cta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.8rem;
-        margin-top: 1.6rem;
-      }
-
-      .hero__meta {
-        margin-top: 1.2rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.6rem;
-        font-size: 0.8rem;
-        color: var(--text-soft);
-      }
-
-      .hero__meta-pill {
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.6);
-        padding: 0.18rem 0.55rem;
-      }
-
-      .hero__card {
-        background: rgba(15, 23, 42, 0.95);
-        border-radius: var(--radius-xl);
-        padding: 1.4rem 1.4rem 1.6rem;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        font-size: 0.9rem;
-      }
-
-      .hero__card h2 {
-        margin: 0 0 0.6rem;
-        font-size: 1rem;
-      }
-
-      .hero__card p { margin: 0; color: var(--text-muted); }
-
-      .hero__card ul { margin: 0.8rem 0 0; padding-left: 1.1rem; }
-
-      .hero__card li { margin-bottom: 0.3rem; }
-
-      /* Composer section */
-      .section { padding: 2.4rem 0 3rem; }
-
-      .section--composer {
-        background: rgb(6, 9, 18);
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      }
-
-      .section__header { max-width: 46rem; margin-bottom: 1.4rem; }
-
-      .section__header h2 {
-        margin: 0 0 0.5rem;
-        font-size: 1.4rem;
-      }
-
-      .section__header p {
-        margin: 0;
-        font-size: 0.95rem;
-        color: var(--text-muted);
-      }
-
-      .composer-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr);
-        gap: 1.6rem;
-        align-items: flex-start;
-      }
-
-      .card {
-        background: rgba(15, 23, 42, 0.96);
-        border-radius: var(--radius-xl);
-        padding: 1.2rem 1.2rem 1.3rem;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        font-size: 0.9rem;
-      }
-
-      .card h3 {
-        margin: 0 0 0.7rem;
-        font-size: 1rem;
-      }
-
-      .form-row { margin-bottom: 0.75rem; }
-
-      .form-row label {
-        display: block;
-        font-size: 0.82rem;
-        color: var(--text-muted);
-        margin-bottom: 0.25rem;
-      }
-
-      .form-row select, .form-row textarea, .form-row input[type="text"] {
-        width: 100%;
-        padding: 0.55rem 0.7rem;
-        border-radius: 10px;
-        border: 1px solid rgba(148, 163, 184, 0.7);
-        background: #020617;
-        color: var(--text-main);
-        font-size: 0.88rem;
-        font-family: inherit;
-        resize: vertical;
-        min-height: 72px;
-      }
-
-      .form-row select, .form-row input[type="text"] { min-height: unset; height: 38px; }
-
-      .form-row textarea::placeholder,
-      .form-row input[type="text"]::placeholder { color: #4b5563; }
-
-      .steps-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.9rem;
-      }
-
-      .step-card {
-        background: rgba(15, 23, 42, 0.8);
-        border-radius: 12px;
-        padding: 0.8rem 0.8rem 0.9rem;
-        border: 1px solid rgba(31, 41, 55, 0.9);
-      }
-
-      .step-card h4 {
-        margin: 0 0 0.4rem;
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.5rem;
-      }
-
-      .inline {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .toggle {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.78rem;
-        color: var(--text-muted);
-        user-select: none;
-      }
-
-      .toggle input { transform: translateY(1px); }
-
-      .form-actions {
-        display: flex;
-        gap: 0.6rem;
-        margin-top: 0.9rem;
-        align-items: center;
-        flex-wrap: wrap;
-      }
-
-      .pill-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-        margin-top: 0.7rem;
-        font-size: 0.78rem;
-      }
-
-      .pill {
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.8);
-        padding: 0.12rem 0.55rem;
-        color: var(--text-soft);
-      }
-
-      .status-line {
-        font-size: 0.8rem;
-        color: var(--text-soft);
-        margin-top: 0.55rem;
-      }
-
-      .status-line strong { color: var(--accent-strong); }
-
-      /* Output UI */
-      .output-shell { display: flex; flex-direction: column; gap: 0.9rem; }
-
-      .flow-head {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        align-items: center;
-        padding: 0.7rem 0.8rem;
-        border-radius: 12px;
-        border: 1px solid var(--border-soft);
-        background: rgba(2, 6, 23, 0.6);
-      }
-
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        font-size: 0.78rem;
-        padding: 0.18rem 0.55rem;
-        border-radius: 999px;
-        border: 1px solid var(--border-strong);
-        color: var(--text-main);
-        background: rgba(255,255,255,0.06);
-      }
-
-      .badge--ok { background: var(--ok); border-color: var(--ok-border); }
-      .badge--bad { background: var(--bad); border-color: var(--bad-border); }
-      .badge--warn { background: var(--warn); border-color: var(--warn-border); }
-
-      .code-pill {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-size: 0.76rem;
-        padding: 0.12rem 0.4rem;
-        border-radius: 8px;
-        border: 1px solid rgba(148, 163, 184, 0.35);
-        background: rgba(2, 6, 23, 0.85);
-        color: #e5e7eb;
-        word-break: break-word;
-      }
-
-      .kv { display: inline-flex; gap: 0.35rem; align-items: center; }
-      .kv span { color: var(--text-soft); font-size: 0.78rem; }
-
-      .step-out {
-        border-radius: 14px;
-        border: 1px solid var(--border-soft);
-        background: rgba(2, 6, 23, 0.72);
-        overflow: hidden;
-      }
-
-      .step-out__head {
-        padding: 0.8rem 0.9rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 0.8rem;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
-      }
-
-      .step-out__left {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.45rem;
-      }
-
-      .step-out__right {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.45rem;
-        align-items: center;
-        justify-content: flex-end;
-      }
-
-      .btn-mini {
-        font-size: 0.78rem;
-        padding: 0.28rem 0.6rem;
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.6);
-        background: rgba(15, 23, 42, 0.75);
-        color: var(--text-main);
-        cursor: pointer;
-      }
-
-      .btn-mini:hover { background: rgba(15, 23, 42, 1); }
-
-      .step-out__body {
-        padding: 0.85rem 0.9rem 1rem;
-        display: none;
-      }
-
-      .step-out--open .step-out__body { display: block; }
-
-      .mono {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      }
-
-      .json-box {
-        background: #020617;
-        border-radius: 10px;
-        border: 1px solid rgba(31, 41, 55, 0.9);
-        padding: 0.75rem 0.8rem;
-        font-size: 0.78rem;
-        color: #e5e7eb;
-        max-height: 320px;
-        overflow: auto;
-        white-space: pre-wrap;
-        word-break: break-word;
-      }
-
-      .subhead {
-        margin: 0.7rem 0 0.35rem;
-        font-size: 0.82rem;
-        color: var(--text-muted);
-      }
-
-      .mini-grid {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 0.6rem;
-      }
-
-      /* Footer */
-      .site-footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        background: #020308;
-      }
-
-      .site-footer__inner {
-        padding: 1.4rem 1.5rem 1.8rem;
-        font-size: 0.78rem;
-        color: var(--text-soft);
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        align-items: center;
-        text-align: center;
-      }
-
-      .site-footer__links {
-        display: flex;
-        gap: 0.8rem;
-        justify-content: center;
-        margin-top: 0.2rem;
-      }
-
-      .site-footer__links a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-
-      .site-footer__links a:hover { text-decoration: underline; }
-
-      /* Mobile */
-      @media (max-width: 880px) {
-        .site-header__inner { padding-inline: 1rem; }
-        .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
-        .site-header__nav {
-          display: none;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
-          margin-top: 0.8rem;
-        }
-        .site-header.site-header--open .site-header__nav { display: flex; }
-        .hero__inner { grid-template-columns: minmax(0, 1fr); }
-        .hero__card { margin-top: 1.4rem; }
-        .composer-grid { grid-template-columns: minmax(0, 1fr); }
-        .steps-grid { grid-template-columns: minmax(0, 1fr); }
-        .site-footer__inner { padding-inline: 1rem; }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="page-shell">
-      <!-- HEADER -->
-      <header class="site-header">
-        <div class="site-header__inner container">
-          <a href="/" class="site-header__brand">
-            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-            <div class="site-header__text">
-              <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Semantic verb &amp; schema layer for agents</span>
-            </div>
-          </a>
-
-          <!-- Mobile toggle -->
-          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-
-          <nav class="site-header__nav">
-            <a href="/" class="site-header__link">Overview</a>
-            <a href="/manifest.html" class="site-header__link">Manifest</a>
-
-            <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
-              <div class="site-header__dropdown-menu">
-                <a href="/commons.html">Commons</a>
-                <a href="/commercial.html">Commercial</a>
-                <a href="/agent-cards.html">Agent Cards</a>
-                <a href="/runtime.html">Runtime</a>
-                <a href="/roadmap.html">Roadmap</a>
-                <a href="/licensing.html">Licensing</a>
-                <a href="/about.html">About CommandLayer</a>
-              </div>
-            </div>
-
-            <a href="/demo.html" class="site-header__link site-header__link--active">Live Demo</a>
-            <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">
-              GitHub
-            </a>
-          </nav>
-        </div>
-      </header>
-
-      <main class="page-main">
-        <!-- HERO -->
-        <section class="hero">
-          <div class="container hero__inner">
-            <div>
-              <div class="hero__eyebrow">Demo #2 — Commons Flow Composer</div>
-              <h1 class="hero__title">
-                <span>Compose multi-step Commons flows</span>
-                <span class="hero__title-em">and verify receipts live.</span>
-              </h1>
-
-              <p class="hero__subtitle">
-                Wire up to three Commons verbs into a single flow, optionally chain step outputs, and validate each receipt
-                with <code>/verify</code>. You’ll see proof checks (<code>hash_matches</code>, <code>signature_valid</code>)
-                rendered as green/red badges, plus a visible <code>trace_id</code> chain.
-              </p>
-
-              <div class="hero__cta-row">
-                <a href="#composer" class="btn btn--primary">
-                  <span class="btn__icon">▶️</span>
-                  <span>Run a Commons flow</span>
-                </a>
-                <a href="/demo.html" class="btn btn--ghost">
-                  <span class="btn__icon">💳</span>
-                  <span>Back to commerce demo</span>
-                </a>
-              </div>
-
-              <div class="hero__meta">
-                <span class="hero__meta-pill">10 Commons verbs wired</span>
-                <span class="hero__meta-pill">Proof checks via <code>/verify</code></span>
-                <span class="hero__meta-pill">Output chaining (optional)</span>
-              </div>
-            </div>
-
-            <aside class="hero__card">
-              <h2>What this demo proves</h2>
-              <p>Commons isn’t just a README — it’s a usable contract you can route through and validate.</p>
-              <ul>
-                <li>You pick the verbs and order; the receipt shape stays stable.</li>
-                <li>Each step returns a receipt with proof + trace metadata.</li>
-                <li>Optional chaining turns steps into an actual flow.</li>
-                <li><code>/verify</code> confirms hash/signature checks per receipt.</li>
-              </ul>
-            </aside>
-          </div>
-        </section>
-
-        <!-- COMPOSER -->
-        <section class="section section--composer" id="composer">
-          <div class="container">
-            <div class="section__header">
-              <h2>Pick verbs, send a flow, inspect receipts + proof checks</h2>
-              <p>
-                This page calls <code>/api/commons-flow</code> (Vercel). The backend calls your live runtime and returns
-                step receipts. The UI can optionally chain outputs and will display <code>/verify</code> results next to
-                each receipt.
-              </p>
-            </div>
-
-            <div class="composer-grid">
-              <!-- Left: flow builder -->
-              <div class="card">
-                <h3>Build a Commons flow</h3>
-
-                <div class="form-row">
-                  <label for="actor-id">Actor (optional)</label>
-                  <input id="actor-id" type="text" placeholder="tester.eth" />
-                </div>
-
-                <div class="steps-grid">
-                  <!-- Step 1 -->
-                  <div class="step-card">
-                    <h4>
-                      <span class="inline">Step 1</span>
-                      <label class="toggle" title="Use previous step output as this step input">
-                        <input id="step1-use-prev" type="checkbox" disabled />
-                        Use prev
-                      </label>
-                    </h4>
-                    <div class="form-row">
-                      <label for="step1-verb">Verb</label>
-                      <select id="step1-verb">
-                        <option value="">-- choose --</option>
-                        <option value="summarize">summarize</option>
-                        <option value="analyze">analyze</option>
-                        <option value="classify">classify</option>
-                        <option value="clean">clean</option>
-                        <option value="convert">convert</option>
-                        <option value="describe">describe</option>
-                        <option value="explain">explain</option>
-                        <option value="format">format</option>
-                        <option value="parse">parse</option>
-                        <option value="fetch">fetch</option>
-                      </select>
-                    </div>
-                    <div class="form-row">
-                      <label for="step1-input">Input</label>
-                      <textarea id="step1-input" rows="4" placeholder="Required. Text, URL, or payload for step 1."></textarea>
-                    </div>
-                  </div>
-
-                  <!-- Step 2 -->
-                  <div class="step-card">
-                    <h4>
-                      <span class="inline">Step 2 (optional)</span>
-                      <label class="toggle" title="Use previous step output as this step input">
-                        <input id="step2-use-prev" type="checkbox" />
-                        Use prev
-                      </label>
-                    </h4>
-                    <div class="form-row">
-                      <label for="step2-verb">Verb</label>
-                      <select id="step2-verb">
-                        <option value="">-- none --</option>
-                        <option value="summarize">summarize</option>
-                        <option value="analyze">analyze</option>
-                        <option value="classify">classify</option>
-                        <option value="clean">clean</option>
-                        <option value="convert">convert</option>
-                        <option value="describe">describe</option>
-                        <option value="explain">explain</option>
-                        <option value="format">format</option>
-                        <option value="parse">parse</option>
-                        <option value="fetch">fetch</option>
-                      </select>
-                    </div>
-                    <div class="form-row">
-                      <label for="step2-input">Input</label>
-                      <textarea id="step2-input" rows="4" placeholder="Optional. Input for step 2."></textarea>
-                    </div>
-                  </div>
-
-                  <!-- Step 3 -->
-                  <div class="step-card">
-                    <h4>
-                      <span class="inline">Step 3 (optional)</span>
-                      <label class="toggle" title="Use previous step output as this step input">
-                        <input id="step3-use-prev" type="checkbox" />
-                        Use prev
-                      </label>
-                    </h4>
-                    <div class="form-row">
-                      <label for="step3-verb">Verb</label>
-                      <select id="step3-verb">
-                        <option value="">-- none --</option>
-                        <option value="summarize">summarize</option>
-                        <option value="analyze">analyze</option>
-                        <option value="classify">classify</option>
-                        <option value="clean">clean</option>
-                        <option value="convert">convert</option>
-                        <option value="describe">describe</option>
-                        <option value="explain">explain</option>
-                        <option value="format">format</option>
-                        <option value="parse">parse</option>
-                        <option value="fetch">fetch</option>
-                      </select>
-                    </div>
-                    <div class="form-row">
-                      <label for="step3-input">Input</label>
-                      <textarea id="step3-input" rows="4" placeholder="Optional. Input for step 3."></textarea>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="form-actions">
-                  <button id="run-flow" class="btn btn--primary">
-                    <span class="btn__icon">⚡</span>
-                    <span>Run Commons flow</span>
-                  </button>
-                  <button id="reset-flow" class="btn btn--ghost" type="button">
-                    <span class="btn__icon">♻️</span>
-                    <span>Reset</span>
-                  </button>
-
-                  <label class="toggle" title="Call /verify for each receipt and render proof checks">
-                    <input id="toggle-verify" type="checkbox" checked />
-                    Verify receipts
-                  </label>
-                  <label class="toggle" title="Ask backend to verify schema too (verify?schema=1). Only enable if your runtime verify is stable.">
-                    <input id="toggle-verify-schema" type="checkbox" />
-                    Verify schema
-                  </label>
-                </div>
-
-                <div class="pill-row">
-                  <span class="pill">10 Commons verbs</span>
-                  <span class="pill">Proof checks: <code>hash_matches</code> + <code>signature_valid</code></span>
-                  <span class="pill">Expand/collapse step receipts</span>
-                </div>
-
-                <div id="status-line" class="status-line"></div>
-              </div>
-
-              <!-- Right: output -->
-              <div class="card">
-                <h3>Flow output</h3>
-                <div id="flow-ui" class="output-shell">
-                  <div class="json-box mono">
+<head>
+<meta charset="UTF-8" />
+<title>CommandLayer — Commons Flow Composer</title>
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1, viewport-fit=cover"
+/>
+<meta
+name="description"
+content="Interactive CommandLayer Commons demo — compose up to three verbs, send a flow, and inspect receipts that are validated with Ajv against the v1.0.0 base receipt schema."
+/>
+
+
+<style>
+:root {
+--bg: #05060a;
+--bg-elevated: #0a0c14;
+--bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+--border-soft: rgba(255, 255, 255, 0.06);
+--border-strong: rgba(255, 255, 255, 0.18);
+--accent: #c5cbe0;
+--accent-strong: #e3e7ff;
+--accent-muted: #8f96b5;
+--text-main: #f7f8ff;
+--text-muted: #9ca3c7;
+--text-soft: #6b7280;
+--radius-lg: 16px;
+--radius-xl: 24px;
+--shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+--max-width: 1120px;
+}
+
+
+* {
+box-sizing: border-box;
+}
+
+
+html,
+body {
+margin: 0;
+padding: 0;
+font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+"Inter", sans-serif;
+background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+color: var(--text-main);
+}
+
+
+body {
+min-height: 100vh;
+}
+
+
+.page-shell {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+
+.page-main {
+flex: 1;
+}
+
+
+.container {
+width: 100%;
+max-width: var(--max-width);
+margin: 0 auto;
+padding: 0 1.5rem;
+}
+
+
+/* Header */
+.site-header {
+background: var(--bg-header);
+border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+position: sticky;
+top: 0;
+z-index: 20;
+backdrop-filter: blur(18px);
+}
+
+
+.site-header__inner {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0.9rem 1.5rem;
+}
+
+
+.site-header__brand {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+text-decoration: none;
+color: inherit;
+}
+
+
+.site-header__logo-img {
+width: 28px;
+height: 28px;
+object-fit: contain;
+display: block;
+border-radius: 6px;
+box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
+0 14px 40px rgba(0, 0, 0, 0.9);
+}
+
+
+.site-header__text {
+display: flex;
+flex-direction: column;
+}
+
+
+.site-header__title {
+font-size: 0.98rem;
+font-weight: 600;
+letter-spacing: 0.03em;
+}
+
+
+.site-header__subtitle {
+font-size: 0.78rem;
+color: var(--text-muted);
+}
+
+
+.site-header__nav {
+display: flex;
+gap: 1rem;
+align-items: center;
+}
+
+
+.site-header__link {
+font-size: 0.86rem;
+padding: 0.35rem 0.8rem;
+border-radius: 999px;
+text-decoration: none;
+color: var(--text-muted);
+border: 1px solid transparent;
+white-space: nowrap;
+}
+
+
+.site-header__link:hover {
+color: var(--accent-strong);
+border-color: rgba(255, 255, 255, 0.18);
+background: rgba(15, 23, 42, 0.7);
+}
+
+
+.site-header__link--active {
+color: #020617;
+background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+border-color: rgba(255, 255, 255, 0.25);
+}
+
+
+/* Docs dropdown */
+.site-header__dropdown {
+position: relative;
+}
+
+
+.site-header__dropdown-btn {
+font-size: 0.86rem;
+padding: 0.35rem 0.8rem;
+border-radius: 999px;
+border: 1px solid transparent;
+background: transparent;
+color: var(--text-muted);
+display: inline-flex;
+align-items: center;
+gap: 0.25rem;
+cursor: pointer;
+}
+
+
+.site-header__dropdown-btn:hover {
+color: var(--accent-strong);
+border-color: rgba(255, 255, 255, 0.18);
+background: rgba(15, 23, 42, 0.7);
+}
+
+
+.site-header__dropdown-menu {
+position: absolute;
+top: 2.3rem;
+right: 0;
+background: rgba(15, 23, 42, 0.98);
+border-radius: 14px;
+border: 1px solid var(--border-soft);
+box-shadow: var(--shadow-soft);
+padding: 0.5rem 0.4rem;
+min-width: 210px;
+display: none;
+}
+
+
+.site-header__dropdown-menu a {
+display: block;
+padding: 0.35rem 0.7rem;
+font-size: 0.82rem;
+text-decoration: none;
+color: var(--text-muted);
+border-radius: 999px;
+}
+
+
+.site-header__dropdown-menu a:hover {
+color: var(--accent-strong);
+background: rgba(31, 41, 55, 0.95);
+}
+
+
+.site-header--docs-open .site-header__dropdown-menu {
+display: block;
+}
+
+
+/* Mobile toggle */
+.site-header__toggle {
+display: none;
+border-radius: 999px;
+border: 1px solid rgba(148, 163, 184, 0.7);
+background: rgba(15, 23, 42, 0.9);
+color: var(--text-main);
+padding: 0.25rem 0.6rem;
+font-size: 0.9rem;
+cursor: pointer;
+}
+
+
+.site-header__toggle:hover {
+background: rgba(15, 23, 42, 1);
+}
+
+
+/* Buttons */
+.btn {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+gap: 0.45rem;
+padding: 0.6rem 1.1rem;
+border-radius: 999px;
+font-size: 0.9rem;
+text-decoration: none;
+border: 1px solid transparent;
+cursor: pointer;
+white-space: nowrap;
+}
+
+
+.btn--primary {
+background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+color: #020617;
+border-color: rgba(255, 255, 255, 0.3);
+box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+}
+
+
+.btn--primary:hover {
+filter: brightness(1.03);
+}
+
+
+.btn--ghost {
+background: rgba(15, 23, 42, 0.9);
+color: var(--accent-strong);
+border-color: rgba(148, 163, 184, 0.6);
+}
+
+
+.btn--ghost:hover {
+background: rgba(15, 23, 42, 1);
+}
+
+
+.btn__icon {
+font-size: 1rem;
+}
+
+
+/* Hero */
+.hero {
+padding: 3rem 0 2.4rem;
+border-bottom: 1px solid var(--border-soft);
+background: radial-gradient(circle at 0 0, #111827, #020308);
+}
+
+
+.hero__inner {
+display: grid;
+grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
+gap: 2.4rem;
+align-items: flex-start;
+}
+
+
+.hero__eyebrow {
+font-size: 0.8rem;
+text-transform: uppercase;
+letter-spacing: 0.14em;
+color: var(--accent-muted);
+margin-bottom: 0.8rem;
+}
+
+
+.hero__title {
+margin: 0 0 0.8rem;
+font-size: 2rem;
+line-height: 1.15;
+}
+
+
+.hero__title-em {
+background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
+-webkit-background-clip: text;
+background-clip: text;
+color: transparent;
+}
+
+
+.hero__subtitle {
+margin: 0;
+color: var(--text-muted);
+font-size: 0.98rem;
+max-width: 36rem;
+line-height: 1.7;
+}
+
+
+.hero__cta-row {
+display: flex;
+flex-wrap: wrap;
+gap: 0.8rem;
+margin-top: 1.6rem;
+}
+
+
+.hero__meta {
+margin-top: 1.2rem;
+display: flex;
+flex-wrap: wrap;
+gap: 0.6rem;
+font-size: 0.8rem;
+color: var(--text-soft);
+}
+
+
+.hero__meta-pill {
+border-radius: 999px;
+border: 1px solid rgba(148, 163, 184, 0.6);
+padding: 0.18rem 0.55rem;
+}
+
+
+.hero__card {
+background: rgba(15, 23, 42, 0.95);
+border-radius: var(--radius-xl);
+padding: 1.4rem 1.4rem 1.6rem;
+border: 1px solid var(--border-soft);
+box-shadow: var(--shadow-soft);
+font-size: 0.9rem;
+}
+
+
+.hero__card h2 {
+margin: 0 0 0.6rem;
+font-size: 1rem;
+}
+
+
+.hero__card p {
+margin: 0;
+color: var(--text-muted);
+}
+
+
+.hero__card ul {
+margin: 0.8rem 0 0;
+padding-left: 1.1rem;
+}
+
+
+.hero__card li {
+margin-bottom: 0.3rem;
+}
+
+
+/* Composer section */
+.section {
+padding: 2.4rem 0 3rem;
+}
+
+
+.section--composer {
+background: rgb(6, 9, 18);
+border-top: 1px solid rgba(255, 255, 255, 0.06);
+border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+
+.section__header {
+max-width: 40rem;
+margin-bottom: 1.4rem;
+}
+
+
+.section__header h2 {
+margin: 0 0 0.5rem;
+font-size: 1.4rem;
+}
+
+
+.section__header p {
+margin: 0;
+font-size: 0.95rem;
+color: var(--text-muted);
+}
+
+
+.composer-grid {
+display: grid;
+grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr);
+gap: 1.6rem;
+align-items: flex-start;
+}
+
+
+.card {
+background: rgba(15, 23, 42, 0.96);
+border-radius: var(--radius-xl);
+padding: 1.2rem 1.2rem 1.3rem;
+border: 1px solid var(--border-soft);
+box-shadow: var(--shadow-soft);
+font-size: 0.9rem;
+}
+
+
+.card h3 {
+margin: 0 0 0.7rem;
+font-size: 1rem;
+}
+
+
+.form-row {
+margin-bottom: 0.75rem;
+}
+
+
+.form-row label {
+display: block;
+font-size: 0.82rem;
+color: var(--text-muted);
+margin-bottom: 0.25rem;
+}
+
+
+.form-row select,
+.form-row textarea {
+width: 100%;
+padding: 0.55rem 0.7rem;
+border-radius: 10px;
+border: 1px solid rgba(148, 163, 184, 0.7);
+background: #020617;
+color: var(--text-main);
+font-size: 0.88rem;
+font-family: inherit;
+resize: vertical;
+min-height: 72px;
+}
+
+
+.form-row select {
+min-height: unset;
+}
+
+
+.form-row textarea::placeholder {
+color: #4b5563;
+}
+
+
+.steps-grid {
+display: grid;
+grid-template-columns: repeat(3, minmax(0, 1fr));
+gap: 0.9rem;
+}
+
+
+.step-card {
+background: rgba(15, 23, 42, 0.8);
+border-radius: 12px;
+padding: 0.8rem 0.8rem 0.9rem;
+border: 1px solid rgba(31, 41, 55, 0.9);
+}
+
+
+.step-card h4 {
+margin: 0 0 0.4rem;
+font-size: 0.9rem;
+}
+
+
+.form-actions {
+display: flex;
+gap: 0.6rem;
+margin-top: 0.9rem;
+align-items: center;
+}
+
+
+.pill-row {
+display: flex;
+flex-wrap: wrap;
+gap: 0.35rem;
+margin-top: 0.7rem;
+font-size: 0.78rem;
+}
+
+
+.pill {
+border-radius: 999px;
+border: 1px solid rgba(148, 163, 184, 0.8);
+padding: 0.12rem 0.55rem;
+color: var(--text-soft);
+}
+
+
+.output-label {
+font-size: 0.8rem;
+color: var(--text-soft);
+margin-bottom: 0.25rem;
+}
+
+
+.output-box {
+background: #020617;
+border-radius: 10px;
+border: 1px solid rgba(31, 41, 55, 0.9);
+padding: 0.7rem 0.8rem;
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+"Liberation Mono", "Courier New", monospace;
+font-size: 0.78rem;
+color: #e5e7eb;
+max-height: 340px;
+overflow: auto;
+white-space: pre-wrap;
+word-break: break-word;
+}
+
+
+.status-line {
+font-size: 0.8rem;
+color: var(--text-soft);
+margin-top: 0.55rem;
+}
+
+
+.status-line strong {
+color: var(--accent-strong);
+}
+
+
+/* Footer */
+.site-footer {
+border-top: 1px solid rgba(255, 255, 255, 0.1);
+background: #020308;
+}
+
+
+.site-footer__inner {
+padding: 1.4rem 1.5rem 1.8rem;
+font-size: 0.78rem;
+color: var(--text-soft);
+display: flex;
+flex-direction: column;
+gap: 0.4rem;
+align-items: center;
+text-align: center;
+}
+
+
+.site-footer__links {
+display: flex;
+gap: 0.8rem;
+justify-content: center;
+margin-top: 0.2rem;
+}
+
+
+.site-footer__links a {
+color: var(--accent);
+text-decoration: none;
+}
+
+
+.site-footer__links a:hover {
+text-decoration: underline;
+}
+
+
+/* Mobile */
+@media (max-width: 880px) {
+.site-header__inner {
+padding-inline: 1rem;
+}
+
+
+.site-header__toggle {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+}
+
+
+.site-header__nav {
+display: none;
+flex-direction: column;
+align-items: flex-start;
+gap: 0.5rem;
+margin-top: 0.8rem;
+}
+
+
+.site-header.site-header--open .site-header__nav {
+display: flex;
+}
+
+
+.hero__inner {
+grid-template-columns: minmax(0, 1fr);
+}
+
+
+.hero__card {
+margin-top: 1.4rem;
+}
+
+
+.composer-grid {
+grid-template-columns: minmax(0, 1fr);
+}
+
+
+.steps-grid {
+grid-template-columns: minmax(0, 1fr);
+}
+
+
+.site-footer__inner {
+padding-inline: 1rem;
+}
+}
+</style>
+</head>
+
+
+<body>
+<div class="page-shell">
+<!-- HEADER -->
+<header class="site-header">
+<div class="site-header__inner container">
+<a href="/" class="site-header__brand">
+<img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+<div class="site-header__text">
+<span class="site-header__title">CommandLayer</span>
+<span class="site-header__subtitle">
+Semantic verb &amp; schema layer for agents
+</span>
+</div>
+</a>
+
+
+<!-- Mobile toggle -->
+<button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
+☰
+</button>
+
+
+<nav class="site-header__nav">
+<a href="/" class="site-header__link">Overview</a>
+<a href="/manifest.html" class="site-header__link">Manifest</a>
+
+
+<div class="site-header__dropdown">
+<button class="site-header__dropdown-btn" type="button">
+Docs ▾
+</button>
+<div class="site-header__dropdown-menu">
+<a href="/commons.html">Commons</a>
+<a href="/commercial.html">Commercial</a>
+<a href="/agent-cards.html">Agent Cards</a>
+<a href="/runtime.html">Runtime</a>
+<a href="/roadmap.html">Roadmap</a>
+<a href="/licensing.html">Licensing</a>
+<a href="/about.html">About CommandLayer</a>
+</div>
+</div>
+
+
+<a href="/demo.html" class="site-header__link">Live Demo</a>
+<a
+href="https://github.com/commandlayer"
+class="site-header__link"
+target="_blank"
+rel="noopener noreferrer"
+>
+GitHub
+</a>
+</nav>
+</div>
+</header>
+
+
+<main class="page-main">
+<!-- HERO -->
+<section class="hero">
+<div class="container hero__inner">
+<div>
+<div class="hero__eyebrow">Demo #2 — Commons Flow Composer</div>
+<h1 class="hero__title">
+<span>Compose multi-step Commons flows</span>
+<span class="hero__title-em">
+and inspect Ajv-validated receipts.
+</span>
+</h1>
+
+
+<p class="hero__subtitle">
+Wire up to three Commons verbs
+(<code>analyze</code>, <code>summarize</code>, <code>classify</code>,
+<code>clean</code>, <code>convert</code>, <code>describe</code>,
+<code>explain</code>, <code>format</code>, <code>parse</code>, <code>fetch</code>)
+into a single flow. The backend calls <code>/api/commons-flow</code> and returns
+per-step receipts with <code>x402</code>, <code>trace</code>, <code>status</code>,
+<code>result</code>, and <code>usage</code> that are validated with Ajv against
+the shared <code>receipt.base</code> v1.0.0 schema.
+</p>
+
+
+<div class="hero__cta-row">
+<a href="#composer" class="btn btn--primary">
+<span class="btn__icon">▶️</span>
+<span>Run a Commons flow</span>
+</a>
+<a href="/demo.html" class="btn btn--ghost">
+<span class="btn__icon">💳</span>
+<span>Back to commerce demo</span>
+</a>
+</div>
+
+
+<div class="hero__meta">
+<span class="hero__meta-pill">10 Commons verbs wired</span>
+<span class="hero__meta-pill">Ajv-validated <code>receipt.base</code></span>
+</div>
+</div>
+
+
+<aside class="hero__card">
+<h2>What this demo proves</h2>
+<p>
+Commons isn’t just a README — it’s a usable contract you can route through and validate.
+</p>
+<ul>
+<li>You pick the verbs and order; the base receipt shape stays stable.</li>
+<li>
+Each step returns a typed <code>result</code> + <code>usage</code> folded into
+a common <code>receipt.base</code> envelope.
+</li>
+<li>A single <code>trace_id</code> threads the full flow.</li>
+<li>
+Every receipt is validated with Ajv against
+<code>receipt.base</code> v1.0.0 (plus a minimal <code>x402</code> envelope),
+mirroring the protocol-commons <code>_shared</code> schema.
+</li>
+</ul>
+</aside>
+</div>
+</section>
+
+
+<!-- COMPOSER -->
+<section class="section section--composer" id="composer">
+<div class="container">
+<div class="section__header">
+<h2>Pick verbs, send a flow, inspect the receipts</h2>
+<p>
+Under the hood this calls <code>/api/commons-flow</code> on Vercel and returns
+receipts aligned with the shared <code>receipt.base</code> v1.0.0 schema used in
+Commons. For this demo, up to three steps share a single <code>trace_id</code> and
+each step’s receipt is validated with Ajv before it’s returned.
+</p>
+</div>
+
+
+<div class="composer-grid">
+<!-- Left: flow builder -->
+<div class="card">
+<h3>Build a Commons flow</h3>
+
+
+<div class="steps-grid">
+<!-- Step 1 -->
+<div class="step-card">
+<h4>Step 1</h4>
+<div class="form-row">
+<label for="step1-verb">Verb</label>
+<select id="step1-verb">
+<option value="">-- choose --</option>
+<option value="summarize">summarize</option>
+<option value="analyze">analyze</option>
+<option value="classify">classify</option>
+<option value="clean">clean</option>
+<option value="convert">convert</option>
+<option value="describe">describe</option>
+<option value="explain">explain</option>
+<option value="format">format</option>
+<option value="parse">parse</option>
+<option value="fetch">fetch</option>
+</select>
+</div>
+<div class="form-row">
+<label for="step1-input">Input</label>
+<textarea
+id="step1-input"
+rows="4"
+placeholder="Required. Text, URL, or payload for step 1."
+></textarea>
+</div>
+</div>
+
+
+<!-- Step 2 -->
+<div class="step-card">
+<h4>Step 2 (optional)</h4>
+<div class="form-row">
+<label for="step2-verb">Verb</label>
+<select id="step2-verb">
+<option value="">-- none --</option>
+<option value="summarize">summarize</option>
+<option value="analyze">analyze</option>
+<option value="classify">classify</option>
+<option value="clean">clean</option>
+<option value="convert">convert</option>
+<option value="describe">describe</option>
+<option value="explain">explain</option>
+<option value="format">format</option>
+<option value="parse">parse</option>
+<option value="fetch">fetch</option>
+</select>
+</div>
+<div class="form-row">
+<label for="step2-input">Input</label>
+<textarea
+id="step2-input"
+rows="4"
+placeholder="Optional. Input for step 2."
+></textarea>
+</div>
+</div>
+
+
+<!-- Step 3 -->
+<div class="step-card">
+<h4>Step 3 (optional)</h4>
+<div class="form-row">
+<label for="step3-verb">Verb</label>
+<select id="step3-verb">
+<option value="">-- none --</option>
+<option value="summarize">summarize</option>
+<option value="analyze">analyze</option>
+<option value="classify">classify</option>
+<option value="clean">clean</option>
+<option value="convert">convert</option>
+<option value="describe">describe</option>
+<option value="explain">explain</option>
+<option value="format">format</option>
+<option value="parse">parse</option>
+<option value="fetch">fetch</option>
+</select>
+</div>
+<div class="form-row">
+<label for="step3-input">Input</label>
+<textarea
+id="step3-input"
+rows="4"
+placeholder="Optional. Input for step 3."
+></textarea>
+</div>
+</div>
+</div>
+
+
+<div class="form-actions">
+<button id="run-flow" class="btn btn--primary">
+<span class="btn__icon">⚡</span>
+<span>Run Commons flow</span>
+</button>
+<button id="reset-flow" class="btn btn--ghost" type="button">
+<span class="btn__icon">♻️</span>
+<span>Reset</span>
+</button>
+</div>
+
+
+<div class="pill-row">
+<span class="pill">10 Commons verbs</span>
+<span class="pill">Ajv-validated <code>receipt.base</code> v1.0.0</span>
+<span class="pill">Shared <code>trace_id</code> across steps</span>
+</div>
+
+
+<div id="status-line" class="status-line"></div>
+</div>
+
+
+<!-- Right: output -->
+<div class="card">
+<h3>Flow output</h3>
+<div class="output-label">Trace + steps</div>
+<pre id="flow-output" class="output-box">
 // Configure your steps on the left and hit "Run Commons flow"…
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer class="site-footer">
-        <div class="container site-footer__inner">
-          <div>© CommandLayer — semantic layer for autonomous agents</div>
-          <div>Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free</div>
-          <div class="site-footer__links">
-            <a href="/docs.html">Docs</a>
-            <a href="/FAQ.html">FAQ</a>
-            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
-          </div>
-        </div>
-      </footer>
-    </div>
-
-    <script>
-      // header interactions
-      (function () {
-        const header = document.querySelector(".site-header");
-        const toggle = document.querySelector(".site-header__toggle");
-        const docsBtn = document.querySelector(".site-header__dropdown-btn");
-
-        if (toggle && header) {
-          toggle.addEventListener("click", () => {
-            const isOpen = header.classList.toggle("site-header--open");
-            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-          });
-        }
-
-        if (docsBtn && header) {
-          docsBtn.addEventListener("click", () => {
-            header.classList.toggle("site-header--docs-open");
-          });
-        }
-      })();
-
-      (function () {
-        const COMMON_VERBS = [
-          "analyze",
-          "classify",
-          "clean",
-          "convert",
-          "describe",
-          "explain",
-          "format",
-          "parse",
-          "summarize",
-          "fetch",
-        ];
-
-        const runButton = document.getElementById("run-flow");
-        const resetButton = document.getElementById("reset-flow");
-        const statusLine = document.getElementById("status-line");
-        const flowUI = document.getElementById("flow-ui");
-
-        const actorEl = document.getElementById("actor-id");
-
-        const verifyToggle = document.getElementById("toggle-verify");
-        const verifySchemaToggle = document.getElementById("toggle-verify-schema");
-
-        const usePrev2 = document.getElementById("step2-use-prev");
-        const usePrev3 = document.getElementById("step3-use-prev");
-
-        function el(tag, attrs = {}, children = []) {
-          const node = document.createElement(tag);
-          Object.entries(attrs).forEach(([k, v]) => {
-            if (k === "class") node.className = v;
-            else if (k === "html") node.innerHTML = v;
-            else if (k.startsWith("on") && typeof v === "function") node.addEventListener(k.slice(2), v);
-            else node.setAttribute(k, v);
-          });
-          children.forEach((c) => node.appendChild(typeof c === "string" ? document.createTextNode(c) : c));
-          return node;
-        }
-
-        function setStatus(html) {
-          statusLine.innerHTML = html || "";
-        }
-
-        function clearFlowUI() {
-          flowUI.innerHTML = "";
-        }
-
-        function jsonBox(obj) {
-          const pre = el("pre", { class: "json-box mono" });
-          try {
-            pre.textContent = JSON.stringify(obj, null, 2);
-          } catch {
-            pre.textContent = String(obj);
-          }
-          return pre;
-        }
-
-        function codePill(text) {
-          return el("span", { class: "code-pill" }, [String(text)]);
-        }
-
-        function badge(label, kind) {
-          const cls =
-            kind === "ok" ? "badge badge--ok" : kind === "bad" ? "badge badge--bad" : "badge badge--warn";
-          return el("span", { class: cls }, [label]);
-        }
-
-        function kv(label, value) {
-          return el("span", { class: "kv" }, [
-            el("span", {}, [label + ":"]),
-            codePill(value),
-          ]);
-        }
-
-        function getStep(index) {
-          const verbSelect = document.getElementById("step" + index + "-verb");
-          const inputField = document.getElementById("step" + index + "-input");
-          const usePrev = document.getElementById("step" + index + "-use-prev");
-
-          if (!verbSelect || !inputField) return null;
-
-          const verb = (verbSelect.value || "").trim();
-          const input = (inputField.value || "").trim();
-
-          if (!verb || !COMMON_VERBS.includes(verb)) return null;
-
-          return {
-            verb,
-            input,
-            use_prev: !!(usePrev && usePrev.checked),
-          };
-        }
-
-        function normalizeInputForVerb(verb, rawText) {
-          const s = (rawText || "").trim();
-          // If the user pasted JSON, treat it as input object.
-          try {
-            if (s.startsWith("{") || s.startsWith("[")) return JSON.parse(s);
-          } catch {}
-          // Default: for most commons verbs, accept content string
-          if (verb === "fetch") {
-            // Try: rawText is URL
-            return { source: s };
-          }
-          if (verb === "clean") {
-            // Best-effort: keep simple if user typed text
-            return { content: s, operations: ["collapse_whitespace", "trim"] };
-          }
-          return { content: s };
-        }
-
-        function deriveNextInputFromReceipt(receipt) {
-          // A pragmatic chaining rule:
-          // - if receipt.result is object with content/body_preview/summary/etc, prefer that.
-          // - fallback to stringify receipt.result.
-          const r = receipt && receipt.result ? receipt.result : null;
-          if (!r) return "";
-          if (typeof r === "string") return r;
-          if (r.items && Array.isArray(r.items) && r.items[0] && typeof r.items[0].body_preview === "string") {
-            return r.items[0].body_preview;
-          }
-          if (typeof r.content === "string") return r.content;
-          if (typeof r.summary === "string") return r.summary;
-          try { return JSON.stringify(r, null, 2); } catch { return String(r); }
-        }
-
-        async function verifyReceipt(receipt, schemaAlso) {
-          const url = schemaAlso ? "/verify?schema=1" : "/verify";
-          const res = await fetch(url, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(receipt),
-          });
-          const data = await res.json().catch(() => ({}));
-          if (!res.ok) {
-            return { ok: false, error: data || { status: res.status } };
-          }
-          return data;
-        }
-
-        function renderFlow(data, verifyResults = []) {
-          clearFlowUI();
-
-          // Header telemetry
-          const okAll = !!data.ok;
-          const head = el("div", { class: "flow-head" }, [
-            badge(okAll ? "flow ok" : "flow error", okAll ? "ok" : "bad"),
-            kv("flow_trace_id", data.flow_trace_id || "—"),
-            kv("runtime", data.runtime_base || "—"),
-            kv("server_time", data.server_time || "—"),
-            kv("verify_schema", String(!!data.verify_schema)),
-          ]);
-          flowUI.appendChild(head);
-
-          // Steps
-          const steps = Array.isArray(data.steps) ? data.steps : [];
-          steps.forEach((s, idx) => {
-            const receipt = s && s.receipt ? s.receipt : null;
-            const verifyOut = verifyResults[idx] || null;
-
-            const topBadges = [];
-            if (receipt) topBadges.push(badge(receipt.status || "unknown", receipt.status === "success" ? "ok" : "bad"));
-            if (receipt && receipt.trace && receipt.trace.trace_id) topBadges.push(kv("trace_id", receipt.trace.trace_id));
-            if (receipt && receipt.trace && receipt.trace.parent_trace_id)
-              topBadges.push(kv("parent", receipt.trace.parent_trace_id));
-
-            // Verify badges
-            const verifyBadges = [];
-            if (verifyOut && typeof verifyOut.ok === "boolean") {
-              verifyBadges.push(badge(verifyOut.ok ? "verify ok" : "verify fail", verifyOut.ok ? "ok" : "bad"));
-              const c = verifyOut.checks || {};
-              if (typeof c.hash_matches === "boolean")
-                verifyBadges.push(badge("hash " + (c.hash_matches ? "match" : "mismatch"), c.hash_matches ? "ok" : "bad"));
-              if (typeof c.signature_valid === "boolean")
-                verifyBadges.push(
-                  badge("sig " + (c.signature_valid ? "valid" : "invalid"), c.signature_valid ? "ok" : "bad")
-                );
-              if (typeof c.schema_valid === "boolean")
-                verifyBadges.push(badge("schema " + (c.schema_valid ? "ok" : "fail"), c.schema_valid ? "ok" : "bad"));
-            } else if (verifyOut && verifyOut.error) {
-              verifyBadges.push(badge("verify error", "warn"));
-            } else {
-              verifyBadges.push(badge("verify skipped", "warn"));
-            }
-
-            const root = el("div", { class: "step-out step-out--open" });
-            const headRow = el("div", { class: "step-out__head" });
-
-            const left = el("div", { class: "step-out__left" }, [
-              el("span", { class: "badge" }, ["step " + (idx + 1)]),
-              kv("verb", s.verb || "—"),
-              ...topBadges,
-            ]);
-
-            const right = el("div", { class: "step-out__right" }, [
-              ...verifyBadges,
-              el("button", {
-                class: "btn-mini",
-                onclick: () => root.classList.toggle("step-out--open"),
-                type: "button",
-              }, ["toggle"]),
-            ]);
-
-            headRow.appendChild(left);
-            headRow.appendChild(right);
-
-            const body = el("div", { class: "step-out__body" });
-
-            // compact chain display
-            const chainLine = el("div", { class: "mini-grid" }, [
-              el("div", {}, [
-                el("div", { class: "subhead" }, ["Receipt proof"]),
-                receipt && receipt.metadata && receipt.metadata.proof
-                  ? jsonBox(receipt.metadata.proof)
-                  : jsonBox({ note: "no proof found" }),
-              ]),
-              el("div", {}, [
-                el("div", { class: "subhead" }, ["Verify output"]),
-                verifyOut
-                  ? jsonBox(verifyOut)
-                  : jsonBox({ note: "verify not run" }),
-              ]),
-              el("div", {}, [
-                el("div", { class: "subhead" }, ["Full receipt"]),
-                receipt ? jsonBox(receipt) : jsonBox({ error: "missing receipt" }),
-              ]),
-            ]);
-
-            body.appendChild(chainLine);
-
-            root.appendChild(headRow);
-            root.appendChild(body);
-            flowUI.appendChild(root);
-          });
-
-          if (!steps.length) {
-            flowUI.appendChild(jsonBox({ error: "No steps returned." }));
-          }
-        }
-
-        async function runFlow() {
-          const step1 = getStep(1);
-          const step2 = getStep(2);
-          const step3 = getStep(3);
-
-          const stepsRaw = [step1, step2, step3].filter(Boolean);
-
-          if (!stepsRaw.length) {
-            clearFlowUI();
-            flowUI.appendChild(jsonBox({ error: "No valid steps selected. Pick at least step 1." }));
-            setStatus("<strong>Missing steps</strong> — configure at least step 1.");
-            return;
-          }
-
-          // Build steps payload with optional chaining client-side into explicit input
-          const actor = (actorEl && actorEl.value ? actorEl.value.trim() : "") || null;
-
-          const payloadSteps = [];
-          let prevOutText = "";
-
-          for (let i = 0; i < stepsRaw.length; i++) {
-            const s = stepsRaw[i];
-            const verb = s.verb;
-
-            let rawText = s.input || "";
-
-            if (i > 0 && s.use_prev) {
-              rawText = prevOutText || rawText;
-            }
-
-            const inputObj = normalizeInputForVerb(verb, rawText);
-
-            payloadSteps.push({
-              verb,
-              input: inputObj,
-            });
-          }
-
-          clearFlowUI();
-          flowUI.appendChild(jsonBox({ status: "running", steps_count: payloadSteps.length }));
-          setStatus("<strong>Running</strong> — sending flow to /api/commons-flow…");
-
-          let data;
-          try {
-            const res = await fetch("/api/commons-flow", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                actor,
-                steps: payloadSteps,
-              }),
-            });
-
-            data = await res.json().catch(() => ({}));
-
-            if (!res.ok) {
-              clearFlowUI();
-              flowUI.appendChild(jsonBox({ error: data.error || "Request failed", status: res.status, data }));
-              setStatus("<strong>Error</strong> — backend returned " + res.status + ".");
-              return;
-            }
-          } catch (err) {
-            clearFlowUI();
-            flowUI.appendChild(jsonBox({ error: "Network or runtime error", detail: err?.message || String(err) }));
-            setStatus("<strong>Error</strong> — network/runtime failure; check console.");
-            return;
-          }
-
-          // Prepare chaining preview based on receipts returned
-          // (doesn't mutate results; just informs the next run if user toggles use-prev)
-          try {
-            const steps = Array.isArray(data.steps) ? data.steps : [];
-            const lastReceipt = steps.length ? steps[steps.length - 1].receipt : null;
-            prevOutText = lastReceipt ? deriveNextInputFromReceipt(lastReceipt) : "";
-          } catch {}
-
-          // Verify receipts (client-side) and render UI
-          const shouldVerify = !!(verifyToggle && verifyToggle.checked);
-          const schemaAlso = !!(verifySchemaToggle && verifySchemaToggle.checked);
-
-          const verifyResults = [];
-          if (shouldVerify && data && Array.isArray(data.steps)) {
-            for (let i = 0; i < data.steps.length; i++) {
-              const receipt = data.steps[i]?.receipt;
-              if (!receipt) {
-                verifyResults.push({ ok: false, error: { message: "missing receipt" } });
-                continue;
-              }
-              try {
-                const out = await verifyReceipt(receipt, schemaAlso);
-                verifyResults.push(out);
-              } catch (e) {
-                verifyResults.push({ ok: false, error: { message: e?.message || String(e) } });
-              }
-            }
-          }
-
-          renderFlow(data, verifyResults);
-
-          setStatus(
-            "<strong>OK</strong> — flow executed; receipts rendered with proof checks" +
-              (shouldVerify ? " via /verify." : " (verify skipped).")
-          );
-        }
-
-        function resetFlow() {
-          for (let i = 1; i <= 3; i++) {
-            const verbSelect = document.getElementById("step" + i + "-verb");
-            const inputField = document.getElementById("step" + i + "-input");
-            const usePrev = document.getElementById("step" + i + "-use-prev");
-            if (verbSelect) verbSelect.value = "";
-            if (inputField) inputField.value = "";
-            if (usePrev) usePrev.checked = false;
-          }
-          if (actorEl) actorEl.value = "";
-
-          clearFlowUI();
-          flowUI.appendChild(el("div", { class: "json-box mono" }, [
-            '// Configure your steps on the left and hit "Run Commons flow"…',
-          ]));
-          setStatus("");
-        }
-
-        // Small UX: disable "use prev" when verb not set
-        function wirePrevToggles() {
-          function updateToggle(idx) {
-            const verbSelect = document.getElementById("step" + idx + "-verb");
-            const usePrev = document.getElementById("step" + idx + "-use-prev");
-            const inputField = document.getElementById("step" + idx + "-input");
-            if (!verbSelect || !usePrev || !inputField) return;
-
-            const hasVerb = !!(verbSelect.value || "").trim();
-            const isFirst = idx === 1;
-
-            if (isFirst) {
-              usePrev.checked = false;
-              usePrev.disabled = true;
-              return;
-            }
-
-            usePrev.disabled = !hasVerb;
-          }
-
-          [1,2,3].forEach((i) => {
-            const verbSelect = document.getElementById("step" + i + "-verb");
-            if (verbSelect) verbSelect.addEventListener("change", () => updateToggle(i));
-            updateToggle(i);
-          });
-        }
-
-        if (!runButton || !flowUI) {
-          console.warn("[commons-flow] Missing run button or output element. Check IDs.");
-          return;
-        }
-
-        wirePrevToggles();
-
-        runButton.addEventListener("click", function (event) {
-          event.preventDefault();
-          runFlow();
-        });
-
-        if (resetButton) {
-          resetButton.addEventListener("click", function (event) {
-            event.preventDefault();
-            resetFlow();
-          });
-        }
-      })();
-    </script>
-  </body>
+</pre>
+</div>
+</div>
+</div>
+</section>
+</main>
+
+
+<footer class="site-footer">
+<div class="container site-footer__inner">
+<div>© CommandLayer — semantic layer for autonomous agents</div>
+<div>
+Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free
+</div>
+<div class="site-footer__links">
+<a href="/docs.html">Docs</a>
+<a href="/FAQ.html">FAQ</a>
+<a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+</div>
+</div>
+</footer>
+</div>
+
+
+<script>
+(function () {
+const header = document.querySelector(".site-header");
+const toggle = document.querySelector(".site-header__toggle");
+const docsBtn = document.querySelector(".site-header__dropdown-btn");
+
+
+if (toggle && header) {
+toggle.addEventListener("click", () => {
+const isOpen = header.classList.toggle("site-header--open");
+toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+});
+}
+
+
+if (docsBtn && header) {
+docsBtn.addEventListener("click", () => {
+header.classList.toggle("site-header--docs-open");
+});
+}
+})();
+
+
+(function () {
+const COMMON_VERBS = [
+"analyze",
+"classify",
+"clean",
+"convert",
+"describe",
+"explain",
+"format",
+"parse",
+"summarize",
+"fetch",
+];
+
+
+const runButton = document.getElementById("run-flow");
+const resetButton = document.getElementById("reset-flow");
+const outputEl = document.getElementById("flow-output");
+const statusLine = document.getElementById("status-line");
+
+
+if (!runButton || !outputEl) {
+console.warn(
+"[commons-flow] Missing run button or output element. Check IDs."
+);
+return;
+}
+
+
+function getStep(index) {
+const verbSelect = document.getElementById("step" + index + "-verb");
+const inputField = document.getElementById("step" + index + "-input");
+
+
+if (!verbSelect || !inputField) return null;
+
+
+const verb = (verbSelect.value || "").trim();
+const input = (inputField.value || "").trim();
+
+
+if (!verb || !COMMON_VERBS.includes(verb)) return null;
+if (!input) return null;
+
+
+return { verb, input };
+}
+
+
+function setOutput(data) {
+try {
+outputEl.textContent = JSON.stringify(data, null, 2);
+} catch (e) {
+outputEl.textContent = String(data);
+}
+}
+
+
+function setStatus(html) {
+statusLine.innerHTML = html || "";
+}
+
+
+async function runFlow() {
+const steps = [];
+for (let i = 1; i <= 3; i++) {
+const step = getStep(i);
+if (step) steps.push(step);
+}
+
+
+if (!steps.length) {
+setOutput({
+error:
+"No valid steps selected. Pick at least one Commons verb and provide input.",
+});
+setStatus(
+"<strong>Missing steps</strong> — configure at least step 1."
+);
+return;
+}
+
+
+setOutput({ status: "running", steps_count: steps.length });
+setStatus(
+"<strong>Running</strong> — sending flow to /api/commons-flow…"
+);
+
+
+try {
+const res = await fetch("/api/commons-flow", {
+method: "POST",
+headers: {
+"Content-Type": "application/json",
+},
+body: JSON.stringify({ steps }),
+});
+
+
+const data = await res.json().catch(() => ({}));
+
+
+if (!res.ok) {
+setOutput({
+error: data.error || "Request failed",
+status: res.status,
+});
+setStatus(
+"<strong>Error</strong> — backend returned " +
+res.status +
+"."
+);
+return;
+}
+
+
+setOutput(data);
+setStatus(
+"<strong>OK</strong> — flow executed; receipts validated against receipt.base v1.0.0."
+);
+} catch (err) {
+setOutput({
+error: "Network or runtime error",
+detail: err && err.message ? err.message : String(err),
+});
+setStatus(
+"<strong>Error</strong> — network/runtime failure; check console."
+);
+}
+}
+
+
+function resetFlow() {
+for (let i = 1; i <= 3; i++) {
+const verbSelect = document.getElementById("step" + i + "-verb");
+const inputField = document.getElementById("step" + i + "-input");
+if (verbSelect) verbSelect.value = "";
+if (inputField) inputField.value = "";
+}
+
+
+setOutput(
+'// Configure your steps on the left and hit "Run Commons flow"…'
+);
+setStatus("");
+}
+
+
+runButton.addEventListener("click", function (event) {
+event.preventDefault();
+runFlow();
+});
+
+
+if (resetButton) {
+resetButton.addEventListener("click", function (event) {
+event.preventDefault();
+resetFlow();
+});
+}
+})();
+</script>
+</body>
 </html>
+
+
+
+
