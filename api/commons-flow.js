@@ -1,5 +1,6 @@
 // /api/commons-flow.js
-// REAL Commons flow: forwards steps to Railway runtime and returns real receipts.
+// Runtime-backed Commons flow. Always returns receipts.
+// If receipt.base validation fails, we include validation errors instead of 500.
 
 const Ajv = require("ajv");
 const addFormats = require("ajv-formats");
@@ -20,45 +21,25 @@ const COMMON_VERBS = [
 
 const VERSION = "1.0.0";
 
-// --- Inline receipt.base + minimal x402 (Ajv-friendly, no $schema) ---
+// --- Inline receipt.base (MINIMAL) ---
+// IMPORTANT: This should match what your runtime emits, or you’ll see validation warnings.
+// We will NOT hard-fail; we’ll return errors in `validation`.
 const receiptBaseSchema = {
   $id: "https://commandlayer.org/schemas/v1.0.0/_shared/receipt.base.schema.json",
-  title: "receipt.base",
+  title: "receipt.base (demo-minimal)",
   type: "object",
-  additionalProperties: false,
+  additionalProperties: true, // <-- don’t block unknown fields in demo
   properties: {
-    x402: {
-      allOf: [
-        { $ref: "https://commandlayer.org/schemas/v1.0.0/_shared/x402.schema.json" },
-      ],
-    },
-    trace: {
-      type: "object",
-      additionalProperties: false,
-      properties: {
-        trace_id: { type: "string", minLength: 1, maxLength: 128 },
-      },
-      required: ["trace_id"],
-    },
-    status: { type: "string", enum: ["success", "error", "delegated"] },
-    error: { type: "object", additionalProperties: true },
+    x402: { type: "object" },
+    trace: { type: "object" },
+    trace_id: { type: "string" }, // <-- support top-level trace_id too
+    status: { type: "string" },   // <-- don’t restrict enum in demo
     result: { type: "object" },
     usage: { type: "object" },
-    metadata: { type: "object", additionalProperties: true },
+    error: { type: "object" },
+    metadata: { type: "object" },
   },
-  required: ["x402", "trace", "status"],
-};
-
-const x402Schema = {
-  $id: "https://commandlayer.org/schemas/v1.0.0/_shared/x402.schema.json",
-  title: "x402.envelope.minimal",
-  type: "object",
-  additionalProperties: true,
-  properties: {
-    verb: { type: "string", minLength: 1, maxLength: 128 },
-    version: { type: "string", minLength: 1, maxLength: 32 },
-  },
-  required: ["verb", "version"],
+  required: ["x402", "status"], // keep light requirements
 };
 
 let validateReceiptBase = null;
@@ -67,11 +48,9 @@ let ajvSetupError = null;
 try {
   const ajv = new Ajv({ allErrors: true, strict: false });
   addFormats(ajv);
-  ajv.addSchema(x402Schema);
   validateReceiptBase = ajv.compile(receiptBaseSchema);
 } catch (e) {
   ajvSetupError = e?.message || String(e);
-  validateReceiptBase = null;
 }
 
 function normalizeText(input) {
@@ -99,14 +78,8 @@ async function postJson(url, body, timeoutMs = 20000) {
     });
 
     const text = await res.text();
-
-    // Try to parse JSON; runtime sometimes returns HTML on error.
     let json = null;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      json = null;
-    }
+    try { json = JSON.parse(text); } catch { /* ignore */ }
 
     if (!res.ok) {
       return {
@@ -130,13 +103,11 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // IMPORTANT: read env at request-time (avoids “baked empty string” issues on Vercel)
   const RUNTIME_BASE = String(process.env.RUNTIME_BASE_URL || "").trim().replace(/\/$/, "");
-
   if (!RUNTIME_BASE) {
     return res.status(500).json({
       error: "Missing RUNTIME_BASE_URL on Vercel",
-      hint: "Set env var RUNTIME_BASE_URL to your Railway runtime base URL (e.g. https://runtime-production-214f.up.railway.app) and redeploy.",
+      hint: "Set env var RUNTIME_BASE_URL to your Railway runtime base URL and redeploy.",
     });
   }
 
@@ -147,30 +118,25 @@ module.exports = async function handler(req, res) {
   incomingSteps.forEach((s, idx) => {
     const verb = String(s?.verb || "").trim();
     const text = normalizeText(s?.input);
-
     if (!verb || !COMMON_VERBS.includes(verb)) return;
     if (!text) return;
-
     steps.push({ index: idx, verb, text });
   });
 
   if (!steps.length) {
     return res.status(400).json({
       error: "No valid steps provided. Each step needs a Commons verb and non-empty input.",
-      expected: { steps: [{ verb: "summarize", input: { text: "hello" } }] },
+      expected: { steps: [{ verb: "summarize", input: "hello" }] },
     });
   }
 
-  // One trace_id threads the whole flow. Runtime may also emit its own trace in receipts.
   const trace_id = body.trace_id ? String(body.trace_id).trim() : makeTraceId();
 
   const responseSteps = [];
 
   for (const step of steps) {
-    // Your Railway runtime endpoints look like: /clean/v1.0.0
     const runtimeUrl = `${RUNTIME_BASE}/${step.verb}/v${VERSION}`;
 
-    // Match your runtime request shape (x402 + input.content is what you used in curl)
     const runtimeReq = {
       x402: {
         entry: `x402://${step.verb}agent.eth/${step.verb}/v${VERSION}`,
@@ -178,7 +144,7 @@ module.exports = async function handler(req, res) {
         version: VERSION,
       },
       actor: "composer.commandlayer.org",
-      trace: { trace_id }, // safe if ignored
+      trace: { trace_id },
       input: { content: step.text },
     };
 
@@ -198,24 +164,22 @@ module.exports = async function handler(req, res) {
 
     const receipt = r.data;
 
+    // Validate, but never block demo
+    let validation = { ok: null, errors: null };
     if (validateReceiptBase) {
       const ok = validateReceiptBase(receipt);
-      if (!ok) {
-        return res.status(500).json({
-          error: "Runtime receipt failed receipt.base validation",
-          verb: step.verb,
-          details: validateReceiptBase.errors,
-          receipt,
-          meta: { ajv_setup_error: ajvSetupError },
-        });
-      }
+      validation = { ok: !!ok, errors: ok ? null : validateReceiptBase.errors };
+    } else {
+      validation = { ok: null, errors: [{ message: "Ajv not initialized", detail: ajvSetupError }] };
     }
 
     responseSteps.push({
       index: step.index,
       verb: step.verb,
-      request: { input: { text: step.text } },
+      runtime_url: runtimeUrl,
+      request: runtimeReq,
       receipt,
+      validation,
     });
   }
 
