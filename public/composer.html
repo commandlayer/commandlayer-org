@@ -7,7 +7,7 @@
 <meta name="description" content="Interactive CommandLayer Commons demo — compose up to three verbs, send a flow, and inspect real runtime receipts (Ajv-validated) from Railway." />
 
 <style>
-/* --- KEEP YOUR ORIGINAL CSS EXACTLY --- */
+/* --- KEEP YOUR ORIGINAL CSS EXACTLY (plus a few safe additions at the bottom) --- */
 :root {
 --bg: #05060a;
 --bg-elevated: #0a0c14;
@@ -155,7 +155,7 @@ font-size: 0.78rem; color: #e5e7eb; max-height: 340px; overflow: auto; white-spa
 .status-line { font-size: 0.8rem; color: var(--text-soft); margin-top: 0.55rem; }
 .status-line strong { color: var(--accent-strong); }
 
-/* NEW: small utility row */
+/* NEW: utility row */
 .util-row {
 margin-top: 0.85rem;
 display: flex;
@@ -194,6 +194,81 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
 .steps-grid { grid-template-columns: minmax(0, 1fr); }
 .site-footer__inner { padding-inline: 1rem; }
 }
+
+/* ===== NEW (safe) additions for receipt rendering ===== */
+.receipt-stack { display: flex; flex-direction: column; gap: 0.75rem; }
+.receipt-card {
+border: 1px solid rgba(148,163,184,0.22);
+border-radius: 14px;
+padding: 0.85rem 0.85rem 0.9rem;
+background: rgba(2, 6, 23, 0.72);
+}
+.receipt-head {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 0.75rem;
+flex-wrap: wrap;
+margin-bottom: 0.55rem;
+}
+.receipt-title {
+display: flex;
+align-items: baseline;
+gap: 0.55rem;
+flex-wrap: wrap;
+}
+.receipt-title strong { font-size: 0.92rem; }
+.receipt-sub { font-size: 0.78rem; color: var(--text-muted); }
+.badge-row { display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
+.badge {
+font-size: 0.74rem;
+padding: 0.12rem 0.5rem;
+border-radius: 999px;
+border: 1px solid rgba(148,163,184,0.25);
+color: var(--text-muted);
+background: rgba(15, 23, 42, 0.6);
+}
+.badge--ok { border-color: rgba(34,197,94,0.45); color: rgba(134,239,172,0.95); background: rgba(34,197,94,0.08); }
+.badge--bad { border-color: rgba(239,68,68,0.45); color: rgba(252,165,165,0.95); background: rgba(239,68,68,0.08); }
+.badge--wait { border-color: rgba(59,130,246,0.45); color: rgba(147,197,253,0.95); background: rgba(59,130,246,0.08); }
+
+.receipt-actions { display: flex; gap: 0.45rem; flex-wrap: wrap; }
+.btn--mini {
+padding: 0.35rem 0.7rem;
+font-size: 0.8rem;
+}
+.mini-note { font-size: 0.78rem; color: var(--text-soft); margin-top: 0.25rem; }
+
+.kv {
+display: grid;
+grid-template-columns: 110px minmax(0, 1fr);
+gap: 0.35rem 0.6rem;
+font-size: 0.82rem;
+margin-top: 0.6rem;
+}
+.kv div:nth-child(odd) { color: var(--text-muted); }
+.kv code { color: var(--accent-strong); }
+
+details {
+border: 1px solid rgba(148,163,184,0.18);
+border-radius: 12px;
+padding: 0.55rem 0.65rem;
+background: rgba(15,23,42,0.45);
+margin-top: 0.6rem;
+}
+summary { cursor: pointer; color: var(--accent-strong); font-size: 0.82rem; }
+summary:hover { filter: brightness(1.05); }
+
+.prev-toggle {
+display: flex;
+align-items: center;
+gap: 0.45rem;
+margin-top: 0.45rem;
+font-size: 0.78rem;
+color: var(--text-muted);
+}
+.prev-toggle input { transform: translateY(1px); }
+.prev-toggle code { color: var(--accent-strong); }
 </style>
 </head>
 
@@ -246,8 +321,8 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
 
         <p class="hero__subtitle">
           This page calls <code>/api/commons-flow</code> (Vercel) which forwards each step to your Railway runtime.
-          You get back the <em>actual</em> per-step receipts (<code>x402</code>, <code>trace</code>, <code>status</code>, <code>result</code>, <code>usage</code>)
-          and you can copy a matching <code>curl</code> command for each step.
+          You get back the <em>actual</em> per-step receipts — and you can verify <strong>schema + hash + signature</strong>
+          inline, then copy matching <code>curl</code> for reproduction.
         </p>
 
         <div class="hero__cta-row">
@@ -257,7 +332,8 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
 
         <div class="hero__meta">
           <span class="hero__meta-pill">Runtime-backed (Railway)</span>
-          <span class="hero__meta-pill">Ajv validation in API</span>
+          <span class="hero__meta-pill">Receipts = evidence (signed)</span>
+          <span class="hero__meta-pill">Verify: schema + hash + signature</span>
         </div>
       </div>
 
@@ -267,8 +343,8 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
         <ul>
           <li>Vercel UI → Vercel API → Railway runtime → receipts.</li>
           <li>Each step is a real POST to <code>/{verb}/v1.0.0</code>.</li>
-          <li>Copy-pasteable <code>curl</code> makes it reproducible.</li>
-          <li>Failures show the raw HTML/JSON error so you can debug fast.</li>
+          <li>Inline verify proves schema + cryptographic integrity.</li>
+          <li>Copy-pasteable <code>curl</code> makes every step reproducible.</li>
         </ul>
       </aside>
     </div>
@@ -334,6 +410,10 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
               <div class="form-row">
                 <label for="step2-input">Input</label>
                 <textarea id="step2-input" rows="4" placeholder="Optional. Input for step 2."></textarea>
+                <div class="prev-toggle">
+                  <input type="checkbox" id="step2-use-prev" />
+                  <label for="step2-use-prev">Use previous step <code>result</code> as input</label>
+                </div>
               </div>
             </div>
 
@@ -358,6 +438,10 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
               <div class="form-row">
                 <label for="step3-input">Input</label>
                 <textarea id="step3-input" rows="4" placeholder="Optional. Input for step 3."></textarea>
+                <div class="prev-toggle">
+                  <input type="checkbox" id="step3-use-prev" />
+                  <label for="step3-use-prev">Use previous step <code>result</code> as input</label>
+                </div>
               </div>
             </div>
           </div>
@@ -372,11 +456,13 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
             <span class="util-pill">Backend: <code>/api/commons-flow</code></span>
             <span class="util-pill" id="runtime-pill">Runtime: <code>loading…</code></span>
             <span class="util-pill" id="health-pill">Health: <code>unknown</code></span>
+            <span class="util-pill" id="time-pill">Server: <code>—</code></span>
           </div>
 
           <div class="pill-row">
             <span class="pill">10 Commons verbs</span>
             <span class="pill">Real runtime receipts</span>
+            <span class="pill">Inline verify</span>
             <span class="pill">Per-step curl repro</span>
           </div>
 
@@ -385,7 +471,14 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
 
         <div class="card">
           <h3>Flow output</h3>
-          <div class="output-label">Trace + steps</div>
+          <div class="output-label">Rendered receipts</div>
+          <div id="receipt-cards" class="receipt-stack">
+            <div class="mini-note">Run a flow to render per-step receipts with verify + curl.</div>
+          </div>
+
+          <div style="height: 0.75rem;"></div>
+
+          <div class="output-label">Raw JSON (debug)</div>
           <pre id="flow-output" class="output-box">// Configure your steps on the left and hit "Run Commons flow"…</pre>
         </div>
       </div>
@@ -407,6 +500,7 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
 </div>
 
 <script>
+/* Header behavior (unchanged) */
 (function () {
   const header = document.querySelector(".site-header");
   const toggle = document.querySelector(".site-header__toggle");
@@ -426,18 +520,27 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
   }
 })();
 
+/* === Composer logic (REPLACE your second IIFE with this full one) === */
 (function () {
   const COMMON_VERBS = ["analyze","classify","clean","convert","describe","explain","format","parse","summarize","fetch"];
 
   const runButton = document.getElementById("run-flow");
   const resetButton = document.getElementById("reset-flow");
   const copyCurlButton = document.getElementById("copy-curl");
+
   const outputEl = document.getElementById("flow-output");
   const statusLine = document.getElementById("status-line");
   const runtimePill = document.getElementById("runtime-pill");
   const healthPill = document.getElementById("health-pill");
+  const timePill = document.getElementById("time-pill");
+
+  const receiptCardsEl = document.getElementById("receipt-cards");
+
+  const step2UsePrev = document.getElementById("step2-use-prev");
+  const step3UsePrev = document.getElementById("step3-use-prev");
 
   let lastCurlBlock = "";
+  let lastResponse = null;
 
   function setOutput(data) {
     try { outputEl.textContent = JSON.stringify(data, null, 2); }
@@ -446,63 +549,296 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
 
   function setStatus(html) { statusLine.innerHTML = html || ""; }
 
+  function escapeHtml(s) {
+    return String(s)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+  function pickBestTextFromResult(result) {
+    if (!result || typeof result !== "object") return "";
+
+    const candidates = [
+      result.summary,
+      result.cleaned_content,
+      result.formatted_content,
+      result.description,
+      result.explanation,
+      result.converted_content,
+      result.body_preview,
+    ].filter(Boolean).map(String);
+
+    if (candidates.length) return candidates[0];
+
+    // fetch result shape: { items: [{ body_preview }] }
+    if (Array.isArray(result.items) && result.items[0] && result.items[0].body_preview) {
+      return String(result.items[0].body_preview);
+    }
+
+    // fallback: stringify
+    try { return JSON.stringify(result); } catch { return String(result); }
+  }
+
+  function setPrevToggleBehavior(index) {
+    const toggle = index === 2 ? step2UsePrev : step3UsePrev;
+    const inputField = document.getElementById("step" + index + "-input");
+    if (!toggle || !inputField) return;
+
+    function apply() {
+      const on = !!toggle.checked;
+      inputField.disabled = on;
+      if (!on) return;
+
+      // fill from last response (best available)
+      const steps = lastResponse?.steps || [];
+      const prev = steps.find(s => s.index === (index - 2)); // step2 reads step1; step3 reads step2
+      const prevReceipt = prev?.receipt;
+      const best = pickBestTextFromResult(prevReceipt?.result);
+      inputField.value = best || "";
+    }
+
+    toggle.addEventListener("change", apply);
+  }
+
+  setPrevToggleBehavior(2);
+  setPrevToggleBehavior(3);
+
   function getStep(index) {
     const verbSelect = document.getElementById("step" + index + "-verb");
     const inputField = document.getElementById("step" + index + "-input");
+    const usePrev = document.getElementById("step" + index + "-use-prev");
+
     if (!verbSelect || !inputField) return null;
 
     const verb = (verbSelect.value || "").trim();
-    const input = (inputField.value || "").trim();
     if (!verb || !COMMON_VERBS.includes(verb)) return null;
+
+    let input = (inputField.value || "").trim();
+
+    // If user chose "use prev", the field is disabled and should already be auto-filled.
+    if (usePrev && usePrev.checked) {
+      input = (inputField.value || "").trim();
+    }
+
     if (!input) return null;
 
-    // UI sends: {verb, input: "string"} (API normalizes)
     return { verb, input };
   }
 
-  function buildCurlFromReceipt(step, apiResponse) {
-    // API includes meta.runtime_base (we’ll use it for curl)
-    const runtimeBase = apiResponse?.meta?.runtime_base || "";
-    const version = "1.0.0";
-    const runtimeUrl = runtimeBase
-      ? (runtimeBase.replace(/\/$/, "") + "/" + step.verb + "/v" + version)
-      : ("<RUNTIME_BASE_URL>/" + step.verb + "/v" + version);
-
-    const body = {
-      x402: {
-        entry: "x402://" + step.verb + "agent.eth/" + step.verb + "/v" + version,
-        verb: step.verb,
-        version,
-      },
-      actor: "composer.commandlayer.org",
-      input: { content: step.input },
-    };
-
-    return [
-      "# " + step.verb.toUpperCase() + " (real runtime)",
-      "curl -sS --max-time 20 -X POST " + JSON.stringify(runtimeUrl) + " \\",
-      "  -H \"Content-Type: application/json\" \\",
-      "  --data-binary " + JSON.stringify(JSON.stringify(body)) ,
-      ""
-    ].join("\n");
-  }
-
-  async function refreshRuntimeInfo() {
-    // Hit the API with an OPTIONS-ish lightweight request? We’ll just call /api/commons-flow with an empty body and expect 400 with meta? Not guaranteed.
-    // So we keep it simple: show “set on Vercel” until a real run gives us meta.runtime_base.
-    runtimePill.innerHTML = 'Runtime: <code>(set via RUNTIME_BASE_URL)</code>';
-    healthPill.innerHTML = 'Health: <code>unknown</code>';
-  }
-
-  async function checkHealth(runtimeBase) {
-    if (!runtimeBase) return { ok: false, reason: "missing_runtime_base" };
-    const url = runtimeBase.replace(/\/$/, "") + "/health";
+  async function copyText(text) {
     try {
-      const res = await fetch(url, { method: "GET" });
-      if (!res.ok) return { ok: false, status: res.status };
-      return { ok: true, status: res.status };
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function setPillsFromMeta(meta) {
+    const runtimeBase = meta?.runtime_base || "";
+    const runtimeHealth = meta?.runtime_health;
+    const serverTime = meta?.server_time || null;
+
+    runtimePill.innerHTML = runtimeBase
+      ? ("Runtime: <code>" + escapeHtml(runtimeBase) + "</code>")
+      : ("Runtime: <code>(set via RUNTIME_BASE_URL)</code>");
+
+    if (runtimeHealth && typeof runtimeHealth === "object") {
+      healthPill.innerHTML = runtimeHealth.ok
+        ? "Health: <code>ok</code>"
+        : "Health: <code>fail</code>";
+    } else {
+      healthPill.innerHTML = "Health: <code>unknown</code>";
+    }
+
+    timePill.innerHTML = serverTime
+      ? ("Server: <code>" + escapeHtml(serverTime) + "</code>")
+      : "Server: <code>—</code>";
+  }
+
+  function renderReceiptCards(flow) {
+    if (!receiptCardsEl) return;
+
+    const steps = Array.isArray(flow?.steps) ? flow.steps : [];
+    if (!steps.length) {
+      receiptCardsEl.innerHTML = '<div class="mini-note">No receipts to render.</div>';
+      return;
+    }
+
+    receiptCardsEl.innerHTML = steps.map((s, i) => {
+      const verb = s.verb || "";
+      const runtimeUrl = s.runtime_url || "";
+      const rid = s.receipt?.metadata?.receipt_id || s.receipt?.metadata?.proof?.hash_sha256 || "";
+      const status = s.receipt?.status || "unknown";
+
+      const badgeStatus = status === "success"
+        ? '<span class="badge badge--ok">status: success</span>'
+        : (status === "error"
+          ? '<span class="badge badge--bad">status: error</span>'
+          : '<span class="badge">status: ' + escapeHtml(status) + '</span>');
+
+      const badgeSchema = '<span class="badge badge--wait" data-badge="schema" data-step="' + i + '">schema: …</span>';
+      const badgeHash   = '<span class="badge badge--wait" data-badge="hash" data-step="' + i + '">hash: …</span>';
+      const badgeSig    = '<span class="badge badge--wait" data-badge="sig" data-step="' + i + '">sig: …</span>';
+
+      const curl = s.curl || "";
+      const receiptJson = s.receipt || null;
+
+      const receiptPretty = (() => {
+        try { return JSON.stringify(receiptJson, null, 2); } catch { return String(receiptJson); }
+      })();
+
+      const reqPretty = (() => {
+        try { return JSON.stringify(s.request || {}, null, 2); } catch { return String(s.request || ""); }
+      })();
+
+      return `
+        <div class="receipt-card" data-step-card="${i}">
+          <div class="receipt-head">
+            <div class="receipt-title">
+              <strong>Step ${i + 1}: ${escapeHtml(verb)}</strong>
+              <span class="receipt-sub">${escapeHtml(runtimeUrl)}</span>
+            </div>
+            <div class="receipt-actions">
+              <button class="btn btn--ghost btn--mini" data-action="copy-step-curl" data-step="${i}">📋 curl</button>
+              <button class="btn btn--ghost btn--mini" data-action="verify" data-step="${i}">✅ verify</button>
+            </div>
+          </div>
+
+          <div class="badge-row">
+            ${badgeStatus}
+            ${badgeSchema}
+            ${badgeHash}
+            ${badgeSig}
+          </div>
+
+          <div class="kv">
+            <div>receipt_id</div><div><code>${escapeHtml(rid || "(none)")}</code></div>
+            <div>trace_id</div><div><code>${escapeHtml(s.receipt?.trace?.trace_id || flow.trace_id || "(none)")}</code></div>
+            <div>signer</div><div><code>${escapeHtml(s.receipt?.metadata?.proof?.signer_id || "(none)")}</code></div>
+          </div>
+
+          <details>
+            <summary>Receipt JSON</summary>
+            <pre class="output-box" style="max-height: 260px; margin: 0.65rem 0 0;">${escapeHtml(receiptPretty)}</pre>
+          </details>
+
+          <details>
+            <summary>Request JSON</summary>
+            <pre class="output-box" style="max-height: 220px; margin: 0.65rem 0 0;">${escapeHtml(reqPretty)}</pre>
+          </details>
+
+          <details>
+            <summary>curl (reproduce step)</summary>
+            <pre class="output-box" style="max-height: 220px; margin: 0.65rem 0 0;">${escapeHtml(curl || "(none)")}</pre>
+          </details>
+        </div>
+      `;
+    }).join("");
+
+    // attach handlers (event delegation)
+    receiptCardsEl.addEventListener("click", async (e) => {
+      const btn = e.target && e.target.closest && e.target.closest("button[data-action]");
+      if (!btn) return;
+
+      const action = btn.getAttribute("data-action");
+      const idx = Number(btn.getAttribute("data-step") || "-1");
+      if (!(idx >= 0)) return;
+
+      const step = steps[idx];
+      if (!step) return;
+
+      if (action === "copy-step-curl") {
+        const ok = await copyText(step.curl || "");
+        setStatus(ok
+          ? "<strong>Copied</strong> — step curl copied."
+          : "<strong>Clipboard blocked</strong> — curl is visible in the receipt card."
+        );
+        return;
+      }
+
+      if (action === "verify") {
+        await verifyStepReceipt(idx, step);
+        return;
+      }
+    }, { once: true });
+  }
+
+  function setBadge(idx, which, ok, label) {
+    const el = document.querySelector(`span[data-badge="${which}"][data-step="${idx}"]`);
+    if (!el) return;
+    el.classList.remove("badge--wait", "badge--ok", "badge--bad");
+    if (ok === true) el.classList.add("badge--ok");
+    else if (ok === false) el.classList.add("badge--bad");
+    else el.classList.add("badge--wait");
+    el.textContent = label;
+  }
+
+  async function verifyStepReceipt(idx, step) {
+    const receipt = step?.receipt;
+    const runtimeBase = lastResponse?.meta?.runtime_base || "";
+
+    if (!receipt) {
+      setBadge(idx, "schema", false, "schema: no receipt");
+      setBadge(idx, "hash", false, "hash: no receipt");
+      setBadge(idx, "sig", false, "sig: no receipt");
+      return;
+    }
+
+    setBadge(idx, "schema", null, "schema: …");
+    setBadge(idx, "hash", null, "hash: …");
+    setBadge(idx, "sig", null, "sig: …");
+
+    try {
+      const res = await fetch("/api/verify-receipt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ receipt, runtime_base: runtimeBase }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data) {
+        setBadge(idx, "schema", false, "schema: fail");
+        setBadge(idx, "hash", false, "hash: fail");
+        setBadge(idx, "sig", false, "sig: fail");
+        setStatus("<strong>Verify failed</strong> — backend returned " + res.status + ".");
+        return;
+      }
+
+      const checks = data.checks || {};
+      setBadge(idx, "schema", !!checks.schema_valid, "schema: " + (checks.schema_valid ? "ok" : "fail"));
+      setBadge(idx, "hash", !!checks.hash_matches, "hash: " + (checks.hash_matches ? "ok" : "fail"));
+      setBadge(idx, "sig", !!checks.signature_valid, "sig: " + (checks.signature_valid ? "ok" : "fail"));
+
+      if (checks.schema_valid && checks.hash_matches && checks.signature_valid) {
+        setStatus("<strong>Verified</strong> — schema + hash + signature all ok.");
+      } else {
+        setStatus("<strong>Verify</strong> — one or more checks failed. Expand the receipt JSON + compare proofs.");
+      }
     } catch (e) {
-      return { ok: false, error: e?.message || String(e) };
+      setBadge(idx, "schema", false, "schema: fail");
+      setBadge(idx, "hash", false, "hash: fail");
+      setBadge(idx, "sig", false, "sig: fail");
+      setStatus("<strong>Verify error</strong> — " + escapeHtml(e?.message || String(e)));
+    }
+  }
+
+  function updatePrevTogglesFromResponse(flow) {
+    lastResponse = flow || null;
+
+    // If toggles are on, refill inputs from the freshest flow results
+    if (step2UsePrev && step2UsePrev.checked) {
+      const input2 = document.getElementById("step2-input");
+      const prev = flow?.steps?.find(s => s.index === 0)?.receipt?.result;
+      input2.value = pickBestTextFromResult(prev) || "";
+    }
+    if (step3UsePrev && step3UsePrev.checked) {
+      const input3 = document.getElementById("step3-input");
+      const prev = flow?.steps?.find(s => s.index === 1)?.receipt?.result;
+      input3.value = pickBestTextFromResult(prev) || "";
     }
   }
 
@@ -521,8 +857,10 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
 
     setOutput({ status: "running", steps_count: steps.length });
     setStatus("<strong>Running</strong> — calling <code>/api/commons-flow</code>…");
+    receiptCardsEl.innerHTML = '<div class="mini-note">Running… receipts will render here.</div>';
 
     lastCurlBlock = "";
+    lastResponse = null;
 
     try {
       const res = await fetch("/api/commons-flow", {
@@ -534,34 +872,39 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setOutput({ error: data.error || "Request failed", status: res.status, detail: data.detail || data.hint || null, raw: data.raw || null });
+        setOutput({
+          error: data.error || "Request failed",
+          status: res.status,
+          detail: data.detail || data.hint || null,
+          raw: data.raw || null
+        });
         setStatus("<strong>Error</strong> — backend returned " + res.status + ".");
+        receiptCardsEl.innerHTML = '<div class="mini-note">No receipts (request failed).</div>';
         return;
       }
 
-      // Update runtime pill from API meta
-      const runtimeBase = data?.meta?.runtime_base || "";
-      if (runtimeBase) {
-        runtimePill.innerHTML = "Runtime: <code>" + runtimeBase + "</code>";
-        const health = await checkHealth(runtimeBase);
-        if (health.ok) healthPill.innerHTML = "Health: <code>ok</code>";
-        else healthPill.innerHTML = "Health: <code>fail</code>";
+      // meta pills
+      setPillsFromMeta(data?.meta || {});
+      updatePrevTogglesFromResponse(data);
+
+      // copy-all curl
+      lastCurlBlock = String(data?.meta?.curl || "");
+      setOutput(data);
+
+      // render cards
+      renderReceiptCards(data);
+
+      // auto-verify each receipt (fast + makes demo feel “real”)
+      const stepsOut = Array.isArray(data?.steps) ? data.steps : [];
+      for (let i = 0; i < stepsOut.length; i++) {
+        await verifyStepReceipt(i, stepsOut[i]);
       }
 
-      // Build curl block for each step
-      const curlParts = [];
-      for (const s of steps) curlParts.push(buildCurlFromReceipt(s, data));
-      lastCurlBlock = curlParts.join("\n");
-
-      // Attach curl block into output meta (so user can copy from JSON too)
-      data.meta = data.meta || {};
-      data.meta.curl = lastCurlBlock;
-
-      setOutput(data);
-      setStatus("<strong>OK</strong> — runtime receipts returned. Use <em>Copy curl</em> to reproduce per-step calls.");
+      setStatus("<strong>OK</strong> — receipts returned + verified. Copy curl to reproduce.");
     } catch (err) {
       setOutput({ error: "Network or runtime error", detail: err && err.message ? err.message : String(err) });
       setStatus("<strong>Error</strong> — network/runtime failure; check console.");
+      receiptCardsEl.innerHTML = '<div class="mini-note">No receipts (network/runtime failure).</div>';
     }
   }
 
@@ -569,11 +912,21 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
     for (let i = 1; i <= 3; i++) {
       const verbSelect = document.getElementById("step" + i + "-verb");
       const inputField = document.getElementById("step" + i + "-input");
+      const usePrev = document.getElementById("step" + i + "-use-prev");
       if (verbSelect) verbSelect.value = "";
-      if (inputField) inputField.value = "";
+      if (inputField) { inputField.value = ""; inputField.disabled = false; }
+      if (usePrev) usePrev.checked = false;
     }
+
     lastCurlBlock = "";
+    lastResponse = null;
+
+    runtimePill.innerHTML = 'Runtime: <code>(set via RUNTIME_BASE_URL)</code>';
+    healthPill.innerHTML = 'Health: <code>unknown</code>';
+    timePill.innerHTML = 'Server: <code>—</code>';
+
     setOutput('// Configure your steps on the left and hit "Run Commons flow"…');
+    receiptCardsEl.innerHTML = '<div class="mini-note">Run a flow to render per-step receipts with verify + curl.</div>';
     setStatus("");
   }
 
@@ -582,21 +935,21 @@ display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-al
       setStatus("<strong>Nothing to copy</strong> — run a flow first.");
       return;
     }
-    try {
-      await navigator.clipboard.writeText(lastCurlBlock);
-      setStatus("<strong>Copied</strong> — curl commands copied to clipboard.");
-    } catch (e) {
-      // fallback: show in output
-      setOutput({ curl: lastCurlBlock });
-      setStatus("<strong>Clipboard blocked</strong> — curl printed in output instead.");
-    }
+    const ok = await copyText(lastCurlBlock);
+    setStatus(ok
+      ? "<strong>Copied</strong> — all curl commands copied."
+      : "<strong>Clipboard blocked</strong> — curl is present in Raw JSON under meta.curl."
+    );
   }
+
+  // initial pill state (we don’t know runtime until first run)
+  runtimePill.innerHTML = 'Runtime: <code>(set via RUNTIME_BASE_URL)</code>';
+  healthPill.innerHTML = 'Health: <code>unknown</code>';
+  timePill.innerHTML = 'Server: <code>—</code>';
 
   runButton?.addEventListener("click", (e) => { e.preventDefault(); runFlow(); });
   resetButton?.addEventListener("click", (e) => { e.preventDefault(); resetFlow(); });
   copyCurlButton?.addEventListener("click", (e) => { e.preventDefault(); copyCurl(); });
-
-  refreshRuntimeInfo();
 })();
 </script>
 </body>
