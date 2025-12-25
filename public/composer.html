@@ -3,17 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <title>CommandLayer — Commons Flow Composer</title>
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1, viewport-fit=cover"
-/>
-<meta
-name="description"
-content="Interactive CommandLayer Commons demo — compose up to three verbs, send a flow, and inspect receipts that are validated with Ajv against the v1.0.0 base receipt schema."
-/>
-
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="description" content="Interactive CommandLayer Commons demo — compose up to three verbs, send a flow, and inspect real runtime receipts (Ajv-validated) from Railway." />
 
 <style>
+/* --- KEEP YOUR ORIGINAL CSS EXACTLY --- */
 :root {
 --bg: #05060a;
 --bg-elevated: #0a0c14;
@@ -31,48 +25,18 @@ content="Interactive CommandLayer Commons demo — compose up to three verbs, se
 --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
 --max-width: 1120px;
 }
-
-
-* {
-box-sizing: border-box;
-}
-
-
-html,
-body {
+* { box-sizing: border-box; }
+html, body {
 margin: 0;
 padding: 0;
-font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-"Inter", sans-serif;
+font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text","Inter", sans-serif;
 background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
 color: var(--text-main);
 }
-
-
-body {
-min-height: 100vh;
-}
-
-
-.page-shell {
-min-height: 100vh;
-display: flex;
-flex-direction: column;
-}
-
-
-.page-main {
-flex: 1;
-}
-
-
-.container {
-width: 100%;
-max-width: var(--max-width);
-margin: 0 auto;
-padding: 0 1.5rem;
-}
-
+body { min-height: 100vh; }
+.page-shell { min-height: 100vh; display: flex; flex-direction: column; }
+.page-main { flex: 1; }
+.container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
 
 /* Header */
 .site-header {
@@ -83,212 +47,59 @@ top: 0;
 z-index: 20;
 backdrop-filter: blur(18px);
 }
-
-
-.site-header__inner {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 0.9rem 1.5rem;
-}
-
-
-.site-header__brand {
-display: flex;
-align-items: center;
-gap: 0.75rem;
-text-decoration: none;
-color: inherit;
-}
-
-
+.site-header__inner { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.5rem; }
+.site-header__brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; }
 .site-header__logo-img {
-width: 28px;
-height: 28px;
-object-fit: contain;
-display: block;
-border-radius: 6px;
-box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
-0 14px 40px rgba(0, 0, 0, 0.9);
+width: 28px; height: 28px; object-fit: contain; display: block; border-radius: 6px;
+box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
 }
-
-
-.site-header__text {
-display: flex;
-flex-direction: column;
-}
-
-
-.site-header__title {
-font-size: 0.98rem;
-font-weight: 600;
-letter-spacing: 0.03em;
-}
-
-
-.site-header__subtitle {
-font-size: 0.78rem;
-color: var(--text-muted);
-}
-
-
-.site-header__nav {
-display: flex;
-gap: 1rem;
-align-items: center;
-}
-
-
+.site-header__text { display: flex; flex-direction: column; }
+.site-header__title { font-size: 0.98rem; font-weight: 600; letter-spacing: 0.03em; }
+.site-header__subtitle { font-size: 0.78rem; color: var(--text-muted); }
+.site-header__nav { display: flex; gap: 1rem; align-items: center; }
 .site-header__link {
-font-size: 0.86rem;
-padding: 0.35rem 0.8rem;
-border-radius: 999px;
-text-decoration: none;
-color: var(--text-muted);
-border: 1px solid transparent;
-white-space: nowrap;
+font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; text-decoration: none;
+color: var(--text-muted); border: 1px solid transparent; white-space: nowrap;
 }
-
-
-.site-header__link:hover {
-color: var(--accent-strong);
-border-color: rgba(255, 255, 255, 0.18);
-background: rgba(15, 23, 42, 0.7);
-}
-
-
-.site-header__link--active {
-color: #020617;
-background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-border-color: rgba(255, 255, 255, 0.25);
-}
-
+.site-header__link:hover { color: var(--accent-strong); border-color: rgba(255, 255, 255, 0.18); background: rgba(15, 23, 42, 0.7); }
+.site-header__link--active { color: #020617; background: linear-gradient(135deg, #e5e7eb, #cdd3e7); border-color: rgba(255, 255, 255, 0.25); }
 
 /* Docs dropdown */
-.site-header__dropdown {
-position: relative;
-}
-
-
+.site-header__dropdown { position: relative; }
 .site-header__dropdown-btn {
-font-size: 0.86rem;
-padding: 0.35rem 0.8rem;
-border-radius: 999px;
-border: 1px solid transparent;
-background: transparent;
-color: var(--text-muted);
-display: inline-flex;
-align-items: center;
-gap: 0.25rem;
-cursor: pointer;
+font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; border: 1px solid transparent;
+background: transparent; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer;
 }
-
-
-.site-header__dropdown-btn:hover {
-color: var(--accent-strong);
-border-color: rgba(255, 255, 255, 0.18);
-background: rgba(15, 23, 42, 0.7);
-}
-
-
+.site-header__dropdown-btn:hover { color: var(--accent-strong); border-color: rgba(255, 255, 255, 0.18); background: rgba(15, 23, 42, 0.7); }
 .site-header__dropdown-menu {
-position: absolute;
-top: 2.3rem;
-right: 0;
-background: rgba(15, 23, 42, 0.98);
-border-radius: 14px;
-border: 1px solid var(--border-soft);
-box-shadow: var(--shadow-soft);
-padding: 0.5rem 0.4rem;
-min-width: 210px;
-display: none;
+position: absolute; top: 2.3rem; right: 0; background: rgba(15, 23, 42, 0.98);
+border-radius: 14px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft);
+padding: 0.5rem 0.4rem; min-width: 210px; display: none;
 }
-
-
 .site-header__dropdown-menu a {
-display: block;
-padding: 0.35rem 0.7rem;
-font-size: 0.82rem;
-text-decoration: none;
-color: var(--text-muted);
-border-radius: 999px;
+display: block; padding: 0.35rem 0.7rem; font-size: 0.82rem; text-decoration: none;
+color: var(--text-muted); border-radius: 999px;
 }
-
-
-.site-header__dropdown-menu a:hover {
-color: var(--accent-strong);
-background: rgba(31, 41, 55, 0.95);
-}
-
-
-.site-header--docs-open .site-header__dropdown-menu {
-display: block;
-}
-
+.site-header__dropdown-menu a:hover { color: var(--accent-strong); background: rgba(31, 41, 55, 0.95); }
+.site-header--docs-open .site-header__dropdown-menu { display: block; }
 
 /* Mobile toggle */
 .site-header__toggle {
-display: none;
-border-radius: 999px;
-border: 1px solid rgba(148, 163, 184, 0.7);
-background: rgba(15, 23, 42, 0.9);
-color: var(--text-main);
-padding: 0.25rem 0.6rem;
-font-size: 0.9rem;
-cursor: pointer;
+display: none; border-radius: 999px; border: 1px solid rgba(148, 163, 184, 0.7);
+background: rgba(15, 23, 42, 0.9); color: var(--text-main); padding: 0.25rem 0.6rem; font-size: 0.9rem; cursor: pointer;
 }
-
-
-.site-header__toggle:hover {
-background: rgba(15, 23, 42, 1);
-}
-
+.site-header__toggle:hover { background: rgba(15, 23, 42, 1); }
 
 /* Buttons */
 .btn {
-display: inline-flex;
-align-items: center;
-justify-content: center;
-gap: 0.45rem;
-padding: 0.6rem 1.1rem;
-border-radius: 999px;
-font-size: 0.9rem;
-text-decoration: none;
-border: 1px solid transparent;
-cursor: pointer;
-white-space: nowrap;
+display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
+padding: 0.6rem 1.1rem; border-radius: 999px; font-size: 0.9rem; text-decoration: none; border: 1px solid transparent; cursor: pointer; white-space: nowrap;
 }
-
-
-.btn--primary {
-background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-color: #020617;
-border-color: rgba(255, 255, 255, 0.3);
-box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
-}
-
-
-.btn--primary:hover {
-filter: brightness(1.03);
-}
-
-
-.btn--ghost {
-background: rgba(15, 23, 42, 0.9);
-color: var(--accent-strong);
-border-color: rgba(148, 163, 184, 0.6);
-}
-
-
-.btn--ghost:hover {
-background: rgba(15, 23, 42, 1);
-}
-
-
-.btn__icon {
-font-size: 1rem;
-}
-
+.btn--primary { background: linear-gradient(135deg, #e5e7eb, #cdd3e7); color: #020617; border-color: rgba(255, 255, 255, 0.3); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7); }
+.btn--primary:hover { filter: brightness(1.03); }
+.btn--ghost { background: rgba(15, 23, 42, 0.9); color: var(--accent-strong); border-color: rgba(148, 163, 184, 0.6); }
+.btn--ghost:hover { background: rgba(15, 23, 42, 1); }
+.btn__icon { font-size: 1rem; }
 
 /* Hero */
 .hero {
@@ -296,854 +107,497 @@ padding: 3rem 0 2.4rem;
 border-bottom: 1px solid var(--border-soft);
 background: radial-gradient(circle at 0 0, #111827, #020308);
 }
+.hero__inner { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr); gap: 2.4rem; align-items: flex-start; }
+.hero__eyebrow { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-muted); margin-bottom: 0.8rem; }
+.hero__title { margin: 0 0 0.8rem; font-size: 2rem; line-height: 1.15; }
+.hero__title-em { background: linear-gradient(135deg, #e5e7eb, #a5b4fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.hero__subtitle { margin: 0; color: var(--text-muted); font-size: 0.98rem; max-width: 36rem; line-height: 1.7; }
+.hero__cta-row { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.6rem; }
+.hero__meta { margin-top: 1.2rem; display: flex; flex-wrap: wrap; gap: 0.6rem; font-size: 0.8rem; color: var(--text-soft); }
+.hero__meta-pill { border-radius: 999px; border: 1px solid rgba(148, 163, 184, 0.6); padding: 0.18rem 0.55rem; }
+.hero__card { background: rgba(15, 23, 42, 0.95); border-radius: var(--radius-xl); padding: 1.4rem 1.4rem 1.6rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); font-size: 0.9rem; }
+.hero__card h2 { margin: 0 0 0.6rem; font-size: 1rem; }
+.hero__card p { margin: 0; color: var(--text-muted); }
+.hero__card ul { margin: 0.8rem 0 0; padding-left: 1.1rem; }
+.hero__card li { margin-bottom: 0.3rem; }
 
-
-.hero__inner {
-display: grid;
-grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
-gap: 2.4rem;
-align-items: flex-start;
+/* Composer */
+.section { padding: 2.4rem 0 3rem; }
+.section--composer { background: rgb(6, 9, 18); border-top: 1px solid rgba(255, 255, 255, 0.06); border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+.section__header { max-width: 48rem; margin-bottom: 1.4rem; }
+.section__header h2 { margin: 0 0 0.5rem; font-size: 1.4rem; }
+.section__header p { margin: 0; font-size: 0.95rem; color: var(--text-muted); }
+.composer-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr); gap: 1.6rem; align-items: flex-start; }
+.card { background: rgba(15, 23, 42, 0.96); border-radius: var(--radius-xl); padding: 1.2rem 1.2rem 1.3rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); font-size: 0.9rem; }
+.card h3 { margin: 0 0 0.7rem; font-size: 1rem; }
+.form-row { margin-bottom: 0.75rem; }
+.form-row label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.25rem; }
+.form-row select, .form-row textarea {
+width: 100%; padding: 0.55rem 0.7rem; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.7);
+background: #020617; color: var(--text-main); font-size: 0.88rem; font-family: inherit; resize: vertical; min-height: 72px;
 }
+.form-row select { min-height: unset; }
+.form-row textarea::placeholder { color: #4b5563; }
+.steps-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; }
+.step-card { background: rgba(15, 23, 42, 0.8); border-radius: 12px; padding: 0.8rem 0.8rem 0.9rem; border: 1px solid rgba(31, 41, 55, 0.9); }
+.step-card h4 { margin: 0 0 0.4rem; font-size: 0.9rem; }
 
+.form-actions { display: flex; gap: 0.6rem; margin-top: 0.9rem; align-items: center; flex-wrap: wrap; }
+.pill-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.7rem; font-size: 0.78rem; }
+.pill { border-radius: 999px; border: 1px solid rgba(148, 163, 184, 0.8); padding: 0.12rem 0.55rem; color: var(--text-soft); }
 
-.hero__eyebrow {
-font-size: 0.8rem;
-text-transform: uppercase;
-letter-spacing: 0.14em;
-color: var(--accent-muted);
-margin-bottom: 0.8rem;
+.output-label { font-size: 0.8rem; color: var(--text-soft); margin-bottom: 0.25rem; }
+.output-box {
+background: #020617; border-radius: 10px; border: 1px solid rgba(31, 41, 55, 0.9);
+padding: 0.7rem 0.8rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New", monospace;
+font-size: 0.78rem; color: #e5e7eb; max-height: 340px; overflow: auto; white-space: pre-wrap; word-break: break-word;
 }
+.status-line { font-size: 0.8rem; color: var(--text-soft); margin-top: 0.55rem; }
+.status-line strong { color: var(--accent-strong); }
 
-
-.hero__title {
-margin: 0 0 0.8rem;
-font-size: 2rem;
-line-height: 1.15;
-}
-
-
-.hero__title-em {
-background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
--webkit-background-clip: text;
-background-clip: text;
-color: transparent;
-}
-
-
-.hero__subtitle {
-margin: 0;
-color: var(--text-muted);
-font-size: 0.98rem;
-max-width: 36rem;
-line-height: 1.7;
-}
-
-
-.hero__cta-row {
+/* NEW: small utility row */
+.util-row {
+margin-top: 0.85rem;
 display: flex;
 flex-wrap: wrap;
-gap: 0.8rem;
-margin-top: 1.6rem;
+gap: 0.5rem;
+align-items: center;
 }
-
-
-.hero__meta {
-margin-top: 1.2rem;
-display: flex;
-flex-wrap: wrap;
-gap: 0.6rem;
-font-size: 0.8rem;
-color: var(--text-soft);
-}
-
-
-.hero__meta-pill {
+.util-pill {
 border-radius: 999px;
 border: 1px solid rgba(148, 163, 184, 0.6);
 padding: 0.18rem 0.55rem;
-}
-
-
-.hero__card {
-background: rgba(15, 23, 42, 0.95);
-border-radius: var(--radius-xl);
-padding: 1.4rem 1.4rem 1.6rem;
-border: 1px solid var(--border-soft);
-box-shadow: var(--shadow-soft);
-font-size: 0.9rem;
-}
-
-
-.hero__card h2 {
-margin: 0 0 0.6rem;
-font-size: 1rem;
-}
-
-
-.hero__card p {
-margin: 0;
-color: var(--text-muted);
-}
-
-
-.hero__card ul {
-margin: 0.8rem 0 0;
-padding-left: 1.1rem;
-}
-
-
-.hero__card li {
-margin-bottom: 0.3rem;
-}
-
-
-/* Composer section */
-.section {
-padding: 2.4rem 0 3rem;
-}
-
-
-.section--composer {
-background: rgb(6, 9, 18);
-border-top: 1px solid rgba(255, 255, 255, 0.06);
-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-
-.section__header {
-max-width: 40rem;
-margin-bottom: 1.4rem;
-}
-
-
-.section__header h2 {
-margin: 0 0 0.5rem;
-font-size: 1.4rem;
-}
-
-
-.section__header p {
-margin: 0;
-font-size: 0.95rem;
-color: var(--text-muted);
-}
-
-
-.composer-grid {
-display: grid;
-grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr);
-gap: 1.6rem;
-align-items: flex-start;
-}
-
-
-.card {
-background: rgba(15, 23, 42, 0.96);
-border-radius: var(--radius-xl);
-padding: 1.2rem 1.2rem 1.3rem;
-border: 1px solid var(--border-soft);
-box-shadow: var(--shadow-soft);
-font-size: 0.9rem;
-}
-
-
-.card h3 {
-margin: 0 0 0.7rem;
-font-size: 1rem;
-}
-
-
-.form-row {
-margin-bottom: 0.75rem;
-}
-
-
-.form-row label {
-display: block;
-font-size: 0.82rem;
-color: var(--text-muted);
-margin-bottom: 0.25rem;
-}
-
-
-.form-row select,
-.form-row textarea {
-width: 100%;
-padding: 0.55rem 0.7rem;
-border-radius: 10px;
-border: 1px solid rgba(148, 163, 184, 0.7);
-background: #020617;
-color: var(--text-main);
-font-size: 0.88rem;
-font-family: inherit;
-resize: vertical;
-min-height: 72px;
-}
-
-
-.form-row select {
-min-height: unset;
-}
-
-
-.form-row textarea::placeholder {
-color: #4b5563;
-}
-
-
-.steps-grid {
-display: grid;
-grid-template-columns: repeat(3, minmax(0, 1fr));
-gap: 0.9rem;
-}
-
-
-.step-card {
-background: rgba(15, 23, 42, 0.8);
-border-radius: 12px;
-padding: 0.8rem 0.8rem 0.9rem;
-border: 1px solid rgba(31, 41, 55, 0.9);
-}
-
-
-.step-card h4 {
-margin: 0 0 0.4rem;
-font-size: 0.9rem;
-}
-
-
-.form-actions {
-display: flex;
-gap: 0.6rem;
-margin-top: 0.9rem;
-align-items: center;
-}
-
-
-.pill-row {
-display: flex;
-flex-wrap: wrap;
-gap: 0.35rem;
-margin-top: 0.7rem;
 font-size: 0.78rem;
+color: var(--text-muted);
 }
-
-
-.pill {
-border-radius: 999px;
-border: 1px solid rgba(148, 163, 184, 0.8);
-padding: 0.12rem 0.55rem;
-color: var(--text-soft);
-}
-
-
-.output-label {
-font-size: 0.8rem;
-color: var(--text-soft);
-margin-bottom: 0.25rem;
-}
-
-
-.output-box {
-background: #020617;
-border-radius: 10px;
-border: 1px solid rgba(31, 41, 55, 0.9);
-padding: 0.7rem 0.8rem;
-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-"Liberation Mono", "Courier New", monospace;
-font-size: 0.78rem;
-color: #e5e7eb;
-max-height: 340px;
-overflow: auto;
-white-space: pre-wrap;
-word-break: break-word;
-}
-
-
-.status-line {
-font-size: 0.8rem;
-color: var(--text-soft);
-margin-top: 0.55rem;
-}
-
-
-.status-line strong {
-color: var(--accent-strong);
-}
-
+.util-pill code { color: var(--accent-strong); }
 
 /* Footer */
-.site-footer {
-border-top: 1px solid rgba(255, 255, 255, 0.1);
-background: #020308;
-}
-
-
+.site-footer { border-top: 1px solid rgba(255, 255, 255, 0.1); background: #020308; }
 .site-footer__inner {
-padding: 1.4rem 1.5rem 1.8rem;
-font-size: 0.78rem;
-color: var(--text-soft);
-display: flex;
-flex-direction: column;
-gap: 0.4rem;
-align-items: center;
-text-align: center;
+padding: 1.4rem 1.5rem 1.8rem; font-size: 0.78rem; color: var(--text-soft);
+display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-align: center;
 }
-
-
-.site-footer__links {
-display: flex;
-gap: 0.8rem;
-justify-content: center;
-margin-top: 0.2rem;
-}
-
-
-.site-footer__links a {
-color: var(--accent);
-text-decoration: none;
-}
-
-
-.site-footer__links a:hover {
-text-decoration: underline;
-}
-
+.site-footer__links { display: flex; gap: 0.8rem; justify-content: center; margin-top: 0.2rem; }
+.site-footer__links a { color: var(--accent); text-decoration: none; }
+.site-footer__links a:hover { text-decoration: underline; }
 
 /* Mobile */
 @media (max-width: 880px) {
-.site-header__inner {
-padding-inline: 1rem;
-}
-
-
-.site-header__toggle {
-display: inline-flex;
-align-items: center;
-justify-content: center;
-}
-
-
-.site-header__nav {
-display: none;
-flex-direction: column;
-align-items: flex-start;
-gap: 0.5rem;
-margin-top: 0.8rem;
-}
-
-
-.site-header.site-header--open .site-header__nav {
-display: flex;
-}
-
-
-.hero__inner {
-grid-template-columns: minmax(0, 1fr);
-}
-
-
-.hero__card {
-margin-top: 1.4rem;
-}
-
-
-.composer-grid {
-grid-template-columns: minmax(0, 1fr);
-}
-
-
-.steps-grid {
-grid-template-columns: minmax(0, 1fr);
-}
-
-
-.site-footer__inner {
-padding-inline: 1rem;
-}
+.site-header__inner { padding-inline: 1rem; }
+.site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
+.site-header__nav { display: none; flex-direction: column; align-items: flex-start; gap: 0.5rem; margin-top: 0.8rem; }
+.site-header.site-header--open .site-header__nav { display: flex; }
+.hero__inner { grid-template-columns: minmax(0, 1fr); }
+.hero__card { margin-top: 1.4rem; }
+.composer-grid { grid-template-columns: minmax(0, 1fr); }
+.steps-grid { grid-template-columns: minmax(0, 1fr); }
+.site-footer__inner { padding-inline: 1rem; }
 }
 </style>
 </head>
 
-
 <body>
 <div class="page-shell">
-<!-- HEADER -->
 <header class="site-header">
-<div class="site-header__inner container">
-<a href="/" class="site-header__brand">
-<img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-<div class="site-header__text">
-<span class="site-header__title">CommandLayer</span>
-<span class="site-header__subtitle">
-Semantic verb &amp; schema layer for agents
-</span>
-</div>
-</a>
+  <div class="site-header__inner container">
+    <a href="/" class="site-header__brand">
+      <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+      <div class="site-header__text">
+        <span class="site-header__title">CommandLayer</span>
+        <span class="site-header__subtitle">Semantic verb &amp; schema layer for agents</span>
+      </div>
+    </a>
 
+    <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
 
-<!-- Mobile toggle -->
-<button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
-☰
-</button>
+    <nav class="site-header__nav">
+      <a href="/" class="site-header__link">Overview</a>
+      <a href="/manifest.html" class="site-header__link">Manifest</a>
 
+      <div class="site-header__dropdown">
+        <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
+        <div class="site-header__dropdown-menu">
+          <a href="/commons.html">Commons</a>
+          <a href="/commercial.html">Commercial</a>
+          <a href="/agent-cards.html">Agent Cards</a>
+          <a href="/runtime.html">Runtime</a>
+          <a href="/roadmap.html">Roadmap</a>
+          <a href="/licensing.html">Licensing</a>
+          <a href="/about.html">About CommandLayer</a>
+        </div>
+      </div>
 
-<nav class="site-header__nav">
-<a href="/" class="site-header__link">Overview</a>
-<a href="/manifest.html" class="site-header__link">Manifest</a>
-
-
-<div class="site-header__dropdown">
-<button class="site-header__dropdown-btn" type="button">
-Docs ▾
-</button>
-<div class="site-header__dropdown-menu">
-<a href="/commons.html">Commons</a>
-<a href="/commercial.html">Commercial</a>
-<a href="/agent-cards.html">Agent Cards</a>
-<a href="/runtime.html">Runtime</a>
-<a href="/roadmap.html">Roadmap</a>
-<a href="/licensing.html">Licensing</a>
-<a href="/about.html">About CommandLayer</a>
-</div>
-</div>
-
-
-<a href="/demo.html" class="site-header__link">Live Demo</a>
-<a
-href="https://github.com/commandlayer"
-class="site-header__link"
-target="_blank"
-rel="noopener noreferrer"
->
-GitHub
-</a>
-</nav>
-</div>
+      <a href="/demo.html" class="site-header__link">Live Demo</a>
+      <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </nav>
+  </div>
 </header>
 
-
 <main class="page-main">
-<!-- HERO -->
-<section class="hero">
-<div class="container hero__inner">
-<div>
-<div class="hero__eyebrow">Demo #2 — Commons Flow Composer</div>
-<h1 class="hero__title">
-<span>Compose multi-step Commons flows</span>
-<span class="hero__title-em">
-and inspect Ajv-validated receipts.
-</span>
-</h1>
+  <section class="hero">
+    <div class="container hero__inner">
+      <div>
+        <div class="hero__eyebrow">Demo #2 — Commons Flow Composer</div>
+        <h1 class="hero__title">
+          <span>Compose multi-step Commons flows</span>
+          <span class="hero__title-em">and inspect real runtime receipts.</span>
+        </h1>
 
+        <p class="hero__subtitle">
+          This page calls <code>/api/commons-flow</code> (Vercel) which forwards each step to your Railway runtime.
+          You get back the <em>actual</em> per-step receipts (<code>x402</code>, <code>trace</code>, <code>status</code>, <code>result</code>, <code>usage</code>)
+          and you can copy a matching <code>curl</code> command for each step.
+        </p>
 
-<p class="hero__subtitle">
-Wire up to three Commons verbs
-(<code>analyze</code>, <code>summarize</code>, <code>classify</code>,
-<code>clean</code>, <code>convert</code>, <code>describe</code>,
-<code>explain</code>, <code>format</code>, <code>parse</code>, <code>fetch</code>)
-into a single flow. The backend calls <code>/api/commons-flow</code> and returns
-per-step receipts with <code>x402</code>, <code>trace</code>, <code>status</code>,
-<code>result</code>, and <code>usage</code> that are validated with Ajv against
-the shared <code>receipt.base</code> v1.0.0 schema.
-</p>
+        <div class="hero__cta-row">
+          <a href="#composer" class="btn btn--primary"><span class="btn__icon">▶️</span><span>Run a Commons flow</span></a>
+          <a href="/demo.html" class="btn btn--ghost"><span class="btn__icon">💳</span><span>Back to commerce demo</span></a>
+        </div>
 
+        <div class="hero__meta">
+          <span class="hero__meta-pill">Runtime-backed (Railway)</span>
+          <span class="hero__meta-pill">Ajv validation in API</span>
+        </div>
+      </div>
 
-<div class="hero__cta-row">
-<a href="#composer" class="btn btn--primary">
-<span class="btn__icon">▶️</span>
-<span>Run a Commons flow</span>
-</a>
-<a href="/demo.html" class="btn btn--ghost">
-<span class="btn__icon">💳</span>
-<span>Back to commerce demo</span>
-</a>
-</div>
+      <aside class="hero__card">
+        <h2>What this demo proves</h2>
+        <p>Not a mock. This is your live runtime and your real receipts.</p>
+        <ul>
+          <li>Vercel UI → Vercel API → Railway runtime → receipts.</li>
+          <li>Each step is a real POST to <code>/{verb}/v1.0.0</code>.</li>
+          <li>Copy-pasteable <code>curl</code> makes it reproducible.</li>
+          <li>Failures show the raw HTML/JSON error so you can debug fast.</li>
+        </ul>
+      </aside>
+    </div>
+  </section>
 
+  <section class="section section--composer" id="composer">
+    <div class="container">
+      <div class="section__header">
+        <h2>Pick verbs, send a flow, inspect the receipts</h2>
+        <p>
+          Under the hood: <code>POST /api/commons-flow</code>. The API forwards each step to your Railway runtime base URL
+          (from <code>RUNTIME_BASE_URL</code> on Vercel).
+        </p>
+      </div>
 
-<div class="hero__meta">
-<span class="hero__meta-pill">10 Commons verbs wired</span>
-<span class="hero__meta-pill">Ajv-validated <code>receipt.base</code></span>
-</div>
-</div>
+      <div class="composer-grid">
+        <div class="card">
+          <h3>Build a Commons flow</h3>
 
+          <div class="steps-grid">
+            <div class="step-card">
+              <h4>Step 1</h4>
+              <div class="form-row">
+                <label for="step1-verb">Verb</label>
+                <select id="step1-verb">
+                  <option value="">-- choose --</option>
+                  <option value="summarize">summarize</option>
+                  <option value="analyze">analyze</option>
+                  <option value="classify">classify</option>
+                  <option value="clean">clean</option>
+                  <option value="convert">convert</option>
+                  <option value="describe">describe</option>
+                  <option value="explain">explain</option>
+                  <option value="format">format</option>
+                  <option value="parse">parse</option>
+                  <option value="fetch">fetch</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="step1-input">Input</label>
+                <textarea id="step1-input" rows="4" placeholder="Required. Text, URL, or payload for step 1."></textarea>
+              </div>
+            </div>
 
-<aside class="hero__card">
-<h2>What this demo proves</h2>
-<p>
-Commons isn’t just a README — it’s a usable contract you can route through and validate.
-</p>
-<ul>
-<li>You pick the verbs and order; the base receipt shape stays stable.</li>
-<li>
-Each step returns a typed <code>result</code> + <code>usage</code> folded into
-a common <code>receipt.base</code> envelope.
-</li>
-<li>A single <code>trace_id</code> threads the full flow.</li>
-<li>
-Every receipt is validated with Ajv against
-<code>receipt.base</code> v1.0.0 (plus a minimal <code>x402</code> envelope),
-mirroring the protocol-commons <code>_shared</code> schema.
-</li>
-</ul>
-</aside>
-</div>
-</section>
+            <div class="step-card">
+              <h4>Step 2 (optional)</h4>
+              <div class="form-row">
+                <label for="step2-verb">Verb</label>
+                <select id="step2-verb">
+                  <option value="">-- none --</option>
+                  <option value="summarize">summarize</option>
+                  <option value="analyze">analyze</option>
+                  <option value="classify">classify</option>
+                  <option value="clean">clean</option>
+                  <option value="convert">convert</option>
+                  <option value="describe">describe</option>
+                  <option value="explain">explain</option>
+                  <option value="format">format</option>
+                  <option value="parse">parse</option>
+                  <option value="fetch">fetch</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="step2-input">Input</label>
+                <textarea id="step2-input" rows="4" placeholder="Optional. Input for step 2."></textarea>
+              </div>
+            </div>
 
+            <div class="step-card">
+              <h4>Step 3 (optional)</h4>
+              <div class="form-row">
+                <label for="step3-verb">Verb</label>
+                <select id="step3-verb">
+                  <option value="">-- none --</option>
+                  <option value="summarize">summarize</option>
+                  <option value="analyze">analyze</option>
+                  <option value="classify">classify</option>
+                  <option value="clean">clean</option>
+                  <option value="convert">convert</option>
+                  <option value="describe">describe</option>
+                  <option value="explain">explain</option>
+                  <option value="format">format</option>
+                  <option value="parse">parse</option>
+                  <option value="fetch">fetch</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label for="step3-input">Input</label>
+                <textarea id="step3-input" rows="4" placeholder="Optional. Input for step 3."></textarea>
+              </div>
+            </div>
+          </div>
 
-<!-- COMPOSER -->
-<section class="section section--composer" id="composer">
-<div class="container">
-<div class="section__header">
-<h2>Pick verbs, send a flow, inspect the receipts</h2>
-<p>
-Under the hood this calls <code>/api/commons-flow</code> on Vercel and returns
-receipts aligned with the shared <code>receipt.base</code> v1.0.0 schema used in
-Commons. For this demo, up to three steps share a single <code>trace_id</code> and
-each step’s receipt is validated with Ajv before it’s returned.
-</p>
-</div>
+          <div class="form-actions">
+            <button id="run-flow" class="btn btn--primary"><span class="btn__icon">⚡</span><span>Run Commons flow</span></button>
+            <button id="reset-flow" class="btn btn--ghost" type="button"><span class="btn__icon">♻️</span><span>Reset</span></button>
+            <button id="copy-curl" class="btn btn--ghost" type="button" title="Copies the last generated curl commands"><span class="btn__icon">📋</span><span>Copy curl</span></button>
+          </div>
 
+          <div class="util-row">
+            <span class="util-pill">Backend: <code>/api/commons-flow</code></span>
+            <span class="util-pill" id="runtime-pill">Runtime: <code>loading…</code></span>
+            <span class="util-pill" id="health-pill">Health: <code>unknown</code></span>
+          </div>
 
-<div class="composer-grid">
-<!-- Left: flow builder -->
-<div class="card">
-<h3>Build a Commons flow</h3>
+          <div class="pill-row">
+            <span class="pill">10 Commons verbs</span>
+            <span class="pill">Real runtime receipts</span>
+            <span class="pill">Per-step curl repro</span>
+          </div>
 
+          <div id="status-line" class="status-line"></div>
+        </div>
 
-<div class="steps-grid">
-<!-- Step 1 -->
-<div class="step-card">
-<h4>Step 1</h4>
-<div class="form-row">
-<label for="step1-verb">Verb</label>
-<select id="step1-verb">
-<option value="">-- choose --</option>
-<option value="summarize">summarize</option>
-<option value="analyze">analyze</option>
-<option value="classify">classify</option>
-<option value="clean">clean</option>
-<option value="convert">convert</option>
-<option value="describe">describe</option>
-<option value="explain">explain</option>
-<option value="format">format</option>
-<option value="parse">parse</option>
-<option value="fetch">fetch</option>
-</select>
-</div>
-<div class="form-row">
-<label for="step1-input">Input</label>
-<textarea
-id="step1-input"
-rows="4"
-placeholder="Required. Text, URL, or payload for step 1."
-></textarea>
-</div>
-</div>
-
-
-<!-- Step 2 -->
-<div class="step-card">
-<h4>Step 2 (optional)</h4>
-<div class="form-row">
-<label for="step2-verb">Verb</label>
-<select id="step2-verb">
-<option value="">-- none --</option>
-<option value="summarize">summarize</option>
-<option value="analyze">analyze</option>
-<option value="classify">classify</option>
-<option value="clean">clean</option>
-<option value="convert">convert</option>
-<option value="describe">describe</option>
-<option value="explain">explain</option>
-<option value="format">format</option>
-<option value="parse">parse</option>
-<option value="fetch">fetch</option>
-</select>
-</div>
-<div class="form-row">
-<label for="step2-input">Input</label>
-<textarea
-id="step2-input"
-rows="4"
-placeholder="Optional. Input for step 2."
-></textarea>
-</div>
-</div>
-
-
-<!-- Step 3 -->
-<div class="step-card">
-<h4>Step 3 (optional)</h4>
-<div class="form-row">
-<label for="step3-verb">Verb</label>
-<select id="step3-verb">
-<option value="">-- none --</option>
-<option value="summarize">summarize</option>
-<option value="analyze">analyze</option>
-<option value="classify">classify</option>
-<option value="clean">clean</option>
-<option value="convert">convert</option>
-<option value="describe">describe</option>
-<option value="explain">explain</option>
-<option value="format">format</option>
-<option value="parse">parse</option>
-<option value="fetch">fetch</option>
-</select>
-</div>
-<div class="form-row">
-<label for="step3-input">Input</label>
-<textarea
-id="step3-input"
-rows="4"
-placeholder="Optional. Input for step 3."
-></textarea>
-</div>
-</div>
-</div>
-
-
-<div class="form-actions">
-<button id="run-flow" class="btn btn--primary">
-<span class="btn__icon">⚡</span>
-<span>Run Commons flow</span>
-</button>
-<button id="reset-flow" class="btn btn--ghost" type="button">
-<span class="btn__icon">♻️</span>
-<span>Reset</span>
-</button>
-</div>
-
-
-<div class="pill-row">
-<span class="pill">10 Commons verbs</span>
-<span class="pill">Ajv-validated <code>receipt.base</code> v1.0.0</span>
-<span class="pill">Shared <code>trace_id</code> across steps</span>
-</div>
-
-
-<div id="status-line" class="status-line"></div>
-</div>
-
-
-<!-- Right: output -->
-<div class="card">
-<h3>Flow output</h3>
-<div class="output-label">Trace + steps</div>
-<pre id="flow-output" class="output-box">
-// Configure your steps on the left and hit "Run Commons flow"…
-</pre>
-</div>
-</div>
-</div>
-</section>
+        <div class="card">
+          <h3>Flow output</h3>
+          <div class="output-label">Trace + steps</div>
+          <pre id="flow-output" class="output-box">// Configure your steps on the left and hit "Run Commons flow"…</pre>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
-
 <footer class="site-footer">
-<div class="container site-footer__inner">
-<div>© CommandLayer — semantic layer for autonomous agents</div>
-<div>
-Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free
-</div>
-<div class="site-footer__links">
-<a href="/docs.html">Docs</a>
-<a href="/FAQ.html">FAQ</a>
-<a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
-</div>
-</div>
+  <div class="container site-footer__inner">
+    <div>© CommandLayer — semantic layer for autonomous agents</div>
+    <div>Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free</div>
+    <div class="site-footer__links">
+      <a href="/docs.html">Docs</a>
+      <a href="/FAQ.html">FAQ</a>
+      <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+  </div>
 </footer>
 </div>
 
-
 <script>
 (function () {
-const header = document.querySelector(".site-header");
-const toggle = document.querySelector(".site-header__toggle");
-const docsBtn = document.querySelector(".site-header__dropdown-btn");
+  const header = document.querySelector(".site-header");
+  const toggle = document.querySelector(".site-header__toggle");
+  const docsBtn = document.querySelector(".site-header__dropdown-btn");
 
+  if (toggle && header) {
+    toggle.addEventListener("click", () => {
+      const isOpen = header.classList.toggle("site-header--open");
+      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+  }
 
-if (toggle && header) {
-toggle.addEventListener("click", () => {
-const isOpen = header.classList.toggle("site-header--open");
-toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-});
-}
-
-
-if (docsBtn && header) {
-docsBtn.addEventListener("click", () => {
-header.classList.toggle("site-header--docs-open");
-});
-}
+  if (docsBtn && header) {
+    docsBtn.addEventListener("click", () => {
+      header.classList.toggle("site-header--docs-open");
+    });
+  }
 })();
 
-
 (function () {
-const COMMON_VERBS = [
-"analyze",
-"classify",
-"clean",
-"convert",
-"describe",
-"explain",
-"format",
-"parse",
-"summarize",
-"fetch",
-];
+  const COMMON_VERBS = ["analyze","classify","clean","convert","describe","explain","format","parse","summarize","fetch"];
 
+  const runButton = document.getElementById("run-flow");
+  const resetButton = document.getElementById("reset-flow");
+  const copyCurlButton = document.getElementById("copy-curl");
+  const outputEl = document.getElementById("flow-output");
+  const statusLine = document.getElementById("status-line");
+  const runtimePill = document.getElementById("runtime-pill");
+  const healthPill = document.getElementById("health-pill");
 
-const runButton = document.getElementById("run-flow");
-const resetButton = document.getElementById("reset-flow");
-const outputEl = document.getElementById("flow-output");
-const statusLine = document.getElementById("status-line");
+  let lastCurlBlock = "";
 
+  function setOutput(data) {
+    try { outputEl.textContent = JSON.stringify(data, null, 2); }
+    catch { outputEl.textContent = String(data); }
+  }
 
-if (!runButton || !outputEl) {
-console.warn(
-"[commons-flow] Missing run button or output element. Check IDs."
-);
-return;
-}
+  function setStatus(html) { statusLine.innerHTML = html || ""; }
 
+  function getStep(index) {
+    const verbSelect = document.getElementById("step" + index + "-verb");
+    const inputField = document.getElementById("step" + index + "-input");
+    if (!verbSelect || !inputField) return null;
 
-function getStep(index) {
-const verbSelect = document.getElementById("step" + index + "-verb");
-const inputField = document.getElementById("step" + index + "-input");
+    const verb = (verbSelect.value || "").trim();
+    const input = (inputField.value || "").trim();
+    if (!verb || !COMMON_VERBS.includes(verb)) return null;
+    if (!input) return null;
 
+    // UI sends: {verb, input: "string"} (API normalizes)
+    return { verb, input };
+  }
 
-if (!verbSelect || !inputField) return null;
+  function buildCurlFromReceipt(step, apiResponse) {
+    // API includes meta.runtime_base (we’ll use it for curl)
+    const runtimeBase = apiResponse?.meta?.runtime_base || "";
+    const version = "1.0.0";
+    const runtimeUrl = runtimeBase
+      ? (runtimeBase.replace(/\/$/, "") + "/" + step.verb + "/v" + version)
+      : ("<RUNTIME_BASE_URL>/" + step.verb + "/v" + version);
 
+    const body = {
+      x402: {
+        entry: "x402://" + step.verb + "agent.eth/" + step.verb + "/v" + version,
+        verb: step.verb,
+        version,
+      },
+      actor: "composer.commandlayer.org",
+      input: { content: step.input },
+    };
 
-const verb = (verbSelect.value || "").trim();
-const input = (inputField.value || "").trim();
+    return [
+      "# " + step.verb.toUpperCase() + " (real runtime)",
+      "curl -sS --max-time 20 -X POST " + JSON.stringify(runtimeUrl) + " \\",
+      "  -H \"Content-Type: application/json\" \\",
+      "  --data-binary " + JSON.stringify(JSON.stringify(body)) ,
+      ""
+    ].join("\n");
+  }
 
+  async function refreshRuntimeInfo() {
+    // Hit the API with an OPTIONS-ish lightweight request? We’ll just call /api/commons-flow with an empty body and expect 400 with meta? Not guaranteed.
+    // So we keep it simple: show “set on Vercel” until a real run gives us meta.runtime_base.
+    runtimePill.innerHTML = 'Runtime: <code>(set via RUNTIME_BASE_URL)</code>';
+    healthPill.innerHTML = 'Health: <code>unknown</code>';
+  }
 
-if (!verb || !COMMON_VERBS.includes(verb)) return null;
-if (!input) return null;
+  async function checkHealth(runtimeBase) {
+    if (!runtimeBase) return { ok: false, reason: "missing_runtime_base" };
+    const url = runtimeBase.replace(/\/$/, "") + "/health";
+    try {
+      const res = await fetch(url, { method: "GET" });
+      if (!res.ok) return { ok: false, status: res.status };
+      return { ok: true, status: res.status };
+    } catch (e) {
+      return { ok: false, error: e?.message || String(e) };
+    }
+  }
 
+  async function runFlow() {
+    const steps = [];
+    for (let i = 1; i <= 3; i++) {
+      const step = getStep(i);
+      if (step) steps.push(step);
+    }
 
-return { verb, input };
-}
+    if (!steps.length) {
+      setOutput({ error: "No valid steps selected. Pick at least one Commons verb and provide input." });
+      setStatus("<strong>Missing steps</strong> — configure at least step 1.");
+      return;
+    }
 
+    setOutput({ status: "running", steps_count: steps.length });
+    setStatus("<strong>Running</strong> — calling <code>/api/commons-flow</code>…");
 
-function setOutput(data) {
-try {
-outputEl.textContent = JSON.stringify(data, null, 2);
-} catch (e) {
-outputEl.textContent = String(data);
-}
-}
+    lastCurlBlock = "";
 
+    try {
+      const res = await fetch("/api/commons-flow", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ steps }),
+      });
 
-function setStatus(html) {
-statusLine.innerHTML = html || "";
-}
+      const data = await res.json().catch(() => ({}));
 
+      if (!res.ok) {
+        setOutput({ error: data.error || "Request failed", status: res.status, detail: data.detail || data.hint || null, raw: data.raw || null });
+        setStatus("<strong>Error</strong> — backend returned " + res.status + ".");
+        return;
+      }
 
-async function runFlow() {
-const steps = [];
-for (let i = 1; i <= 3; i++) {
-const step = getStep(i);
-if (step) steps.push(step);
-}
+      // Update runtime pill from API meta
+      const runtimeBase = data?.meta?.runtime_base || "";
+      if (runtimeBase) {
+        runtimePill.innerHTML = "Runtime: <code>" + runtimeBase + "</code>";
+        const health = await checkHealth(runtimeBase);
+        if (health.ok) healthPill.innerHTML = "Health: <code>ok</code>";
+        else healthPill.innerHTML = "Health: <code>fail</code>";
+      }
 
+      // Build curl block for each step
+      const curlParts = [];
+      for (const s of steps) curlParts.push(buildCurlFromReceipt(s, data));
+      lastCurlBlock = curlParts.join("\n");
 
-if (!steps.length) {
-setOutput({
-error:
-"No valid steps selected. Pick at least one Commons verb and provide input.",
-});
-setStatus(
-"<strong>Missing steps</strong> — configure at least step 1."
-);
-return;
-}
+      // Attach curl block into output meta (so user can copy from JSON too)
+      data.meta = data.meta || {};
+      data.meta.curl = lastCurlBlock;
 
+      setOutput(data);
+      setStatus("<strong>OK</strong> — runtime receipts returned. Use <em>Copy curl</em> to reproduce per-step calls.");
+    } catch (err) {
+      setOutput({ error: "Network or runtime error", detail: err && err.message ? err.message : String(err) });
+      setStatus("<strong>Error</strong> — network/runtime failure; check console.");
+    }
+  }
 
-setOutput({ status: "running", steps_count: steps.length });
-setStatus(
-"<strong>Running</strong> — sending flow to /api/commons-flow…"
-);
+  function resetFlow() {
+    for (let i = 1; i <= 3; i++) {
+      const verbSelect = document.getElementById("step" + i + "-verb");
+      const inputField = document.getElementById("step" + i + "-input");
+      if (verbSelect) verbSelect.value = "";
+      if (inputField) inputField.value = "";
+    }
+    lastCurlBlock = "";
+    setOutput('// Configure your steps on the left and hit "Run Commons flow"…');
+    setStatus("");
+  }
 
+  async function copyCurl() {
+    if (!lastCurlBlock) {
+      setStatus("<strong>Nothing to copy</strong> — run a flow first.");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(lastCurlBlock);
+      setStatus("<strong>Copied</strong> — curl commands copied to clipboard.");
+    } catch (e) {
+      // fallback: show in output
+      setOutput({ curl: lastCurlBlock });
+      setStatus("<strong>Clipboard blocked</strong> — curl printed in output instead.");
+    }
+  }
 
-try {
-const res = await fetch("/api/commons-flow", {
-method: "POST",
-headers: {
-"Content-Type": "application/json",
-},
-body: JSON.stringify({ steps }),
-});
+  runButton?.addEventListener("click", (e) => { e.preventDefault(); runFlow(); });
+  resetButton?.addEventListener("click", (e) => { e.preventDefault(); resetFlow(); });
+  copyCurlButton?.addEventListener("click", (e) => { e.preventDefault(); copyCurl(); });
 
-
-const data = await res.json().catch(() => ({}));
-
-
-if (!res.ok) {
-setOutput({
-error: data.error || "Request failed",
-status: res.status,
-});
-setStatus(
-"<strong>Error</strong> — backend returned " +
-res.status +
-"."
-);
-return;
-}
-
-
-setOutput(data);
-setStatus(
-"<strong>OK</strong> — flow executed; receipts validated against receipt.base v1.0.0."
-);
-} catch (err) {
-setOutput({
-error: "Network or runtime error",
-detail: err && err.message ? err.message : String(err),
-});
-setStatus(
-"<strong>Error</strong> — network/runtime failure; check console."
-);
-}
-}
-
-
-function resetFlow() {
-for (let i = 1; i <= 3; i++) {
-const verbSelect = document.getElementById("step" + i + "-verb");
-const inputField = document.getElementById("step" + i + "-input");
-if (verbSelect) verbSelect.value = "";
-if (inputField) inputField.value = "";
-}
-
-
-setOutput(
-'// Configure your steps on the left and hit "Run Commons flow"…'
-);
-setStatus("");
-}
-
-
-runButton.addEventListener("click", function (event) {
-event.preventDefault();
-runFlow();
-});
-
-
-if (resetButton) {
-resetButton.addEventListener("click", function (event) {
-event.preventDefault();
-resetFlow();
-});
-}
+  refreshRuntimeInfo();
 })();
 </script>
 </body>
 </html>
-
-
-
-
