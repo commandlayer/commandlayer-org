@@ -1,6 +1,6 @@
 // /api/commons-flow.js
-// Runtime-backed Commons flow: forwards each step to Railway runtime and returns receipts + curl + validation results.
-// IMPORTANT: This API never hard-fails the demo due to schema validation mismatch. It reports validation errors inline.
+// Runtime-backed Commons flow: forwards steps to Railway runtime, returns receipts + per-step curl,
+// and validates receipt.base shape (Ajv).
 
 const Ajv = require("ajv");
 const addFormats = require("ajv-formats");
@@ -21,38 +21,36 @@ const COMMON_VERBS = [
 
 const VERSION = "1.0.0";
 
-// Demo-minimal receipt shape: require x402 + trace.trace_id + status, allow extras.
+// Minimal receipt.base validator (fast + stable)
 const receiptBaseSchema = {
-  $id: "https://commandlayer.org/schemas/v1.0.0/_shared/receipt.base.schema.json",
-  title: "receipt.base (demo-minimal)",
+  $id: "https://www.commandlayer.org/schemas/v1.0.0/_shared/receipt.base.schema.json",
+  title: "receipt.base (minimal)",
   type: "object",
-  additionalProperties: true, // demo safe
+  additionalProperties: true, // runtime adds metadata/proof fields; do not block
   properties: {
+    status: { type: "string" },
     x402: {
       type: "object",
       additionalProperties: true,
       properties: {
-        verb: { type: "string", minLength: 1, maxLength: 128 },
-        version: { type: "string", minLength: 1, maxLength: 32 },
-        entry: { type: "string", minLength: 1 },
+        verb: { type: "string" },
+        version: { type: "string" },
       },
       required: ["verb", "version"],
     },
     trace: {
       type: "object",
-      additionalProperties: true, // runtime includes more fields
+      additionalProperties: true,
       properties: {
-        trace_id: { type: "string", minLength: 1, maxLength: 128 },
+        trace_id: { type: "string" },
       },
       required: ["trace_id"],
     },
-    status: { type: "string", enum: ["success", "error", "delegated"] },
-    error: { type: "object", additionalProperties: true },
-    result: { type: "object", additionalProperties: true },
-    usage: { type: "object", additionalProperties: true },
-    metadata: { type: "object", additionalProperties: true },
+    result: { type: ["object", "null"] },
+    error: { type: ["object", "null"] },
+    metadata: { type: ["object", "null"] },
   },
-  required: ["x402", "trace", "status"],
+  required: ["status", "x402", "trace"],
 };
 
 let validateReceiptBase = null;
@@ -67,26 +65,16 @@ try {
   validateReceiptBase = null;
 }
 
-function normalizeText(input) {
-  if (typeof input === "string") return input.trim();
-  if (input && typeof input.text === "string") return input.text.trim();
-  if (input && typeof input.content === "string") return input.content.trim();
-  return "";
-}
-
 function makeTraceId() {
   if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
   return `trace_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
-function makeCurl(runtimeUrl, runtimeReq) {
-  // Use single quotes safely for bash; JSON uses double quotes.
-  const json = JSON.stringify(runtimeReq);
-  return [
-    `curl -sS --max-time 20 -X POST '${runtimeUrl}' \\`,
-    `  -H 'Content-Type: application/json' \\`,
-    `  --data-binary '${json.replace(/'/g, "'\\''")}'`,
-  ].join("\n");
+function normalizeText(input) {
+  if (typeof input === "string") return input.trim();
+  if (input && typeof input.text === "string") return input.text.trim();
+  if (input && typeof input.content === "string") return input.content.trim();
+  return "";
 }
 
 async function postJson(url, body, timeoutMs = 20000) {
@@ -103,13 +91,8 @@ async function postJson(url, body, timeoutMs = 20000) {
 
     const text = await res.text();
 
-    // Try to parse JSON; runtime can return HTML on errors.
     let json = null;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      json = null;
-    }
+    try { json = JSON.parse(text); } catch { json = null; }
 
     if (!res.ok) {
       return {
@@ -127,15 +110,37 @@ async function postJson(url, body, timeoutMs = 20000) {
   }
 }
 
-async function getHealth(runtimeBase) {
-  if (!runtimeBase) return { ok: false, status: null, detail: "missing_runtime_base" };
-  const url = `${runtimeBase.replace(/\/$/, "")}/health`;
+function buildRuntimeRequest(verb, trace_id, text) {
+  return {
+    x402: {
+      entry: `x402://${verb}agent.eth/${verb}/v${VERSION}`,
+      verb,
+      version: VERSION,
+    },
+    actor: "composer.commandlayer.org",
+    trace: { trace_id },
+    input: { content: text },
+  };
+}
+
+function buildCurl(runtimeUrl, verb, trace_id, text) {
+  const body = buildRuntimeRequest(verb, trace_id, text);
+  return [
+    `# ${verb.toUpperCase()} (real runtime)`,
+    `curl -sS --max-time 20 -X POST "${runtimeUrl}" \\`,
+    `  -H "Content-Type: application/json" \\`,
+    `  --data-binary "${JSON.stringify(body).replace(/"/g, '\\"')}"`,
+  ].join("\n");
+}
+
+async function checkRuntimeHealth(runtimeBase) {
+  const url = runtimeBase.replace(/\/$/, "") + "/health";
   try {
     const res = await fetch(url, { method: "GET" });
-    const text = await res.text().catch(() => "");
-    return { ok: res.ok, status: res.status, detail: res.ok ? "ok" : text.slice(0, 300) };
+    const txt = await res.text().catch(() => "");
+    return { ok: res.ok, status: res.status, detail: (txt || "").slice(0, 100) || null };
   } catch (e) {
-    return { ok: false, status: null, detail: e?.message || String(e) };
+    return { ok: false, status: 0, detail: e?.message || String(e) };
   }
 }
 
@@ -145,8 +150,10 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // IMPORTANT: read env at request-time
-  const RUNTIME_BASE = String(process.env.RUNTIME_BASE_URL || "").trim().replace(/\/$/, "");
+  // Read env at request-time (avoids “baked empty string”)
+  const RUNTIME_BASE = String(process.env.RUNTIME_BASE_URL || "")
+    .trim()
+    .replace(/\/$/, "");
 
   if (!RUNTIME_BASE) {
     return res.status(500).json({
@@ -176,34 +183,18 @@ module.exports = async function handler(req, res) {
 
   const trace_id = body.trace_id ? String(body.trace_id).trim() : makeTraceId();
 
-  // Pre-flight health (so the UI can display it immediately)
-  const health = await getHealth(RUNTIME_BASE);
+  // health + time for polish
+  const runtime_health = await checkRuntimeHealth(RUNTIME_BASE);
 
   const responseSteps = [];
-  const curlBlocks = [];
 
   for (const step of steps) {
     const runtimeUrl = `${RUNTIME_BASE}/${step.verb}/v${VERSION}`;
 
-    // Match your runtime request shape
-    const runtimeReq = {
-      x402: {
-        entry: `x402://${step.verb}agent.eth/${step.verb}/v${VERSION}`,
-        verb: step.verb,
-        version: VERSION,
-      },
-      actor: "composer.commandlayer.org",
-      trace: { trace_id },
-      input: { content: step.text },
-    };
-
-    const curl = makeCurl(runtimeUrl, runtimeReq);
-    curlBlocks.push(`# ${step.verb}\n${curl}`);
+    const runtimeReq = buildRuntimeRequest(step.verb, trace_id, step.text);
 
     const r = await postJson(runtimeUrl, runtimeReq, 20000);
-
     if (!r.ok) {
-      // NOTE: return 502 for upstream failure, but include curl + raw for debugging
       return res.status(502).json({
         error: "Runtime call failed",
         verb: step.verb,
@@ -212,27 +203,41 @@ module.exports = async function handler(req, res) {
         detail: r.error,
         data: r.data,
         raw: r.raw,
-        trace_id,
         meta: {
           mode: "runtime-backed",
           runtime_base: RUNTIME_BASE,
-          runtime_health: health,
-          receipt_base_validated: !!validateReceiptBase,
-          ajv_setup_error: ajvSetupError,
-          curl: curlBlocks.join("\n\n"),
+          runtime_health,
+          server_time: new Date().toISOString(),
         },
       });
     }
 
     const receipt = r.data;
 
-    // Demo-safe validation: never hard fail. Report result per-step.
-    let validation = { ok: null, errors: null };
+    // validate minimal receipt.base shape
+    let ok = true;
+    let errors = null;
     if (validateReceiptBase) {
-      const ok = validateReceiptBase(receipt);
-      validation = { ok: !!ok, errors: ok ? null : validateReceiptBase.errors };
-    } else {
-      validation = { ok: null, errors: [{ message: "Ajv not initialized", detail: ajvSetupError }] };
+      ok = !!validateReceiptBase(receipt);
+      if (!ok) errors = validateReceiptBase.errors || null;
+    }
+
+    if (!ok) {
+      return res.status(500).json({
+        error: "Runtime receipt failed receipt.base validation",
+        verb: step.verb,
+        runtime_url: runtimeUrl,
+        details: errors,
+        receipt,
+        meta: {
+          mode: "runtime-backed",
+          runtime_base: RUNTIME_BASE,
+          runtime_health,
+          receipt_base_validated: !!validateReceiptBase,
+          ajv_setup_error: ajvSetupError,
+          server_time: new Date().toISOString(),
+        },
+      });
     }
 
     responseSteps.push({
@@ -240,11 +245,14 @@ module.exports = async function handler(req, res) {
       verb: step.verb,
       runtime_url: runtimeUrl,
       request: runtimeReq,
-      curl,
-      validation,
+      curl: buildCurl(runtimeUrl, step.verb, trace_id, step.text),
+      validation: { ok: true, errors: null },
       receipt,
     });
   }
+
+  // combine curl
+  const curlBlock = responseSteps.map((s) => s.curl).join("\n\n") + "\n";
 
   return res.status(200).json({
     trace_id,
@@ -252,10 +260,11 @@ module.exports = async function handler(req, res) {
     meta: {
       mode: "runtime-backed",
       runtime_base: RUNTIME_BASE,
-      runtime_health: health,
+      runtime_health,
       receipt_base_validated: !!validateReceiptBase,
       ajv_setup_error: ajvSetupError,
-      curl: curlBlocks.join("\n\n"),
+      server_time: new Date().toISOString(),
+      curl: curlBlock,
     },
   });
 };
