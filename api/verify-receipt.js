@@ -1,75 +1,69 @@
-// /api/verify-receipt.js
-// Proxies verification to the runtime: /verify?schema=1&ens=1
-// Uses RUNTIME_BASE_URL by default. Optionally accepts runtime_base in body.
-
-async function postJson(url, body, timeoutMs = 12000) {
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-
-    const text = await res.text();
-    let json = null;
-    try { json = JSON.parse(text); } catch { json = null; }
-
-    if (!res.ok) {
-      return {
-        ok: false,
-        status: res.status,
-        error: (json && (json.error || json.message)) || text || `HTTP ${res.status}`,
-        data: json || null,
-        raw: json ? null : text,
-      };
-    }
-
-    return { ok: true, status: res.status, data: json ?? text };
-  } finally {
-    clearTimeout(t);
-  }
-}
+// api/verify-receipt.js
+// Proxy verifier: forwards receipt to Railway runtime /verify.
+// This avoids frontend canonicalization mismatches.
+// Default schema=0 so "verify" is cryptographic + hash check only.
 
 module.exports = async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
-    return res.status(405).json({ ok: false, error: "Method not allowed" });
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const envBase = String(process.env.RUNTIME_BASE_URL || "").trim().replace(/\/$/, "");
-  const body = req.body || {};
-  const runtimeBase = String(body.runtime_base || envBase || "").trim().replace(/\/$/, "");
+  const RUNTIME_BASE = String(process.env.RUNTIME_BASE_URL || "")
+    .trim()
+    .replace(/\/$/, "");
 
-  if (!runtimeBase) {
+  if (!RUNTIME_BASE) {
     return res.status(500).json({
-      ok: false,
-      error: "Missing runtime base",
-      hint: "Set RUNTIME_BASE_URL on Vercel or pass { runtime_base } in the request body.",
+      error: "Missing RUNTIME_BASE_URL on Vercel",
+      hint: "Set env var RUNTIME_BASE_URL to your Railway runtime base URL and redeploy.",
     });
   }
 
-  const receipt = body.receipt;
+  const receipt = req.body;
   if (!receipt || typeof receipt !== "object") {
-    return res.status(400).json({ ok: false, error: "Missing receipt object" });
+    return res.status(400).json({ error: "Invalid JSON receipt body" });
   }
 
-  const url = `${runtimeBase}/verify?schema=1&ens=1`;
+  // query flags (safe defaults)
+  const ens = String(req.query.ens || "0") === "1" ? "1" : "0";
+  const refresh = String(req.query.refresh || "0") === "1" ? "1" : "0";
 
-  const r = await postJson(url, receipt, 12000);
-  if (!r.ok) {
+  // IMPORTANT: default schema=0 (otherwise you'll see lots of 'schema fail'
+  // unless your runtime receipts are *exactly* verb-schema compliant)
+  const schema = String(req.query.schema || "0") === "1" ? "1" : "0";
+
+  const url = `${RUNTIME_BASE}/verify?ens=${ens}&refresh=${refresh}&schema=${schema}`;
+
+  try {
+    const upstream = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(receipt),
+    });
+
+    const text = await upstream.text();
+    let data = null;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = { ok: false, error: "Non-JSON response from runtime verify", raw: text };
+    }
+
+    return res.status(upstream.status).json({
+      ...data,
+      meta: {
+        proxy: "vercel",
+        runtime_verify_url: url,
+        runtime_status: upstream.status,
+      },
+    });
+  } catch (e) {
     return res.status(502).json({
       ok: false,
-      error: "Runtime verify failed",
-      status: r.status,
-      detail: r.error,
-      data: r.data,
-      raw: r.raw,
+      error: "verify proxy failed",
+      detail: e?.message || String(e),
+      meta: { runtime_verify_url: url },
     });
   }
-
-  return res.status(200).json(r.data);
 };
