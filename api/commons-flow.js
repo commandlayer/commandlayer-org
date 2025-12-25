@@ -65,9 +65,13 @@ try {
   validateReceiptBase = null;
 }
 
+function nowIso() {
+  return new Date().toISOString();
+}
+
 function makeTraceId() {
   if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
-  return `trace_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  return `trace_${Date.now()}_${crypto.randomBytes(6).toString("hex")}`;
 }
 
 function normalizeText(input) {
@@ -92,7 +96,11 @@ async function postJson(url, body, timeoutMs = 20000) {
     const text = await res.text();
 
     let json = null;
-    try { json = JSON.parse(text); } catch { json = null; }
+    try {
+      json = JSON.parse(text);
+    } catch {
+      json = null;
+    }
 
     if (!res.ok) {
       return {
@@ -104,6 +112,7 @@ async function postJson(url, body, timeoutMs = 20000) {
       };
     }
 
+    // if runtime returned non-json but 200, keep text (rare)
     return { ok: true, status: res.status, data: json ?? text };
   } finally {
     clearTimeout(t);
@@ -123,24 +132,39 @@ function buildRuntimeRequest(verb, trace_id, text) {
   };
 }
 
+function escapeForDoubleQuotedShell(str) {
+  // For --data-binary "<HERE>"
+  // Escape backslashes first, then double quotes, then newlines.
+  return String(str)
+    .replace(/\\/g, "\\\\")
+    .replace(/"/g, '\\"')
+    .replace(/\r?\n/g, "\\n");
+}
+
 function buildCurl(runtimeUrl, verb, trace_id, text) {
   const body = buildRuntimeRequest(verb, trace_id, text);
+  const payload = escapeForDoubleQuotedShell(JSON.stringify(body));
   return [
     `# ${verb.toUpperCase()} (real runtime)`,
     `curl -sS --max-time 20 -X POST "${runtimeUrl}" \\`,
     `  -H "Content-Type: application/json" \\`,
-    `  --data-binary "${JSON.stringify(body).replace(/"/g, '\\"')}"`,
+    `  --data-binary "${payload}"`,
   ].join("\n");
 }
 
-async function checkRuntimeHealth(runtimeBase) {
+async function checkRuntimeHealth(runtimeBase, timeoutMs = 5000) {
   const url = runtimeBase.replace(/\/$/, "") + "/health";
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
-    const res = await fetch(url, { method: "GET" });
+    const res = await fetch(url, { method: "GET", signal: controller.signal });
     const txt = await res.text().catch(() => "");
-    return { ok: res.ok, status: res.status, detail: (txt || "").slice(0, 100) || null };
+    return { ok: res.ok, status: res.status, detail: (txt || "").slice(0, 120) || null };
   } catch (e) {
     return { ok: false, status: 0, detail: e?.message || String(e) };
+  } finally {
+    clearTimeout(t);
   }
 }
 
@@ -183,17 +207,17 @@ module.exports = async function handler(req, res) {
 
   const trace_id = body.trace_id ? String(body.trace_id).trim() : makeTraceId();
 
-  // health + time for polish
+  // Health check for nicer UI (non-fatal)
   const runtime_health = await checkRuntimeHealth(RUNTIME_BASE);
 
   const responseSteps = [];
 
   for (const step of steps) {
     const runtimeUrl = `${RUNTIME_BASE}/${step.verb}/v${VERSION}`;
-
     const runtimeReq = buildRuntimeRequest(step.verb, trace_id, step.text);
 
     const r = await postJson(runtimeUrl, runtimeReq, 20000);
+
     if (!r.ok) {
       return res.status(502).json({
         error: "Runtime call failed",
@@ -207,16 +231,19 @@ module.exports = async function handler(req, res) {
           mode: "runtime-backed",
           runtime_base: RUNTIME_BASE,
           runtime_health,
-          server_time: new Date().toISOString(),
+          receipt_base_validated: !!validateReceiptBase,
+          ajv_setup_error: ajvSetupError,
+          server_time: nowIso(),
         },
       });
     }
 
     const receipt = r.data;
 
-    // validate minimal receipt.base shape
+    // Validate minimal receipt.base shape
     let ok = true;
     let errors = null;
+
     if (validateReceiptBase) {
       ok = !!validateReceiptBase(receipt);
       if (!ok) errors = validateReceiptBase.errors || null;
@@ -235,7 +262,7 @@ module.exports = async function handler(req, res) {
           runtime_health,
           receipt_base_validated: !!validateReceiptBase,
           ajv_setup_error: ajvSetupError,
-          server_time: new Date().toISOString(),
+          server_time: nowIso(),
         },
       });
     }
@@ -251,7 +278,6 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  // combine curl
   const curlBlock = responseSteps.map((s) => s.curl).join("\n\n") + "\n";
 
   return res.status(200).json({
@@ -263,7 +289,7 @@ module.exports = async function handler(req, res) {
       runtime_health,
       receipt_base_validated: !!validateReceiptBase,
       ajv_setup_error: ajvSetupError,
-      server_time: new Date().toISOString(),
+      server_time: nowIso(),
       curl: curlBlock,
     },
   });
