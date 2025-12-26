@@ -6,10 +6,23 @@
 
 1
 
-## Request and Receipt Examples
+## Common Verbs (v1.0.0)
 
 1
 
-## Backward-Compatible Verb Versioning
+## Example Requests
 
 1
+
+## Example Receipts
+
+1
+
+## Compatibility Promise (Versioning)
+
+1
+
+## Related Reference Pages
+
+- [What is an Agent Receipt](./what-is-a-receipt.md)
+- [How to Verify Agent Output](./verify-receipts.md)

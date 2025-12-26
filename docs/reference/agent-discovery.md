@@ -6,10 +6,19 @@
 
 1
 
-## Agent Cards Metadata Schema
+## Required TXT Records (Minimum)
 
 1
 
-## Discoverable AI Agents
+## Agent Cards (Discovery Metadata)
 
 1
+
+## Resolver Flow (Lookup → Validate → Link)
+
+1
+
+## Related Reference Pages
+
+- [Common Agent Verbs](./common-verbs.md)
+- [How to Verify Agent Output](./verify-receipts.md)
