@@ -385,7 +385,7 @@ color: var(--text-muted);
               </div>
               <div class="form-row">
                 <label for="step1-input">Input</label>
-                <textarea id="step1-input" rows="4" placeholder="Required. Text, URL, or payload for step 1."></textarea>
+                <textarea id="step1-input" rows="4" placeholder="Required. Plain text OR JSON input object for step 1."></textarea>
               </div>
             </div>
 
@@ -409,7 +409,7 @@ color: var(--text-muted);
               </div>
               <div class="form-row">
                 <label for="step2-input">Input</label>
-                <textarea id="step2-input" rows="4" placeholder="Optional. Input for step 2."></textarea>
+                <textarea id="step2-input" rows="4" placeholder="Optional. Plain text OR JSON input object for step 2."></textarea>
                 <div class="prev-toggle">
                   <input type="checkbox" id="step2-use-prev" />
                   <label for="step2-use-prev">Use previous step <code>result</code> as input</label>
@@ -437,7 +437,7 @@ color: var(--text-muted);
               </div>
               <div class="form-row">
                 <label for="step3-input">Input</label>
-                <textarea id="step3-input" rows="4" placeholder="Optional. Input for step 3."></textarea>
+                <textarea id="step3-input" rows="4" placeholder="Optional. Plain text OR JSON input object for step 3."></textarea>
                 <div class="prev-toggle">
                   <input type="checkbox" id="step3-use-prev" />
                   <label for="step3-use-prev">Use previous step <code>result</code> as input</label>
@@ -520,7 +520,7 @@ color: var(--text-muted);
   }
 })();
 
-/* === Composer logic (FIXED) === */
+/* === Composer logic (Option C: UI sends input OBJECT) === */
 (function () {
   const COMMON_VERBS = ["analyze","classify","clean","convert","describe","explain","format","parse","summarize","fetch"];
 
@@ -558,6 +558,26 @@ color: var(--text-muted);
       .replace(/'/g, "&#039;");
   }
 
+  function safeJsonParse(text) {
+    const s = String(text || "").trim();
+    if (!s) return { ok: false };
+    if (!(s.startsWith("{") || s.startsWith("["))) return { ok: false };
+    try { return { ok: true, value: JSON.parse(s) }; } catch { return { ok: false }; }
+  }
+
+  function inputToObject(textOrJson) {
+    // Option C:
+    // - If textarea is JSON => use as input object/array
+    // - Else => { content: "<text>" }
+    const raw = String(textOrJson || "").trim();
+    if (!raw) return null;
+
+    const parsed = safeJsonParse(raw);
+    if (parsed.ok) return parsed.value;
+
+    return { content: raw };
+  }
+
   function pickBestTextFromResult(result) {
     if (!result || typeof result !== "object") return "";
 
@@ -580,13 +600,92 @@ color: var(--text-muted);
     try { return JSON.stringify(result); } catch { return String(result); }
   }
 
-  async function copyText(text) {
-    try {
-      await navigator.clipboard.writeText(text);
-      return true;
-    } catch {
-      return false;
+  const TEMPLATES = {
+    convert: {
+      content: "hello world",
+      source_format: "text",
+      target_format: "markdown"
+    },
+    explain: {
+      subject: "x402 receipt verification",
+      question: "Explain what schema + hash + signature verification proves.",
+      context: "CommandLayer Commons Flow Composer"
+    },
+    fetch: {
+      query: "https://example.com",
+      mode: "text"
     }
+  };
+
+  function maybeInsertTemplateFor(index) {
+    const verbSelect = document.getElementById("step" + index + "-verb");
+    const inputField = document.getElementById("step" + index + "-input");
+    const usePrev = document.getElementById("step" + index + "-use-prev");
+
+    if (!verbSelect || !inputField) return;
+
+    const verb = String(verbSelect.value || "").trim();
+    if (!verb) return;
+
+    // If user wants prev-result, don't overwrite.
+    if (usePrev && usePrev.checked) return;
+
+    const current = String(inputField.value || "").trim();
+    if (current) return;
+
+    if (TEMPLATES[verb]) {
+      inputField.value = JSON.stringify(TEMPLATES[verb], null, 2);
+    }
+  }
+
+  // attach template autofill
+  [1,2,3].forEach((i) => {
+    const sel = document.getElementById("step" + i + "-verb");
+    if (sel) sel.addEventListener("change", () => maybeInsertTemplateFor(i));
+  });
+
+  function setPrevToggleBehavior(index) {
+    const toggle = index === 2 ? step2UsePrev : step3UsePrev;
+    const inputField = document.getElementById("step" + index + "-input");
+    if (!toggle || !inputField) return;
+
+    function apply() {
+      const on = !!toggle.checked;
+      inputField.disabled = on;
+      if (!on) return;
+
+      const steps = lastResponse?.steps || [];
+      const prevIdx = index - 2; // step2 reads step1, step3 reads step2
+      const prev = steps.find(s => s.index === prevIdx);
+      const prevReceipt = prev?.receipt;
+      const best = pickBestTextFromResult(prevReceipt?.result);
+      // default behavior: feed as {content:"..."} via textarea
+      inputField.value = best || "";
+    }
+
+    toggle.addEventListener("change", apply);
+  }
+
+  setPrevToggleBehavior(2);
+  setPrevToggleBehavior(3);
+
+  function getStep(index) {
+    const verbSelect = document.getElementById("step" + index + "-verb");
+    const inputField = document.getElementById("step" + index + "-input");
+    if (!verbSelect || !inputField) return null;
+
+    const verb = (verbSelect.value || "").trim();
+    if (!verb || !COMMON_VERBS.includes(verb)) return null;
+
+    const inputObj = inputToObject(inputField.value || "");
+    if (inputObj == null) return null;
+
+    return { verb, input: inputObj };
+  }
+
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; }
+    catch { return false; }
   }
 
   function setPillsFromMeta(meta) {
@@ -599,9 +698,7 @@ color: var(--text-muted);
       : ("Runtime: <code>(set via RUNTIME_BASE_URL)</code>");
 
     if (runtimeHealth && typeof runtimeHealth === "object") {
-      healthPill.innerHTML = runtimeHealth.ok
-        ? "Health: <code>ok</code>"
-        : "Health: <code>fail</code>";
+      healthPill.innerHTML = runtimeHealth.ok ? "Health: <code>ok</code>" : "Health: <code>fail</code>";
     } else {
       healthPill.innerHTML = "Health: <code>unknown</code>";
     }
@@ -609,27 +706,6 @@ color: var(--text-muted);
     timePill.innerHTML = serverTime
       ? ("Server: <code>" + escapeHtml(serverTime) + "</code>")
       : "Server: <code>—</code>";
-  }
-
-  function getStep(index) {
-    const verbSelect = document.getElementById("step" + index + "-verb");
-    const inputField = document.getElementById("step" + index + "-input");
-    const usePrev = document.getElementById("step" + index + "-use-prev");
-
-    if (!verbSelect || !inputField) return null;
-
-    const verb = (verbSelect.value || "").trim();
-    if (!verb || !COMMON_VERBS.includes(verb)) return null;
-
-    let input = (inputField.value || "").trim();
-
-    if (usePrev && usePrev.checked) {
-      input = (inputField.value || "").trim();
-    }
-
-    if (!input) return null;
-
-    return { verb, input };
   }
 
   function setBadge(idx, which, ok, label) {
@@ -656,9 +732,7 @@ color: var(--text-muted);
     setBadge(idx, "sig", null, "sig: …");
 
     try {
-      // IMPORTANT FIX:
-      // The proxy expects the RECEIPT itself as the POST body.
-      // Do NOT wrap it in {receipt: ...}
+      // IMPORTANT: send receipt directly (proxy expects receipt object)
       const res = await fetch("/api/verify-receipt?schema=0&ens=0", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -666,7 +740,6 @@ color: var(--text-muted);
       });
 
       const data = await res.json().catch(() => ({}));
-
       if (!res.ok || !data) {
         setBadge(idx, "schema", false, "schema: fail");
         setBadge(idx, "hash", false, "hash: fail");
@@ -676,20 +749,14 @@ color: var(--text-muted);
       }
 
       const checks = data.checks || {};
-      const schemaOk = !!checks.schema_valid;
-      const hashOk = !!checks.hash_matches;
-      const sigOk = !!checks.signature_valid;
+      setBadge(idx, "schema", !!checks.schema_valid, "schema: " + (checks.schema_valid ? "ok" : "fail"));
+      setBadge(idx, "hash", !!checks.hash_matches, "hash: " + (checks.hash_matches ? "ok" : "fail"));
+      setBadge(idx, "sig", !!checks.signature_valid, "sig: " + (checks.signature_valid ? "ok" : "fail"));
 
-      setBadge(idx, "schema", schemaOk, "schema: " + (schemaOk ? "ok" : "fail"));
-      setBadge(idx, "hash", hashOk, "hash: " + (hashOk ? "ok" : "fail"));
-      setBadge(idx, "sig", sigOk, "sig: " + (sigOk ? "ok" : "fail"));
-
-      if (schemaOk && hashOk && sigOk) setStatus("<strong>Verified</strong> — schema + hash + signature all ok.");
-      else setStatus("<strong>Verify</strong> — one or more checks failed.");
-
-      // Optional: print verify response into raw JSON output if something fails
-      if (!(schemaOk && hashOk && sigOk)) {
-        setOutput({ flow: lastResponse, verify: data });
+      if (checks.schema_valid && checks.hash_matches && checks.signature_valid) {
+        setStatus("<strong>Verified</strong> — schema + hash + signature all ok.");
+      } else {
+        setStatus("<strong>Verify</strong> — one or more checks failed. Expand Receipt JSON and compare proof fields.");
       }
     } catch (e) {
       setBadge(idx, "schema", false, "schema: fail");
@@ -698,37 +765,6 @@ color: var(--text-muted);
       setStatus("<strong>Verify error</strong> — " + escapeHtml(e?.message || String(e)));
     }
   }
-
-  function updatePrevTogglesFromResponse(flow) {
-    lastResponse = flow || null;
-
-    if (step2UsePrev && step2UsePrev.checked) {
-      const input2 = document.getElementById("step2-input");
-      const prev = flow?.steps?.find(s => s.index === 0)?.receipt?.result;
-      input2.value = pickBestTextFromResult(prev) || "";
-    }
-
-    if (step3UsePrev && step3UsePrev.checked) {
-      const input3 = document.getElementById("step3-input");
-      const prev = flow?.steps?.find(s => s.index === 1)?.receipt?.result;
-      input3.value = pickBestTextFromResult(prev) || "";
-    }
-  }
-
-  function wirePrevToggle(toggleEl, inputEl, getPrevResultFn) {
-    if (!toggleEl || !inputEl) return;
-    function apply() {
-      const on = !!toggleEl.checked;
-      inputEl.disabled = on;
-      if (!on) return;
-      const result = getPrevResultFn();
-      inputEl.value = pickBestTextFromResult(result) || "";
-    }
-    toggleEl.addEventListener("change", apply);
-  }
-
-  wirePrevToggle(step2UsePrev, document.getElementById("step2-input"), () => lastResponse?.steps?.find(s => s.index === 0)?.receipt?.result);
-  wirePrevToggle(step3UsePrev, document.getElementById("step3-input"), () => lastResponse?.steps?.find(s => s.index === 1)?.receipt?.result);
 
   function renderReceiptCards(flow) {
     if (!receiptCardsEl) return;
@@ -809,16 +845,9 @@ color: var(--text-muted);
         </div>
       `;
     }).join("");
-  }
 
-  // IMPORTANT FIX:
-  // do NOT use { once: true } or the buttons stop working after first click.
-  function ensureReceiptClickHandlerInstalled() {
-    if (!receiptCardsEl) return;
-    if (receiptCardsEl.__clBound) return;
-    receiptCardsEl.__clBound = true;
-
-    receiptCardsEl.addEventListener("click", async (e) => {
+    // event delegation (do NOT use {once:true})
+    receiptCardsEl.onclick = async (e) => {
       const btn = e.target && e.target.closest && e.target.closest("button[data-action]");
       if (!btn) return;
 
@@ -826,7 +855,6 @@ color: var(--text-muted);
       const idx = Number(btn.getAttribute("data-step") || "-1");
       if (!(idx >= 0)) return;
 
-      const steps = Array.isArray(lastResponse?.steps) ? lastResponse.steps : [];
       const step = steps[idx];
       if (!step) return;
 
@@ -843,10 +871,23 @@ color: var(--text-muted);
         await verifyStepReceipt(idx, step);
         return;
       }
-    });
+    };
   }
 
-  ensureReceiptClickHandlerInstalled();
+  function updatePrevTogglesFromResponse(flow) {
+    lastResponse = flow || null;
+
+    if (step2UsePrev && step2UsePrev.checked) {
+      const input2 = document.getElementById("step2-input");
+      const prev = flow?.steps?.find(s => s.index === 0)?.receipt?.result;
+      input2.value = pickBestTextFromResult(prev) || "";
+    }
+    if (step3UsePrev && step3UsePrev.checked) {
+      const input3 = document.getElementById("step3-input");
+      const prev = flow?.steps?.find(s => s.index === 1)?.receipt?.result;
+      input3.value = pickBestTextFromResult(prev) || "";
+    }
+  }
 
   async function runFlow() {
     const steps = [];
@@ -861,7 +902,7 @@ color: var(--text-muted);
       return;
     }
 
-    setOutput({ status: "running", steps_count: steps.length });
+    setOutput({ status: "running", steps_count: steps.length, steps_preview: steps.map(s => ({ verb: s.verb })) });
     setStatus("<strong>Running</strong> — calling <code>/api/commons-flow</code>…");
     receiptCardsEl.innerHTML = '<div class="mini-note">Running… receipts will render here.</div>';
 
@@ -882,32 +923,23 @@ color: var(--text-muted);
           error: data.error || "Request failed",
           status: res.status,
           detail: data.detail || data.hint || null,
-          raw: data.raw || null
+          raw: data.raw || null,
+          meta: data.meta || null
         });
         setStatus("<strong>Error</strong> — backend returned " + res.status + ".");
         receiptCardsEl.innerHTML = '<div class="mini-note">No receipts (request failed).</div>';
         return;
       }
 
-      // meta pills
       setPillsFromMeta(data?.meta || {});
-
-      // store response
-      lastResponse = data;
-
-      // if toggles are on, refresh their content from this response
       updatePrevTogglesFromResponse(data);
 
-      // copy-all curl
       lastCurlBlock = String(data?.meta?.curl || "");
-
-      // debug JSON
       setOutput(data);
 
-      // render cards
       renderReceiptCards(data);
 
-      // auto verify each receipt via the proxy (schema=0 default path)
+      // auto-verify each receipt
       const stepsOut = Array.isArray(data?.steps) ? data.steps : [];
       for (let i = 0; i < stepsOut.length; i++) {
         await verifyStepReceipt(i, stepsOut[i]);
@@ -955,7 +987,6 @@ color: var(--text-muted);
     );
   }
 
-  // initial pill state (we don’t know runtime until first run)
   runtimePill.innerHTML = 'Runtime: <code>(set via RUNTIME_BASE_URL)</code>';
   healthPill.innerHTML = 'Health: <code>unknown</code>';
   timePill.innerHTML = 'Server: <code>—</code>';
