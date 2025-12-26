@@ -16,3 +16,5 @@
 - [Common Agent Verbs](./common-verbs.md)
 - [Runtime-Agnostic Agents](./runtime-portability.md)
 - [Agent Discovery and Identity](./agent-discovery.md)
+
+- [ERC-8004 and x402 Compatibility](./erc8004-and-x402.md)

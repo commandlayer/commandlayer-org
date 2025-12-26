@@ -14,6 +14,18 @@
 
 1
 
+## Envelope Compatibility
+
+1
+
+### ERC-8004 as a Transport Layer
+
+1
+
+### x402 as a Transport Layer
+
+1
+
 ## Bring Your Own Runtime (Compatibility Checklist)
 
 1

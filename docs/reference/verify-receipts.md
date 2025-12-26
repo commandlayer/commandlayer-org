@@ -26,6 +26,18 @@
 
 1
 
+## Verification Over Standard Envelopes
+
+1
+
+### ERC-8004 Receipts
+
+1
+
+### x402 Receipts
+
+1
+
 ## Common Failure Modes
 
 1
@@ -34,3 +46,4 @@
 
 - [What is an Agent Receipt](./what-is-a-receipt.md)
 - [Agent Receipt Hashing](./receipt-hashing.md)
+- [Runtime-Agnostic Agents](./runtime-portability.md)
