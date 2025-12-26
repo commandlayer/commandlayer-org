@@ -1,1 +1,5 @@
 node_modules/
+receipt.json
+body.*.json
+verify.out.json
+
