@@ -1,5 +1,5 @@
 // /api/commons-flow.js
-// Runtime-backed Commons flow: forwards steps to Railway runtime, returns receipts + per-step curl,
+// Runtime-backed Commons flow: forwards steps to CommandLayer runtime, returns receipts + per-step curl,
 // validates minimal receipt.base shape (Ajv).
 
 const Ajv = require("ajv");
@@ -23,7 +23,7 @@ const VERSION = "1.0.0";
 
 // Minimal receipt.base validator (fast + stable)
 const receiptBaseSchema = {
-  $id: "https://www.commandlayer.org/schemas/v1.0.0/_shared/receipt.base.schema.json",
+  $id: "https://commandlayer.org/schemas/v1.0.0/_shared/receipt.base.schema.json",
   title: "receipt.base (minimal)",
   type: "object",
   additionalProperties: true, // runtime adds metadata/proof fields; do not block
@@ -84,9 +84,8 @@ function safeJsonParse(maybeJsonString) {
 }
 
 function normalizeInput(input) {
-  // Option C: UI should send input as an object/array already.
-  // But we still support legacy string input:
-  //   "hello" => { content: "hello" }
+  // UI should send input as an object/array already, but support legacy string input:
+  // "hello" => { content: "hello" }
   if (input == null) return null;
 
   if (typeof input === "string") {
@@ -174,12 +173,33 @@ function buildCurl(runtimeUrl, runtimeReq) {
 
 async function checkRuntimeHealth(runtimeBase) {
   const url = runtimeBase.replace(/\/$/, "") + "/health";
+  const controller = new AbortController();
+  const t = setTimeout(() => controller.abort(), 8000);
+
   try {
-    const res = await fetch(url, { method: "GET" });
-    const txt = await res.text().catch(() => "");
-    return { ok: res.ok, status: res.status, detail: (txt || "").slice(0, 100) || null };
+    const res = await fetch(url, { method: "GET", signal: controller.signal });
+    const ct = res.headers.get("content-type") || "";
+    const text = await res.text().catch(() => "");
+    let json = null;
+
+    if (ct.includes("application/json")) {
+      try {
+        json = JSON.parse(text);
+      } catch {
+        json = null;
+      }
+    }
+
+    return {
+      ok: res.ok,
+      status: res.status,
+      content_type: ct || null,
+      detail: (json || text || "").toString().slice(0, 200) || null,
+    };
   } catch (e) {
-    return { ok: false, status: 0, detail: e?.message || String(e) };
+    return { ok: false, status: 0, content_type: null, detail: e?.message || String(e) };
+  } finally {
+    clearTimeout(t);
   }
 }
 
@@ -190,12 +210,14 @@ module.exports = async function handler(req, res) {
   }
 
   // Read env at request-time (avoids “baked empty string”)
-  const RUNTIME_BASE = String(process.env.RUNTIME_BASE_URL || "").trim().replace(/\/$/, "");
+  const RUNTIME_BASE = String(process.env.RUNTIME_BASE_URL || "")
+    .trim()
+    .replace(/\/$/, "");
 
   if (!RUNTIME_BASE) {
     return res.status(500).json({
       error: "Missing RUNTIME_BASE_URL on Vercel",
-      hint: "Set env var RUNTIME_BASE_URL to your Railway runtime base URL (e.g. https://runtime-production-214f.up.railway.app) and redeploy.",
+      hint: "Set env var RUNTIME_BASE_URL to your canonical runtime base URL (https://runtime.commandlayer.org).",
     });
   }
 
@@ -219,7 +241,10 @@ module.exports = async function handler(req, res) {
       expected: {
         steps: [
           { verb: "summarize", input: { content: "hello" } },
-          { verb: "convert", input: { content: "hi", source_format: "text", target_format: "markdown" } },
+          {
+            verb: "convert",
+            input: { content: "hi", source_format: "text", target_format: "markdown" },
+          },
         ],
       },
     });
@@ -286,10 +311,9 @@ module.exports = async function handler(req, res) {
       verb: step.verb,
       runtime_url: runtimeUrl,
       request: runtimeReq,
-      curl: [
-        `# ${step.verb.toUpperCase()} (real runtime)`,
-        buildCurl(runtimeUrl, runtimeReq),
-      ].join("\n"),
+      curl: [`# ${step.verb.toUpperCase()} (real runtime)`, buildCurl(runtimeUrl, runtimeReq)].join(
+        "\n"
+      ),
       validation: { ok: true, errors: null },
       receipt,
     });
