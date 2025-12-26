@@ -591,6 +591,70 @@ color: var(--text-muted);
     return { content: raw };
   }
 
+  function normalizeVerbInput(verb, inputObjRaw) {
+    if (!inputObjRaw || typeof inputObjRaw !== "object") return inputObjRaw;
+
+    if (Array.isArray(inputObjRaw)) return inputObjRaw;
+
+    const keys = Object.keys(inputObjRaw);
+    const isPlainContentOnly =
+      keys.length === 1 &&
+      keys[0] === "content" &&
+      typeof inputObjRaw.content === "string";
+
+    const raw = isPlainContentOnly ? inputObjRaw.content.trim() : null;
+
+    // describe: requires subject; "content" is not allowed by schema
+    if (verb === "describe") {
+      if (raw) {
+        return {
+          subject: raw.slice(0, 140),
+          context: raw,
+          detail_level: "medium",
+          audience: "general"
+        };
+      }
+      if (!inputObjRaw.subject && typeof inputObjRaw.context === "string" && inputObjRaw.context.trim()) {
+        return { ...inputObjRaw, subject: inputObjRaw.context.trim().slice(0, 140) };
+      }
+      return inputObjRaw;
+    }
+
+    // explain: requires subject; keep only schema-legal fields
+    if (verb === "explain") {
+      if (raw) {
+        return {
+          subject: raw.slice(0, 140),
+          context: raw,
+          audience: "general",
+          style: "step-by-step",
+          detail_level: "medium"
+        };
+      }
+      if (!inputObjRaw.subject && typeof inputObjRaw.context === "string" && inputObjRaw.context.trim()) {
+        return { ...inputObjRaw, subject: inputObjRaw.context.trim().slice(0, 140) };
+      }
+      return inputObjRaw;
+    }
+
+    // convert: requires content + source_format + target_format
+    if (verb === "convert") {
+      if (raw) {
+        return {
+          content: raw,
+          source_format: "text",
+          target_format: "markdown"
+        };
+      }
+      const out = { ...inputObjRaw };
+      if (!out.source_format) out.source_format = "text";
+      if (!out.target_format) out.target_format = "markdown";
+      return out;
+    }
+
+    return inputObjRaw;
+  }
+
   function pickBestTextFromResult(result) {
     if (!result || typeof result !== "object") return "";
 
@@ -621,8 +685,16 @@ color: var(--text-muted);
     },
     explain: {
       subject: "x402 receipt verification",
-      question: "Explain what schema + hash + signature verification proves.",
-      context: "CommandLayer Commons Flow Composer"
+      context: "Explain what schema + hash + signature verification proves.",
+      audience: "general",
+      style: "step-by-step",
+      detail_level: "medium"
+    },
+    describe: {
+      subject: "CommandLayer receipt",
+      context: "A receipt returned from the runtime. Describe what it contains and what it proves.",
+      detail_level: "medium",
+      audience: "general"
     },
     fetch: {
       query: "https://example.com",
@@ -640,7 +712,6 @@ color: var(--text-muted);
     const verb = String(verbSelect.value || "").trim();
     if (!verb) return;
 
-    // If user wants prev-result, don't overwrite.
     if (usePrev && usePrev.checked) return;
 
     const current = String(inputField.value || "").trim();
@@ -651,7 +722,6 @@ color: var(--text-muted);
     }
   }
 
-  // attach template autofill
   [1,2,3].forEach((i) => {
     const sel = document.getElementById("step" + i + "-verb");
     if (sel) sel.addEventListener("change", () => maybeInsertTemplateFor(i));
@@ -672,7 +742,6 @@ color: var(--text-muted);
       const prev = steps.find(s => s.index === prevIdx);
       const prevReceipt = prev?.receipt;
       const best = pickBestTextFromResult(prevReceipt?.result);
-      // default behavior: feed as {content:"..."} via textarea
       inputField.value = best || "";
     }
 
@@ -690,9 +759,10 @@ color: var(--text-muted);
     const verb = (verbSelect.value || "").trim();
     if (!verb || !COMMON_VERBS.includes(verb)) return null;
 
-    const inputObj = inputToObject(inputField.value || "");
-    if (inputObj == null) return null;
+    const inputObjRaw = inputToObject(inputField.value || "");
+    if (inputObjRaw == null) return null;
 
+    const inputObj = normalizeVerbInput(verb, inputObjRaw);
     return { verb, input: inputObj };
   }
 
@@ -745,7 +815,6 @@ color: var(--text-muted);
     setBadge(idx, "sig", null, "sig: …");
 
     try {
-      // IMPORTANT: send receipt directly (proxy expects receipt object)
       const res = await fetch("/api/verify-receipt?schema=0&ens=0", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -859,7 +928,6 @@ color: var(--text-muted);
       `;
     }).join("");
 
-    // event delegation (do NOT use {once:true})
     receiptCardsEl.onclick = async (e) => {
       const btn = e.target && e.target.closest && e.target.closest("button[data-action]");
       if (!btn) return;
@@ -952,7 +1020,6 @@ color: var(--text-muted);
 
       renderReceiptCards(data);
 
-      // auto-verify each receipt
       const stepsOut = Array.isArray(data?.steps) ? data.steps : [];
       for (let i = 0; i < stepsOut.length; i++) {
         await verifyStepReceipt(i, stepsOut[i]);
