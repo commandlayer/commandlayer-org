@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <title>CommandLayer — Commons Flow Composer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="description" content="Interactive CommandLayer Commons demo — compose up to three verbs, send a flow, and inspect real runtime receipts (Ajv-validated) from Railway." />
+<meta name="description" content="Interactive CommandLayer Commons demo — compose up to three verbs, send a flow, and inspect real runtime receipts (Ajv-validated) from runtime.commandlayer.org." />
 
 <style>
 /* --- KEEP YOUR ORIGINAL CSS EXACTLY (plus a few safe additions at the bottom) --- */
@@ -333,7 +333,8 @@ color: var(--text-muted);
         </h1>
 
         <p class="hero__subtitle">
-          This page calls <code>/api/commons-flow</code> (Vercel) which forwards each step to your Railway runtime.
+          This page calls <code>/api/commons-flow</code> (Vercel) which forwards each step to your runtime at
+          <code>https://runtime.commandlayer.org</code>.
           You get back the <em>actual</em> per-step receipts — and you can verify <strong>schema + hash + signature</strong>
           inline, then copy matching <code>curl</code> for reproduction.
         </p>
@@ -344,7 +345,7 @@ color: var(--text-muted);
         </div>
 
         <div class="hero__meta">
-          <span class="hero__meta-pill">Runtime-backed (Railway)</span>
+          <span class="hero__meta-pill">Runtime-backed (runtime.commandlayer.org)</span>
           <span class="hero__meta-pill">Receipts = evidence (signed)</span>
           <span class="hero__meta-pill">Verify: schema + hash + signature</span>
         </div>
@@ -354,7 +355,7 @@ color: var(--text-muted);
         <h2>What this demo proves</h2>
         <p>Not a mock. This is your live runtime and your real receipts.</p>
         <ul>
-          <li>Vercel UI → Vercel API → Railway runtime → receipts.</li>
+          <li>Vercel UI → Vercel API → runtime.commandlayer.org → receipts.</li>
           <li>Each step is a real POST to <code>/{verb}/v1.0.0</code>.</li>
           <li>Inline verify proves schema + cryptographic integrity.</li>
           <li>Copy-pasteable <code>curl</code> makes every step reproducible.</li>
@@ -368,7 +369,7 @@ color: var(--text-muted);
       <div class="section__header">
         <h2>Pick verbs, send a flow, inspect the receipts</h2>
         <p>
-          Under the hood: <code>POST /api/commons-flow</code>. The API forwards each step to your Railway runtime base URL
+          Under the hood: <code>POST /api/commons-flow</code>. The API forwards each step to your runtime base URL
           (from <code>RUNTIME_BASE_URL</code> on Vercel).
         </p>
       </div>
@@ -554,6 +555,9 @@ color: var(--text-muted);
 
   let lastCurlBlock = "";
   let lastResponse = null;
+
+  // Canonical runtime base (display only; actual requests go through /api/* proxies)
+  const CANONICAL_RUNTIME_BASE = "https://runtime.commandlayer.org";
 
   function setOutput(data) {
     try { outputEl.textContent = JSON.stringify(data, null, 2); }
@@ -772,13 +776,16 @@ color: var(--text-muted);
   }
 
   function setPillsFromMeta(meta) {
+    // Always display canonical runtime, but also show the backend-selected runtime base when present.
     const runtimeBase = meta?.runtime_base || "";
+    const displayBase = runtimeBase || CANONICAL_RUNTIME_BASE;
+
     const runtimeHealth = meta?.runtime_health;
     const serverTime = meta?.server_time || null;
 
-    runtimePill.innerHTML = runtimeBase
-      ? ("Runtime: <code>" + escapeHtml(runtimeBase) + "</code>")
-      : ("Runtime: <code>(set via RUNTIME_BASE_URL)</code>");
+    runtimePill.innerHTML = displayBase
+      ? ("Runtime: <code>" + escapeHtml(displayBase) + "</code>")
+      : ("Runtime: <code>" + escapeHtml(CANONICAL_RUNTIME_BASE) + "</code>");
 
     if (runtimeHealth && typeof runtimeHealth === "object") {
       healthPill.innerHTML = runtimeHealth.ok ? "Health: <code>ok</code>" : "Health: <code>fail</code>";
@@ -1046,7 +1053,7 @@ color: var(--text-muted);
     lastCurlBlock = "";
     lastResponse = null;
 
-    runtimePill.innerHTML = 'Runtime: <code>(set via RUNTIME_BASE_URL)</code>';
+    runtimePill.innerHTML = 'Runtime: <code>' + escapeHtml(CANONICAL_RUNTIME_BASE) + '</code>';
     healthPill.innerHTML = 'Health: <code>unknown</code>';
     timePill.innerHTML = 'Server: <code>—</code>';
 
@@ -1067,7 +1074,8 @@ color: var(--text-muted);
     );
   }
 
-  runtimePill.innerHTML = 'Runtime: <code>(set via RUNTIME_BASE_URL)</code>';
+  // Default pill state should show canonical runtime, even before first run.
+  runtimePill.innerHTML = 'Runtime: <code>' + escapeHtml(CANONICAL_RUNTIME_BASE) + '</code>';
   healthPill.innerHTML = 'Health: <code>unknown</code>';
   timePill.innerHTML = 'Server: <code>—</code>';
 
