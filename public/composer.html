@@ -269,6 +269,19 @@ color: var(--text-muted);
 }
 .prev-toggle input { transform: translateY(1px); }
 .prev-toggle code { color: var(--accent-strong); }
+
+/* ===== POLISH PATCH: prevent long receipt_id overflow ===== */
+.kv { min-width: 0; }
+.kv > div { min-width: 0; }
+.kv code{
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 2px;
+}
+.receipt-card { overflow: hidden; }
 </style>
 </head>
 
