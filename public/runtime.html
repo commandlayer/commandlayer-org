@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta
       name="description"
-      content="CommandLayer Runtime — execution layer for verbs: guarantees, economics, receipts, and policy on top of stable Commons & Commercial schemas."
+      content="CommandLayer Runtime — reference execution layer for schema-stable verbs: receipts, verification, and a proving surface on top of pinned Commons & Commercial contracts."
     />
 
     <style>
@@ -502,14 +502,19 @@
               <div class="hero__eyebrow">Runtime</div>
               <h1 class="hero__title">
                 Execution on top of stable schemas —
-                <span class="hero__title-em">guarantees, policy, and economics.</span>
+                <span class="hero__title-em">reference runtime today, guarantees by design.</span>
               </h1>
 
               <p class="hero__subtitle">
-                Commons and Commercial define <strong>what</strong> a verb means (request + receipt shapes).
-                The Runtime defines <strong>how</strong> execution happens: routing, verification, pricing,
-                rate limits, retries, idempotency, audit logs, and end-to-end guarantees — while keeping the
-                <strong>semantic contract</strong> stable.
+                Commons and Commercial define <strong>what</strong> a verb means: public request + receipt contracts.
+                Runtime is the <strong>execution surface</strong>: it runs schema-conformant verbs and returns
+                <strong>typed, signed receipts</strong> that can be verified independently — without changing semantics.
+              </p>
+
+              <p class="hero__subtitle" style="margin-top:0.85rem;">
+                Today, Runtime operates as a <strong>reference execution layer</strong>. Its architecture is built to
+                support policy, metering, idempotency, and settlement over time — layered on top of the same pinned
+                contracts.
               </p>
 
               <div class="hero__cta-row">
@@ -524,23 +529,24 @@
               </div>
 
               <div class="hero__meta">
-                <span class="hero__meta-pill">Schemas stay free</span>
-                <span class="hero__meta-pill">Runtime is the execution layer</span>
-                <span class="hero__meta-pill">Typed receipts + trace IDs</span>
+                <span class="hero__meta-pill">Schemas are public and pinned</span>
+                <span class="hero__meta-pill">Runtime executes + proves</span>
+                <span class="hero__meta-pill">Receipts are verifiable evidence</span>
               </div>
             </div>
 
             <aside class="hero__card">
               <h2>What Runtime is (and isn’t)</h2>
               <p>
-                Runtime is not “the schemas.” It’s the part you pay for when you want outcomes, guarantees, and
-                production-grade execution.
+                Runtime is not “the schema layer.” It is the <strong>execution boundary</strong> that consumes pinned
+                schemas and produces evidence.
               </p>
               <ul>
-                <li><strong>Is:</strong> execution endpoints + policy + proofs + economics.</li>
-                <li><strong>Is:</strong> stable receipts, auditability, and reliability controls.</li>
-                <li><strong>Is not:</strong> a competing verb language (Commons/Commercial already do that).</li>
+                <li><strong>Is:</strong> a reference runtime that executes schema-stable verbs.</li>
+                <li><strong>Is:</strong> a canonical receipt generator (traceable, hashable, verifiable).</li>
+                <li><strong>Is:</strong> a proving surface — not just logs or responses.</li>
                 <li><strong>Is not:</strong> a closed semantic system — contracts remain public and portable.</li>
+                <li><strong>Is not:</strong> a finished policy or billing platform (yet).</li>
               </ul>
             </aside>
           </div>
@@ -552,8 +558,8 @@
             <div class="section__header">
               <h2>Where Runtime sits in the stack</h2>
               <p>
-                Runtime is the “execution plane.” It consumes the same pinned schemas used everywhere else, and returns
-                the same receipts — but adds operational guarantees so agents can be used like infrastructure.
+                Runtime sits above schemas and below applications. It consumes the same immutable JSON Schemas and returns
+                the same receipt shapes — but introduces a real execution surface where guarantees can be enforced over time.
               </p>
             </div>
 
@@ -561,147 +567,183 @@
               <article class="info-card">
                 <h3>Inputs</h3>
                 <p>
-                  A verb invocation (Commons or Commercial) shaped exactly by the public JSON Schemas. Routing is
-                  discovered via Agent Cards and ENS metadata.
+                  Schema-shaped verb invocations (Commons today). Routing is explicit and deterministic — no hidden
+                  payloads, no semantic drift.
                 </p>
               </article>
 
               <article class="info-card">
-                <h3>Runtime policy</h3>
+                <h3>Execution</h3>
                 <p>
-                  Verification, authn/authz, idempotency keys, rate limits, retries/timeouts, safety filters, and
-                  vendor/model selection — without changing the request shape.
+                  Reference execution against pinned schemas, producing deterministic receipts. Validation and proof are
+                  first-class outputs, not afterthoughts.
                 </p>
               </article>
 
               <article class="info-card">
                 <h3>Outputs</h3>
                 <p>
-                  Typed receipts with trace IDs and standardized status/usage. Same receipt contracts across agents,
-                  runtimes, and payment rails.
+                  Typed receipts with trace IDs and cryptographic proofs. Clients read what happened — they don’t infer it.
                 </p>
               </article>
             </div>
           </div>
         </section>
 
-        <!-- GUARANTEES -->
+        <!-- TODAY -->
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
-              <h2>What you get from Runtime</h2>
+              <h2>What Runtime provides today</h2>
               <p>
-                This is the “why pay” layer: predictable outcomes and guarantees you can build businesses on, while the
-                verb language remains public goods.
+                This is the minimum surface required for agents to behave like infrastructure: schema enforcement,
+                reproducibility, and independently verifiable evidence.
               </p>
             </div>
 
             <div class="card-block">
-              <h3 class="card-block__title">Guarantees &amp; controls</h3>
+              <h3 class="card-block__title">Live capabilities (reference runtime)</h3>
               <p class="card-block__subtitle">
-                Runtime adds enforceable operational behavior around schema-stable calls.
+                What exists now, end-to-end, in the live demo and runtime-backed flows.
               </p>
               <ul>
-                <li><strong>Idempotency:</strong> safe retries for commercial flows (authorize/checkout/purchase/ship/verify).</li>
-                <li><strong>Traceability:</strong> consistent <code>trace_id</code> threading across steps and services.</li>
-                <li><strong>Policy:</strong> safety, compliance, allowlists/denylists, and “who can call what” rules.</li>
-                <li><strong>Reliability:</strong> timeouts, circuit breakers, retry budgets, and structured errors.</li>
-                <li><strong>Audit:</strong> receipts + logs that can be checked later without reinterpreting payloads.</li>
+                <li><strong>Schema enforcement:</strong> requests and receipts conform to pinned JSON Schemas.</li>
+                <li><strong>Traceability:</strong> every execution returns a <code>trace_id</code>.</li>
+                <li><strong>Receipts as evidence:</strong> signed, hashable receipts — not logs.</li>
+                <li><strong>Reproducibility:</strong> calls can be replayed via copy-pasteable <code>curl</code>.</li>
+                <li><strong>Verification:</strong> schema + hash + signature can be checked independently.</li>
               </ul>
+              <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
+                This layer is intentionally narrow: it proves the contract can be executed and proven reliably before
+                layering in commercial policy and economics.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- DESIGNED -->
+        <section class="section">
+          <div class="container">
+            <div class="card-block">
+              <h3 class="card-block__title">What Runtime is designed to add</h3>
+              <p class="card-block__subtitle">
+                These are planned capabilities. They are deliberately layered on top of stable schemas — never baked into them.
+              </p>
+
+              <ul>
+                <li><strong>Policy layers:</strong> allow/deny rules, safety filters, execution constraints.</li>
+                <li><strong>Idempotency:</strong> safe retries for multi-step and commercial flows.</li>
+                <li><strong>Metering:</strong> standardized usage fields in receipts.</li>
+                <li><strong>Pricing:</strong> SLA-based execution tiers (latency/throughput/policy bundles).</li>
+                <li><strong>Settlement:</strong> execution-time economics on standardized rails.</li>
+                <li><strong>Multi-runtime portability:</strong> same contracts, different executors.</li>
+              </ul>
+
+              <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
+                The constraint: semantics remain public goods. Runtime evolves operationally without fragmenting meaning.
+              </p>
             </div>
           </div>
         </section>
 
         <!-- ECONOMICS -->
-        <section class="section">
+        <section class="section section--muted">
           <div class="container">
+            <div class="section__header">
+              <h2>Why value accrues at execution</h2>
+              <p>
+                CommandLayer does not monetize meaning. Value accrues where execution absorbs operational cost and produces
+                audit-grade proof.
+              </p>
+            </div>
+
             <div class="card-block">
-              <h3 class="card-block__title">Economics: value lives in execution</h3>
+              <h3 class="card-block__title">Economics (principle)</h3>
               <p class="card-block__subtitle">
-                Commons/Commercial schemas are always accessible. Runtime is where pricing, metering, and settlement live.
+                Contracts stay open. Execution becomes infrastructure.
               </p>
 
               <ul>
-                <li><strong>Metering:</strong> standardized usage fields in receipts enable predictable billing.</li>
-                <li><strong>Pricing tiers:</strong> pay for SLA, throughput, latency targets, and policy bundles.</li>
-                <li><strong>Settlement:</strong> designed to sit cleanly on payment rails (x402-style envelopes later).</li>
-                <li><strong>Portability:</strong> if you self-host execution, you still keep the same verb contracts.</li>
+                <li><strong>Schemas remain public:</strong> the verb language stays accessible and portable.</li>
+                <li><strong>Receipts remain portable:</strong> evidence can be verified without trusting a vendor.</li>
+                <li><strong>Execution carries cost:</strong> guarantees, policy, reliability, and metering live at runtime.</li>
               </ul>
 
               <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                The forward-looking bet: the world standardizes on a shared verb language. The winners are the runtimes
-                that can execute it reliably, prove what happened, and settle economically — without fragmenting semantics.
+                The forward-looking bet: a shared verb language becomes normal. The winners are runtimes that can execute it
+                reliably and prove what happened — without forking semantics.
               </p>
             </div>
           </div>
         </section>
 
         <!-- EXAMPLE -->
-        <section class="section section--muted">
+        <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>Runtime-style receipt envelope</h2>
+              <h2>Receipt envelope (shape you can verify)</h2>
               <p>
-                Runtime returns the same typed receipts — plus operational fields you can rely on for billing, audit, and
-                debugging.
+                Runtime receipts are designed to be checked independently: schema-valid, hash-stable, and signature-verifiable.
+                The live demo returns real receipts; the snippet below shows the kind of fields Runtime standardizes.
               </p>
             </div>
 
             <div class="card-block">
-              <h3 class="card-block__title">Example receipt (illustrative)</h3>
+              <h3 class="card-block__title">Example receipt (fields representative)</h3>
               <p class="card-block__subtitle">
-                This is the kind of stable “shape” you can build tooling and businesses around.
+                Replace placeholders with any live receipt from the demo to verify end-to-end.
               </p>
               <pre>{
   "x402": {
-    "verb": "checkout",
+    "verb": "convert",
     "version": "1.0.0"
   },
   "trace": {
-    "trace_id": "c0d48ff3-e20a-4be4-922f-7bf0478da3cb",
-    "started_at": "2025-12-12T20:19:00.000Z"
+    "trace_id": "trace_00f07ceec643",
+    "started_at": "2025-12-26T02:14:14.397Z",
+    "completed_at": "2025-12-26T02:14:14.397Z",
+    "duration_ms": 0
   },
-  "status": {
-    "code": "ok",
-    "message": "checkout complete"
-  },
+  "status": "success",
   "result": {
-    "checkout_id": "chk_1734034740",
-    "total_amount": 129.99,
-    "currency": "USD"
+    "converted_content": "..."
   },
-  "usage": {
-    "units": 1,
-    "compute_ms": 642,
-    "billable": true
+  "metadata": {
+    "proof": {
+      "alg": "ed25519-sha256",
+      "canonical": "json-stringify",
+      "signer_id": "runtime.commandlayer.eth",
+      "hash_sha256": "...",
+      "signature_b64": "..."
+    }
   }
 }</pre>
               <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                The key point: clients don’t guess what happened. They read a typed receipt, tied to a known schema
-                version and a trace ID.
+                The point: clients don’t guess what happened. They read a typed receipt tied to a schema version and a trace ID,
+                with a proof they can verify.
               </p>
             </div>
           </div>
         </section>
 
         <!-- ROADMAP -->
-        <section class="section">
+        <section class="section section--muted">
           <div class="container">
             <div class="card-block">
               <h3 class="card-block__title">Runtime roadmap (high level)</h3>
               <p class="card-block__subtitle">
-                Keep this page honest: Runtime is “coming online.” Ship iteratively without overpromising.
+                Runtime ships in phases. Each phase hardens execution without changing semantics.
               </p>
               <ul>
-                <li><strong>Phase 1:</strong> reference endpoints + receipts + trace IDs (demo-grade → prod-hardening).</li>
-                <li><strong>Phase 2:</strong> policy bundles (rate limits, auth, allowlists) + metering in receipts.</li>
-                <li><strong>Phase 3:</strong> multi-runtime portability: same contracts, different executors.</li>
-                <li><strong>Phase 4:</strong> settlement + proofs on standardized rails (as ecosystem norms mature).</li>
+                <li><strong>Phase 1 (now):</strong> reference runtime + receipts + verification.</li>
+                <li><strong>Phase 2:</strong> policy hooks + metered usage fields in receipts.</li>
+                <li><strong>Phase 3:</strong> commercial verbs + idempotent execution semantics.</li>
+                <li><strong>Phase 4:</strong> settlement + multi-runtime ecosystems on shared contracts.</li>
               </ul>
 
               <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                If you want a simple mental model: Commons/Commercial are the public language. Runtime is the business.
-                You can swap executors without breaking the contract.
+                Simple model: Commons/Commercial are the public language. Runtime is what it means to run it correctly.
+                Semantics stay open. Execution becomes infrastructure.
               </p>
             </div>
           </div>
