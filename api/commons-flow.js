@@ -1,6 +1,6 @@
 // /api/commons-flow.js
 // Runtime-backed Commons flow: forwards steps to Railway runtime, returns receipts + per-step curl,
-// and validates receipt.base shape (Ajv).
+// validates minimal receipt.base shape (Ajv).
 
 const Ajv = require("ajv");
 const addFormats = require("ajv-formats");
@@ -46,7 +46,7 @@ const receiptBaseSchema = {
       },
       required: ["trace_id"],
     },
-    result: { type: ["object", "null"] },
+    result: { type: ["object", "array", "string", "number", "boolean", "null"] },
     error: { type: ["object", "null"] },
     metadata: { type: ["object", "null"] },
   },
@@ -65,20 +65,45 @@ try {
   validateReceiptBase = null;
 }
 
-function nowIso() {
-  return new Date().toISOString();
-}
-
 function makeTraceId() {
   if (typeof crypto.randomUUID === "function") return crypto.randomUUID();
-  return `trace_${Date.now()}_${crypto.randomBytes(6).toString("hex")}`;
+  return `trace_${Date.now()}_${Math.random().toString(16).slice(2)}`;
 }
 
-function normalizeText(input) {
-  if (typeof input === "string") return input.trim();
-  if (input && typeof input.text === "string") return input.text.trim();
-  if (input && typeof input.content === "string") return input.content.trim();
-  return "";
+function safeJsonParse(maybeJsonString) {
+  if (typeof maybeJsonString !== "string") return { ok: false };
+  const s = maybeJsonString.trim();
+  if (!s) return { ok: false };
+  if (!(s.startsWith("{") || s.startsWith("["))) return { ok: false };
+  try {
+    const val = JSON.parse(s);
+    return { ok: true, value: val };
+  } catch {
+    return { ok: false };
+  }
+}
+
+function normalizeInput(input) {
+  // Option C: UI should send input as an object/array already.
+  // But we still support legacy string input:
+  //   "hello" => { content: "hello" }
+  if (input == null) return null;
+
+  if (typeof input === "string") {
+    const parsed = safeJsonParse(input);
+    if (parsed.ok) return parsed.value;
+    const text = input.trim();
+    if (!text) return null;
+    return { content: text };
+  }
+
+  if (typeof input === "object") {
+    // object or array: accept as-is
+    return input;
+  }
+
+  // number/bool/etc: wrap
+  return { content: String(input) };
 }
 
 async function postJson(url, body, timeoutMs = 20000) {
@@ -109,17 +134,17 @@ async function postJson(url, body, timeoutMs = 20000) {
         error: (json && (json.error || json.message)) || text || `HTTP ${res.status}`,
         data: json || null,
         raw: json ? null : text,
+        content_type: res.headers.get("content-type") || null,
       };
     }
 
-    // if runtime returned non-json but 200, keep text (rare)
     return { ok: true, status: res.status, data: json ?? text };
   } finally {
     clearTimeout(t);
   }
 }
 
-function buildRuntimeRequest(verb, trace_id, text) {
+function buildRuntimeRequest(verb, trace_id, inputObj) {
   return {
     x402: {
       entry: `x402://${verb}agent.eth/${verb}/v${VERSION}`,
@@ -128,43 +153,33 @@ function buildRuntimeRequest(verb, trace_id, text) {
     },
     actor: "composer.commandlayer.org",
     trace: { trace_id },
-    input: { content: text },
+    input: inputObj,
   };
 }
 
-function escapeForDoubleQuotedShell(str) {
-  // For --data-binary "<HERE>"
-  // Escape backslashes first, then double quotes, then newlines.
-  return String(str)
-    .replace(/\\/g, "\\\\")
-    .replace(/"/g, '\\"')
-    .replace(/\r?\n/g, "\\n");
+// safer curl: single quotes around JSON, and escape any single quotes inside payload
+function shellSingleQuote(str) {
+  // wraps in single quotes, escapes any single quote by closing/opening: 'foo'"'"'bar'
+  return `'${String(str).replace(/'/g, `'\"'\"'`)}'`;
 }
 
-function buildCurl(runtimeUrl, verb, trace_id, text) {
-  const body = buildRuntimeRequest(verb, trace_id, text);
-  const payload = escapeForDoubleQuotedShell(JSON.stringify(body));
+function buildCurl(runtimeUrl, runtimeReq) {
+  const bodyStr = JSON.stringify(runtimeReq);
   return [
-    `# ${verb.toUpperCase()} (real runtime)`,
-    `curl -sS --max-time 20 -X POST "${runtimeUrl}" \\`,
-    `  -H "Content-Type: application/json" \\`,
-    `  --data-binary "${payload}"`,
+    `curl -sS --max-time 20 -X POST ${shellSingleQuote(runtimeUrl)} \\`,
+    `  -H 'Content-Type: application/json' \\`,
+    `  --data-binary ${shellSingleQuote(bodyStr)}`,
   ].join("\n");
 }
 
-async function checkRuntimeHealth(runtimeBase, timeoutMs = 5000) {
+async function checkRuntimeHealth(runtimeBase) {
   const url = runtimeBase.replace(/\/$/, "") + "/health";
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), timeoutMs);
-
   try {
-    const res = await fetch(url, { method: "GET", signal: controller.signal });
+    const res = await fetch(url, { method: "GET" });
     const txt = await res.text().catch(() => "");
-    return { ok: res.ok, status: res.status, detail: (txt || "").slice(0, 120) || null };
+    return { ok: res.ok, status: res.status, detail: (txt || "").slice(0, 100) || null };
   } catch (e) {
     return { ok: false, status: 0, detail: e?.message || String(e) };
-  } finally {
-    clearTimeout(t);
   }
 }
 
@@ -175,9 +190,7 @@ module.exports = async function handler(req, res) {
   }
 
   // Read env at request-time (avoids “baked empty string”)
-  const RUNTIME_BASE = String(process.env.RUNTIME_BASE_URL || "")
-    .trim()
-    .replace(/\/$/, "");
+  const RUNTIME_BASE = String(process.env.RUNTIME_BASE_URL || "").trim().replace(/\/$/, "");
 
   if (!RUNTIME_BASE) {
     return res.status(500).json({
@@ -192,58 +205,59 @@ module.exports = async function handler(req, res) {
   const steps = [];
   incomingSteps.forEach((s, idx) => {
     const verb = String(s?.verb || "").trim();
-    const text = normalizeText(s?.input);
     if (!verb || !COMMON_VERBS.includes(verb)) return;
-    if (!text) return;
-    steps.push({ index: idx, verb, text });
+
+    const inputObj = normalizeInput(s?.input);
+    if (inputObj == null) return;
+
+    steps.push({ index: idx, verb, input: inputObj });
   });
 
   if (!steps.length) {
     return res.status(400).json({
-      error: "No valid steps provided. Each step needs a Commons verb and non-empty input.",
-      expected: { steps: [{ verb: "summarize", input: "hello" }] },
+      error: "No valid steps provided. Each step needs a Commons verb and non-empty input (string or JSON).",
+      expected: {
+        steps: [
+          { verb: "summarize", input: { content: "hello" } },
+          { verb: "convert", input: { content: "hi", source_format: "text", target_format: "markdown" } },
+        ],
+      },
     });
   }
 
   const trace_id = body.trace_id ? String(body.trace_id).trim() : makeTraceId();
 
-  // Health check for nicer UI (non-fatal)
   const runtime_health = await checkRuntimeHealth(RUNTIME_BASE);
 
   const responseSteps = [];
 
   for (const step of steps) {
     const runtimeUrl = `${RUNTIME_BASE}/${step.verb}/v${VERSION}`;
-    const runtimeReq = buildRuntimeRequest(step.verb, trace_id, step.text);
+    const runtimeReq = buildRuntimeRequest(step.verb, trace_id, step.input);
 
     const r = await postJson(runtimeUrl, runtimeReq, 20000);
-
     if (!r.ok) {
       return res.status(502).json({
         error: "Runtime call failed",
-        verb: step.verb,
-        runtime_url: runtimeUrl,
-        status: r.status,
-        detail: r.error,
-        data: r.data,
+        status: 502,
+        detail: r.data || { message: r.error, retryable: false, details: { verb: step.verb } },
         raw: r.raw,
         meta: {
           mode: "runtime-backed",
           runtime_base: RUNTIME_BASE,
           runtime_health,
-          receipt_base_validated: !!validateReceiptBase,
-          ajv_setup_error: ajvSetupError,
-          server_time: nowIso(),
+          runtime_url: runtimeUrl,
+          runtime_content_type: r.content_type || null,
+          server_time: new Date().toISOString(),
         },
       });
     }
 
     const receipt = r.data;
 
-    // Validate minimal receipt.base shape
+    // validate minimal receipt.base shape
     let ok = true;
     let errors = null;
-
     if (validateReceiptBase) {
       ok = !!validateReceiptBase(receipt);
       if (!ok) errors = validateReceiptBase.errors || null;
@@ -262,7 +276,7 @@ module.exports = async function handler(req, res) {
           runtime_health,
           receipt_base_validated: !!validateReceiptBase,
           ajv_setup_error: ajvSetupError,
-          server_time: nowIso(),
+          server_time: new Date().toISOString(),
         },
       });
     }
@@ -272,7 +286,10 @@ module.exports = async function handler(req, res) {
       verb: step.verb,
       runtime_url: runtimeUrl,
       request: runtimeReq,
-      curl: buildCurl(runtimeUrl, step.verb, trace_id, step.text),
+      curl: [
+        `# ${step.verb.toUpperCase()} (real runtime)`,
+        buildCurl(runtimeUrl, runtimeReq),
+      ].join("\n"),
       validation: { ok: true, errors: null },
       receipt,
     });
@@ -289,7 +306,7 @@ module.exports = async function handler(req, res) {
       runtime_health,
       receipt_base_validated: !!validateReceiptBase,
       ajv_setup_error: ajvSetupError,
-      server_time: nowIso(),
+      server_time: new Date().toISOString(),
       curl: curlBlock,
     },
   });
