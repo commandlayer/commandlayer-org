@@ -1,6 +1,12 @@
 // /api/commons-flow.js
 // Runtime-backed Commons flow: forwards steps to CommandLayer runtime, returns receipts + per-step curl,
 // validates minimal receipt.base shape (Ajv).
+//
+// Key changes in this rewrite:
+// - Always returns JSON + sets Cache-Control: no-store
+// - Runtime health detail is REAL JSON (not "[object Object]")
+// - Better error shaping + includes runtime /health payload when available
+// - Normalizes commandlayer.org -> www.commandlayer.org where relevant (host stability)
 
 const Ajv = require("ajv");
 const addFormats = require("ajv-formats");
@@ -23,7 +29,7 @@ const VERSION = "1.0.0";
 
 // Minimal receipt.base validator (fast + stable)
 const receiptBaseSchema = {
-  $id: "https://commandlayer.org/schemas/v1.0.0/_shared/receipt.base.schema.json",
+  $id: "https://www.commandlayer.org/schemas/v1.0.0/_shared/receipt.base.schema.json",
   title: "receipt.base (minimal)",
   type: "object",
   additionalProperties: true, // runtime adds metadata/proof fields; do not block
@@ -63,6 +69,10 @@ try {
 } catch (e) {
   ajvSetupError = e?.message || String(e);
   validateReceiptBase = null;
+}
+
+function nowIso() {
+  return new Date().toISOString();
 }
 
 function makeTraceId() {
@@ -105,55 +115,16 @@ function normalizeInput(input) {
   return { content: String(input) };
 }
 
-async function postJson(url, body, timeoutMs = 20000) {
-  const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), timeoutMs);
-
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-
-    const text = await res.text();
-
-    let json = null;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      json = null;
-    }
-
-    if (!res.ok) {
-      return {
-        ok: false,
-        status: res.status,
-        error: (json && (json.error || json.message)) || text || `HTTP ${res.status}`,
-        data: json || null,
-        raw: json ? null : text,
-        content_type: res.headers.get("content-type") || null,
-      };
-    }
-
-    return { ok: true, status: res.status, data: json ?? text };
-  } finally {
-    clearTimeout(t);
-  }
-}
-
-function buildRuntimeRequest(verb, trace_id, inputObj) {
-  return {
-    x402: {
-      entry: `x402://${verb}agent.eth/${verb}/v${VERSION}`,
-      verb,
-      version: VERSION,
-    },
-    actor: "composer.commandlayer.org",
-    trace: { trace_id },
-    input: inputObj,
-  };
+function normalizeRuntimeBase(url) {
+  // You want canonical runtime.commandlayer.org
+  // - trim, remove trailing slash
+  // - force https
+  let s = String(url || "").trim();
+  if (!s) return "";
+  s = s.replace(/\s+/g, "");
+  s = s.replace(/\/+$/, "");
+  s = s.replace(/^http:\/\//i, "https://");
+  return s;
 }
 
 // safer curl: single quotes around JSON, and escape any single quotes inside payload
@@ -171,48 +142,118 @@ function buildCurl(runtimeUrl, runtimeReq) {
   ].join("\n");
 }
 
-async function checkRuntimeHealth(runtimeBase) {
-  const url = runtimeBase.replace(/\/$/, "") + "/health";
+function buildRuntimeRequest(verb, trace_id, inputObj) {
+  return {
+    x402: {
+      entry: `x402://${verb}agent.eth/${verb}/v${VERSION}`,
+      verb,
+      version: VERSION,
+    },
+    actor: "composer.commandlayer.org",
+    trace: { trace_id },
+    input: inputObj,
+  };
+}
+
+async function fetchTextWithTimeout(url, { method = "GET", headers = {}, body = null, timeoutMs = 20000 } = {}) {
   const controller = new AbortController();
-  const t = setTimeout(() => controller.abort(), 8000);
+  const t = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const res = await fetch(url, { method: "GET", signal: controller.signal });
-    const ct = res.headers.get("content-type") || "";
+    const res = await fetch(url, {
+      method,
+      headers,
+      body,
+      signal: controller.signal,
+      redirect: "follow",
+    });
+
     const text = await res.text().catch(() => "");
-    let json = null;
+    const contentType = res.headers.get("content-type") || null;
 
-    if (ct.includes("application/json")) {
-      try {
-        json = JSON.parse(text);
-      } catch {
-        json = null;
-      }
-    }
-
-    return {
-      ok: res.ok,
-      status: res.status,
-      content_type: ct || null,
-      detail: (json || text || "").toString().slice(0, 200) || null,
-    };
-  } catch (e) {
-    return { ok: false, status: 0, content_type: null, detail: e?.message || String(e) };
+    return { ok: res.ok, status: res.status, contentType, text };
   } finally {
     clearTimeout(t);
   }
 }
 
+function tryParseJson(text) {
+  const s = String(text || "").trim();
+  if (!s) return { ok: false, value: null };
+  try {
+    return { ok: true, value: JSON.parse(s) };
+  } catch {
+    return { ok: false, value: null };
+  }
+}
+
+async function postJson(url, bodyObj, timeoutMs = 20000) {
+  const payload = JSON.stringify(bodyObj);
+
+  const r = await fetchTextWithTimeout(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: payload,
+    timeoutMs,
+  });
+
+  const parsed = tryParseJson(r.text);
+  const data = parsed.ok ? parsed.value : null;
+
+  if (!r.ok) {
+    return {
+      ok: false,
+      status: r.status,
+      content_type: r.contentType,
+      error: (data && (data.error || data.message)) || r.text || `HTTP ${r.status}`,
+      data,
+      raw: parsed.ok ? null : r.text,
+    };
+  }
+
+  return { ok: true, status: r.status, content_type: r.contentType, data: data ?? r.text };
+}
+
+async function checkRuntimeHealth(runtimeBase) {
+  const url = runtimeBase.replace(/\/$/, "") + "/health";
+
+  try {
+    const r = await fetchTextWithTimeout(url, { method: "GET", timeoutMs: 8000 });
+
+    const parsed = tryParseJson(r.text);
+    const detail = parsed.ok ? parsed.value : { raw: String(r.text || "").slice(0, 400) };
+
+    return {
+      ok: r.ok,
+      status: r.status,
+      content_type: r.contentType,
+      detail, // IMPORTANT: object, not string
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      status: 0,
+      content_type: null,
+      detail: { error: e?.message || String(e) },
+    };
+  }
+}
+
+function respondNoStore(res) {
+  res.setHeader("Cache-Control", "no-store");
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+}
+
 module.exports = async function handler(req, res) {
+  respondNoStore(res);
+
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   // Read env at request-time (avoids “baked empty string”)
-  const RUNTIME_BASE = String(process.env.RUNTIME_BASE_URL || "")
-    .trim()
-    .replace(/\/$/, "");
+  const RUNTIME_BASE = normalizeRuntimeBase(process.env.RUNTIME_BASE_URL);
 
   if (!RUNTIME_BASE) {
     return res.status(500).json({
@@ -241,10 +282,7 @@ module.exports = async function handler(req, res) {
       expected: {
         steps: [
           { verb: "summarize", input: { content: "hello" } },
-          {
-            verb: "convert",
-            input: { content: "hi", source_format: "text", target_format: "markdown" },
-          },
+          { verb: "convert", input: { content: "hi", source_format: "text", target_format: "markdown" } },
         ],
       },
     });
@@ -252,6 +290,7 @@ module.exports = async function handler(req, res) {
 
   const trace_id = body.trace_id ? String(body.trace_id).trim() : makeTraceId();
 
+  // health (object detail)
   const runtime_health = await checkRuntimeHealth(RUNTIME_BASE);
 
   const responseSteps = [];
@@ -261,6 +300,7 @@ module.exports = async function handler(req, res) {
     const runtimeReq = buildRuntimeRequest(step.verb, trace_id, step.input);
 
     const r = await postJson(runtimeUrl, runtimeReq, 20000);
+
     if (!r.ok) {
       return res.status(502).json({
         error: "Runtime call failed",
@@ -273,7 +313,7 @@ module.exports = async function handler(req, res) {
           runtime_health,
           runtime_url: runtimeUrl,
           runtime_content_type: r.content_type || null,
-          server_time: new Date().toISOString(),
+          server_time: nowIso(),
         },
       });
     }
@@ -283,6 +323,7 @@ module.exports = async function handler(req, res) {
     // validate minimal receipt.base shape
     let ok = true;
     let errors = null;
+
     if (validateReceiptBase) {
       ok = !!validateReceiptBase(receipt);
       if (!ok) errors = validateReceiptBase.errors || null;
@@ -301,7 +342,7 @@ module.exports = async function handler(req, res) {
           runtime_health,
           receipt_base_validated: !!validateReceiptBase,
           ajv_setup_error: ajvSetupError,
-          server_time: new Date().toISOString(),
+          server_time: nowIso(),
         },
       });
     }
@@ -311,9 +352,7 @@ module.exports = async function handler(req, res) {
       verb: step.verb,
       runtime_url: runtimeUrl,
       request: runtimeReq,
-      curl: [`# ${step.verb.toUpperCase()} (real runtime)`, buildCurl(runtimeUrl, runtimeReq)].join(
-        "\n"
-      ),
+      curl: [`# ${step.verb.toUpperCase()} (real runtime)`, buildCurl(runtimeUrl, runtimeReq)].join("\n"),
       validation: { ok: true, errors: null },
       receipt,
     });
@@ -330,7 +369,7 @@ module.exports = async function handler(req, res) {
       runtime_health,
       receipt_base_validated: !!validateReceiptBase,
       ajv_setup_error: ajvSetupError,
-      server_time: new Date().toISOString(),
+      server_time: nowIso(),
       curl: curlBlock,
     },
   });
