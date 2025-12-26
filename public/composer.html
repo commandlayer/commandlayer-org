@@ -520,7 +520,7 @@ color: var(--text-muted);
   }
 })();
 
-/* === Composer logic (REPLACE your second IIFE with this full one) === */
+/* === Composer logic (FIXED) === */
 (function () {
   const COMMON_VERBS = ["analyze","classify","clean","convert","describe","explain","format","parse","summarize","fetch"];
 
@@ -573,59 +573,11 @@ color: var(--text-muted);
 
     if (candidates.length) return candidates[0];
 
-    // fetch result shape: { items: [{ body_preview }] }
     if (Array.isArray(result.items) && result.items[0] && result.items[0].body_preview) {
       return String(result.items[0].body_preview);
     }
 
-    // fallback: stringify
     try { return JSON.stringify(result); } catch { return String(result); }
-  }
-
-  function setPrevToggleBehavior(index) {
-    const toggle = index === 2 ? step2UsePrev : step3UsePrev;
-    const inputField = document.getElementById("step" + index + "-input");
-    if (!toggle || !inputField) return;
-
-    function apply() {
-      const on = !!toggle.checked;
-      inputField.disabled = on;
-      if (!on) return;
-
-      // fill from last response (best available)
-      const steps = lastResponse?.steps || [];
-      const prev = steps.find(s => s.index === (index - 2)); // step2 reads step1; step3 reads step2
-      const prevReceipt = prev?.receipt;
-      const best = pickBestTextFromResult(prevReceipt?.result);
-      inputField.value = best || "";
-    }
-
-    toggle.addEventListener("change", apply);
-  }
-
-  setPrevToggleBehavior(2);
-  setPrevToggleBehavior(3);
-
-  function getStep(index) {
-    const verbSelect = document.getElementById("step" + index + "-verb");
-    const inputField = document.getElementById("step" + index + "-input");
-    const usePrev = document.getElementById("step" + index + "-use-prev");
-
-    if (!verbSelect || !inputField) return null;
-
-    const verb = (verbSelect.value || "").trim();
-    if (!verb || !COMMON_VERBS.includes(verb)) return null;
-
-    let input = (inputField.value || "").trim();
-
-    // If user chose "use prev", the field is disabled and should already be auto-filled.
-    if (usePrev && usePrev.checked) {
-      input = (inputField.value || "").trim();
-    }
-
-    if (!input) return null;
-
-    return { verb, input };
   }
 
   async function copyText(text) {
@@ -658,6 +610,125 @@ color: var(--text-muted);
       ? ("Server: <code>" + escapeHtml(serverTime) + "</code>")
       : "Server: <code>—</code>";
   }
+
+  function getStep(index) {
+    const verbSelect = document.getElementById("step" + index + "-verb");
+    const inputField = document.getElementById("step" + index + "-input");
+    const usePrev = document.getElementById("step" + index + "-use-prev");
+
+    if (!verbSelect || !inputField) return null;
+
+    const verb = (verbSelect.value || "").trim();
+    if (!verb || !COMMON_VERBS.includes(verb)) return null;
+
+    let input = (inputField.value || "").trim();
+
+    if (usePrev && usePrev.checked) {
+      input = (inputField.value || "").trim();
+    }
+
+    if (!input) return null;
+
+    return { verb, input };
+  }
+
+  function setBadge(idx, which, ok, label) {
+    const el = document.querySelector(`span[data-badge="${which}"][data-step="${idx}"]`);
+    if (!el) return;
+    el.classList.remove("badge--wait", "badge--ok", "badge--bad");
+    if (ok === true) el.classList.add("badge--ok");
+    else if (ok === false) el.classList.add("badge--bad");
+    else el.classList.add("badge--wait");
+    el.textContent = label;
+  }
+
+  async function verifyStepReceipt(idx, step) {
+    const receipt = step?.receipt;
+    if (!receipt) {
+      setBadge(idx, "schema", false, "schema: no receipt");
+      setBadge(idx, "hash", false, "hash: no receipt");
+      setBadge(idx, "sig", false, "sig: no receipt");
+      return;
+    }
+
+    setBadge(idx, "schema", null, "schema: …");
+    setBadge(idx, "hash", null, "hash: …");
+    setBadge(idx, "sig", null, "sig: …");
+
+    try {
+      // IMPORTANT FIX:
+      // The proxy expects the RECEIPT itself as the POST body.
+      // Do NOT wrap it in {receipt: ...}
+      const res = await fetch("/api/verify-receipt?schema=0&ens=0", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(receipt),
+      });
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok || !data) {
+        setBadge(idx, "schema", false, "schema: fail");
+        setBadge(idx, "hash", false, "hash: fail");
+        setBadge(idx, "sig", false, "sig: fail");
+        setStatus("<strong>Verify failed</strong> — backend returned " + res.status + ".");
+        return;
+      }
+
+      const checks = data.checks || {};
+      const schemaOk = !!checks.schema_valid;
+      const hashOk = !!checks.hash_matches;
+      const sigOk = !!checks.signature_valid;
+
+      setBadge(idx, "schema", schemaOk, "schema: " + (schemaOk ? "ok" : "fail"));
+      setBadge(idx, "hash", hashOk, "hash: " + (hashOk ? "ok" : "fail"));
+      setBadge(idx, "sig", sigOk, "sig: " + (sigOk ? "ok" : "fail"));
+
+      if (schemaOk && hashOk && sigOk) setStatus("<strong>Verified</strong> — schema + hash + signature all ok.");
+      else setStatus("<strong>Verify</strong> — one or more checks failed.");
+
+      // Optional: print verify response into raw JSON output if something fails
+      if (!(schemaOk && hashOk && sigOk)) {
+        setOutput({ flow: lastResponse, verify: data });
+      }
+    } catch (e) {
+      setBadge(idx, "schema", false, "schema: fail");
+      setBadge(idx, "hash", false, "hash: fail");
+      setBadge(idx, "sig", false, "sig: fail");
+      setStatus("<strong>Verify error</strong> — " + escapeHtml(e?.message || String(e)));
+    }
+  }
+
+  function updatePrevTogglesFromResponse(flow) {
+    lastResponse = flow || null;
+
+    if (step2UsePrev && step2UsePrev.checked) {
+      const input2 = document.getElementById("step2-input");
+      const prev = flow?.steps?.find(s => s.index === 0)?.receipt?.result;
+      input2.value = pickBestTextFromResult(prev) || "";
+    }
+
+    if (step3UsePrev && step3UsePrev.checked) {
+      const input3 = document.getElementById("step3-input");
+      const prev = flow?.steps?.find(s => s.index === 1)?.receipt?.result;
+      input3.value = pickBestTextFromResult(prev) || "";
+    }
+  }
+
+  function wirePrevToggle(toggleEl, inputEl, getPrevResultFn) {
+    if (!toggleEl || !inputEl) return;
+    function apply() {
+      const on = !!toggleEl.checked;
+      inputEl.disabled = on;
+      if (!on) return;
+      const result = getPrevResultFn();
+      inputEl.value = pickBestTextFromResult(result) || "";
+    }
+    toggleEl.addEventListener("change", apply);
+  }
+
+  wirePrevToggle(step2UsePrev, document.getElementById("step2-input"), () => lastResponse?.steps?.find(s => s.index === 0)?.receipt?.result);
+  wirePrevToggle(step3UsePrev, document.getElementById("step3-input"), () => lastResponse?.steps?.find(s => s.index === 1)?.receipt?.result);
 
   function renderReceiptCards(flow) {
     if (!receiptCardsEl) return;
@@ -738,8 +809,15 @@ color: var(--text-muted);
         </div>
       `;
     }).join("");
+  }
 
-    // attach handlers (event delegation)
+  // IMPORTANT FIX:
+  // do NOT use { once: true } or the buttons stop working after first click.
+  function ensureReceiptClickHandlerInstalled() {
+    if (!receiptCardsEl) return;
+    if (receiptCardsEl.__clBound) return;
+    receiptCardsEl.__clBound = true;
+
     receiptCardsEl.addEventListener("click", async (e) => {
       const btn = e.target && e.target.closest && e.target.closest("button[data-action]");
       if (!btn) return;
@@ -748,6 +826,7 @@ color: var(--text-muted);
       const idx = Number(btn.getAttribute("data-step") || "-1");
       if (!(idx >= 0)) return;
 
+      const steps = Array.isArray(lastResponse?.steps) ? lastResponse.steps : [];
       const step = steps[idx];
       if (!step) return;
 
@@ -764,83 +843,10 @@ color: var(--text-muted);
         await verifyStepReceipt(idx, step);
         return;
       }
-    }, { once: true });
+    });
   }
 
-  function setBadge(idx, which, ok, label) {
-    const el = document.querySelector(`span[data-badge="${which}"][data-step="${idx}"]`);
-    if (!el) return;
-    el.classList.remove("badge--wait", "badge--ok", "badge--bad");
-    if (ok === true) el.classList.add("badge--ok");
-    else if (ok === false) el.classList.add("badge--bad");
-    else el.classList.add("badge--wait");
-    el.textContent = label;
-  }
-
-  async function verifyStepReceipt(idx, step) {
-    const receipt = step?.receipt;
-    const runtimeBase = lastResponse?.meta?.runtime_base || "";
-
-    if (!receipt) {
-      setBadge(idx, "schema", false, "schema: no receipt");
-      setBadge(idx, "hash", false, "hash: no receipt");
-      setBadge(idx, "sig", false, "sig: no receipt");
-      return;
-    }
-
-    setBadge(idx, "schema", null, "schema: …");
-    setBadge(idx, "hash", null, "hash: …");
-    setBadge(idx, "sig", null, "sig: …");
-
-    try {
-      const res = await fetch("/api/verify-receipt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ receipt, runtime_base: runtimeBase }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok || !data) {
-        setBadge(idx, "schema", false, "schema: fail");
-        setBadge(idx, "hash", false, "hash: fail");
-        setBadge(idx, "sig", false, "sig: fail");
-        setStatus("<strong>Verify failed</strong> — backend returned " + res.status + ".");
-        return;
-      }
-
-      const checks = data.checks || {};
-      setBadge(idx, "schema", !!checks.schema_valid, "schema: " + (checks.schema_valid ? "ok" : "fail"));
-      setBadge(idx, "hash", !!checks.hash_matches, "hash: " + (checks.hash_matches ? "ok" : "fail"));
-      setBadge(idx, "sig", !!checks.signature_valid, "sig: " + (checks.signature_valid ? "ok" : "fail"));
-
-      if (checks.schema_valid && checks.hash_matches && checks.signature_valid) {
-        setStatus("<strong>Verified</strong> — schema + hash + signature all ok.");
-      } else {
-        setStatus("<strong>Verify</strong> — one or more checks failed. Expand the receipt JSON + compare proofs.");
-      }
-    } catch (e) {
-      setBadge(idx, "schema", false, "schema: fail");
-      setBadge(idx, "hash", false, "hash: fail");
-      setBadge(idx, "sig", false, "sig: fail");
-      setStatus("<strong>Verify error</strong> — " + escapeHtml(e?.message || String(e)));
-    }
-  }
-
-  function updatePrevTogglesFromResponse(flow) {
-    lastResponse = flow || null;
-
-    // If toggles are on, refill inputs from the freshest flow results
-    if (step2UsePrev && step2UsePrev.checked) {
-      const input2 = document.getElementById("step2-input");
-      const prev = flow?.steps?.find(s => s.index === 0)?.receipt?.result;
-      input2.value = pickBestTextFromResult(prev) || "";
-    }
-    if (step3UsePrev && step3UsePrev.checked) {
-      const input3 = document.getElementById("step3-input");
-      const prev = flow?.steps?.find(s => s.index === 1)?.receipt?.result;
-      input3.value = pickBestTextFromResult(prev) || "";
-    }
-  }
+  ensureReceiptClickHandlerInstalled();
 
   async function runFlow() {
     const steps = [];
@@ -885,16 +891,23 @@ color: var(--text-muted);
 
       // meta pills
       setPillsFromMeta(data?.meta || {});
+
+      // store response
+      lastResponse = data;
+
+      // if toggles are on, refresh their content from this response
       updatePrevTogglesFromResponse(data);
 
       // copy-all curl
       lastCurlBlock = String(data?.meta?.curl || "");
+
+      // debug JSON
       setOutput(data);
 
       // render cards
       renderReceiptCards(data);
 
-      // auto-verify each receipt (fast + makes demo feel “real”)
+      // auto verify each receipt via the proxy (schema=0 default path)
       const stepsOut = Array.isArray(data?.steps) ? data.steps : [];
       for (let i = 0; i < stepsOut.length; i++) {
         await verifyStepReceipt(i, stepsOut[i]);
