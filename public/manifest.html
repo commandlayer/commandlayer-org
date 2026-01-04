@@ -1,1 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>CommandLayer Quickstart — Call agents, verify receipts</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta
+    name="description"
+    content="CommandLayer Quickstart: call a live agent runtime, get a signed receipt, and verify it independently. ENS-bound verbs, pinned schemas, reproducible curls."
+  />
+
+  <style>
+    :root {
+      --bg: #05060a;
+      --bg-elevated: #0a0c14;
+      --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+      --border-soft: rgba(255, 255, 255, 0.06);
+      --border-strong: rgba(255, 255, 255, 0.18);
+      --accent: #c5cbe0;
+      --accent-strong: #e3e7ff;
+      --accent-muted: #8f96b5;
+      --text-main: #f7f8ff;
+      --text-muted: #9ca3c7;
+      --text-soft: #6b7280;
+      --radius-lg: 16px;
+      --radius-xl: 24px;
+      --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+      --max-width: 1120px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+      background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+      color: var(--text-main);
+    }
+
+    body { min-height: 100vh; }
+
+    .page-shell { min-height: 100vh; display: flex; flex-direction: column; }
+    .page-main { flex: 1; }
+
+    .container {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    /* Header */
+    .site-header {
+      background: var(--bg-header);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+    }
+
+    .site-header__inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.9rem 1.5rem;
+    }
+
+    .site-header__brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .site-header__logo-img {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      display: block;
+      border-radius: 6px;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
+    }
+
+    .site-header__text { display: flex; flex-direction: column; }
+    .site-header__title { font-size: 0.98rem; font-weight: 600; letter-spacing: 0.03em; }
+    .site-header__subtitle { font-size: 0.78rem; color: var(--text-muted); }
+
+    .site-header__nav { display: flex; gap: 1rem; align-items: center; }
+
+    .site-header__link {
+      font-size: 0.86rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      text-decoration: none;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .site-header__link:hover {
+      color: var(--accent-strong);
+      border-color: rgba(255, 255, 255, 0.18);
+      background: rgba(15, 23, 42, 0.7);
+    }
+    .site-header__link--active {
+      color: #020617;
+      background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+      border-color: rgba(255, 255, 255, 0.25);
+    }
+
+    /* Docs dropdown */
+    .site-header__dropdown { position: relative; }
+
+    .site-header__dropdown-btn {
+      font-size: 0.86rem;
+      padding: 0.35rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      cursor: pointer;
+    }
+    .site-header__dropdown-btn:hover {
+      color: var(--accent-strong);
+      border-color: rgba(255, 255, 255, 0.18);
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .site-header__dropdown-menu {
+      position: absolute;
+      top: 2.3rem;
+      right: 0;
+      background: rgba(15, 23, 42, 0.98);
+      border-radius: 14px;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+      padding: 0.5rem 0.4rem;
+      min-width: 210px;
+      display: none;
+    }
+    .site-header__dropdown-menu a {
+      display: block;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.82rem;
+      text-decoration: none;
+      color: var(--text-muted);
+      border-radius: 999px;
+    }
+    .site-header__dropdown-menu a:hover {
+      color: var(--accent-strong);
+      background: rgba(31, 41, 55, 0.95);
+    }
+    .site-header--docs-open .site-header__dropdown-menu { display: block; }
+
+    /* Mobile toggle */
+    .site-header__toggle {
+      display: none;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-main);
+      padding: 0.25rem 0.6rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .site-header__toggle:hover { background: rgba(15, 23, 42, 1); }
+
+    /* Hero */
+    .hero {
+      padding: 3.2rem 0 2.8rem;
+      border-bottom: 1px solid var(--border-soft);
+      background: radial-gradient(circle at 0 0, #111827, #020308);
+    }
+
+    .hero__inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
+      align-items: center;
+      gap: 2.5rem;
+    }
+
+    .hero__eyebrow {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--accent-muted);
+      margin-bottom: 0.8rem;
+    }
+
+    .hero__title {
+      margin: 0 0 0.8rem;
+      font-size: 2.4rem;
+      line-height: 1.1;
+    }
+
+    .hero__title span { display: block; }
+
+    .hero__title-em {
+      background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero__subtitle {
+      margin: 0 0 0.8rem;
+      color: var(--text-muted);
+      font-size: 0.98rem;
+      max-width: 38rem;
+      line-height: 1.7;
+    }
+
+    .hero__list {
+      margin: 0.4rem 0 0;
+      padding-left: 1.1rem;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .hero__cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+      margin-top: 1.6rem;
+    }
+
+    .hero__meta {
+      margin-top: 1.3rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      font-size: 0.8rem;
+      color: var(--text-soft);
+    }
+
+    .hero__meta-pill {
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      padding: 0.18rem 0.55rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.45rem;
+      padding: 0.6rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      text-decoration: none;
+      border: 1px solid transparent;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn--primary {
+      background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+      color: #020617;
+      border-color: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+    }
+    .btn--primary:hover { filter: brightness(1.03); }
+
+    .btn--ghost {
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--accent-strong);
+      border-color: rgba(148, 163, 184, 0.6);
+    }
+    .btn--ghost:hover { background: rgba(15, 23, 42, 1); }
+
+    .btn__icon { font-size: 1rem; }
+
+    .hero__card {
+      background: rgba(15, 23, 42, 0.95);
+      border-radius: var(--radius-xl);
+      padding: 1.4rem 1.4rem 1.6rem;
+      border: 1px solid var(--border-soft);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .hero__card-title {
+      margin: 0 0 0.5rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    .hero__card-body { margin: 0; font-size: 0.95rem; color: var(--text-main); margin-left: 0.1rem; }
+
+    .hero__card-list {
+      margin: 0.9rem 0 0;
+      padding-left: 1.15rem;
+      font-size: 0.86rem;
+      color: var(--text-muted);
+    }
+
+    /* Sections */
+    .section { padding: 2.8rem 0; }
+
+    .section--muted {
+      background: rgb(6, 9, 18);
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .section__header { max-width: 46rem; margin-bottom: 1.6rem; }
+    .section__header h2 { margin: 0 0 0.5rem; font-size: 1.4rem; }
+    .section__header p { margin: 0; font-size: 0.95rem; color: var(--text-muted); }
+
+    .grid { display: grid; gap: 1.2rem; }
+    .grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .info-card {
+      background: rgba(15, 23, 42, 0.95);
+      padding: 1.1rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-soft);
+      font-size: 0.9rem;
+    }
+
+    .info-card h3 { margin: 0 0 0.45rem; font-size: 1rem; }
+    .info-card p { margin: 0; color: var(--text-muted); }
+
+    .info-card code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.86em;
+    }
+
+    .info-card a { color: var(--accent-strong); text-decoration: none; }
+    .info-card a:hover { text-decoration: underline; }
+
+    /* Mini example */
+    .mini-example {
+      font-size: 0.85rem;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid var(--border-soft);
+      padding: 1rem;
+      border-radius: var(--radius-lg);
+      margin-top: 1.1rem;
+    }
+
+    .mini-example__label { opacity: 0.9; margin-bottom: 0.4rem; }
+    .mini-example pre {
+      margin: 0;
+      white-space: pre;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.82rem;
+      overflow-x: auto;
+      line-height: 1.45;
+    }
+
+    .mini-example__note {
+      opacity: 0.9;
+      margin-top: 0.7rem;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* Always-blue links */
+    .cl-blue-link { color: #7ca8ff !important; text-decoration: none; }
+    .cl-blue-link:hover { text-decoration: underline; }
+    .cl-blue-link:visited { color: #7ca8ff !important; }
+
+    /* Footer */
+    .site-footer { border-top: 1px solid rgba(255, 255, 255, 0.1); background: #020308; }
+
+    .site-footer__inner {
+      padding: 1.4rem 1.5rem 1.8rem;
+      font-size: 0.78rem;
+      color: var(--text-soft);
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      align-items: center;
+      text-align: center;
+    }
+
+    .site-footer__links { display: flex; gap: 0.8rem; justify-content: center; margin-top: 0.2rem; }
+    .site-footer__links a { color: var(--accent); text-decoration: none; }
+    .site-footer__links a:hover { text-decoration: underline; }
+
+    /* Mobile */
+    @media (max-width: 880px) {
+      .site-header__inner { padding-inline: 1rem; }
+      .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
+      .site-header__nav {
+        display: none;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-top: 0.8rem;
+      }
+      .site-header.site-header--open .site-header__nav { display: flex; }
+      .hero__inner { grid-template-columns: minmax(0, 1fr); }
+      .hero__card { margin-top: 1.5rem; }
+      .site-footer__inner { padding-inline: 1rem; }
+      .grid--3 { grid-template-columns: minmax(0, 1fr); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-shell">
+    <!-- HEADER -->
+    <header class="site-header">
+      <div class="site-header__inner container">
+        <a href="/" class="site-header__brand">
+          <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+          <div class="site-header__text">
+            <span class="site-header__title">CommandLayer</span>
+            <span class="site-header__subtitle">Semantic verb &amp; schema layer for agents</span>
+          </div>
+        </a>
+
+        <!-- Mobile toggle -->
+        <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+
+        <nav class="site-header__nav">
+          <a href="/" class="site-header__link">Overview</a>
+          <a href="/quickstart.html" class="site-header__link site-header__link--active">Quickstart</a>
+
+          <div class="site-header__dropdown">
+            <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
+            <div class="site-header__dropdown-menu">
+              <a href="/commons.html">Commons</a>
+              <a href="/commercial.html">Commercial</a>
+              <a href="/agent-cards.html">Agent Cards</a>
+              <a href="/runtime.html">Runtime</a>
+              <a href="/manifest.html">Manifest</a>
+              <a href="/roadmap.html">Roadmap</a>
+              <a href="/licensing.html">Licensing</a>
+              <a href="/about.html">About CommandLayer</a>
+            </div>
+          </div>
+
+          <a href="/demo.html" class="site-header__link">Live Demo</a>
+          <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-main">
+      <!-- HERO -->
+      <section class="hero">
+        <div class="container hero__inner">
+          <div>
+            <div class="hero__eyebrow">5 minutes · live runtime · verifiable receipts</div>
+            <h1 class="hero__title">
+              <span>Quickstart:</span>
+              <span class="hero__title-em">call an agent, get a receipt, verify it.</span>
+            </h1>
+
+            <p class="hero__subtitle">
+              CommandLayer standardizes <em>what agents do</em> by pinning request/receipt schemas to canonical ENS names.
+              You keep the same contract as runtimes, facilitators, and payment rails evolve.
+            </p>
+
+            <ul class="hero__list">
+              <li>Pick a verb (e.g. <code>analyze</code>), call the runtime endpoint.</li>
+              <li>Receive a structured receipt with cryptographic proof.</li>
+              <li>Validate against pinned schemas and verify signatures independently.</li>
+            </ul>
+
+            <div class="hero__cta-row">
+              <a href="#call" class="btn btn--primary"><span class="btn__icon">⚡</span><span>Run the curl</span></a>
+              <a href="#verify" class="btn btn--ghost"><span class="btn__icon">✅</span><span>Verify a receipt</span></a>
+              <a href="#download" class="btn btn--ghost"><span class="btn__icon">⬇️</span><span>Download</span></a>
+            </div>
+
+            <div class="hero__meta">
+              <span class="hero__meta-pill">Protocol v1.0.0</span>
+              <span class="hero__meta-pill">ENS-bound verbs</span>
+              <span class="hero__meta-pill">Schemas pinned to IPFS + checksums</span>
+              <span class="hero__meta-pill">Runtime live: runtime.commandlayer.org</span>
+              <span class="hero__meta-pill">Receipts: ed25519-sha256</span>
+            </div>
+          </div>
+
+          <aside class="hero__card">
+            <h2 class="hero__card-title">What you’ll accomplish</h2>
+            <p class="hero__card-body">
+              In under 5 minutes you’ll make a real request to a CommandLayer runtime, receive a signed receipt,
+              and confirm the receipt is valid.
+            </p>
+            <ol class="hero__card-list">
+              <li>Call <code>POST /analyze/v1.0.0</code> with an <code>x402</code> envelope.</li>
+              <li>Inspect the receipt: <code>status</code>, <code>result</code>, <code>trace</code>, <code>metadata.proof</code>.</li>
+              <li>Verify: schema ok, hash ok, signature ok.</li>
+              <li>Resolve: use ENS TXT records to discover schema URLs &amp; entry.</li>
+            </ol>
+
+            <div class="mini-example">
+              <div class="mini-example__label">// live health check</div>
+              <pre>curl -sS https://runtime.commandlayer.org/health</pre>
+              <div class="mini-example__note">
+                Want to see the flow composer? <a class="cl-blue-link" href="/demo.html">Live demo →</a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- STEP 1 -->
+      <section class="section section--muted" id="call">
+        <div class="container">
+          <div class="section__header">
+            <h2>Step 1 — Call a live agent runtime</h2>
+            <p>
+              This is a real runtime endpoint. You send an <code>x402</code> envelope (identity) plus <code>input</code>.
+              The runtime returns a receipt you can validate and verify.
+            </p>
+          </div>
+
+          <article class="info-card">
+            <h3>Copy/paste curl</h3>
+            <p style="margin-top:0.4rem;">
+              Example: <code>analyze</code> (Commons v1.0.0)
+            </p>
+
+            <div class="mini-example">
+              <pre>curl -sS --max-time 20 \
+  -X POST 'https://runtime.commandlayer.org/analyze/v1.0.0' \
+  -H 'Content-Type: application/json' \
+  --data-binary '{
+    "x402": {
+      "entry": "x402://analyzeagent.eth/analyze/v1.0.0",
+      "verb": "analyze",
+      "version": "1.0.0"
+    },
+    "actor": "quickstart.commandlayer.org",
+    "trace": { "trace_id": "quickstart-001" },
+    "input": { "content": "hello world" }
+  }'</pre>
+            </div>
+
+            <p style="margin-top:0.7rem;">
+              If you want a safer “always deterministic” first call, use <code>clean</code> or <code>parse</code>.
+              See the Commons list: <a class="cl-blue-link" href="/commons.html">Commons →</a>
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="section" id="receipt">
+        <div class="container">
+          <div class="section__header">
+            <h2>Step 2 — Understand the receipt</h2>
+            <p>
+              A CommandLayer receipt is evidence, not a log. It includes the verb identity, trace, result payload,
+              and a cryptographic proof block.
+            </p>
+          </div>
+
+          <div class="grid grid--3">
+            <article class="info-card">
+              <h3>Identity</h3>
+              <p>
+                Receipts carry <code>x402.entry</code>, <code>verb</code>, and <code>version</code> so callers can route,
+                cache, and replay safely across runtimes.
+              </p>
+            </article>
+
+            <article class="info-card">
+              <h3>Trace</h3>
+              <p>
+                Traces link multi-step flows and allow attribution. Use one shared <code>trace_id</code> across steps
+                to group receipts.
+              </p>
+            </article>
+
+            <article class="info-card">
+              <h3>Proof</h3>
+              <p>
+                <code>metadata.proof</code> includes the hash and signature. Third parties can verify receipts offline.
+              </p>
+            </article>
+          </div>
+
+          <article class="info-card" style="margin-top:1.2rem;">
+            <h3>Receipt excerpt</h3>
+            <div class="mini-example">
+              <pre>{
+  "status": "success",
+  "x402": { "entry": "x402://analyzeagent.eth/analyze/v1.0.0", "verb": "analyze", "version": "1.0.0" },
+  "trace": { "trace_id": "trace_..." },
+  "result": { "summary": "...", "insights": ["..."], "score": 0.1 },
+  "metadata": {
+    "proof": {
+      "alg": "ed25519-sha256",
+      "canonical": "json-stringify",
+      "signer_id": "runtime.commandlayer.eth",
+      "hash_sha256": "…",
+      "signature_b64": "…"
+    }
+  }
+}</pre>
+            </div>
+            <p style="margin-top:0.7rem;">
+              Receipt schemas are public and pinned:
+              <a class="cl-blue-link" href="/schemas/">Schemas index →</a>
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="section section--muted" id="resolve">
+        <div class="container">
+          <div class="section__header">
+            <h2>Step 3 — Resolve schemas and entry via ENS</h2>
+            <p>
+              Each agent publishes machine-readable TXT records. That’s how discovery tools and clients find
+              the canonical entrypoint and schema URLs.
+            </p>
+          </div>
+
+          <article class="info-card">
+            <h3>Example ENS TXT records (typical)</h3>
+            <div class="mini-example">
+              <pre>cl.verb                  analyze
+cl.version               1.0.0
+cl.class                 commons
+cl.entry                 x402://analyzeagent.eth/analyze/v1.0.0
+cl.schema.request         https://commandlayer.org/schemas/v1.0.0/...
+cl.schema.receipt         https://commandlayer.org/schemas/v1.0.0/...
+cl.cid.schemas           bafy...
+cl.schemas.mirror.ipfs   ipfs://bafy...
+cl.schemas.checksums.ipfs ipfs://.../schemas.v1.0.0.checksums.txt
+cl.agentcard             https://commandlayer.org/agent-cards/...
+cl.cid.agentcards        bafy...
+cl.owner                 commandlayer.eth
+cl.receipt.alg           ed25519
+cl.receipt.signer_id     runtime.commandlayer.eth</pre>
+            </div>
+
+            <p style="margin-top:0.7rem;">
+              Agent Cards provide a higher-level descriptor (capabilities + schema set + routing hints):
+              <a class="cl-blue-link" href="/agent-cards.html">Agent Cards →</a>
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- STEP 4 -->
+      <section class="section" id="verify">
+        <div class="container">
+          <div class="section__header">
+            <h2>Step 4 — Verify a receipt (Node.js)</h2>
+            <p>
+              Verification should be a boring, deterministic check: schema → hash → signature.
+              The signer public key is published via ENS / agent metadata.
+            </p>
+          </div>
+
+          <article class="info-card">
+            <h3>Install dependencies</h3>
+            <div class="mini-example">
+              <pre>npm install tweetnacl tweetnacl-util</pre>
+            </div>
+
+            <h3 style="margin-top:1rem;">Verify code (minimal)</h3>
+            <div class="mini-example">
+              <pre>import nacl from "tweetnacl";
+import { decodeBase64 } from "tweetnacl-util";
+import crypto from "crypto";
+
+// NOTE: receipt.metadata.proof.signature_b64 must NOT be included in the hashed payload.
+// Canonicalization must match the runtime ("canonical" field in proof).
+
+export function verifyReceipt(receipt, publicKeyBytes) {
+  const proof = receipt?.metadata?.proof;
+  if (!proof?.signature_b64 || !proof?.hash_sha256) return { ok: false, reason: "missing proof" };
+
+  // clone + remove signature before hashing
+  const unsigned = JSON.parse(JSON.stringify(receipt));
+  delete unsigned.metadata.proof.signature_b64;
+
+  // canonical bytes (current v1.0.0 uses JSON.stringify of the unsigned object)
+  const canonical = JSON.stringify(unsigned);
+
+  // hash sha256
+  const hash = crypto.createHash("sha256").update(canonical, "utf8").digest("hex");
+
+  if (hash !== proof.hash_sha256) return { ok: false, reason: "hash mismatch" };
+
+  // verify ed25519 signature over the hash bytes
+  const hashBytes = Buffer.from(proof.hash_sha256, "hex");
+  const sigBytes = decodeBase64(proof.signature_b64);
+
+  const ok = nacl.sign.detached.verify(hashBytes, sigBytes, publicKeyBytes);
+  return ok ? { ok: true } : { ok: false, reason: "signature invalid" };
+}</pre>
+            </div>
+
+            <p style="margin-top:0.7rem;">
+              If you want the full reference (including key resolution and schema validation),
+              point builders to your Runtime docs:
+              <a class="cl-blue-link" href="/runtime.html">Runtime →</a>
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- NEXT -->
+      <section class="section section--muted" id="next">
+        <div class="container">
+          <div class="section__header">
+            <h2>Next steps</h2>
+            <p>
+              Once you can call one verb and verify one receipt, you can scale to flows and registries.
+              The contract stays stable; execution changes.
+            </p>
+          </div>
+
+          <div class="grid grid--3">
+            <article class="info-card">
+              <h3>Try a flow</h3>
+              <p>
+                Compose multiple verbs and inspect receipts per-step.
+                <a class="cl-blue-link" href="/demo.html">Live Demo →</a>
+              </p>
+            </article>
+
+            <article class="info-card">
+              <h3>Browse schemas</h3>
+              <p>
+                All schemas are pinned, checksummed, and public.
+                <a class="cl-blue-link" href="/schemas/">Schemas →</a>
+              </p>
+            </article>
+
+            <article class="info-card">
+              <h3>Publish an Agent Card</h3>
+              <p>
+                Describe capabilities so discovery tools can route to you.
+                <a class="cl-blue-link" href="/agent-cards.html">Agent Cards →</a>
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- DOWNLOAD -->
+      <section class="section" id="download">
+        <div class="container">
+          <div class="section__header">
+            <h2>Download</h2>
+            <p>
+              If you want builders to download this quickstart (and you to share a stable file),
+              publish it as a static asset with a direct link.
+            </p>
+          </div>
+
+          <article class="info-card">
+            <h3>Recommended downloads</h3>
+            <p style="margin-top:0.4rem;">
+              1) HTML (this page) — easy to mirror and share<br/>
+              2) PDF — good for “send me the doc” and offline reference
+            </p>
+
+            <div class="mini-example">
+              <div class="mini-example__label">// direct download links (you will host these)</div>
+              <pre>HTML: https://commandlayer.org/quickstart.html
+PDF:  https://commandlayer.org/assets/commandlayer-quickstart.pdf</pre>
+            </div>
+
+            <p style="margin-top:0.7rem;">
+              If you want the browser to force a download, you can also provide an anchor with the
+              <code>download</code> attribute (works best for same-origin files).
+            </p>
+
+            <div class="mini-example">
+              <pre>&lt;a class="cl-blue-link" href="/quickstart.html" download&gt;Download Quickstart (HTML)&lt;/a&gt;
+&lt;a class="cl-blue-link" href="/assets/commandlayer-quickstart.pdf" download&gt;Download Quickstart (PDF)&lt;/a&gt;</pre>
+            </div>
+
+            <p style="margin-top:0.7rem; color: var(--text-muted);">
+              For PDFs: generate once, commit it, and serve it as a static file. Don’t generate PDFs dynamically.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="container site-footer__inner">
+        <div>© CommandLayer — semantic layer for autonomous agents</div>
+        <div>
+          Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL ·
+          Schemas always free, IPFS-pinned, checksummed, and ENS-anchored
+        </div>
+        <div class="site-footer__links">
+          <a href="/quickstart.html">Quickstart</a>
+          <a href="/FAQ.html">FAQ</a>
+          <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const header = document.querySelector(".site-header");
+      const toggle = document.querySelector(".site-header__toggle");
+      const docsBtn = document.querySelector(".site-header__dropdown-btn");
+
+      if (toggle && header) {
+        toggle.addEventListener("click", () => {
+          const isOpen = header.classList.toggle("site-header--open");
+          toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+        });
+      }
+
+      if (docsBtn && header) {
+        docsBtn.addEventListener("click", () => {
+          header.classList.toggle("site-header--docs-open");
+        });
+      }
+    })();
+  </script>
+</body>
+</html>
 
