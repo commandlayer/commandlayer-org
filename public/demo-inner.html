@@ -19,10 +19,10 @@
         --warn: rgba(250, 204, 21, 0.85);
         --radius: 14px;
         --shadow: 0 18px 55px rgba(0, 0, 0, 0.55);
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       }
 
       * { box-sizing: border-box; }
-
       html, body {
         margin: 0;
         padding: 0;
@@ -30,10 +30,8 @@
         background: radial-gradient(circle at 0 0, #020617, #000000);
         color: var(--text);
       }
-
       body { min-height: 100vh; padding: 1rem; }
-
-      .shell { max-width: 940px; margin: 0 auto; }
+      .shell { max-width: 980px; margin: 0 auto; }
 
       .header {
         display: flex;
@@ -42,7 +40,6 @@
         gap: 0.75rem;
         margin-bottom: 0.75rem;
       }
-
       .header-left h1 { margin: 0; font-size: 1rem; letter-spacing: 0.01em; }
       .header-left p { margin: 0.25rem 0 0; font-size: 0.78rem; color: var(--muted); line-height: 1.55; }
       .header-right { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end; }
@@ -58,13 +55,13 @@
         color: var(--accent-soft);
         background: rgba(2, 6, 23, 0.35);
         user-select: none;
+        white-space: nowrap;
       }
-
-      .chip strong { color: var(--accent); font-weight: 600; }
+      .chip strong { color: var(--accent); font-weight: 600; font-family: var(--mono); }
 
       .grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
         gap: 0.9rem;
       }
 
@@ -72,18 +69,19 @@
         background: radial-gradient(circle at 0 0, #020617, #020617);
         border-radius: var(--radius);
         border: 1px solid var(--border);
-        padding: 0.75rem 0.9rem;
+        padding: 0.85rem 0.95rem;
         box-shadow: var(--shadow);
       }
 
-      .card h2 { margin: 0 0 0.4rem; font-size: 0.9rem; }
-      .card p { margin: 0 0 0.55rem; font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+      .card h2 { margin: 0 0 0.45rem; font-size: 0.92rem; }
+      .card p { margin: 0 0 0.6rem; font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+      code.mono { font-family: var(--mono); font-size: 0.92em; color: #cbd5e1; }
 
       .btn-row {
         display: flex;
         flex-wrap: wrap;
         gap: 0.35rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.55rem;
       }
 
       button {
@@ -96,13 +94,11 @@
         cursor: pointer;
         transition: transform 120ms ease, filter 120ms ease, border-color 120ms ease, background 120ms ease;
       }
-
       button:hover {
         background: rgba(2, 6, 23, 0.75);
         border-color: var(--accent);
         transform: translateY(-1px);
       }
-
       button:active { transform: translateY(0px); filter: brightness(0.98); }
 
       button.primary {
@@ -110,49 +106,33 @@
         color: #020617;
         border-color: rgba(255, 255, 255, 0.3);
       }
-
       button.primary:hover { filter: brightness(1.03); border-color: rgba(255,255,255,0.55); }
-
-      button.ghost {
-        background: rgba(15, 23, 42, 0.25);
-      }
-
-      button.danger {
-        border-color: rgba(248, 113, 113, 0.65);
-        color: #fecaca;
-      }
-
-      button:disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
-        transform: none;
-      }
+      button.ghost { background: rgba(15, 23, 42, 0.25); }
+      button.danger { border-color: rgba(248, 113, 113, 0.65); color: #fecaca; }
+      button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
 
       .field-row {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.4rem;
-        margin-bottom: 0.5rem;
+        gap: 0.45rem;
+        margin-bottom: 0.55rem;
       }
-
       label {
         display: block;
         font-size: 0.75rem;
         color: var(--muted);
-        margin-bottom: 0.1rem;
+        margin-bottom: 0.12rem;
       }
-
-      input {
+      input, select {
         width: 100%;
         border-radius: 10px;
         border: 1px solid rgba(55, 65, 81, 0.9);
         background: rgba(2, 6, 23, 0.55);
         color: var(--accent);
         font-size: 0.78rem;
-        padding: 0.28rem 0.45rem;
+        padding: 0.3rem 0.45rem;
       }
-
-      input:focus {
+      input:focus, select:focus {
         outline: none;
         border-color: rgba(229, 231, 235, 0.95);
         box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.18);
@@ -163,7 +143,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 0.6rem;
-        margin-top: 0.55rem;
+        margin-top: 0.6rem;
         flex-wrap: wrap;
       }
 
@@ -177,56 +157,75 @@
         border: 1px solid var(--border-soft);
         background: rgba(2, 6, 23, 0.35);
         color: var(--accent-soft);
+        max-width: 100%;
       }
-
       .status-pill.good { border-color: var(--good); color: #a7f3d0; background: rgba(6, 95, 70, 0.22); }
-      .status-pill.bad { border-color: var(--bad); color: #fecaca; background: rgba(127, 29, 29, 0.22); }
+      .status-pill.bad  { border-color: var(--bad);  color: #fecaca; background: rgba(127, 29, 29, 0.22); }
       .status-pill.warn { border-color: var(--warn); color: #fde68a; background: rgba(113, 63, 18, 0.22); }
 
       .dot { width: 7px; height: 7px; border-radius: 999px; background: currentColor; opacity: 0.95; }
 
-      .mono {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      }
-
       pre {
         margin: 0;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-family: var(--mono);
         font-size: 0.75rem;
         color: var(--accent-soft);
         background: rgba(2, 6, 23, 0.55);
         border-radius: 10px;
         border: 1px solid rgba(55, 65, 81, 0.9);
-        padding: 0.6rem;
+        padding: 0.65rem;
         max-height: 330px;
         overflow: auto;
         line-height: 1.45;
       }
 
+      .tabs {
+        display: flex;
+        gap: 0.35rem;
+        margin-bottom: 0.55rem;
+        flex-wrap: wrap;
+      }
+      .tab {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.55);
+        background: rgba(2, 6, 23, 0.25);
+        color: var(--accent-soft);
+        font-size: 0.74rem;
+        padding: 0.22rem 0.55rem;
+        cursor: pointer;
+        user-select: none;
+      }
+      .tab.active {
+        background: rgba(2, 6, 23, 0.75);
+        border-color: rgba(229, 231, 235, 0.65);
+        color: var(--accent);
+      }
+
       .receipt-meta {
-        margin-top: 0.55rem;
-        padding-top: 0.55rem;
+        margin-top: 0.6rem;
+        padding-top: 0.6rem;
         border-top: 1px solid rgba(148, 163, 184, 0.18);
         display: grid;
         gap: 0.35rem;
         font-size: 0.76rem;
         color: var(--muted);
       }
+      .kv { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: baseline; }
+      .kv b { color: var(--accent); font-weight: 600; }
+      .kv code { color: #cbd5e1; font-size: 0.74rem; font-family: var(--mono); word-break: break-all; }
 
-      .kv {
-        display: flex;
-        gap: 0.4rem;
-        flex-wrap: wrap;
-        align-items: baseline;
+      .hint {
+        margin-top: 0.45rem;
+        font-size: 0.74rem;
+        color: var(--muted);
+        line-height: 1.5;
       }
 
-      .kv b { color: var(--accent); font-weight: 600; }
-      .kv code { color: #cbd5e1; font-size: 0.74rem; }
-
-      @media (max-width: 800px) {
+      @media (max-width: 860px) {
         .grid { grid-template-columns: minmax(0, 1fr); }
         .header { flex-direction: column; align-items: flex-start; }
         .header-right { justify-content: flex-start; }
+        .field-row { grid-template-columns: minmax(0,1fr); }
       }
     </style>
   </head>
@@ -237,23 +236,24 @@
         <div class="header-left">
           <h1>CommandLayer Commerce Demo (Internal)</h1>
           <p>
-            Runs <code class="mono">authorize</code> → <code class="mono">checkout</code> → <code class="mono">purchase</code> →
-            <code class="mono">ship</code> → <code class="mono">verify</code> as a multi-step flow. The UI now targets a single
-            backend: <code class="mono">/api/commercial-flow</code> (no fake per-verb endpoints).
+            Runs <code class="mono mono">authorize</code> → <code class="mono">checkout</code> → <code class="mono">purchase</code> →
+            <code class="mono">ship</code> → <code class="mono">verify</code> as a multi-step flow.
+            This UI targets a single backend: <code class="mono">/api/commercial-flow</code> (no per-verb endpoints).
           </p>
         </div>
         <div class="header-right">
-          <span class="chip">Backend: <strong class="mono">/api/commercial-flow</strong></span>
-          <span class="chip">Version: <strong class="mono">v1.0.0</strong></span>
+          <span class="chip">Backend: <strong>/api/commercial-flow</strong></span>
+          <span class="chip">Version: <strong>v1.0.0</strong></span>
         </div>
       </div>
 
       <div class="grid">
+        <!-- LEFT -->
         <div class="card">
           <h2>Controls</h2>
           <p>
-            Edit fields, then run a single step or the full flow. Receipts are returned per-step with a shared
-            <code class="mono">trace_id</code>. You can copy a curl block to reproduce.
+            Edit fields, then run a single step or the full flow. Receipts come back per-step with a shared
+            <code class="mono">trace_id</code>. Copy curl to reproduce.
           </p>
 
           <div class="field-row">
@@ -326,21 +326,32 @@
               <span id="net_text">Ready</span>
             </span>
           </div>
+
+          <div class="hint">
+            Tip: the demo is only as real as your backend. If <code class="mono">/api/commercial-flow</code> is forwarding to a
+            commercial runtime, your receipts are real runtime receipts (signed).
+          </div>
         </div>
 
+        <!-- RIGHT -->
         <div class="card">
-          <h2>Latest output</h2>
-          <p>
-            Shows the most recent API response. For successful runs, the receipt is included per-step in the returned flow payload.
-          </p>
+          <h2>Output</h2>
+          <p>Switch between the latest step, full raw response, and the curl block.</p>
+
+          <div class="tabs">
+            <div class="tab active" data-tab="latest" onclick="setTab('latest')">Latest step</div>
+            <div class="tab" data-tab="raw" onclick="setTab('raw')">Raw JSON</div>
+            <div class="tab" data-tab="curl" onclick="setTab('curl')">Curl</div>
+          </div>
+
           <pre id="output">{}</pre>
 
           <div class="receipt-meta" id="receipt_meta" style="display:none;">
-            <div class="kv"><b>verb:</b> <code id="m_verb" class="mono">-</code></div>
-            <div class="kv"><b>runtime_url:</b> <code id="m_url" class="mono">-</code></div>
-            <div class="kv"><b>trace_id:</b> <code id="m_trace" class="mono">-</code></div>
-            <div class="kv"><b>receipt_id:</b> <code id="m_receipt" class="mono">-</code></div>
-            <div class="kv"><b>signer:</b> <code id="m_signer" class="mono">-</code></div>
+            <div class="kv"><b>verb:</b> <code id="m_verb">-</code></div>
+            <div class="kv"><b>runtime_url:</b> <code id="m_url">-</code></div>
+            <div class="kv"><b>trace_id:</b> <code id="m_trace">-</code></div>
+            <div class="kv"><b>receipt_id:</b> <code id="m_receipt">-</code></div>
+            <div class="kv"><b>signer:</b> <code id="m_signer">-</code></div>
           </div>
         </div>
       </div>
@@ -356,8 +367,18 @@
       };
 
       const VERBS = ["authorize", "checkout", "purchase", "ship", "verify"];
+      const ALLOWED = new Set(VERBS);
+      let activeTab = "latest"; // latest | raw | curl
 
       function $(id) { return document.getElementById(id); }
+
+      function setTab(name) {
+        activeTab = name;
+        document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
+        const el = document.querySelector(`.tab[data-tab="${name}"]`);
+        if (el) el.classList.add("active");
+        renderOutput();
+      }
 
       function setPill(pillEl, textEl, mode, text) {
         pillEl.classList.remove("good", "bad", "warn");
@@ -393,14 +414,14 @@
 
       function safeGet(obj, path, fallback = null) {
         try {
-          return path.split(".").reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), obj) ?? fallback;
+          const v = path.split(".").reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), obj);
+          return v == null ? fallback : v;
         } catch {
           return fallback;
         }
       }
 
       function renderMetaFromReceipt(step) {
-        // step: { verb, runtime_url, receipt }
         const receipt = step?.receipt || null;
         if (!receipt) {
           $("receipt_meta").style.display = "none";
@@ -427,10 +448,6 @@
         $("receipt_meta").style.display = "grid";
       }
 
-      function updateOutput(data) {
-        $("output").textContent = JSON.stringify(data, null, 2);
-      }
-
       function resetState() {
         last = null;
         state = { trace_id: null, last_order_id: null, last_shipment_id: null };
@@ -439,6 +456,7 @@
         $("receipt_meta").style.display = "none";
         $("status_pill").style.display = "none";
         $("net_pill").style.display = "none";
+        setTab("latest");
       }
 
       function disableButtons(disabled) {
@@ -446,6 +464,34 @@
           const el = $(id);
           if (el) el.disabled = disabled;
         });
+      }
+
+      function prettify(obj) {
+        return JSON.stringify(obj, null, 2);
+      }
+
+      function renderOutput() {
+        const out = $("output");
+        if (!last) {
+          out.textContent = "{}";
+          return;
+        }
+
+        if (activeTab === "raw") {
+          out.textContent = prettify(last);
+          return;
+        }
+
+        if (activeTab === "curl") {
+          const curl = last?.meta?.curl || "";
+          out.textContent = curl ? curl : "# (no curl yet — run a step or full flow)";
+          return;
+        }
+
+        // latest
+        const steps = Array.isArray(last?.steps) ? last.steps : [];
+        const latest = steps.length ? steps[steps.length - 1] : null;
+        out.textContent = latest ? prettify(latest) : prettify(last);
       }
 
       async function callCommercialFlow(steps, trace_id) {
@@ -465,16 +511,13 @@
           const detail = json?.detail ? (typeof json.detail === "string" ? json.detail : JSON.stringify(json.detail)) : "";
           throw new Error(detail ? `${msg}: ${detail}` : msg);
         }
-
         return json;
       }
 
       function buildStepInput(verb, base) {
         const trace_id = effectiveTraceId() || undefined;
 
-        // IMPORTANT:
-        // You are free to adjust these "input" shapes to match your commercial schemas.
-        // The orchestration backend will wrap them in x402/actor/trace.
+        // Adjust these shapes to match your commercial request schemas.
         if (verb === "authorize") {
           return {
             trace_id,
@@ -522,49 +565,58 @@
         return { trace_id, ...base };
       }
 
+      function captureIdsFromReceipt(receipt) {
+        if (!receipt || typeof receipt !== "object") return;
+
+        // best-effort: if your commercial receipts include these
+        const maybeOrder =
+          safeGet(receipt, "result.order_id") ||
+          safeGet(receipt, "result.checkout_id") ||
+          safeGet(receipt, "result.purchase_id") ||
+          null;
+
+        const maybeShipment =
+          safeGet(receipt, "result.shipment_id") ||
+          safeGet(receipt, "result.tracking_id") ||
+          null;
+
+        if (maybeOrder && !state.last_order_id) state.last_order_id = String(maybeOrder);
+        if (maybeShipment) state.last_shipment_id = String(maybeShipment);
+      }
+
       async function runStep(verb) {
+        if (!ALLOWED.has(verb)) return;
+
         try {
           disableButtons(true);
           setPill($("net_pill"), $("net_text"), "warn", `Running ${verb}…`);
-          const base = getBasePayload();
 
+          const base = getBasePayload();
           const step = { verb, input: buildStepInput(verb, base) };
           const trace_id = effectiveTraceId();
 
           const data = await callCommercialFlow([step], trace_id);
 
           last = data;
-          updateOutput(data);
+          renderOutput();
 
           const step0 = Array.isArray(data?.steps) ? data.steps[0] : null;
-          if (step0?.receipt) {
-            // update trace + capture any IDs if your commercial receipts contain them
-            const t =
-              safeGet(step0.receipt, "trace.trace_id") ||
-              safeGet(step0.receipt, "trace_id") ||
-              null;
+          const receipt = step0?.receipt;
+
+          if (receipt) {
+            const t = safeGet(receipt, "trace.trace_id") || safeGet(receipt, "trace_id") || null;
             updateTrace(t);
-
-            // best-effort: if receipts contain order/shipment ids, capture them
-            const maybeOrder =
-              safeGet(step0.receipt, "result.order_id") ||
-              safeGet(step0.receipt, "result.checkout_id") ||
-              safeGet(step0.receipt, "result.purchase_id") ||
-              null;
-            const maybeShipment =
-              safeGet(step0.receipt, "result.shipment_id") ||
-              safeGet(step0.receipt, "result.tracking_id") ||
-              null;
-
-            if (maybeOrder && !state.last_order_id) state.last_order_id = String(maybeOrder);
-            if (maybeShipment) state.last_shipment_id = String(maybeShipment);
-
+            captureIdsFromReceipt(receipt);
             renderMetaFromReceipt(step0);
+          } else {
+            $("receipt_meta").style.display = "none";
           }
 
           setPill($("net_pill"), $("net_text"), "good", `OK — ${verb} receipt returned.`);
         } catch (err) {
-          updateOutput({ ok: false, error: err?.message || String(err) });
+          last = { ok: false, error: err?.message || String(err) };
+          renderOutput();
+          $("receipt_meta").style.display = "none";
           setPill($("net_pill"), $("net_text"), "bad", `Error — ${err?.message || String(err)}`);
         } finally {
           disableButtons(false);
@@ -576,54 +628,40 @@
           disableButtons(true);
           setPill($("net_pill"), $("net_text"), "warn", "Running full flow…");
 
-          // keep trace if user supplied one; otherwise clear state so we start fresh
+          // keep trace if user supplied one; otherwise clear trace
           const keepTrace = ($("trace_id").value || "").trim();
           state.last_order_id = null;
           state.last_shipment_id = null;
           if (!keepTrace) state.trace_id = null;
 
           const base = getBasePayload();
-
-          const steps = VERBS.map((verb) => ({ verb, input: buildStepInput(verb, base) }));
+          const steps = VERBS.map((v) => ({ verb: v, input: buildStepInput(v, base) }));
           const trace_id = effectiveTraceId();
 
           const data = await callCommercialFlow(steps, trace_id);
 
           last = data;
-          updateOutput(data);
+          renderOutput();
 
-          // Pull trace from first receipt if present
-          const first = Array.isArray(data?.steps) ? data.steps[0] : null;
-          const t =
-            safeGet(first?.receipt, "trace.trace_id") ||
-            safeGet(first?.receipt, "trace_id") ||
-            null;
-          updateTrace(t);
-
-          // best-effort capture IDs from later steps
           const stepsArr = Array.isArray(data?.steps) ? data.steps : [];
-          for (const s of stepsArr) {
-            const maybeOrder =
-              safeGet(s.receipt, "result.order_id") ||
-              safeGet(s.receipt, "result.checkout_id") ||
-              safeGet(s.receipt, "result.purchase_id") ||
-              null;
-            const maybeShipment =
-              safeGet(s.receipt, "result.shipment_id") ||
-              safeGet(s.receipt, "result.tracking_id") ||
-              null;
+          const firstReceipt = stepsArr[0]?.receipt || null;
 
-            if (maybeOrder && !state.last_order_id) state.last_order_id = String(maybeOrder);
-            if (maybeShipment) state.last_shipment_id = String(maybeShipment);
+          if (firstReceipt) {
+            const t = safeGet(firstReceipt, "trace.trace_id") || safeGet(firstReceipt, "trace_id") || null;
+            updateTrace(t);
           }
 
-          // render meta from final step if available
+          for (const s of stepsArr) captureIdsFromReceipt(s?.receipt);
+
           const lastStep = stepsArr.length ? stepsArr[stepsArr.length - 1] : null;
           if (lastStep) renderMetaFromReceipt(lastStep);
+          else $("receipt_meta").style.display = "none";
 
           setPill($("net_pill"), $("net_text"), "good", "OK — flow receipts returned.");
         } catch (err) {
-          updateOutput({ ok: false, error: err?.message || String(err) });
+          last = { ok: false, error: err?.message || String(err) };
+          renderOutput();
+          $("receipt_meta").style.display = "none";
           setPill($("net_pill"), $("net_text"), "bad", `Error — ${err?.message || String(err)}`);
         } finally {
           disableButtons(false);
@@ -633,18 +671,20 @@
       async function copyCurl() {
         try {
           const curl = last?.meta?.curl;
-          if (!curl) throw new Error("No curl block available yet. Run a step or flow first.");
+          if (!curl) throw new Error("No curl block available yet. Run a step or full flow first.");
           await navigator.clipboard.writeText(curl);
           setPill($("net_pill"), $("net_text"), "good", "Copied curl block.");
+          setTab("curl");
+          renderOutput();
         } catch (err) {
           setPill($("net_pill"), $("net_text"), "bad", err?.message || String(err));
         }
       }
 
-      // Initialize
+      // Init
       (function init() {
-        // default state UI
         setPill($("net_pill"), $("net_text"), "warn", "Ready.");
+        setTab("latest");
       })();
     </script>
   </body>
