@@ -9,13 +9,20 @@
         --bg: #020617;
         --card: #020617;
         --border: rgba(148, 163, 184, 0.5);
+        --border-soft: rgba(148, 163, 184, 0.28);
         --accent: #e5e7eb;
         --accent-soft: #9ca3c7;
         --text: #f9fafb;
         --muted: #9ca3af;
+        --good: rgba(52, 211, 153, 0.8);
+        --bad: rgba(248, 113, 113, 0.85);
+        --warn: rgba(250, 204, 21, 0.85);
         --radius: 14px;
+        --shadow: 0 18px 55px rgba(0, 0, 0, 0.55);
       }
+
       * { box-sizing: border-box; }
+
       html, body {
         margin: 0;
         padding: 0;
@@ -23,153 +30,231 @@
         background: radial-gradient(circle at 0 0, #020617, #000000);
         color: var(--text);
       }
-      body {
-        min-height: 100vh;
-        padding: 1rem;
-      }
-      .shell {
-        max-width: 900px;
-        margin: 0 auto;
-      }
+
+      body { min-height: 100vh; padding: 1rem; }
+
+      .shell { max-width: 940px; margin: 0 auto; }
+
       .header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.75rem;
         margin-bottom: 0.75rem;
       }
-      .header h1 {
-        margin: 0;
-        font-size: 1rem;
+
+      .header-left h1 { margin: 0; font-size: 1rem; letter-spacing: 0.01em; }
+      .header-left p { margin: 0.25rem 0 0; font-size: 0.78rem; color: var(--muted); line-height: 1.55; }
+      .header-right { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end; }
+
+      .chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 999px;
+        border: 1px solid var(--border-soft);
+        padding: 0.22rem 0.55rem;
+        font-size: 0.72rem;
+        color: var(--accent-soft);
+        background: rgba(2, 6, 23, 0.35);
+        user-select: none;
       }
-      .header p {
-        margin: 0.25rem 0 0;
-        font-size: 0.78rem;
-        color: var(--muted);
-      }
+
+      .chip strong { color: var(--accent); font-weight: 600; }
+
       .grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+        grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
         gap: 0.9rem;
       }
+
       .card {
         background: radial-gradient(circle at 0 0, #020617, #020617);
         border-radius: var(--radius);
         border: 1px solid var(--border);
         padding: 0.75rem 0.9rem;
+        box-shadow: var(--shadow);
       }
-      .card h2 {
-        margin: 0 0 0.4rem;
-        font-size: 0.9rem;
-      }
-      .card p {
-        margin: 0 0 0.5rem;
-        font-size: 0.8rem;
-        color: var(--muted);
-      }
+
+      .card h2 { margin: 0 0 0.4rem; font-size: 0.9rem; }
+      .card p { margin: 0 0 0.55rem; font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
+
       .btn-row {
         display: flex;
         flex-wrap: wrap;
         gap: 0.35rem;
         margin-bottom: 0.5rem;
       }
+
       button {
         border-radius: 999px;
         border: 1px solid rgba(148, 163, 184, 0.7);
-        background: #020617;
+        background: rgba(2, 6, 23, 0.55);
         color: var(--accent);
         font-size: 0.78rem;
-        padding: 0.35rem 0.7rem;
+        padding: 0.38rem 0.72rem;
         cursor: pointer;
+        transition: transform 120ms ease, filter 120ms ease, border-color 120ms ease, background 120ms ease;
       }
+
       button:hover {
-        background: #020617;
+        background: rgba(2, 6, 23, 0.75);
         border-color: var(--accent);
+        transform: translateY(-1px);
       }
+
+      button:active { transform: translateY(0px); filter: brightness(0.98); }
+
       button.primary {
         background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
         color: #020617;
         border-color: rgba(255, 255, 255, 0.3);
       }
+
+      button.primary:hover { filter: brightness(1.03); border-color: rgba(255,255,255,0.55); }
+
+      button.ghost {
+        background: rgba(15, 23, 42, 0.25);
+      }
+
+      button.danger {
+        border-color: rgba(248, 113, 113, 0.65);
+        color: #fecaca;
+      }
+
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+      }
+
       .field-row {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 0.4rem;
         margin-bottom: 0.5rem;
       }
+
       label {
         display: block;
         font-size: 0.75rem;
         color: var(--muted);
         margin-bottom: 0.1rem;
       }
+
       input {
         width: 100%;
         border-radius: 10px;
         border: 1px solid rgba(55, 65, 81, 0.9);
-        background: #020617;
+        background: rgba(2, 6, 23, 0.55);
         color: var(--accent);
         font-size: 0.78rem;
-        padding: 0.25rem 0.4rem;
+        padding: 0.28rem 0.45rem;
       }
+
       input:focus {
         outline: none;
-        border-color: var(--accent);
+        border-color: rgba(229, 231, 235, 0.95);
+        box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.18);
       }
+
+      .status-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.6rem;
+        margin-top: 0.55rem;
+        flex-wrap: wrap;
+      }
+
       .status-pill {
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
         border-radius: 999px;
-        border: 1px solid rgba(52, 211, 153, 0.7);
-        padding: 0.2rem 0.55rem;
-        font-size: 0.7rem;
-        color: #a7f3d0;
-        background: rgba(6, 95, 70, 0.3);
+        padding: 0.22rem 0.6rem;
+        font-size: 0.72rem;
+        border: 1px solid var(--border-soft);
+        background: rgba(2, 6, 23, 0.35);
+        color: var(--accent-soft);
       }
-      .status-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 999px;
-        background: #22c55e;
+
+      .status-pill.good { border-color: var(--good); color: #a7f3d0; background: rgba(6, 95, 70, 0.22); }
+      .status-pill.bad { border-color: var(--bad); color: #fecaca; background: rgba(127, 29, 29, 0.22); }
+      .status-pill.warn { border-color: var(--warn); color: #fde68a; background: rgba(113, 63, 18, 0.22); }
+
+      .dot { width: 7px; height: 7px; border-radius: 999px; background: currentColor; opacity: 0.95; }
+
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       }
+
       pre {
         margin: 0;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
         font-size: 0.75rem;
         color: var(--accent-soft);
-        background: #020617;
+        background: rgba(2, 6, 23, 0.55);
         border-radius: 10px;
         border: 1px solid rgba(55, 65, 81, 0.9);
-        padding: 0.5rem;
-        max-height: 320px;
+        padding: 0.6rem;
+        max-height: 330px;
         overflow: auto;
+        line-height: 1.45;
       }
-      .trace-info {
+
+      .receipt-meta {
         margin-top: 0.55rem;
-        font-size: 0.72rem;
+        padding-top: 0.55rem;
+        border-top: 1px solid rgba(148, 163, 184, 0.18);
+        display: grid;
+        gap: 0.35rem;
+        font-size: 0.76rem;
         color: var(--muted);
       }
-      .trace-info code {
-        font-size: 0.72rem;
+
+      .kv {
+        display: flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        align-items: baseline;
       }
+
+      .kv b { color: var(--accent); font-weight: 600; }
+      .kv code { color: #cbd5e1; font-size: 0.74rem; }
+
       @media (max-width: 800px) {
-        .grid {
-          grid-template-columns: minmax(0, 1fr);
-        }
+        .grid { grid-template-columns: minmax(0, 1fr); }
+        .header { flex-direction: column; align-items: flex-start; }
+        .header-right { justify-content: flex-start; }
       }
     </style>
   </head>
+
   <body>
     <div class="shell">
       <div class="header">
-        <h1>CommandLayer Commerce Demo (Internal)</h1>
-        <p>
-          Chains <code>authorize</code> → <code>checkout</code> → <code>purchase</code> → <code>ship</code> → <code>verify</code>
-          using JSON receipts and a shared <code>trace_id</code>.
-        </p>
+        <div class="header-left">
+          <h1>CommandLayer Commerce Demo (Internal)</h1>
+          <p>
+            Runs <code class="mono">authorize</code> → <code class="mono">checkout</code> → <code class="mono">purchase</code> →
+            <code class="mono">ship</code> → <code class="mono">verify</code> as a multi-step flow. The UI now targets a single
+            backend: <code class="mono">/api/commercial-flow</code> (no fake per-verb endpoints).
+          </p>
+        </div>
+        <div class="header-right">
+          <span class="chip">Backend: <strong class="mono">/api/commercial-flow</strong></span>
+          <span class="chip">Version: <strong class="mono">v1.0.0</strong></span>
+        </div>
       </div>
 
       <div class="grid">
         <div class="card">
           <h2>Controls</h2>
-          <p>Run a single step or the full flow. All calls hit <code>/api/*</code> on this origin.</p>
+          <p>
+            Edit fields, then run a single step or the full flow. Receipts are returned per-step with a shared
+            <code class="mono">trace_id</code>. You can copy a curl block to reproduce.
+          </p>
 
           <div class="field-row">
             <div>
@@ -217,180 +302,350 @@
           </div>
 
           <div class="btn-row">
-            <button onclick="runStep('authorize')">Authorize</button>
-            <button onclick="runStep('checkout')">Checkout</button>
-            <button onclick="runStep('purchase')">Purchase</button>
-            <button onclick="runStep('ship')">Ship</button>
-            <button onclick="runStep('verify')">Verify</button>
+            <button id="b_authorize" onclick="runStep('authorize')">Authorize</button>
+            <button id="b_checkout" onclick="runStep('checkout')">Checkout</button>
+            <button id="b_purchase" onclick="runStep('purchase')">Purchase</button>
+            <button id="b_ship" onclick="runStep('ship')">Ship</button>
+            <button id="b_verify" onclick="runStep('verify')">Verify</button>
           </div>
 
           <div class="btn-row">
-            <button class="primary" onclick="runFlow()">Run full flow</button>
-            <button onclick="resetState()">Reset state</button>
+            <button class="primary" id="b_flow" onclick="runFlow()">Run full flow</button>
+            <button class="ghost" onclick="copyCurl()">Copy curl</button>
+            <button class="danger" onclick="resetState()">Reset</button>
           </div>
 
-          <div class="trace-info" id="trace_info">
+          <div class="status-line">
             <span class="status-pill" id="status_pill" style="display:none;">
-              <span class="status-dot"></span>
-              <span id="status_text">Trace active</span>
+              <span class="dot"></span>
+              <span id="status_text">Idle</span>
+            </span>
+
+            <span class="status-pill" id="net_pill" style="display:none;">
+              <span class="dot"></span>
+              <span id="net_text">Ready</span>
             </span>
           </div>
         </div>
 
         <div class="card">
-          <h2>Latest receipt</h2>
-          <p>Each call returns a JSON receipt from the corresponding verb.</p>
+          <h2>Latest output</h2>
+          <p>
+            Shows the most recent API response. For successful runs, the receipt is included per-step in the returned flow payload.
+          </p>
           <pre id="output">{}</pre>
+
+          <div class="receipt-meta" id="receipt_meta" style="display:none;">
+            <div class="kv"><b>verb:</b> <code id="m_verb" class="mono">-</code></div>
+            <div class="kv"><b>runtime_url:</b> <code id="m_url" class="mono">-</code></div>
+            <div class="kv"><b>trace_id:</b> <code id="m_trace" class="mono">-</code></div>
+            <div class="kv"><b>receipt_id:</b> <code id="m_receipt" class="mono">-</code></div>
+            <div class="kv"><b>signer:</b> <code id="m_signer" class="mono">-</code></div>
+          </div>
         </div>
       </div>
     </div>
 
     <script>
+      let last = null;
+
       let state = {
         trace_id: null,
         last_order_id: null,
         last_shipment_id: null,
       };
 
+      const VERBS = ["authorize", "checkout", "purchase", "ship", "verify"];
+
+      function $(id) { return document.getElementById(id); }
+
+      function setPill(pillEl, textEl, mode, text) {
+        pillEl.classList.remove("good", "bad", "warn");
+        pillEl.classList.add(mode);
+        pillEl.style.display = "inline-flex";
+        textEl.textContent = text;
+      }
+
       function getBasePayload() {
         return {
-          buyer: document.getElementById('buyer').value,
-          chain_id: document.getElementById('chain_id').value,
-          order_id: document.getElementById('order_id').value,
-          sku: document.getElementById('sku').value,
-          qty: Number(document.getElementById('qty').value || 1),
-          total_amount: document.getElementById('total_amount').value,
-          currency: document.getElementById('currency').value,
-          address: document.getElementById('address').value,
+          buyer: $("buyer").value,
+          chain_id: $("chain_id").value,
+          order_id: $("order_id").value,
+          sku: $("sku").value,
+          qty: Number($("qty").value || 1),
+          total_amount: $("total_amount").value,
+          currency: $("currency").value,
+          address: $("address").value,
         };
       }
 
-      function updateOutput(data) {
-        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+      function effectiveTraceId() {
+        const explicit = ($("trace_id").value || "").trim();
+        return explicit || state.trace_id || null;
+      }
 
-        if (data.trace_id) {
-          state.trace_id = data.trace_id;
-          const traceInput = document.getElementById('trace_id');
-          if (!traceInput.value) traceInput.value = data.trace_id;
+      function updateTrace(traceId) {
+        if (!traceId) return;
+        state.trace_id = traceId;
+        if (!$("trace_id").value) $("trace_id").value = traceId;
+        setPill($("status_pill"), $("status_text"), "good", `Trace active: ${traceId}`);
+      }
 
-          const pill = document.getElementById('status_pill');
-          const text = document.getElementById('status_text');
-          pill.style.display = 'inline-flex';
-          text.textContent = `Trace active: ${data.trace_id}`;
+      function safeGet(obj, path, fallback = null) {
+        try {
+          return path.split(".").reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), obj) ?? fallback;
+        } catch {
+          return fallback;
+        }
+      }
+
+      function renderMetaFromReceipt(step) {
+        // step: { verb, runtime_url, receipt }
+        const receipt = step?.receipt || null;
+        if (!receipt) {
+          $("receipt_meta").style.display = "none";
+          return;
         }
 
-        if (data.order_id) state.last_order_id = data.order_id;
-        if (data.shipment_id) state.last_shipment_id = data.shipment_id;
+        const traceId = safeGet(receipt, "trace.trace_id") || safeGet(receipt, "trace_id") || "-";
+        const receiptId =
+          safeGet(receipt, "metadata.receipt_id") ||
+          safeGet(receipt, "metadata.proof.hash_sha256") ||
+          safeGet(receipt, "receipt_id") ||
+          "-";
+        const signer =
+          safeGet(receipt, "metadata.proof.signer_id") ||
+          safeGet(receipt, "metadata.signer_id") ||
+          "-";
+
+        $("m_verb").textContent = step?.verb || "-";
+        $("m_url").textContent = step?.runtime_url || "-";
+        $("m_trace").textContent = String(traceId);
+        $("m_receipt").textContent = String(receiptId);
+        $("m_signer").textContent = String(signer);
+
+        $("receipt_meta").style.display = "grid";
+      }
+
+      function updateOutput(data) {
+        $("output").textContent = JSON.stringify(data, null, 2);
       }
 
       function resetState() {
+        last = null;
         state = { trace_id: null, last_order_id: null, last_shipment_id: null };
-        document.getElementById('trace_id').value = '';
-        document.getElementById('status_pill').style.display = 'none';
-        document.getElementById('output').textContent = '{}';
+        $("trace_id").value = "";
+        $("output").textContent = "{}";
+        $("receipt_meta").style.display = "none";
+        $("status_pill").style.display = "none";
+        $("net_pill").style.display = "none";
       }
 
-      async function callApi(path, payload) {
-        const res = await fetch(path, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
+      function disableButtons(disabled) {
+        ["b_authorize", "b_checkout", "b_purchase", "b_ship", "b_verify", "b_flow"].forEach((id) => {
+          const el = $(id);
+          if (el) el.disabled = disabled;
         });
-        if (!res.ok) {
-          const text = await res.text();
-          throw new Error(`HTTP ${res.status}: ${text}`);
-        }
-        return res.json();
       }
 
-      async function runStep(step) {
+      async function callCommercialFlow(steps, trace_id) {
+        const res = await fetch("/api/commercial-flow", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ steps, trace_id: trace_id || undefined }),
+        });
+
+        const text = await res.text();
+        let json;
+        try { json = JSON.parse(text); }
+        catch { json = { ok: false, error: "Non-JSON response", raw: String(text || "").slice(0, 2000) }; }
+
+        if (!res.ok) {
+          const msg = json?.error || `HTTP ${res.status}`;
+          const detail = json?.detail ? (typeof json.detail === "string" ? json.detail : JSON.stringify(json.detail)) : "";
+          throw new Error(detail ? `${msg}: ${detail}` : msg);
+        }
+
+        return json;
+      }
+
+      function buildStepInput(verb, base) {
+        const trace_id = effectiveTraceId() || undefined;
+
+        // IMPORTANT:
+        // You are free to adjust these "input" shapes to match your commercial schemas.
+        // The orchestration backend will wrap them in x402/actor/trace.
+        if (verb === "authorize") {
+          return {
+            trace_id,
+            buyer: base.buyer,
+            chain_id: base.chain_id,
+            amount: { value: base.total_amount, currency: base.currency },
+            payment_method: "demo",
+          };
+        }
+
+        if (verb === "checkout") {
+          return {
+            trace_id,
+            items: [{ sku: base.sku, qty: base.qty }],
+            total_amount: base.total_amount,
+            currency: base.currency,
+          };
+        }
+
+        if (verb === "purchase") {
+          return {
+            trace_id,
+            order_id: state.last_order_id || base.order_id,
+            total_amount: base.total_amount,
+            currency: base.currency,
+          };
+        }
+
+        if (verb === "ship") {
+          return {
+            trace_id,
+            order_id: state.last_order_id || base.order_id,
+            address: base.address,
+          };
+        }
+
+        if (verb === "verify") {
+          return {
+            trace_id,
+            order_id: state.last_order_id || base.order_id,
+            shipment_id: state.last_shipment_id || "demo-shipment",
+          };
+        }
+
+        return { trace_id, ...base };
+      }
+
+      async function runStep(verb) {
         try {
+          disableButtons(true);
+          setPill($("net_pill"), $("net_text"), "warn", `Running ${verb}…`);
           const base = getBasePayload();
-          const explicit_trace = document.getElementById('trace_id').value || null;
-          const trace_id = explicit_trace || state.trace_id || undefined;
 
-          let payload = { trace_id, ...base };
+          const step = { verb, input: buildStepInput(verb, base) };
+          const trace_id = effectiveTraceId();
 
-          if (step === 'checkout') {
-            payload = {
-              trace_id,
-              items: [{ sku: base.sku, qty: base.qty }],
-              total_amount: base.total_amount,
-              currency: base.currency,
-            };
-          } else if (step === 'purchase') {
-            payload = {
-              trace_id,
-              order_id: state.last_order_id || base.order_id,
-              total_amount: base.total_amount,
-              currency: base.currency,
-            };
-          } else if (step === 'ship') {
-            payload = {
-              trace_id,
-              order_id: state.last_order_id || base.order_id,
-              address: base.address,
-            };
-          } else if (step === 'verify') {
-            payload = {
-              trace_id,
-              order_id: state.last_order_id || base.order_id,
-              shipment_id: state.last_shipment_id || 'demo-shipment',
-            };
+          const data = await callCommercialFlow([step], trace_id);
+
+          last = data;
+          updateOutput(data);
+
+          const step0 = Array.isArray(data?.steps) ? data.steps[0] : null;
+          if (step0?.receipt) {
+            // update trace + capture any IDs if your commercial receipts contain them
+            const t =
+              safeGet(step0.receipt, "trace.trace_id") ||
+              safeGet(step0.receipt, "trace_id") ||
+              null;
+            updateTrace(t);
+
+            // best-effort: if receipts contain order/shipment ids, capture them
+            const maybeOrder =
+              safeGet(step0.receipt, "result.order_id") ||
+              safeGet(step0.receipt, "result.checkout_id") ||
+              safeGet(step0.receipt, "result.purchase_id") ||
+              null;
+            const maybeShipment =
+              safeGet(step0.receipt, "result.shipment_id") ||
+              safeGet(step0.receipt, "result.tracking_id") ||
+              null;
+
+            if (maybeOrder && !state.last_order_id) state.last_order_id = String(maybeOrder);
+            if (maybeShipment) state.last_shipment_id = String(maybeShipment);
+
+            renderMetaFromReceipt(step0);
           }
 
-          const data = await callApi(`/api/${step}`, payload);
-          updateOutput(data);
+          setPill($("net_pill"), $("net_text"), "good", `OK — ${verb} receipt returned.`);
         } catch (err) {
-          updateOutput({ error: err.message });
+          updateOutput({ ok: false, error: err?.message || String(err) });
+          setPill($("net_pill"), $("net_text"), "bad", `Error — ${err?.message || String(err)}`);
+        } finally {
+          disableButtons(false);
         }
       }
 
       async function runFlow() {
         try {
-          resetState();
+          disableButtons(true);
+          setPill($("net_pill"), $("net_text"), "warn", "Running full flow…");
+
+          // keep trace if user supplied one; otherwise clear state so we start fresh
+          const keepTrace = ($("trace_id").value || "").trim();
+          state.last_order_id = null;
+          state.last_shipment_id = null;
+          if (!keepTrace) state.trace_id = null;
+
           const base = getBasePayload();
 
-          let resp = await callApi('/api/authorize', {
-            buyer: base.buyer,
-            chain_id: base.chain_id,
-          });
-          updateOutput(resp);
-          const trace_id = resp.trace_id;
+          const steps = VERBS.map((verb) => ({ verb, input: buildStepInput(verb, base) }));
+          const trace_id = effectiveTraceId();
 
-          resp = await callApi('/api/checkout', {
-            trace_id,
-            items: [{ sku: base.sku, qty: base.qty }],
-            total_amount: base.total_amount,
-            currency: base.currency,
-          });
-          updateOutput(resp);
+          const data = await callCommercialFlow(steps, trace_id);
 
-          resp = await callApi('/api/purchase', {
-            trace_id,
-            order_id: base.order_id,
-            total_amount: base.total_amount,
-            currency: base.currency,
-          });
-          updateOutput(resp);
+          last = data;
+          updateOutput(data);
 
-          resp = await callApi('/api/ship', {
-            trace_id,
-            order_id: base.order_id,
-            address: base.address,
-          });
-          updateOutput(resp);
+          // Pull trace from first receipt if present
+          const first = Array.isArray(data?.steps) ? data.steps[0] : null;
+          const t =
+            safeGet(first?.receipt, "trace.trace_id") ||
+            safeGet(first?.receipt, "trace_id") ||
+            null;
+          updateTrace(t);
 
-          resp = await callApi('/api/verify', {
-            trace_id,
-            order_id: base.order_id,
-            shipment_id: resp.shipment_id || 'demo-shipment',
-          });
-          updateOutput(resp);
+          // best-effort capture IDs from later steps
+          const stepsArr = Array.isArray(data?.steps) ? data.steps : [];
+          for (const s of stepsArr) {
+            const maybeOrder =
+              safeGet(s.receipt, "result.order_id") ||
+              safeGet(s.receipt, "result.checkout_id") ||
+              safeGet(s.receipt, "result.purchase_id") ||
+              null;
+            const maybeShipment =
+              safeGet(s.receipt, "result.shipment_id") ||
+              safeGet(s.receipt, "result.tracking_id") ||
+              null;
+
+            if (maybeOrder && !state.last_order_id) state.last_order_id = String(maybeOrder);
+            if (maybeShipment) state.last_shipment_id = String(maybeShipment);
+          }
+
+          // render meta from final step if available
+          const lastStep = stepsArr.length ? stepsArr[stepsArr.length - 1] : null;
+          if (lastStep) renderMetaFromReceipt(lastStep);
+
+          setPill($("net_pill"), $("net_text"), "good", "OK — flow receipts returned.");
         } catch (err) {
-          updateOutput({ error: err.message });
+          updateOutput({ ok: false, error: err?.message || String(err) });
+          setPill($("net_pill"), $("net_text"), "bad", `Error — ${err?.message || String(err)}`);
+        } finally {
+          disableButtons(false);
         }
       }
+
+      async function copyCurl() {
+        try {
+          const curl = last?.meta?.curl;
+          if (!curl) throw new Error("No curl block available yet. Run a step or flow first.");
+          await navigator.clipboard.writeText(curl);
+          setPill($("net_pill"), $("net_text"), "good", "Copied curl block.");
+        } catch (err) {
+          setPill($("net_pill"), $("net_text"), "bad", err?.message || String(err));
+        }
+      }
+
+      // Initialize
+      (function init() {
+        // default state UI
+        setPill($("net_pill"), $("net_text"), "warn", "Ready.");
+      })();
     </script>
   </body>
 </html>
