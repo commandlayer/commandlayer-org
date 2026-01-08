@@ -51,7 +51,6 @@ function normalizeInput(input) {
   if (typeof input === "string") {
     const text = input.trim();
     if (!text) return null;
-    // allow raw JSON strings too
     if (text.startsWith("{") || text.startsWith("[")) {
       try { return JSON.parse(text); } catch {}
     }
@@ -63,6 +62,11 @@ function normalizeInput(input) {
   return { content: String(input) };
 }
 
+/**
+ * IMPORTANT:
+ * Commercial request schemas use `payload`, not `input`.
+ * Keep UI using step.input, but map to payload on the runtime request.
+ */
 function buildRuntimeRequest(verb, trace_id, inputObj) {
   return {
     x402: {
@@ -72,7 +76,7 @@ function buildRuntimeRequest(verb, trace_id, inputObj) {
     },
     actor: "commerce-demo.commandlayer.org",
     trace: { trace_id },
-    input: inputObj,
+    payload: inputObj, // <-- FIX
   };
 }
 
@@ -187,10 +191,11 @@ module.exports = async function handler(req, res) {
           error: "No valid steps provided. Each step needs a Commercial verb and non-empty input.",
           expected: {
             steps: [
-              { verb: "authorize", input: { amount: { value: "49.00", currency: "USD" } } },
+              { verb: "authorize", input: { checkout_id: "01J...", metadata: { demo: true } } },
               { verb: "checkout", input: { cart_id: "cart_123" } },
             ],
           },
+          note: "Orchestrator uses steps[].input, but runtime request field is payload (schema-correct).",
         },
         null,
         2
