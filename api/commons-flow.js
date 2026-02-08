@@ -2,11 +2,8 @@
 // Runtime-backed Commons flow: forwards steps to CommandLayer runtime, returns receipts + per-step curl,
 // validates minimal receipt.base shape (Ajv).
 //
-// Key changes in this rewrite:
-// - Always returns JSON + sets Cache-Control: no-store
-// - Runtime health detail is REAL JSON (not "[object Object]")
-// - Better error shaping + includes runtime /health payload when available
-// - Normalizes commandlayer.org -> www.commandlayer.org where relevant (host stability)
+// Patch: step index sequencing is now ALWAYS 0..N-1 in execution order.
+// This prevents UI "use previous result" from breaking when steps are skipped.
 
 const Ajv = require("ajv");
 const addFormats = require("ajv-formats");
@@ -155,7 +152,10 @@ function buildRuntimeRequest(verb, trace_id, inputObj) {
   };
 }
 
-async function fetchTextWithTimeout(url, { method = "GET", headers = {}, body = null, timeoutMs = 20000 } = {}) {
+async function fetchTextWithTimeout(
+  url,
+  { method = "GET", headers = {}, body = null, timeoutMs = 20000 } = {}
+) {
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -265,16 +265,17 @@ module.exports = async function handler(req, res) {
   const body = req.body || {};
   const incomingSteps = Array.isArray(body.steps) ? body.steps : [];
 
+  // ✅ Sequenced indices: 0..N-1 in actual execution order (after filtering invalid steps)
   const steps = [];
-  incomingSteps.forEach((s, idx) => {
+  for (const s of incomingSteps) {
     const verb = String(s?.verb || "").trim();
-    if (!verb || !COMMON_VERBS.includes(verb)) return;
+    if (!verb || !COMMON_VERBS.includes(verb)) continue;
 
     const inputObj = normalizeInput(s?.input);
-    if (inputObj == null) return;
+    if (inputObj == null) continue;
 
-    steps.push({ index: idx, verb, input: inputObj });
-  });
+    steps.push({ index: steps.length, verb, input: inputObj });
+  }
 
   if (!steps.length) {
     return res.status(400).json({
@@ -348,7 +349,7 @@ module.exports = async function handler(req, res) {
     }
 
     responseSteps.push({
-      index: step.index,
+      index: step.index, // ✅ now guaranteed sequential
       verb: step.verb,
       runtime_url: runtimeUrl,
       request: runtimeReq,
