@@ -1,2 +1,1346 @@
-<div><br class="Apple-interchange-newline"><!DOCTYPE html><br><html lang="en"><br> <head><br> <meta charset="UTF-8" /><br> <title>Manifest — CommandLayer</title><br> <meta<br> name="viewport"<br> content="width=device-width, initial-scale=1, viewport-fit=cover"<br> /><br> <meta<br> name="description"<br> content="CommandLayer Manifest — Tier 2 verb portfolio for agents across AI, commerce, finance, operations, and comms. Reserved verbs that stake out the future machine intent namespace."<br> /><br><br> <style><br> :root {<br> --bg: #05060a;<br> --bg-elevated: #0a0c14;<br> --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);<br> --border-soft: rgba(255, 255, 255, 0.06);<br> --border-strong: rgba(255, 255, 255, 0.18);<br> --accent: #c5cbe0;<br> --accent-strong: #e3e7ff;<br> --accent-muted: #8f96b5;<br> --text-main: #f7f8ff;<br> --text-muted: #9ca3c7;<br> --text-soft: #6b7280;<br> --radius-lg: 16px;<br> --radius-xl: 24px;<br> --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);<br> --max-width: 1120px;<br> }<br><br> * {<br> box-sizing: border-box;<br> }<br><br> html,<br> body {<br> margin: 0;<br> padding: 0;<br> font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",<br> "Inter", sans-serif;<br> background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);<br> color: var(--text-main);<br> }<br><br> body {<br> min-height: 100vh;<br> }<br><br> .page-shell {<br> min-height: 100vh;<br> display: flex;<br> flex-direction: column;<br> }<br><br> .page-main {<br> flex: 1;<br> }<br><br> .container {<br> width: 100%;<br> max-width: var(--max-width);<br> margin: 0 auto;<br> padding: 0 1.5rem;<br> }<br><br> /* Header */<br> .site-header {<br> background: var(--bg-header);<br> border-bottom: 1px solid rgba(255, 255, 255, 0.06);<br> position: sticky;<br> top: 0;<br> z-index: 20;<br> backdrop-filter: blur(18px);<br> }<br><br> .site-header__inner {<br> display: flex;<br> align-items: center;<br> justify-content: space-between;<br> padding: 0.9rem 1.5rem;<br> }<br><br> .site-header__brand {<br> display: flex;<br> align-items: center;<br> gap: 0.75rem;<br> text-decoration: none;<br> color: inherit;<br> }<br><br> .site-header__logo-img {<br> width: 28px;<br> height: 28px;<br> object-fit: contain;<br> display: block;<br> border-radius: 6px;<br> box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),<br> 0 14px 40px rgba(0, 0, 0, 0.9);<br> }<br><br> .site-header__text {<br> display: flex;<br> flex-direction: column;<br> }<br><br> .site-header__title {<br> font-size: 0.98rem;<br> font-weight: 600;<br> letter-spacing: 0.03em;<br> }<br><br> .site-header__subtitle {<br> font-size: 0.78rem;<br> color: var(--text-muted);<br> }<br><br> .site-header__nav {<br> display: flex;<br> gap: 1rem;<br> align-items: center;<br> }<br><br> .site-header__link {<br> font-size: 0.86rem;<br> padding: 0.35rem 0.8rem;<br> border-radius: 999px;<br> text-decoration: none;<br> color: var(--text-muted);<br> border: 1px solid transparent;<br> white-space: nowrap;<br> }<br><br> .site-header__link:hover {<br> color: var(--accent-strong);<br> border-color: rgba(255, 255, 255, 0.18);<br> background: rgba(15, 23, 42, 0.7);<br> }<br><br> .site-header__link--active {<br> color: #020617;<br> background: linear-gradient(135deg, #e5e7eb, #cdd3e7);<br> border-color: rgba(255, 255, 255, 0.25);<br> }<br><br> /* Docs dropdown */<br> .site-header__dropdown {<br> position: relative;<br> }<br><br> .site-header__dropdown-btn {<br> font-size: 0.86rem;<br> padding: 0.35rem 0.8rem;<br> border-radius: 999px;<br> border: 1px solid transparent;<br> background: transparent;<br> color: var(--text-muted);<br> display: inline-flex;<br> align-items: center;<br> gap: 0.25rem;<br> cursor: pointer;<br> }<br><br> .site-header__dropdown-btn:hover {<br> color: var(--accent-strong);<br> border-color: rgba(255, 255, 255, 0.18);<br> background: rgba(15, 23, 42, 0.7);<br> }<br><br> .site-header__dropdown-menu {<br> position: absolute;<br> top: 2.3rem;<br> right: 0;<br> background: rgba(15, 23, 42, 0.98);<br> border-radius: 14px;<br> border: 1px solid var(--border-soft);<br> box-shadow: var(--shadow-soft);<br> padding: 0.5rem 0.4rem;<br> min-width: 210px;<br> display: none;<br> }<br><br> .site-header__dropdown-menu a {<br> display: block;<br> padding: 0.35rem 0.7rem;<br> font-size: 0.82rem;<br> text-decoration: none;<br> color: var(--text-muted);<br> border-radius: 999px;<br> }<br><br> .site-header__dropdown-menu a:hover {<br> color: var(--accent-strong);<br> background: rgba(31, 41, 55, 0.95);<br> }<br><br> .site-header--docs-open .site-header__dropdown-menu {<br> display: block;<br> }<br><br> /* Mobile toggle */<br> .site-header__toggle {<br> display: none;<br> border-radius: 999px;<br> border: 1px solid rgba(148, 163, 184, 0.7);<br> background: rgba(15, 23, 42, 0.9);<br> color: var(--text-main);<br> padding: 0.25rem 0.6rem;<br> font-size: 0.9rem;<br> cursor: pointer;<br> }<br><br> .site-header__toggle:hover {<br> background: rgba(15, 23, 42, 1);<br> }<br><br> /* Hero */<br> .hero {<br> padding: 3.2rem 0 2.5rem;<br> border-bottom: 1px solid var(--border-soft);<br> background: radial-gradient(circle at 0 0, #111827, #020308);<br> }<br><br> .hero__inner {<br> display: grid;<br> grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);<br> align-items: center;<br> gap: 2.4rem;<br> }<br><br> .hero__eyebrow {<br> font-size: 0.8rem;<br> text-transform: uppercase;<br> letter-spacing: 0.14em;<br> color: var(--accent-muted);<br> margin-bottom: 0.8rem;<br> }<br><br> .hero__title {<br> margin: 0 0 0.8rem;<br> font-size: 2.1rem;<br> line-height: 1.1;<br> }<br><br> .hero__title span {<br> display: block;<br> }<br><br> .hero__title-em {<br> background: linear-gradient(135deg, #e5e7eb, #a5b4fc);<br> -webkit-background-clip: text;<br> background-clip: text;<br> color: transparent;<br> }<br><br> .hero__subtitle {<br> margin: 0;<br> color: var(--text-muted);<br> font-size: 0.96rem;<br> max-width: 36rem;<br> line-height: 1.7;<br> }<br><br> .hero__cta-row {<br> display: flex;<br> flex-wrap: wrap;<br> gap: 0.8rem;<br> margin-top: 1.5rem;<br> }<br><br> .hero__meta {<br> margin-top: 1.1rem;<br> display: flex;<br> flex-wrap: wrap;<br> gap: 0.6rem;<br> font-size: 0.8rem;<br> color: var(--text-soft);<br> }<br><br> .hero__meta-pill {<br> border-radius: 999px;<br> border: 1px solid rgba(148, 163, 184, 0.6);<br> padding: 0.18rem 0.55rem;<br> }<br><br> .hero__card {<br> background: rgba(15, 23, 42, 0.95);<br> border-radius: var(--radius-xl);<br> padding: 1.4rem 1.4rem 1.6rem;<br> border: 1px solid var(--border-soft);<br> box-shadow: var(--shadow-soft);<br> }<br><br> .hero__card-title {<br> margin: 0 0 0.7rem;<br> font-size: 1.05rem;<br> }<br><br> .hero__card-body {<br> margin: 0;<br> font-size: 0.9rem;<br> color: var(--text-muted);<br> }<br><br> .hero__card-body ul {<br> margin: 0.7rem 0 0;<br> padding-left: 1.1rem;<br> font-size: 0.86rem;<br> color: var(--text-muted);<br> }<br><br> /* Buttons */<br> .btn {<br> display: inline-flex;<br> align-items: center;<br> justify-content: center;<br> gap: 0.45rem;<br> padding: 0.6rem 1.1rem;<br> border-radius: 999px;<br> font-size: 0.9rem;<br> text-decoration: none;<br> border: 1px solid transparent;<br> cursor: pointer;<br> white-space: nowrap;<br> }<br><br> .btn--primary {<br> background: linear-gradient(135deg, #e5e7eb, #cdd3e7);<br> color: #020617;<br> border-color: rgba(255, 255, 255, 0.3);<br> box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);<br> }<br><br> .btn--primary:hover {<br> filter: brightness(1.03);<br> }<br><br> .btn--ghost {<br> background: rgba(15, 23, 42, 0.9);<br> color: var(--accent-strong);<br> border-color: rgba(148, 163, 184, 0.6);<br> }<br><br> .btn--ghost:hover {<br> background: rgba(15, 23, 42, 1);<br> }<br><br> .btn__icon {<br> font-size: 1rem;<br> }<br><br> /* Sections */<br> .section {<br> padding: 2.4rem 0;<br> }<br><br> .section--muted {<br> background: rgb(6, 9, 18);<br> border-top: 1px solid rgba(255, 255, 255, 0.06);<br> border-bottom: 1px solid rgba(255, 255, 255, 0.06);<br> }<br><br> .section__header {<br> max-width: 40rem;<br> margin-bottom: 1.4rem;<br> }<br><br> .section__header h2 {<br> margin: 0 0 0.5rem;<br> font-size: 1.35rem;<br> }<br><br> .section__header p {<br> margin: 0;<br> font-size: 0.95rem;<br> color: var(--text-muted);<br> }<br><br> /* Filters */<br> .verb-filters {<br> background: rgba(15, 23, 42, 0.95);<br> border-radius: var(--radius-xl);<br> border: 1px solid var(--border-soft);<br> box-shadow: var(--shadow-soft);<br> padding: 1.2rem 1.2rem 1.3rem;<br> margin-bottom: 1.8rem;<br> }<br><br> .verb-filters__row {<br> display: flex;<br> flex-wrap: wrap;<br> gap: 0.9rem;<br> align-items: center;<br> }<br><br> .verb-filters__group {<br> display: flex;<br> flex-direction: column;<br> gap: 0.3rem;<br> min-width: 160px;<br> flex: 1;<br> }<br><br> .verb-filters__label {<br> font-size: 0.78rem;<br> color: var(--text-soft);<br> }<br><br> .verb-filters__input,<br> .verb-filters__select {<br> width: 100%;<br> padding: 0.45rem 0.7rem;<br> border-radius: 999px;<br> border: 1px solid rgba(148, 163, 184, 0.6);<br> background: rgba(15, 23, 42, 0.9);<br> color: var(--text-main);<br> font-size: 0.86rem;<br> outline: none;<br> }<br><br> .verb-filters__input::placeholder {<br> color: var(--text-soft);<br> }<br><br> .verb-filters__stats {<br> margin-top: 0.8rem;<br> font-size: 0.8rem;<br> color: var(--text-soft);<br> display: flex;<br> justify-content: space-between;<br> gap: 1rem;<br> flex-wrap: wrap;<br> }<br><br> .verb-filters__cta {<br> font-size: 0.8rem;<br> color: var(--accent-muted);<br> }<br><br> .verb-filters__cta a {<br> color: var(--accent-strong);<br> text-decoration: none;<br> }<br><br> .verb-filters__cta a:hover {<br> text-decoration: underline;<br> }<br><br> /* Verb grid */<br> .verb-grid {<br> display: grid;<br> gap: 1rem;<br> grid-template-columns: repeat(3, minmax(0, 1fr));<br> }<br><br> .verb-card {<br> background: rgba(15, 23, 42, 0.96);<br> border-radius: var(--radius-lg);<br> border: 1px solid var(--border-soft);<br> padding: 0.9rem 1rem 1rem;<br> font-size: 0.86rem;<br> display: flex;<br> flex-direction: column;<br> gap: 0.35rem;<br> }<br><br> .verb-card__header {<br> display: flex;<br> justify-content: space-between;<br> align-items: baseline;<br> gap: 0.4rem;<br> }<br><br> .verb-card__verb {<br> font-weight: 600;<br> font-size: 0.96rem;<br> }<br><br> .verb-card__type-badge {<br> font-size: 0.72rem;<br> border-radius: 999px;<br> padding: 0.08rem 0.45rem;<br> border: 1px solid rgba(148, 163, 184, 0.6);<br> text-transform: uppercase;<br> letter-spacing: 0.08em;<br> color: var(--accent-muted);<br> white-space: nowrap;<br> }<br><br> .verb-card__ens {<br> font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono",<br> "Courier New", monospace;<br> font-size: 0.78rem;<br> color: var(--accent-muted);<br> }<br><br> .verb-card__meta-row {<br> display: flex;<br> flex-wrap: wrap;<br> gap: 0.35rem;<br> margin-top: 0.1rem;<br> }<br><br> .tag {<br> border-radius: 999px;<br> border: 1px solid rgba(148, 163, 184, 0.55);<br> padding: 0.08rem 0.45rem;<br> font-size: 0.72rem;<br> color: var(--text-soft);<br> white-space: nowrap;<br> }<br><br> .tag--status-live {<br> border-color: rgba(52, 211, 153, 0.75);<br> color: #6ee7b7;<br> }<br><br> .tag--status-inflight {<br> border-color: rgba(251, 191, 36, 0.8);<br> color: #facc15;<br> }<br><br> .tag--status-reserved {<br> border-color: rgba(148, 163, 184, 0.7);<br> color: var(--text-soft);<br> }<br><br> .tag--tier-premium {<br> border-color: rgba(248, 250, 252, 0.9);<br> color: var(--accent-strong);<br> }<br><br> .tag--tier-free {<br> border-color: rgba(129, 140, 248, 0.8);<br> color: #a5b4fc;<br> }<br><br> .tag--tier-unpriced {<br> border-color: rgba(148, 163, 184, 0.6);<br> color: var(--text-soft);<br> opacity: 0.9;<br> }<br><br> .verb-card__description {<br> margin-top: 0.3rem;<br> color: var(--text-muted);<br> }<br><br> .verb-card__links {<br> margin-top: 0.4rem;<br> font-size: 0.78rem;<br> display: flex;<br> flex-wrap: wrap;<br> gap: 0.5rem;<br> }<br><br> .verb-card__link {<br> color: var(--accent-strong);<br> text-decoration: none;<br> }<br><br> .verb-card__link:hover {<br> text-decoration: underline;<br> }<br><br> /* Footer */<br> .site-footer {<br> border-top: 1px solid rgba(255, 255, 255, 0.1);<br> background: #020308;<br> }<br><br> .site-footer__inner {<br> padding: 1.4rem 1.5rem 1.8rem;<br> font-size: 0.78rem;<br> color: var(--text-soft);<br> display: flex;<br> flex-direction: column;<br> gap: 0.4rem;<br> align-items: center;<br> text-align: center;<br> }<br><br> .site-footer__links {<br> display: flex;<br> gap: 0.8rem;<br> justify-content: center;<br> margin-top: 0.2rem;<br> }<br><br> .site-footer__links a {<br> color: var(--accent);<br> text-decoration: none;<br> }<br><br> .site-footer__links a:hover {<br> text-decoration: underline;<br> }<br><br> /* Mobile */<br> @media (max-width: 880px) {<br> .site-header__inner {<br> padding-inline: 1rem;<br> }<br><br> .site-header__toggle {<br> display: inline-flex;<br> align-items: center;<br> justify-content: center;<br> }<br><br> .site-header__nav {<br> display: none;<br> flex-direction: column;<br> align-items: flex-start;<br> gap: 0.5rem;<br> margin-top: 0.8rem;<br> }<br><br> .site-header.site-header--open .site-header__nav {<br> display: flex;<br> }<br><br> .hero__inner {<br> grid-template-columns: minmax(0, 1fr);<br> }<br><br> .hero__card {<br> margin-top: 1.5rem;<br> }<br><br> .verb-filters__row {<br> flex-direction: column;<br> align-items: stretch;<br> }<br><br> .verb-grid {<br> grid-template-columns: minmax(0, 1fr);<br> }<br><br> .site-footer__inner {<br> padding-inline: 1rem;<br> }<br> }<br><br> @media (min-width: 881px) and (max-width: 1120px) {<br> .verb-grid {<br> grid-template-columns: repeat(2, minmax(0, 1fr));<br> }<br> }<br> </style><br> </head><br><br> <body><br> <div class="page-shell"><br> <!-- HEADER --><br> <header class="site-header"><br> <div class="site-header__inner container"><br> <a href="/" class="site-header__brand"><br> <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" /><br> <div class="site-header__text"><br> <span class="site-header__title">CommandLayer</span><br> <span class="site-header__subtitle"><br> Semantic verb &amp; schema layer for agents<br> </span><br> </div><br> </a><br><br> <!-- Mobile toggle --><br> <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false"><br> ☰<br> </button><br><br> <nav class="site-header__nav"><br> <a href="/" class="site-header__link">Overview</a><br> <a href="/manifest.html" class="site-header__link site-header__link--active">Manifest</a><br><br> <div class="site-header__dropdown"><br> <button class="site-header__dropdown-btn" type="button"><br> Docs ▾<br> </button><br> <div class="site-header__dropdown-menu"><br> <a href="/commons.html">Commons</a><br> <a href="/commercial.html">Commercial</a><br> <a href="/agent-cards.html">Agent Cards</a><br> <a href="/runtime.html">Runtime</a><br> <a href="/roadmap.html">Roadmap</a><br> <a href="/licensing.html">Licensing</a><br> <a href="/about.html">About CommandLayer</a><br> </div><br> </div><br><br> <a href="/demo.html" class="site-header__link">Live Demo</a><br> <a<br> href="https://github.com/commandlayer"<br> class="site-header__link"<br> target="_blank"<br> rel="noopener noreferrer"<br> ><br> GitHub<br> </a><br> </nav><br> </div><br> </header><br><br> <main class="page-main"><br> <!-- HERO --><br> <section class="hero"><br> <div class="container hero__inner"><br> <div><br> <div class="hero__eyebrow">Tier 2 — Manifest</div><br> <h1 class="hero__title"><br> <span>The CommandLayer</span><br> <span class="hero__title-em">verb Manifest for agents.</span><br> </h1><br> <p class="hero__subtitle"><br> A curated portfolio of high-intent verbs for AI, commerce, finance, operations,<br> and comms. These are the reserved semantic exits that frame how future agents<br> talk to each other — not all live yet, but the namespace is staked out.<br> </p><br><br> <div class="hero__cta-row"><br> <a href="#verb-catalog" class="btn btn--primary"><br> <span class="btn__icon">🧭</span><br> <span>Explore the Manifest</span><br> </a><br> <a href="/docs.html" class="btn btn--ghost"><br> <span class="btn__icon">📚</span><br> <span>Read the integration docs</span><br> </a><br> </div><br><br> <div class="hero__meta"><br> <span class="hero__meta-pill">Tier 1: 10 Commons · 5 Commercial (live)</span><br> <span class="hero__meta-pill">Tier 2: 200+ reserved verbs (partial list)</span><br> </div><br> </div><br><br> <aside class="hero__card"><br> <h2 class="hero__card-title">How to read the Manifest</h2><br> <p class="hero__card-body"><br> Each entry is a potential canonical verb — a unit of machine intent that can be<br> bound to schemas, Agent Cards, and Runtime guarantees:<br> </p><br> <ul><br> <li><strong>Type</strong>: Commons (public goods) or Commercial (economic flows).</li><br> <li><strong>Category</strong>: AI, commerce, operations, finance, comms, or system.</li><br> <li><strong>Status</strong>: Live, in flight, or reserved for future standardization.</li><br> <li><strong>ENS</strong>: the semantic handle (e.g. <code>summarizeagent.eth</code>).</li><br> </ul><br> </aside><br> </div><br> </section><br><br> <!-- VERB CATALOG --><br> <section class="section section--muted" id="verb-catalog"><br> <div class="container"><br> <div class="section__header"><br> <h2>Filter the Manifest</h2><br> <p><br> Use search and filters to navigate the portfolio. This page surfaces a<br> representative slice of the 200–300 Tier 2 verbs behind the CommandLayer<br> semantic moat. Tier 1 verbs are live; the rest are reserved for future<br> schema and Agent Card rollouts.<br> </p><br> </div><br><br> <div class="verb-filters"><br> <div class="verb-filters__row"><br> <div class="verb-filters__group"><br> <label for="verb-search" class="verb-filters__label">Search</label><br> <input<br> id="verb-search"<br> type="text"<br> class="verb-filters__input"<br> placeholder="Search by verb, ENS, or description…"<br> /><br> </div><br><br> <div class="verb-filters__group"><br> <label for="verb-category" class="verb-filters__label">Category</label><br> <select id="verb-category" class="verb-filters__select"><br> <option value="all">All categories</option><br> <option value="ai">AI &amp; intelligence</option><br> <option value="commerce">Commerce &amp; payments</option><br> <option value="operations">Operations &amp; logistics</option><br> <option value="finance">Finance &amp; risk</option><br> <option value="comms">Comms &amp; outreach</option><br> <option value="other">Other / system</option><br> </select><br> </div><br><br> <div class="verb-filters__group"><br> <label for="verb-type" class="verb-filters__label">Type</label><br> <select id="verb-type" class="verb-filters__select"><br> <option value="all">Commons + Commercial</option><br> <option value="commons">Commons only</option><br> <option value="commercial">Commercial only</option><br> </select><br> </div><br><br> <div class="verb-filters__group"><br> <label for="verb-status" class="verb-filters__label">Status</label><br> <select id="verb-status" class="verb-filters__select"><br> <option value="all">Any status</option><br> <option value="live">Live</option><br> <option value="inflight">In flight</option><br> <option value="reserved">Reserved</option><br> </select><br> </div><br> </div><br><br> <div class="verb-filters__stats"><br> <span id="verb-count">Showing 0 verbs</span><br> <span class="verb-filters__cta"><br> Looking for leasing or commercial access?<br> <a href="mailto:licensing@commandlayer.org">Contact us</a><br> to discuss Tier 2 and strategic reserve verbs.<br> </span><br> </div><br> </div><br><br> <div id="verb-grid" class="verb-grid"></div><br> </div><br> </section><br> </main><br><br> <footer class="site-footer"><br> <div class="container site-footer__inner"><br> <div>© CommandLayer — semantic layer for autonomous agents</div><br> <div><br> Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free<br> </div><br> <div class="site-footer__links"><br> <a href="/docs.html">Docs</a><br> <a href="/manifest.html">Manifest</a><br> <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a><br> </div><br> </div><br> </footer><br> </div><br><br> <script><br> // Header toggle + Docs dropdown<br> (function () {<br> const header = document.querySelector(".site-header");<br> const toggle = document.querySelector(".site-header__toggle");<br> const docsBtn = document.querySelector(".site-header__dropdown-btn");<br><br> if (toggle && header) {<br> toggle.addEventListener("click", () => {<br> const isOpen = header.classList.toggle("site-header--open");<br> toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");<br> });<br> }<br><br> if (docsBtn && header) {<br> docsBtn.addEventListener("click", () => {<br> header.classList.toggle("site-header--docs-open");<br> });<br> }<br> })();<br><br> // --- Manifest verb catalog logic (unchanged data, wired to new layout) ---<br><br> const verbs = [<br> // AI & intelligence (Commons — Tier 1)<br> {<br> verb: "summarize",<br> ens: "summarizeagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "live",<br> tier: "free",<br> description: "Condense content into structured, machine-verifiable summaries.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "analyze",<br> ens: "analyzeagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "live",<br> tier: "free",<br> description: "Perform structured analysis over inputs with traceable receipts.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "classify",<br> ens: "classifyagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "live",<br> tier: "free",<br> description: "Assign labels or categories with verifiable classification receipts.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "parse",<br> ens: "parseagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "live",<br> tier: "free",<br> description: "Parse unstructured inputs into structured JSON shapes for other agents.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "format",<br> ens: "formatagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "live",<br> tier: "free",<br> description: "Reformat content into required layouts, schemas, or text surfaces.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "clean",<br> ens: "cleanagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "live",<br> tier: "free",<br> description: "Clean and normalize noisy inputs before downstream processing.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "convert",<br> ens: "convertagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "live",<br> tier: "free",<br> description: "Convert between formats, encodings, or representations.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "describe",<br> ens: "describeagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "live",<br> tier: "free",<br> description: "Produce detailed, structured descriptions of inputs or resources.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "explain",<br> ens: "explainagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "live",<br> tier: "free",<br> description: "Explain decisions, results, or content in human-readable form.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "fetch",<br> ens: "fetchagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "live",<br> tier: "free",<br> description: "Retrieve and normalize external resources for downstream agents.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br><br> // AI & intelligence (portfolio extensions)<br> {<br> verb: "generate",<br> ens: "generateagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Generate new content or data from prompts."<br> },<br> {<br> verb: "optimize",<br> ens: "optimizeagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Optimize plans, routes, or allocations under constraints."<br> },<br> {<br> verb: "anticipate",<br> ens: "anticipateagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Anticipate future states or events from context."<br> },<br> {<br> verb: "evaluate",<br> ens: "evaluateagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Evaluate quality, performance, or compliance."<br> },<br> {<br> verb: "assess",<br> ens: "assessagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Assess risk, value, or suitability of options."<br> },<br> {<br> verb: "compute",<br> ens: "computeagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Compute derived values or metrics."<br> },<br> {<br> verb: "learn",<br> ens: "learnagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Learn from data or feedback to improve behavior."<br> },<br> {<br> verb: "plan",<br> ens: "planagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Plan multi-step tasks or workflows for agents."<br> },<br> {<br> verb: "train",<br> ens: "trainagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Train models or agents on data or feedback."<br> },<br> {<br> verb: "filter",<br> ens: "filteragent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Filter items based on rules or predicates."<br> },<br> {<br> verb: "compress",<br> ens: "compressagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Compress data or content while retaining meaning."<br> },<br> {<br> verb: "extract",<br> ens: "extractagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Extract fields or entities from unstructured input."<br> },<br> {<br> verb: "visualize",<br> ens: "visualizeagent.eth",<br> category: "ai",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Visualize data or results as charts or graphics."<br> },<br><br> // Operations / workflow / CRUD (Commons, mostly reserved)<br> {<br> verb: "accept",<br> ens: "acceptagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Accept offers, requests, or invitations."<br> },<br> {<br> verb: "cancel",<br> ens: "cancelagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Cancel pending jobs, orders, or workflows."<br> },<br> {<br> verb: "create",<br> ens: "createagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Create new entities, resources, or records."<br> },<br> {<br> verb: "delete",<br> ens: "deleteagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Delete resources or records in a controlled way."<br> },<br> {<br> verb: "update",<br> ens: "updateagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Update existing entities or records with changes."<br> },<br> {<br> verb: "save",<br> ens: "saveagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Save state, drafts, or checkpoints."<br> },<br> {<br> verb: "file",<br> ens: "fileagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "File documents, tickets, or forms into systems."<br> },<br> {<br> verb: "store",<br> ens: "storeagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Store data or artifacts in designated locations."<br> },<br> {<br> verb: "record",<br> ens: "recordagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Record events, logs, or observations."<br> },<br> {<br> verb: "list",<br> ens: "listagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "List collections of entities or records."<br> },<br> {<br> verb: "query",<br> ens: "queryagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Query data sources or indexes."<br> },<br> {<br> verb: "calculate",<br> ens: "calculateagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Calculate values, metrics, or aggregates."<br> },<br> {<br> verb: "rewrite",<br> ens: "rewriteagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Rewrite content with new constraints or tone."<br> },<br> {<br> verb: "compose",<br> ens: "composeagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Compose new content from instructions or context."<br> },<br> {<br> verb: "copy",<br> ens: "copyagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Copy resources, files, or content."<br> },<br> {<br> verb: "print",<br> ens: "printagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Print or render outputs to physical or virtual media."<br> },<br><br> // Commerce & payments (Commercial — Tier 1)<br> {<br> verb: "checkout",<br> ens: "checkoutagent.eth",<br> category: "commerce",<br> type: "commercial",<br> status: "live",<br> tier: "premium",<br> description: "Coordinate carts, totals, and payment authorization as a unified flow.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "authorize",<br> ens: "authorizeagent.eth",<br> category: "commerce",<br> type: "commercial",<br> status: "live",<br> tier: "premium",<br> description: "Perform payment authorizations with trace IDs and structured receipts.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "purchase",<br> ens: "purchaseagent.eth",<br> category: "commerce",<br> type: "commercial",<br> status: "live",<br> tier: "premium",<br> description: "Complete settlement events once authorization and risk checks pass.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "refund",<br> ens: "refundagent.eth",<br> category: "commerce",<br> type: "commercial",<br> status: "reserved",<br> tier: "premium",<br> description: "Standardize how refunds are requested, processed, and proved."<br> },<br> {<br> verb: "verify",<br> ens: "verifyagent.eth",<br> category: "commerce",<br> type: "commercial",<br> status: "live",<br> tier: "premium",<br> description: "Perform identity, KYC, or eligibility checks as reusable verification flows.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br><br> // Finance (Commercial portfolio)<br> {<br> verb: "bill",<br> ens: "billagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Bill accounts or customers for usage or services."<br> },<br> {<br> verb: "invoice",<br> ens: "invoiceagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Issue invoices as structured, payable documents."<br> },<br> {<br> verb: "charge",<br> ens: "chargeagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Charge accounts or payment methods."<br> },<br> {<br> verb: "fund",<br> ens: "fundagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Fund wallets, positions, or balances."<br> },<br> {<br> verb: "disburse",<br> ens: "disburseagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Disburse funds to one or many recipients."<br> },<br> {<br> verb: "remit",<br> ens: "remitagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Remit funds across accounts, regions, or rails."<br> },<br> {<br> verb: "reimburse",<br> ens: "reimburseagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Reimburse expenses or claims with proof."<br> },<br> {<br> verb: "payout",<br> ens: "payoutagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Coordinate payouts to multiple recipients."<br> },<br> {<br> verb: "stream",<br> ens: "streamagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Stream data or payments over time."<br> },<br> {<br> verb: "subscribe",<br> ens: "subscribeagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Create and manage recurring subscription or billing agreements."<br> },<br> {<br> verb: "deposit",<br> ens: "depositagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Handle deposits into accounts or contracts."<br> },<br> {<br> verb: "order",<br> ens: "orderagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Place orders for goods, services, or workloads."<br> },<br> {<br> verb: "statement",<br> ens: "statementagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Produce account or activity statements."<br> },<br> {<br> verb: "license",<br> ens: "licenseagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Grant, update, or revoke usage licenses under clear terms."<br> },<br> {<br> verb: "issue",<br> ens: "issueagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Issue credentials, cards, or instruments as structured events."<br> },<br> {<br> verb: "lend",<br> ens: "lendagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Lend assets under defined terms."<br> },<br> {<br> verb: "lending",<br> ens: "lendingagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Coordinate lending marketplaces or flows."<br> },<br><br> // Operations & logistics (Commons + Commercial)<br> {<br> verb: "ship",<br> ens: "shipagent.eth",<br> category: "operations",<br> type: "commercial",<br> status: "live",<br> tier: "premium",<br> description: "Encode fulfillment, carrier selection, and tracking into a shared verb.",<br> docsUrl: "https://www.commandlayer.org/docs.html",<br> cardUrl: "https://www.commandlayer.org/agent-cards.html"<br> },<br> {<br> verb: "track",<br> ens: "trackagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "free",<br> description: "Track assets, shipments, or jobs with consistent state transitions."<br> },<br> {<br> verb: "schedule",<br> ens: "scheduleagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "free",<br> description: "Negotiate and confirm time windows across calendars and systems."<br> },<br> {<br> verb: "allocate",<br> ens: "allocateagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "free",<br> description: "Allocate resources like inventory, compute, or staff to tasks."<br> },<br> {<br> verb: "deliver",<br> ens: "deliveragent.eth",<br> category: "operations",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Deliver digital or physical items to a destination."<br> },<br> {<br> verb: "return",<br> ens: "returnagent.eth",<br> category: "operations",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Handle returns for orders with structured outcomes."<br> },<br> {<br> verb: "scan",<br> ens: "scanagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Scan items, barcodes, or environments."<br> },<br> {<br> verb: "dispatch",<br> ens: "dispatchagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Dispatch jobs, couriers, or workloads."<br> },<br> {<br> verb: "locate",<br> ens: "locateagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Locate assets, people, or resources."<br> },<br> {<br> verb: "shipment",<br> ens: "shipmentagent.eth",<br> category: "operations",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Manage shipments and their status."<br> },<br> {<br> verb: "receipt",<br> ens: "receiptagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Represent receipts for deliveries or payments."<br> },<br> {<br> verb: "cart",<br> ens: "cartagent.eth",<br> category: "operations",<br> type: "commercial",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Manage carts and items before checkout."<br> },<br> {<br> verb: "load",<br> ens: "loadagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Load resources, items, or environments."<br> },<br> {<br> verb: "reach",<br> ens: "reachagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Reach destinations, endpoints, or targets."<br> },<br> {<br> verb: "move",<br> ens: "moveagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Move assets, items, or data between locations."<br> },<br> {<br> verb: "sync",<br> ens: "syncagent.eth",<br> category: "operations",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Sync data or state across systems."<br> },<br><br> // Finance & risk (Commercial premium)<br> {<br> verb: "price",<br> ens: "priceagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "premium",<br> description: "Quote deterministic prices for assets, services, or bundles."<br> },<br> {<br> verb: "quote",<br> ens: "quoteagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "premium",<br> description: "Respond with time-bound quotes that can be consumed by other agents."<br> },<br> {<br> verb: "hedge",<br> ens: "hedgeagent.eth",<br> category: "finance",<br> type: "commercial",<br> status: "reserved",<br> tier: "premium",<br> description: "Express hedging strategies as structured instructions between agents."<br> },<br> <br><br> // Comms & outreach<br> {<br> verb: "notify",<br> ens: "notifyagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "free",<br> description: "Send structured notifications across channels with delivery receipts."<br> },<br> {<br> verb: "broadcast",<br> ens: "broadcastagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "free",<br> description: "Broadcast messages to many recipients with explicit fan-out semantics."<br> },<br> {<br> verb: "invite",<br> ens: "inviteagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "free",<br> description: "Issue structured invitations that agents can accept, decline, or delegate."<br> },<br> {<br> verb: "alert",<br> ens: "alertagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Send high-priority alerts with severity."<br> },<br> {<br> verb: "message",<br> ens: "messageagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Send generic messages between agents or users."<br> },<br> {<br> verb: "email",<br> ens: "emailagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Send and receive email-style messages."<br> },<br> {<br> verb: "dm",<br> ens: "dmagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Send direct messages between agents or users."<br> },<br> {<br> verb: "send",<br> ens: "sendagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Send payloads or items to recipients."<br> },<br> {<br> verb: "text",<br> ens: "textagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Send SMS-style text messages."<br> },<br> {<br> verb: "follow",<br> ens: "followagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Follow entities to receive updates."<br> },<br> {<br> verb: "notifymy",<br> ens: "notifymyagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Notify a specific user or agent with targeted updates."<br> },<br> {<br> verb: "chatwith",<br> ens: "chatwithagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Chat interactively with an agent."<br> },<br> {<br> verb: "talk",<br> ens: "talkagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Carry on voice or text conversations."<br> },<br> {<br> verb: "reply",<br> ens: "replyagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Reply to prior messages or threads."<br> },<br> {<br> verb: "ring",<br> ens: "ringagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Ring or call attention to a target."<br> },<br> {<br> verb: "converse",<br> ens: "converseagent.eth",<br> category: "comms",<br> type: "commons",<br> status: "reserved",<br> tier: "unpriced",<br> description: "Maintain multi-turn conversations with context."<br> },<br><br> // Other / system<br> {<br> verb: "register",<br> ens: "registeragent.eth",<br> category: "other",<br> type: "commons",<br> status: "reserved",<br> tier: "free",<br> description: "Register resources, agents, or capabilities into shared registries."<br> },<br> {<br> verb: "attest",<br> ens: "attestagent.eth",<br> category: "other",<br> type: "commercial",<br> status: "reserved",<br> tier: "premium",<br> description: "Produce signed attestations that can be reused by other protocols."<br> },<br> {<br> verb: "govern",<br> ens: "governagent.eth",<br> category: "other",<br> type: "commercial",<br> status: "reserved",<br> tier: "premium",<br> description: "Express proposals, votes, and resolutions as structured governance flows."<br> }<br> ];<br><br> const searchInput = document.getElementById("verb-search");<br> const categorySelect = document.getElementById("verb-category");<br> const typeSelect = document.getElementById("verb-type");<br> const statusSelect = document.getElementById("verb-status");<br> const verbGrid = document.getElementById("verb-grid");<br> const verbCount = document.getElementById("verb-count");<br><br> function labelCategory(cat) {<br> switch (cat) {<br> case "ai":<br> return "AI & intelligence";<br> case "commerce":<br> return "Commerce & payments";<br> case "operations":<br> return "Operations & logistics";<br> case "finance":<br> return "Finance & risk";<br> case "comms":<br> return "Comms & outreach";<br> default:<br> return "Other / system";<br> }<br> }<br><br> function labelStatus(status) {<br> switch (status) {<br> case "live":<br> return "Live";<br> case "inflight":<br> return "In flight";<br> case "reserved":<br> default:<br> return "Reserved";<br> }<br> }<br><br> function labelTier(tier) {<br> switch (tier) {<br> case "premium":<br> return "Premium";<br> case "free":<br> return "Free / Commons";<br> case "unpriced":<br> default:<br> return "Unpriced";<br> }<br> }<br><br> function renderVerbs() {<br> const search = (searchInput.value || "").trim().toLowerCase();<br> const category = categorySelect.value;<br> const type = typeSelect.value;<br> const status = statusSelect.value;<br><br> let filtered = verbs.filter((v) => {<br> if (category !== "all" && v.category !== category) return false;<br> if (type !== "all" && v.type !== type) return false;<br> if (status !== "all" && v.status !== status) return false;<br><br> if (search) {<br> const haystack =<br> v.verb +<br> " " +<br> v.ens +<br> " " +<br> (v.description || "") +<br> " " +<br> v.category +<br> " " +<br> v.type +<br> " " +<br> v.status;<br> if (!haystack.toLowerCase().includes(search)) return false;<br> }<br><br> return true;<br> });<br><br> // Sort by category, then type, then verb<br> filtered.sort((a, b) => {<br> if (a.category !== b.category) return a.category.localeCompare(b.category);<br> if (a.type !== b.type) return a.type.localeCompare(b.type);<br> return a.verb.localeCompare(b.verb);<br> });<br><br> verbGrid.innerHTML = "";<br><br> filtered.forEach((v) => {<br> const card = document.createElement("article");<br> card.className = "verb-card";<br><br> const statusClass =<br> v.status === "live"<br> ? "tag tag--status-live"<br> : v.status === "inflight"<br> ? "tag tag--status-inflight"<br> : "tag tag--status-reserved";<br><br> let tierClass;<br> if (v.tier === "premium") {<br> tierClass = "tag tag--tier-premium";<br> } else if (v.tier === "free") {<br> tierClass = "tag tag--tier-free";<br> } else {<br> tierClass = "tag tag--tier-unpriced";<br> }<br><br> const typeLabel =<br> v.type === "commercial"<br> ? "Commercial"<br> : v.type === "commons"<br> ? "Commons"<br> : "Other";<br><br> let linksHtml = "";<br> if (v.status === "live") {<br> if (v.docsUrl) {<br> linksHtml += `<a href="${v.docsUrl}" class="verb-card__link" target="_blank" rel="noopener noreferrer">Docs</a>`;<br> }<br> if (v.cardUrl) {<br> linksHtml += `<a href="${v.cardUrl}" class="verb-card__link" target="_blank" rel="noopener noreferrer">Agent Cards</a>`;<br> }<br> }<br><br> card.innerHTML = `<br> <div class="verb-card__header"><br> <div><br> <div class="verb-card__verb">${v.verb}</div><br> <div class="verb-card__ens">${v.ens}</div><br> </div><br> <div class="verb-card__type-badge">${typeLabel}</div><br> </div><br> <div class="verb-card__meta-row"><br> <span class="tag">${labelCategory(v.category)}</span><br> <span class="${statusClass}">${labelStatus(v.status)}</span><br> <span class="${tierClass}">${labelTier(v.tier)}</span><br> </div><br> <div class="verb-card__description"><br> ${v.description || ""}<br> </div><br> <div class="verb-card__links"><br> ${linksHtml}<br> </div><br> `;<br><br> verbGrid.appendChild(card);<br> });<br><br> verbCount.textContent = `Showing ${filtered.length} verb${<br> filtered.length === 1 ? "" : "s"<br> }`;<br> }<br><br> searchInput.addEventListener("input", renderVerbs);<br> categorySelect.addEventListener("change", renderVerbs);<br> typeSelect.addEventListener("change", renderVerbs);<br> statusSelect.addEventListener("change", renderVerbs);<br><br> renderVerbs();<br> </script><br> </body><br></html></div>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Manifest — CommandLayer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="description"
+      content="CommandLayer Manifest — Tier 2 verb portfolio for agents across AI, commerce, finance, operations, and comms. Reserved verbs that stake out the future machine intent namespace."
+    />
 
+    <style>
+      :root {
+        --bg: #05060a;
+        --bg-elevated: #0a0c14;
+        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+        --border-soft: rgba(255, 255, 255, 0.06);
+        --border-strong: rgba(255, 255, 255, 0.18);
+        --accent: #c5cbe0;
+        --accent-strong: #e3e7ff;
+        --accent-muted: #8f96b5;
+        --text-main: #f7f8ff;
+        --text-muted: #9ca3c7;
+        --text-soft: #6b7280;
+        --radius-lg: 16px;
+        --radius-xl: 24px;
+        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+        --max-width: 1120px;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+        color: var(--text-main);
+      }
+
+      body {
+        min-height: 100vh;
+      }
+
+      .page-shell {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .page-main {
+        flex: 1;
+      }
+
+      .container {
+        width: 100%;
+        max-width: var(--max-width);
+        margin: 0 auto;
+        padding: 0 1.5rem;
+      }
+
+      /* Header */
+      .site-header {
+        background: var(--bg-header);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(18px);
+      }
+
+      .site-header__inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0.9rem 1.5rem;
+      }
+
+      .site-header__brand {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-decoration: none;
+        color: inherit;
+      }
+
+      .site-header__logo-img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+        display: block;
+        border-radius: 6px;
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
+      }
+
+      .site-header__text {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .site-header__title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+      }
+
+      .site-header__subtitle {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+      }
+
+      .site-header__nav {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .site-header__link {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        text-decoration: none;
+        color: var(--text-muted);
+        border: 1px solid transparent;
+        white-space: nowrap;
+      }
+
+      .site-header__link:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__link--active {
+        color: #020617;
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+
+      /* Docs dropdown */
+      .site-header__dropdown {
+        position: relative;
+      }
+
+      .site-header__dropdown-btn {
+        font-size: 0.86rem;
+        padding: 0.35rem 0.8rem;
+        border-radius: 999px;
+        border: 1px solid transparent;
+        background: transparent;
+        color: var(--text-muted);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        cursor: pointer;
+      }
+
+      .site-header__dropdown-btn:hover {
+        color: var(--accent-strong);
+        border-color: rgba(255, 255, 255, 0.18);
+        background: rgba(15, 23, 42, 0.7);
+      }
+
+      .site-header__dropdown-menu {
+        position: absolute;
+        top: 2.3rem;
+        right: 0;
+        background: rgba(15, 23, 42, 0.98);
+        border-radius: 14px;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        padding: 0.5rem 0.4rem;
+        min-width: 210px;
+        display: none;
+      }
+
+      .site-header__dropdown-menu a {
+        display: block;
+        padding: 0.35rem 0.7rem;
+        font-size: 0.82rem;
+        text-decoration: none;
+        color: var(--text-muted);
+        border-radius: 999px;
+      }
+
+      .site-header__dropdown-menu a:hover {
+        color: var(--accent-strong);
+        background: rgba(31, 41, 55, 0.95);
+      }
+
+      .site-header--docs-open .site-header__dropdown-menu {
+        display: block;
+      }
+
+      /* Mobile toggle */
+      .site-header__toggle {
+        display: none;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.7);
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--text-main);
+        padding: 0.25rem 0.6rem;
+        font-size: 0.9rem;
+        cursor: pointer;
+      }
+
+      .site-header__toggle:hover {
+        background: rgba(15, 23, 42, 1);
+      }
+
+      /* Hero */
+      .hero {
+        padding: 3.2rem 0 2.5rem;
+        border-bottom: 1px solid var(--border-soft);
+        background: radial-gradient(circle at 0 0, #111827, #020308);
+      }
+
+      .hero__inner {
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.1fr);
+        align-items: center;
+        gap: 2.4rem;
+      }
+
+      .hero__eyebrow {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+        color: var(--accent-muted);
+        margin-bottom: 0.8rem;
+      }
+
+      .hero__title {
+        margin: 0 0 0.8rem;
+        font-size: 2.1rem;
+        line-height: 1.1;
+      }
+
+      .hero__title span {
+        display: block;
+      }
+
+      .hero__title-em {
+        background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+
+      .hero__subtitle {
+        margin: 0;
+        color: var(--text-muted);
+        font-size: 0.96rem;
+        max-width: 36rem;
+        line-height: 1.7;
+      }
+
+      .hero__cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.8rem;
+        margin-top: 1.5rem;
+      }
+
+      .hero__meta {
+        margin-top: 1.1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+        font-size: 0.8rem;
+        color: var(--text-soft);
+      }
+
+      .hero__meta-pill {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        padding: 0.18rem 0.55rem;
+      }
+
+      .hero__card {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-xl);
+        padding: 1.4rem 1.4rem 1.6rem;
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .hero__card-title {
+        margin: 0 0 0.7rem;
+        font-size: 1.05rem;
+      }
+
+      .hero__card-body {
+        margin: 0;
+        font-size: 0.9rem;
+        color: var(--text-muted);
+      }
+
+      .hero__card-body ul {
+        margin: 0.7rem 0 0;
+        padding-left: 1.1rem;
+        font-size: 0.86rem;
+        color: var(--text-muted);
+      }
+
+      /* Buttons */
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.6rem 1.1rem;
+        border-radius: 999px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        border: 1px solid transparent;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .btn--primary {
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        color: #020617;
+        border-color: rgba(255, 255, 255, 0.3);
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+      }
+
+      .btn--primary:hover {
+        filter: brightness(1.03);
+      }
+
+      .btn--ghost {
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--accent-strong);
+        border-color: rgba(148, 163, 184, 0.6);
+      }
+
+      .btn--ghost:hover {
+        background: rgba(15, 23, 42, 1);
+      }
+
+      .btn__icon {
+        font-size: 1rem;
+      }
+
+      /* Sections */
+      .section {
+        padding: 2.4rem 0;
+      }
+
+      .section--muted {
+        background: rgb(6, 9, 18);
+        border-top: 1px solid rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .section__header {
+        max-width: 40rem;
+        margin-bottom: 1.4rem;
+      }
+
+      .section__header h2 {
+        margin: 0 0 0.5rem;
+        font-size: 1.35rem;
+      }
+
+      .section__header p {
+        margin: 0;
+        font-size: 0.95rem;
+        color: var(--text-muted);
+      }
+
+      /* Filters */
+      .verb-filters {
+        background: rgba(15, 23, 42, 0.95);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        padding: 1.2rem 1.2rem 1.3rem;
+        margin-bottom: 1.8rem;
+      }
+
+      .verb-filters__row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.9rem;
+        align-items: center;
+      }
+
+      .verb-filters__group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+        min-width: 160px;
+        flex: 1;
+      }
+
+      .verb-filters__label {
+        font-size: 0.78rem;
+        color: var(--text-soft);
+      }
+
+      .verb-filters__input,
+      .verb-filters__select {
+        width: 100%;
+        padding: 0.45rem 0.7rem;
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--text-main);
+        font-size: 0.86rem;
+        outline: none;
+      }
+
+      .verb-filters__input::placeholder {
+        color: var(--text-soft);
+      }
+
+      .verb-filters__stats {
+        margin-top: 0.8rem;
+        font-size: 0.8rem;
+        color: var(--text-soft);
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-wrap: wrap;
+      }
+
+      .verb-filters__cta {
+        font-size: 0.8rem;
+        color: var(--accent-muted);
+      }
+
+      .verb-filters__cta a {
+        color: var(--accent-strong);
+        text-decoration: none;
+      }
+
+      .verb-filters__cta a:hover {
+        text-decoration: underline;
+      }
+
+      /* Verb grid */
+      .verb-grid {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .verb-card {
+        background: rgba(15, 23, 42, 0.96);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-soft);
+        padding: 0.9rem 1rem 1rem;
+        font-size: 0.86rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+
+      .verb-card__header {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 0.4rem;
+      }
+
+      .verb-card__verb {
+        font-weight: 600;
+        font-size: 0.96rem;
+      }
+
+      .verb-card__type-badge {
+        font-size: 0.72rem;
+        border-radius: 999px;
+        padding: 0.08rem 0.45rem;
+        border: 1px solid rgba(148, 163, 184, 0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--accent-muted);
+        white-space: nowrap;
+      }
+
+      .verb-card__ens {
+        font-family: "SF Mono", ui-monospace, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 0.78rem;
+        color: var(--accent-muted);
+      }
+
+      .verb-card__meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        margin-top: 0.1rem;
+      }
+
+      .tag {
+        border-radius: 999px;
+        border: 1px solid rgba(148, 163, 184, 0.55);
+        padding: 0.08rem 0.45rem;
+        font-size: 0.72rem;
+        color: var(--text-soft);
+        white-space: nowrap;
+      }
+
+      .tag--status-live {
+        border-color: rgba(52, 211, 153, 0.75);
+        color: #6ee7b7;
+      }
+
+      .tag--status-inflight {
+        border-color: rgba(251, 191, 36, 0.8);
+        color: #facc15;
+      }
+
+      .tag--status-reserved {
+        border-color: rgba(148, 163, 184, 0.7);
+        color: var(--text-soft);
+      }
+
+      .tag--tier-premium {
+        border-color: rgba(248, 250, 252, 0.9);
+        color: var(--accent-strong);
+      }
+
+      .tag--tier-free {
+        border-color: rgba(129, 140, 248, 0.8);
+        color: #a5b4fc;
+      }
+
+      .tag--tier-unpriced {
+        border-color: rgba(148, 163, 184, 0.6);
+        color: var(--text-soft);
+        opacity: 0.9;
+      }
+
+      .verb-card__description {
+        margin-top: 0.3rem;
+        color: var(--text-muted);
+      }
+
+      .verb-card__links {
+        margin-top: 0.4rem;
+        font-size: 0.78rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .verb-card__link {
+        color: var(--accent-strong);
+        text-decoration: none;
+      }
+
+      .verb-card__link:hover {
+        text-decoration: underline;
+      }
+
+      /* Footer */
+      .site-footer {
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: #020308;
+      }
+
+      .site-footer__inner {
+        padding: 1.4rem 1.5rem 1.8rem;
+        font-size: 0.78rem;
+        color: var(--text-soft);
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+        align-items: center;
+        text-align: center;
+      }
+
+      .site-footer__links {
+        display: flex;
+        gap: 0.8rem;
+        justify-content: center;
+        margin-top: 0.2rem;
+      }
+
+      .site-footer__links a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      .site-footer__links a:hover {
+        text-decoration: underline;
+      }
+
+      /* Mobile */
+      @media (max-width: 880px) {
+        .site-header__inner {
+          padding-inline: 1rem;
+        }
+
+        .site-header__toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .site-header__nav {
+          display: none;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.5rem;
+          margin-top: 0.8rem;
+        }
+
+        .site-header.site-header--open .site-header__nav {
+          display: flex;
+        }
+
+        .hero__inner {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .hero__card {
+          margin-top: 1.5rem;
+        }
+
+        .verb-filters__row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .verb-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .site-footer__inner {
+          padding-inline: 1rem;
+        }
+      }
+
+      @media (min-width: 881px) and (max-width: 1120px) {
+        .verb-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="page-shell">
+      <!-- HEADER -->
+      <header class="site-header">
+        <div class="site-header__inner container">
+          <a href="/" class="site-header__brand">
+            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+            <div class="site-header__text">
+              <span class="site-header__title">CommandLayer</span>
+              <span class="site-header__subtitle">Semantic verb &amp; schema layer for agents</span>
+            </div>
+          </a>
+
+          <!-- Mobile toggle -->
+          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+
+          <nav class="site-header__nav" aria-label="Primary">
+            <a href="/" class="site-header__link">Overview</a>
+            <a href="/manifest.html" class="site-header__link site-header__link--active">Manifest</a>
+
+            <div class="site-header__dropdown">
+              <button class="site-header__dropdown-btn" type="button" aria-expanded="false">
+                Docs ▾
+              </button>
+              <div class="site-header__dropdown-menu">
+                <a href="/commons.html">Commons</a>
+                <a href="/commercial.html">Commercial</a>
+                <a href="/agent-cards.html">Agent Cards</a>
+                <a href="/runtime.html">Runtime</a>
+                <a href="/roadmap.html">Roadmap</a>
+                <a href="/licensing.html">Licensing</a>
+                <a href="/about.html">About CommandLayer</a>
+              </div>
+            </div>
+
+            <a href="/demo.html" class="site-header__link">Live Demo</a>
+            <a
+              href="https://github.com/commandlayer"
+              class="site-header__link"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub</a
+            >
+          </nav>
+        </div>
+      </header>
+
+      <main class="page-main">
+        <!-- HERO -->
+        <section class="hero">
+          <div class="container hero__inner">
+            <div>
+              <div class="hero__eyebrow">Tier 2 — Manifest</div>
+              <h1 class="hero__title">
+                <span>The CommandLayer</span>
+                <span class="hero__title-em">verb Manifest for agents.</span>
+              </h1>
+              <p class="hero__subtitle">
+                A curated portfolio of high-intent verbs for AI, commerce, finance, operations,
+                and comms. These are the reserved semantic handles that frame how future agents
+                talk to each other — not all live yet, but the namespace is staked out.
+              </p>
+
+              <div class="hero__cta-row">
+                <a href="#verb-catalog" class="btn btn--primary">
+                  <span class="btn__icon">🧭</span>
+                  <span>Explore the Manifest</span>
+                </a>
+                <a href="/docs.html" class="btn btn--ghost">
+                  <span class="btn__icon">📚</span>
+                  <span>Read the integration docs</span>
+                </a>
+              </div>
+
+              <div class="hero__meta">
+                <span class="hero__meta-pill">Tier 1: 10 Commons · 5 Commercial (live)</span>
+                <span class="hero__meta-pill">Tier 2: 200+ reserved verbs (partial list)</span>
+              </div>
+            </div>
+
+            <aside class="hero__card">
+              <h2 class="hero__card-title">How to read the Manifest</h2>
+              <p class="hero__card-body">
+                Each entry is a potential canonical verb — a unit of machine intent that can be
+                bound to schemas, Agent Cards, and Runtime guarantees:
+              </p>
+              <ul>
+                <li><strong>Type</strong>: Commons (public goods) or Commercial (economic flows).</li>
+                <li><strong>Category</strong>: AI, commerce, operations, finance, comms, or system.</li>
+                <li><strong>Status</strong>: Live, in flight, or reserved for future standardization.</li>
+                <li><strong>ENS</strong>: the semantic handle (e.g. <code>summarizeagent.eth</code>).</li>
+              </ul>
+            </aside>
+          </div>
+        </section>
+
+        <!-- VERB CATALOG -->
+        <section class="section section--muted" id="verb-catalog">
+          <div class="container">
+            <div class="section__header">
+              <h2>Filter the Manifest</h2>
+              <p>
+                Use search and filters to navigate the portfolio. This page surfaces a representative
+                slice of the 200–300 Tier 2 verbs behind the CommandLayer semantic moat. Tier 1 verbs
+                are live; the rest are reserved for future schema and Agent Card rollouts.
+              </p>
+            </div>
+
+            <div class="verb-filters">
+              <div class="verb-filters__row">
+                <div class="verb-filters__group">
+                  <label for="verb-search" class="verb-filters__label">Search</label>
+                  <input
+                    id="verb-search"
+                    type="text"
+                    class="verb-filters__input"
+                    placeholder="Search by verb, ENS, or description…"
+                    autocomplete="off"
+                    spellcheck="false"
+                  />
+                </div>
+
+                <div class="verb-filters__group">
+                  <label for="verb-category" class="verb-filters__label">Category</label>
+                  <select id="verb-category" class="verb-filters__select">
+                    <option value="all">All categories</option>
+                    <option value="ai">AI &amp; intelligence</option>
+                    <option value="commerce">Commerce &amp; payments</option>
+                    <option value="operations">Operations &amp; logistics</option>
+                    <option value="finance">Finance &amp; risk</option>
+                    <option value="comms">Comms &amp; outreach</option>
+                    <option value="other">Other / system</option>
+                  </select>
+                </div>
+
+                <div class="verb-filters__group">
+                  <label for="verb-type" class="verb-filters__label">Type</label>
+                  <select id="verb-type" class="verb-filters__select">
+                    <option value="all">Commons + Commercial</option>
+                    <option value="commons">Commons only</option>
+                    <option value="commercial">Commercial only</option>
+                  </select>
+                </div>
+
+                <div class="verb-filters__group">
+                  <label for="verb-status" class="verb-filters__label">Status</label>
+                  <select id="verb-status" class="verb-filters__select">
+                    <option value="all">Any status</option>
+                    <option value="live">Live</option>
+                    <option value="inflight">In flight</option>
+                    <option value="reserved">Reserved</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="verb-filters__stats">
+                <span id="verb-count">Showing 0 verbs</span>
+                <span class="verb-filters__cta">
+                  Looking for leasing or commercial access?
+                  <a href="mailto:licensing@commandlayer.org">Contact us</a>
+                  to discuss Tier 2 and strategic reserve verbs.
+                </span>
+              </div>
+            </div>
+
+            <div id="verb-grid" class="verb-grid" aria-live="polite"></div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container site-footer__inner">
+          <div>© CommandLayer — semantic layer for autonomous agents</div>
+          <div>
+            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL ·
+            Schemas always free
+          </div>
+          <div class="site-footer__links">
+            <a href="/docs.html">Docs</a>
+            <a href="/manifest.html">Manifest</a>
+            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Header toggle + Docs dropdown (improved UX + ARIA, same layout)
+      (function () {
+        const header = document.querySelector(".site-header");
+        const toggle = document.querySelector(".site-header__toggle");
+        const docsBtn = document.querySelector(".site-header__dropdown-btn");
+        const docsMenu = document.querySelector(".site-header__dropdown-menu");
+
+        if (!header) return;
+
+        // ARIA wiring for docs menu
+        if (docsBtn && docsMenu) {
+          const menuId = "docs-menu";
+          docsMenu.id = menuId;
+          docsBtn.setAttribute("aria-controls", menuId);
+          docsBtn.setAttribute("aria-expanded", "false");
+        }
+
+        function setDocsOpen(next) {
+          header.classList.toggle("site-header--docs-open", next);
+          if (docsBtn) docsBtn.setAttribute("aria-expanded", next ? "true" : "false");
+        }
+
+        function setNavOpen(next) {
+          header.classList.toggle("site-header--open", next);
+          if (toggle) toggle.setAttribute("aria-expanded", next ? "true" : "false");
+          if (!next) setDocsOpen(false);
+        }
+
+        if (toggle) {
+          toggle.addEventListener("click", () => {
+            const isOpen = header.classList.contains("site-header--open");
+            setNavOpen(!isOpen);
+          });
+        }
+
+        if (docsBtn) {
+          docsBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = header.classList.contains("site-header--docs-open");
+            setDocsOpen(!isOpen);
+          });
+        }
+
+        // Close docs on outside click
+        document.addEventListener("click", (e) => {
+          if (!header.classList.contains("site-header--docs-open")) return;
+          const insideDropdown = e.target.closest(".site-header__dropdown");
+          if (!insideDropdown) setDocsOpen(false);
+        });
+
+        // Close on Escape (docs + mobile nav)
+        document.addEventListener("keydown", (e) => {
+          if (e.key !== "Escape") return;
+          if (header.classList.contains("site-header--docs-open")) setDocsOpen(false);
+          if (header.classList.contains("site-header--open")) setNavOpen(false);
+        });
+
+        // If a nav link is clicked on mobile, close the nav; on desktop, close docs
+        header.addEventListener("click", (e) => {
+          const link = e.target.closest("a");
+          if (!link) return;
+          const isMobile = window.matchMedia("(max-width: 880px)").matches;
+          if (isMobile) setNavOpen(false);
+          else setDocsOpen(false);
+        });
+      })();
+
+      // --- Manifest verb catalog logic (data unchanged; improved sort + empty state) ---
+
+      const verbs = [
+        // AI & intelligence (Commons — Tier 1)
+        {
+          verb: "summarize",
+          ens: "summarizeagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Condense content into structured, machine-verifiable summaries.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        {
+          verb: "analyze",
+          ens: "analyzeagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Perform structured analysis over inputs with traceable receipts.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        {
+          verb: "classify",
+          ens: "classifyagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Assign labels or categories with verifiable classification receipts.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        {
+          verb: "parse",
+          ens: "parseagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Parse unstructured inputs into structured JSON shapes for other agents.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        {
+          verb: "format",
+          ens: "formatagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Reformat content into required layouts, schemas, or text surfaces.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        {
+          verb: "clean",
+          ens: "cleanagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Clean and normalize noisy inputs before downstream processing.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        {
+          verb: "convert",
+          ens: "convertagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Convert between formats, encodings, or representations.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        {
+          verb: "describe",
+          ens: "describeagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Produce detailed, structured descriptions of inputs or resources.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        {
+          verb: "explain",
+          ens: "explainagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Explain decisions, results, or content in human-readable form.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        {
+          verb: "fetch",
+          ens: "fetchagent.eth",
+          category: "ai",
+          type: "commons",
+          status: "live",
+          tier: "free",
+          description: "Retrieve and normalize external resources for downstream agents.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+
+        // AI & intelligence (portfolio extensions)
+        { verb: "generate", ens: "generateagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Generate new content or data from prompts." },
+        { verb: "optimize", ens: "optimizeagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Optimize plans, routes, or allocations under constraints." },
+        { verb: "anticipate", ens: "anticipateagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Anticipate future states or events from context." },
+        { verb: "evaluate", ens: "evaluateagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Evaluate quality, performance, or compliance." },
+        { verb: "assess", ens: "assessagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Assess risk, value, or suitability of options." },
+        { verb: "compute", ens: "computeagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Compute derived values or metrics." },
+        { verb: "learn", ens: "learnagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Learn from data or feedback to improve behavior." },
+        { verb: "plan", ens: "planagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Plan multi-step tasks or workflows for agents." },
+        { verb: "train", ens: "trainagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Train models or agents on data or feedback." },
+        { verb: "filter", ens: "filteragent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Filter items based on rules or predicates." },
+        { verb: "compress", ens: "compressagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Compress data or content while retaining meaning." },
+        { verb: "extract", ens: "extractagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Extract fields or entities from unstructured input." },
+        { verb: "visualize", ens: "visualizeagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Visualize data or results as charts or graphics." },
+
+        // Operations / workflow / CRUD (Commons, mostly reserved)
+        { verb: "accept", ens: "acceptagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Accept offers, requests, or invitations." },
+        { verb: "cancel", ens: "cancelagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Cancel pending jobs, orders, or workflows." },
+        { verb: "create", ens: "createagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Create new entities, resources, or records." },
+        { verb: "delete", ens: "deleteagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Delete resources or records in a controlled way." },
+        { verb: "update", ens: "updateagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Update existing entities or records with changes." },
+        { verb: "save", ens: "saveagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Save state, drafts, or checkpoints." },
+        { verb: "file", ens: "fileagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "File documents, tickets, or forms into systems." },
+        { verb: "store", ens: "storeagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Store data or artifacts in designated locations." },
+        { verb: "record", ens: "recordagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Record events, logs, or observations." },
+        { verb: "list", ens: "listagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "List collections of entities or records." },
+        { verb: "query", ens: "queryagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Query data sources or indexes." },
+        { verb: "calculate", ens: "calculateagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Calculate values, metrics, or aggregates." },
+        { verb: "rewrite", ens: "rewriteagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Rewrite content with new constraints or tone." },
+        { verb: "compose", ens: "composeagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Compose new content from instructions or context." },
+        { verb: "copy", ens: "copyagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Copy resources, files, or content." },
+        { verb: "print", ens: "printagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Print or render outputs to physical or virtual media." },
+
+        // Commerce & payments (Commercial — Tier 1)
+        {
+          verb: "checkout",
+          ens: "checkoutagent.eth",
+          category: "commerce",
+          type: "commercial",
+          status: "live",
+          tier: "premium",
+          description: "Coordinate carts, totals, and payment authorization as a unified flow.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        {
+          verb: "authorize",
+          ens: "authorizeagent.eth",
+          category: "commerce",
+          type: "commercial",
+          status: "live",
+          tier: "premium",
+          description: "Perform payment authorizations with trace IDs and structured receipts.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        {
+          verb: "purchase",
+          ens: "purchaseagent.eth",
+          category: "commerce",
+          type: "commercial",
+          status: "live",
+          tier: "premium",
+          description: "Complete settlement events once authorization and risk checks pass.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        { verb: "refund", ens: "refundagent.eth", category: "commerce", type: "commercial", status: "reserved", tier: "premium", description: "Standardize how refunds are requested, processed, and proved." },
+        {
+          verb: "verify",
+          ens: "verifyagent.eth",
+          category: "commerce",
+          type: "commercial",
+          status: "live",
+          tier: "premium",
+          description: "Perform identity, KYC, or eligibility checks as reusable verification flows.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+
+        // Finance (Commercial portfolio)
+        { verb: "bill", ens: "billagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Bill accounts or customers for usage or services." },
+        { verb: "invoice", ens: "invoiceagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Issue invoices as structured, payable documents." },
+        { verb: "charge", ens: "chargeagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Charge accounts or payment methods." },
+        { verb: "fund", ens: "fundagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Fund wallets, positions, or balances." },
+        { verb: "disburse", ens: "disburseagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Disburse funds to one or many recipients." },
+        { verb: "remit", ens: "remitagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Remit funds across accounts, regions, or rails." },
+        { verb: "reimburse", ens: "reimburseagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Reimburse expenses or claims with proof." },
+        { verb: "payout", ens: "payoutagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Coordinate payouts to multiple recipients." },
+        { verb: "stream", ens: "streamagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Stream data or payments over time." },
+        { verb: "subscribe", ens: "subscribeagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Create and manage recurring subscription or billing agreements." },
+        { verb: "deposit", ens: "depositagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Handle deposits into accounts or contracts." },
+        { verb: "order", ens: "orderagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Place orders for goods, services, or workloads." },
+        { verb: "statement", ens: "statementagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Produce account or activity statements." },
+        { verb: "license", ens: "licenseagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Grant, update, or revoke usage licenses under clear terms." },
+        { verb: "issue", ens: "issueagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Issue credentials, cards, or instruments as structured events." },
+        { verb: "lend", ens: "lendagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Lend assets under defined terms." },
+        { verb: "lending", ens: "lendingagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Coordinate lending marketplaces or flows." },
+
+        // Operations & logistics (Commons + Commercial)
+        {
+          verb: "ship",
+          ens: "shipagent.eth",
+          category: "operations",
+          type: "commercial",
+          status: "live",
+          tier: "premium",
+          description: "Encode fulfillment, carrier selection, and tracking into a shared verb.",
+          docsUrl: "https://www.commandlayer.org/docs.html",
+          cardUrl: "https://www.commandlayer.org/agent-cards.html"
+        },
+        { verb: "track", ens: "trackagent.eth", category: "operations", type: "commons", status: "reserved", tier: "free", description: "Track assets, shipments, or jobs with consistent state transitions." },
+        { verb: "schedule", ens: "scheduleagent.eth", category: "operations", type: "commons", status: "reserved", tier: "free", description: "Negotiate and confirm time windows across calendars and systems." },
+        { verb: "allocate", ens: "allocateagent.eth", category: "operations", type: "commons", status: "reserved", tier: "free", description: "Allocate resources like inventory, compute, or staff to tasks." },
+        { verb: "deliver", ens: "deliveragent.eth", category: "operations", type: "commercial", status: "reserved", tier: "unpriced", description: "Deliver digital or physical items to a destination." },
+        { verb: "return", ens: "returnagent.eth", category: "operations", type: "commercial", status: "reserved", tier: "unpriced", description: "Handle returns for orders with structured outcomes." },
+        { verb: "scan", ens: "scanagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Scan items, barcodes, or environments." },
+        { verb: "dispatch", ens: "dispatchagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Dispatch jobs, couriers, or workloads." },
+        { verb: "locate", ens: "locateagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Locate assets, people, or resources." },
+        { verb: "shipment", ens: "shipmentagent.eth", category: "operations", type: "commercial", status: "reserved", tier: "unpriced", description: "Manage shipments and their status." },
+        { verb: "receipt", ens: "receiptagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Represent receipts for deliveries or payments." },
+        { verb: "cart", ens: "cartagent.eth", category: "operations", type: "commercial", status: "reserved", tier: "unpriced", description: "Manage carts and items before checkout." },
+        { verb: "load", ens: "loadagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Load resources, items, or environments." },
+        { verb: "reach", ens: "reachagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Reach destinations, endpoints, or targets." },
+        { verb: "move", ens: "moveagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Move assets, items, or data between locations." },
+        { verb: "sync", ens: "syncagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Sync data or state across systems." },
+
+        // Finance & risk (Commercial premium)
+        { verb: "price", ens: "priceagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "premium", description: "Quote deterministic prices for assets, services, or bundles." },
+        { verb: "quote", ens: "quoteagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "premium", description: "Respond with time-bound quotes that can be consumed by other agents." },
+        { verb: "hedge", ens: "hedgeagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "premium", description: "Express hedging strategies as structured instructions between agents." },
+
+        // Comms & outreach
+        { verb: "notify", ens: "notifyagent.eth", category: "comms", type: "commons", status: "reserved", tier: "free", description: "Send structured notifications across channels with delivery receipts." },
+        { verb: "broadcast", ens: "broadcastagent.eth", category: "comms", type: "commons", status: "reserved", tier: "free", description: "Broadcast messages to many recipients with explicit fan-out semantics." },
+        { verb: "invite", ens: "inviteagent.eth", category: "comms", type: "commons", status: "reserved", tier: "free", description: "Issue structured invitations that agents can accept, decline, or delegate." },
+        { verb: "alert", ens: "alertagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send high-priority alerts with severity." },
+        { verb: "message", ens: "messageagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send generic messages between agents or users." },
+        { verb: "email", ens: "emailagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send and receive email-style messages." },
+        { verb: "dm", ens: "dmagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send direct messages between agents or users." },
+        { verb: "send", ens: "sendagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send payloads or items to recipients." },
+        { verb: "text", ens: "textagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send SMS-style text messages." },
+        { verb: "follow", ens: "followagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Follow entities to receive updates." },
+        { verb: "notifymy", ens: "notifymyagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Notify a specific user or agent with targeted updates." },
+        { verb: "chatwith", ens: "chatwithagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Chat interactively with an agent." },
+        { verb: "talk", ens: "talkagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Carry on voice or text conversations." },
+        { verb: "reply", ens: "replyagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Reply to prior messages or threads." },
+        { verb: "ring", ens: "ringagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Ring or call attention to a target." },
+        { verb: "converse", ens: "converseagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Maintain multi-turn conversations with context." },
+
+        // Other / system
+        { verb: "register", ens: "registeragent.eth", category: "other", type: "commons", status: "reserved", tier: "free", description: "Register resources, agents, or capabilities into shared registries." },
+        { verb: "attest", ens: "attestagent.eth", category: "other", type: "commercial", status: "reserved", tier: "premium", description: "Produce signed attestations that can be reused by other protocols." },
+        { verb: "govern", ens: "governagent.eth", category: "other", type: "commercial", status: "reserved", tier: "premium", description: "Express proposals, votes, and resolutions as structured governance flows." }
+      ];
+
+      const searchInput = document.getElementById("verb-search");
+      const categorySelect = document.getElementById("verb-category");
+      const typeSelect = document.getElementById("verb-type");
+      const statusSelect = document.getElementById("verb-status");
+      const verbGrid = document.getElementById("verb-grid");
+      const verbCount = document.getElementById("verb-count");
+
+      function labelCategory(cat) {
+        switch (cat) {
+          case "ai":
+            return "AI & intelligence";
+          case "commerce":
+            return "Commerce & payments";
+          case "operations":
+            return "Operations & logistics";
+          case "finance":
+            return "Finance & risk";
+          case "comms":
+            return "Comms & outreach";
+          default:
+            return "Other / system";
+        }
+      }
+
+      function labelStatus(status) {
+        switch (status) {
+          case "live":
+            return "Live";
+          case "inflight":
+            return "In flight";
+          default:
+            return "Reserved";
+        }
+      }
+
+      function labelTier(tier) {
+        switch (tier) {
+          case "premium":
+            return "Premium";
+          case "free":
+            return "Free / Commons";
+          default:
+            return "Unpriced";
+        }
+      }
+
+      function renderVerbs() {
+        const search = (searchInput.value || "").trim().toLowerCase();
+        const category = categorySelect.value;
+        const type = typeSelect.value;
+        const status = statusSelect.value;
+
+        let filtered = verbs.filter((v) => {
+          if (category !== "all" && v.category !== category) return false;
+          if (type !== "all" && v.type !== type) return false;
+          if (status !== "all" && v.status !== status) return false;
+
+          if (search) {
+            const haystack =
+              v.verb +
+              " " +
+              v.ens +
+              " " +
+              (v.description || "") +
+              " " +
+              v.category +
+              " " +
+              v.type +
+              " " +
+              v.status;
+            if (!haystack.toLowerCase().includes(search)) return false;
+          }
+
+          return true;
+        });
+
+        // Deliberate sort order (reads like a product, not a dictionary)
+        const categoryOrder = { ai: 1, commerce: 2, finance: 3, operations: 4, comms: 5, other: 6 };
+
+        filtered.sort((a, b) => {
+          const ca = categoryOrder[a.category] ?? 99;
+          const cb = categoryOrder[b.category] ?? 99;
+          if (ca !== cb) return ca - cb;
+
+          // Commons first, then Commercial (flip if you prefer)
+          const ta = a.type === "commons" ? 1 : 2;
+          const tb = b.type === "commons" ? 1 : 2;
+          if (ta !== tb) return ta - tb;
+
+          return a.verb.localeCompare(b.verb);
+        });
+
+        verbGrid.innerHTML = "";
+
+        if (filtered.length === 0) {
+          verbGrid.innerHTML = `
+            <article class="verb-card">
+              <div class="verb-card__header">
+                <div>
+                  <div class="verb-card__verb">No matches</div>
+                  <div class="verb-card__ens">Try clearing filters or widening your search.</div>
+                </div>
+                <div class="verb-card__type-badge">Manifest</div>
+              </div>
+              <div class="verb-card__description">
+                Nothing in the current slice matches those filters.
+              </div>
+            </article>
+          `;
+          verbCount.textContent = "Showing 0 verbs";
+          return;
+        }
+
+        filtered.forEach((v) => {
+          const card = document.createElement("article");
+          card.className = "verb-card";
+
+          const statusClass =
+            v.status === "live"
+              ? "tag tag--status-live"
+              : v.status === "inflight"
+              ? "tag tag--status-inflight"
+              : "tag tag--status-reserved";
+
+          let tierClass;
+          if (v.tier === "premium") tierClass = "tag tag--tier-premium";
+          else if (v.tier === "free") tierClass = "tag tag--tier-free";
+          else tierClass = "tag tag--tier-unpriced";
+
+          const typeLabel = v.type === "commercial" ? "Commercial" : v.type === "commons" ? "Commons" : "Other";
+
+          let linksHtml = "";
+          if (v.status === "live") {
+            if (v.docsUrl) {
+              linksHtml += `<a href="${v.docsUrl}" class="verb-card__link" target="_blank" rel="noopener noreferrer">Docs</a>`;
+            }
+            if (v.cardUrl) {
+              linksHtml += `<a href="${v.cardUrl}" class="verb-card__link" target="_blank" rel="noopener noreferrer">Agent Cards</a>`;
+            }
+          }
+
+          card.innerHTML = `
+            <div class="verb-card__header">
+              <div>
+                <div class="verb-card__verb">${v.verb}</div>
+                <div class="verb-card__ens">${v.ens}</div>
+              </div>
+              <div class="verb-card__type-badge">${typeLabel}</div>
+            </div>
+            <div class="verb-card__meta-row">
+              <span class="tag">${labelCategory(v.category)}</span>
+              <span class="${statusClass}">${labelStatus(v.status)}</span>
+              <span class="${tierClass}">${labelTier(v.tier)}</span>
+            </div>
+            <div class="verb-card__description">${v.description || ""}</div>
+            <div class="verb-card__links">${linksHtml}</div>
+          `;
+
+          verbGrid.appendChild(card);
+        });
+
+        verbCount.textContent = `Showing ${filtered.length} verb${filtered.length === 1 ? "" : "s"}`;
+      }
+
+      searchInput.addEventListener("input", renderVerbs);
+      categorySelect.addEventListener("change", renderVerbs);
+      typeSelect.addEventListener("change", renderVerbs);
+      statusSelect.addEventListener("change", renderVerbs);
+
+      renderVerbs();
+    </script>
+  </body>
+</html>
