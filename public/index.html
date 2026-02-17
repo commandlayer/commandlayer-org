@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CommandLayer — The semantic layer for agents</title>
+<title>CommandLayer — Semantic Execution + Receipt Layer for ERC-8004</title>
 <meta
 name="viewport"
 content="width=device-width, initial-scale=1, viewport-fit=cover"
 />
 <meta
 name="description"
-content="CommandLayer is the semantic verb + schema layer that sits on top of x402 and ERC-8004 — Commons verbs live today, Commercial economic verbs defined, a Manifest of future verbs, and Agent Cards so agents can advertise what they do in a shared language. Schemas are always free; value lives in execution."
+content="CommandLayer is the semantic execution and receipt layer for ERC-8004-discoverable services. Typed verbs, JSON Schema-validated requests, canonical hashing, signature verification, and deterministic receipts."
 />
 
 
@@ -246,38 +246,23 @@ background: rgba(15, 23, 42, 1);
 
 /* Hero */
 .hero {
-padding: 3.2rem 0 2.8rem;
+padding: 4rem 0 3.5rem;
 border-bottom: 1px solid var(--border-soft);
 background: radial-gradient(circle at 0 0, #111827, #020308);
 }
 
 
 .hero__inner {
-display: grid;
-grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
-align-items: center;
-gap: 2.5rem;
-}
-
-
-.hero__eyebrow {
-font-size: 0.8rem;
-text-transform: uppercase;
-letter-spacing: 0.14em;
-color: var(--accent-muted);
-margin-bottom: 0.8rem;
+max-width: 48rem;
 }
 
 
 .hero__title {
-margin: 0 0 0.8rem;
-font-size: 2.4rem;
-line-height: 1.1;
-}
-
-
-.hero__title span {
-display: block;
+margin: 0 0 1.2rem;
+font-size: 2.2rem;
+line-height: 1.15;
+font-weight: 700;
+letter-spacing: -0.01em;
 }
 
 
@@ -290,19 +275,20 @@ color: transparent;
 
 
 .hero__subtitle {
-margin: 0 0 0.8rem;
+margin: 0 0 1.2rem;
 color: var(--text-muted);
-font-size: 0.98rem;
-max-width: 36rem;
+font-size: 1rem;
 line-height: 1.7;
+max-width: 40rem;
 }
 
 
-.hero__list {
-margin: 0.4rem 0 0;
-padding-left: 1.1rem;
-font-size: 0.9rem;
-color: var(--text-muted);
+.hero__subtitle code {
+background: rgba(255, 255, 255, 0.08);
+padding: 0.1em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+font-size: 0.9em;
 }
 
 
@@ -310,7 +296,7 @@ color: var(--text-muted);
 display: flex;
 flex-wrap: wrap;
 gap: 0.8rem;
-margin-top: 1.6rem;
+margin-top: 2rem;
 }
 
 
@@ -371,47 +357,9 @@ background: rgba(15, 23, 42, 1);
 }
 
 
-.btn__icon {
-font-size: 1rem;
-}
-
-
-.hero__card {
-background: rgba(15, 23, 42, 0.95);
-border-radius: var(--radius-xl);
-padding: 1.4rem 1.4rem 1.6rem;
-border: 1px solid var(--border-soft);
-box-shadow: var(--shadow-soft);
-}
-
-
-.hero__card-title {
-margin: 0 0 0.5rem;
-font-size: 1.3rem;
-font-weight: 700;
-letter-spacing: -0.01em;
-}
-
-
-.hero__card-body {
-margin: 0;
-font-size: 0.95rem;
-color: var(--text-main);
-margin-left: 0.1rem;
-}
-
-
-.hero__card-list {
-margin: 0.9rem 0 0;
-padding-left: 1.15rem;
-font-size: 0.86rem;
-color: var(--text-muted);
-}
-
-
 /* Sections */
 .section {
-padding: 2.8rem 0;
+padding: 3rem 0;
 }
 
 
@@ -438,106 +386,228 @@ font-size: 1.4rem;
 margin: 0;
 font-size: 0.95rem;
 color: var(--text-muted);
+line-height: 1.7;
 }
 
 
-.grid {
-display: grid;
-gap: 1.2rem;
+/* Stack diagram */
+.stack-diagram {
+max-width: 520px;
+margin: 0 auto;
 }
 
 
-.grid--3 {
-grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-
-.info-card {
-background: rgba(15, 23, 42, 0.95);
-padding: 1.1rem;
+.stack-layer {
+display: flex;
+align-items: stretch;
+border: 1px solid var(--border-strong);
 border-radius: var(--radius-lg);
-border: 1px solid var(--border-soft);
-font-size: 0.9rem;
+margin-bottom: -1px;
+overflow: hidden;
 }
 
 
-.info-card h3 {
-margin: 0 0 0.45rem;
-font-size: 1rem;
+.stack-layer:first-child {
+border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 
 
-.info-card p {
-margin: 0;
-color: var(--text-muted);
+.stack-layer:last-child {
+border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 
-.info-card a {
-color: var(--accent-strong);
-text-decoration: none;
-}
-
-
-.info-card a:hover {
-text-decoration: underline;
-}
-
-
-/* Mini example (dual) */
-.mini-example {
-font-size: 0.85rem;
-background: rgba(15, 23, 42, 0.9);
-border: 1px solid var(--border-soft);
-padding: 1rem;
-border-radius: var(--radius-lg);
-margin-top: 1.6rem;
-}
-
-
-.mini-example--dual {
-display: grid;
-grid-template-columns: repeat(2, minmax(0, 1fr));
-gap: 1rem;
-}
-
-
-.mini-example__column {
-min-width: 0;
-}
-
-
-.mini-example__label {
-opacity: 0.9;
-margin-bottom: 0.4rem;
-}
-
-
-.mini-example pre {
-margin: 0;
-white-space: pre;
-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-"Liberation Mono", "Courier New", monospace;
+.stack-layer__label {
+width: 180px;
+padding: 0.9rem 1rem;
 font-size: 0.82rem;
+color: var(--text-muted);
+background: rgba(15, 23, 42, 0.5);
+border-right: 1px solid var(--border-soft);
+display: flex;
+align-items: center;
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+
+.stack-layer__value {
+flex: 1;
+padding: 0.9rem 1rem;
+font-size: 0.92rem;
+font-weight: 600;
+display: flex;
+align-items: center;
+background: rgba(15, 23, 42, 0.95);
+}
+
+
+.stack-layer--cl .stack-layer__value {
+color: var(--accent-strong);
+}
+
+
+.stack-explanation {
+margin-top: 1.5rem;
+font-size: 0.9rem;
+color: var(--text-muted);
+line-height: 1.8;
+}
+
+
+.stack-explanation code {
+background: rgba(255, 255, 255, 0.08);
+padding: 0.1em 0.35em;
+border-radius: 4px;
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+font-size: 0.88em;
+color: var(--text-main);
+}
+
+
+/* Problem grid */
+.problem-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1.5rem;
+margin-top: 1.5rem;
+}
+
+
+.problem-col h3 {
+margin: 0 0 0.8rem;
+font-size: 0.95rem;
+color: var(--text-soft);
+text-transform: uppercase;
+letter-spacing: 0.08em;
+}
+
+
+.problem-col ul {
+margin: 0;
+padding: 0;
+list-style: none;
+}
+
+
+.problem-col li {
+padding: 0.35rem 0;
+font-size: 0.88rem;
+color: var(--text-muted);
+border-bottom: 1px solid var(--border-soft);
+}
+
+
+.problem-col li:last-child {
+border-bottom: none;
+}
+
+
+.problem-col--provides li {
+color: var(--accent);
+}
+
+
+/* JSON example */
+.json-block {
+background: rgba(15, 23, 42, 0.95);
+border: 1px solid var(--border-soft);
+border-radius: var(--radius-lg);
+padding: 1.2rem 1.4rem;
 overflow-x: auto;
 }
 
 
-.mini-example__note {
-grid-column: 1 / -1;
-opacity: 0.9;
-margin-top: 0.7rem;
+.json-block pre {
+margin: 0;
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+"Liberation Mono", "Courier New", monospace;
 font-size: 0.82rem;
+line-height: 1.6;
+white-space: pre;
+color: var(--text-main);
 }
 
 
-.mini-example__note a {
-text-decoration: none;
+.json-block__label {
+font-size: 0.78rem;
+color: var(--text-soft);
+margin-bottom: 0.6rem;
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
 
-.mini-example__note a:hover {
-text-decoration: underline;
+.receipt-properties {
+margin-top: 1.2rem;
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 0.8rem;
+}
+
+
+.receipt-prop {
+font-size: 0.86rem;
+color: var(--text-muted);
+padding: 0.6rem 0.8rem;
+background: rgba(15, 23, 42, 0.6);
+border: 1px solid var(--border-soft);
+border-radius: 8px;
+}
+
+
+.receipt-prop strong {
+color: var(--text-main);
+display: block;
+font-size: 0.82rem;
+margin-bottom: 0.2rem;
+}
+
+
+/* Symmetry grid */
+.symmetry-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 1.5rem;
+margin-top: 1.5rem;
+}
+
+
+.symmetry-card {
+background: rgba(15, 23, 42, 0.95);
+padding: 1.2rem;
+border-radius: var(--radius-lg);
+border: 1px solid var(--border-soft);
+}
+
+
+.symmetry-card h3 {
+margin: 0 0 0.8rem;
+font-size: 1.05rem;
+}
+
+
+.symmetry-card ul {
+margin: 0;
+padding: 0 0 0 1.1rem;
+font-size: 0.88rem;
+color: var(--text-muted);
+line-height: 1.8;
+}
+
+
+.symmetry-footer {
+margin-top: 1.5rem;
+padding: 1rem 1.2rem;
+background: rgba(15, 23, 42, 0.6);
+border: 1px solid var(--border-soft);
+border-radius: var(--radius-lg);
+font-size: 0.9rem;
+color: var(--text-muted);
+line-height: 1.7;
+}
+
+
+.symmetry-footer strong {
+color: var(--text-main);
 }
 
 
@@ -562,22 +632,53 @@ background: #020308;
 
 
 .site-footer__inner {
-padding: 1.4rem 1.5rem 1.8rem;
+padding: 1.8rem 1.5rem 2rem;
 font-size: 0.78rem;
 color: var(--text-soft);
 display: flex;
 flex-direction: column;
-gap: 0.4rem;
-align-items: center;
-text-align: center;
+gap: 0.6rem;
+}
+
+
+.site-footer__row {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+gap: 2rem;
+}
+
+
+.site-footer__col {
+display: flex;
+flex-direction: column;
+gap: 0.3rem;
+}
+
+
+.site-footer__col-title {
+font-size: 0.72rem;
+text-transform: uppercase;
+letter-spacing: 0.1em;
+color: var(--text-soft);
+margin-bottom: 0.2rem;
+}
+
+
+.site-footer__cid {
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+font-size: 0.72rem;
+color: var(--accent-muted);
+word-break: break-all;
 }
 
 
 .site-footer__links {
 display: flex;
 gap: 0.8rem;
-justify-content: center;
-margin-top: 0.2rem;
+margin-top: 0.8rem;
+padding-top: 0.8rem;
+border-top: 1px solid var(--border-soft);
 }
 
 
@@ -620,18 +721,31 @@ display: flex;
 }
 
 
-.hero__inner {
-grid-template-columns: minmax(0, 1fr);
+.hero__title {
+font-size: 1.6rem;
 }
 
 
-.hero__card {
-margin-top: 1.5rem;
+.problem-grid,
+.symmetry-grid {
+grid-template-columns: 1fr;
 }
 
 
-.mini-example--dual {
-grid-template-columns: minmax(0, 1fr);
+.receipt-properties {
+grid-template-columns: 1fr;
+}
+
+
+.stack-layer__label {
+width: 130px;
+font-size: 0.75rem;
+}
+
+
+.site-footer__row {
+flex-direction: column;
+gap: 1rem;
 }
 
 
@@ -653,7 +767,7 @@ padding-inline: 1rem;
 <div class="site-header__text">
 <span class="site-header__title">CommandLayer</span>
 <span class="site-header__subtitle">
-Semantic verb &amp; schema layer for agents
+Execution + receipt layer
 </span>
 </div>
 </a>
@@ -661,7 +775,7 @@ Semantic verb &amp; schema layer for agents
 
 <!-- Mobile toggle -->
 <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
-☰
+&#9776;
 </button>
 
 
@@ -672,7 +786,7 @@ Semantic verb &amp; schema layer for agents
 
 <div class="site-header__dropdown">
 <button class="site-header__dropdown-btn" type="button">
-Docs ▾
+Docs &#9662;
 </button>
 <div class="site-header__dropdown-menu">
 <a href="/commons.html">Commons</a>
@@ -680,13 +794,13 @@ Docs ▾
 <a href="/agent-cards.html">Agent Cards</a>
 <a href="/runtime.html">Runtime</a>
 <a href="/manifest.html">Manifest</a>
-<a href="/roadmap.html">Roadmap</a>
 <a href="/licensing.html">Licensing</a>
-<a href="/about.html">About CommandLayer</a>
+<a href="/about.html">About</a>
 </div>
 </div>
 
 
+<a href="/repositories.html" class="site-header__link">Repositories</a>
 <a href="/demo.html" class="site-header__link">Live Demo</a>
 <a
 href="https://github.com/commandlayer"
@@ -705,240 +819,242 @@ GitHub
 <!-- HERO -->
 <section class="hero">
 <div class="container hero__inner">
-<div>
-<div class="hero__eyebrow">Sits on top of x402 + ERC-8004</div>
 <h1 class="hero__title">
-<span>CommandLayer is the</span>
-<span class="hero__title-em">
-semantic verb &amp; schema layer for agents.
-</span>
+<span class="hero__title-em">A Semantic Execution + Receipt Layer</span>
+For ERC-8004&ndash;Discoverable Services
 </h1>
 
-
 <p class="hero__subtitle">
-Agents speak. x402 moves money. ERC-8004 helps you find agents.
-CommandLayer defines <em>what they do</em>.
-</p>
-<ul class="hero__list">
-<li>A small, stable set of Commons verbs you can drop in today.</li>
-<li>The first Commercial verbs for economic flows (<code>authorize</code>, <code>checkout</code>, <code>purchase</code>, <code>ship</code>, <code>verify</code>).</li>
-<li>A growing Manifest of reserved future verbs for the agent economy.</li>
-<li>Agent Cards bound to ENS and x402 so agents can advertise capabilities in a shared language.</li>
-</ul>
-<p class="hero__subtitle" style="margin-top:0.9rem;">
-All schemas are permanently free — the economics live in execution, not in the verb language.
-Each verb’s request/receipt schema is pinned to IPFS, checksummed, and anchored to its canonical ENS name.
+ERC-8004 discovers services.<br />
+x402 moves value.<br />
+CommandLayer defines what execution means &mdash; and proves it.
 </p>
 
+<p class="hero__subtitle" style="margin-top: 0;">
+Every execution produces a deterministic, hashable, verifiable receipt.
+CommandLayer is the missing execution + proof layer in the ERC-8004 stack.
+</p>
 
 <div class="hero__cta-row">
-<a href="/docs.html" class="btn btn--primary">
-<span class="btn__icon">📚</span>
-<span>Read the docs</span>
+<a href="/commons.html" class="btn btn--primary">
+View Schemas
 </a>
-<a href="/docs.html#summarize" class="btn btn--ghost">
-<span class="btn__icon">⚡</span>
-<span>Start with summarize</span>
+<a href="/repositories.html" class="btn btn--ghost">
+View Repositories
 </a>
 </div>
-
 
 <div class="hero__meta">
 <span class="hero__meta-pill">Protocol v1.0.0</span>
-<span class="hero__meta-pill">Commons v1.0.0 · MIT · schemas free</span>
-<span class="hero__meta-pill">Commercial v1.0.0 · Apache-2.0</span>
-<span class="hero__meta-pill">Agent Cards v1.0.0 · Apache-2.0</span>
-<span class="hero__meta-pill">Pinned to IPFS · checksummed · ENS-bound verbs</span>
-<span class="hero__meta-pill">Runtime coming online · BUSL · execution layer</span>
+<span class="hero__meta-pill">Schemas pinned to IPFS</span>
+<span class="hero__meta-pill">ENS-anchored verbs</span>
+<span class="hero__meta-pill">Ed25519 signed receipts</span>
 </div>
-</div>
-
-
-<aside class="hero__card">
-<h2 class="hero__card-title">What you can do right now</h2>
-<p class="hero__card-body">
-CommandLayer is the <strong>language contract</strong> between clients and agents —
-the part that standardizes exit names, request shapes, and receipts on top of x402.
-</p>
-<ol class="hero__card-list">
-<li>Pick a Commons verb (e.g. <code>summarize</code>).</li>
-<li>Validate payloads against the pinned, free schemas.</li>
-<li>
-Describe your agent with an
-<a href="/agent-cards.html" class="cl-blue-link">Agent Card</a>
-so it can be discovered and routed to.
-</li>
-<li>
-As x402 / ERC-8004 rails and Runtime endpoints come online, you keep the same contracts —
-only the execution layer changes.
-</li>
-</ol>
-
-
-<!-- Side-by-side request/receipt example (no indent) -->
-<div class="mini-example mini-example--dual">
-<div class="mini-example__column">
-<div class="mini-example__label">// summarize.request</div>
-<pre>{
-"verb": "summarize",
-"content": "CommandLayer defines what agents do on x402."
-}</pre>
-</div>
-<div class="mini-example__column">
-<div class="mini-example__label">// summarize.receipt</div>
-<pre>{
-"result": "Semantic verb layer describing agent behavior on x402.",
-"trace": "bafybeieoynknza..."
-}</pre>
-</div>
-<div class="mini-example__note">
-<strong>Real verbs, real receipts</strong> — the same shapes across agents, runtimes, and payment rails.
-<a href="/demo.html" class="cl-blue-link">See it live →</a>
-</div>
-</div>
-</aside>
 </div>
 </section>
 
 
-<!-- STRUCTURE SECTION -->
+<!-- SECTION 1 - THE STACK -->
 <section class="section section--muted">
 <div class="container">
 <div class="section__header">
-<h2>How the semantic layer is structured</h2>
-<p>
-You don’t need everything to start. One verb + its schemas is enough. As x402 and ERC-8004 roll out,
-the same vocabulary stretches across more agents, networks, and payment rails — without changing your contracts.
-All schemas are pinned to IPFS with published checksums and bound to canonical ENS verbs, so the language
-stays stable even as runtimes and economics change. CommandLayer doesn’t compete with x402 or ERC-8004 —
-it completes the stack by defining machine intent.
-</p>
+<h2>The Stack</h2>
 </div>
 
+<div class="stack-diagram">
+<div class="stack-layer">
+<div class="stack-layer__label">Discovery</div>
+<div class="stack-layer__value">ERC-8004</div>
+</div>
+<div class="stack-layer">
+<div class="stack-layer__label">Payment</div>
+<div class="stack-layer__value">x402</div>
+</div>
+<div class="stack-layer stack-layer--cl">
+<div class="stack-layer__label">Execution Semantics</div>
+<div class="stack-layer__value">CommandLayer</div>
+</div>
+<div class="stack-layer stack-layer--cl">
+<div class="stack-layer__label">Receipts</div>
+<div class="stack-layer__value">CommandLayer</div>
+</div>
+</div>
 
-<div class="grid grid--3">
-<article class="info-card">
-<h3>Commons</h3>
-<p>
-10 universal verbs for analysis, retrieval, summarization, and formatting.
-MIT-licensed, pinned to IPFS with published checksums, and treated as semantic public goods.
-Schemas are free forever.
-</p>
-<p style="margin-top:0.6rem;">
-<a href="/commons.html">View Commons verbs →</a>
-</p>
-</article>
-
-
-<article class="info-card">
-<h3>Commercial</h3>
-<p>
-Economic verbs for moving value:
-<code>authorize</code>, <code>checkout</code>, <code>purchase</code>,
-<code>ship</code>, and <code>verify</code>. A separate tier that builds on Commons semantics
-and fits cleanly inside x402 payment envelopes.
-</p>
-<p style="margin-top:0.6rem;">
-<a href="/commercial.html">View Commercial verbs →</a>
-</p>
-</article>
-
-
-<article class="info-card">
-<h3>Agent Cards</h3>
-<p>
-JSON descriptors that tie ENS names to verbs, schema versions, and x402 entrypoints so
-registries and clients can discover, rank, and route to your agent — without guessing how it’s wired.
-</p>
-<p style="margin-top:0.6rem;">
-<a href="/agent-cards.html">Browse Agent Cards →</a>
-</p>
-</article>
-
-
-<article class="info-card">
-<h3>Manifest</h3>
-<p>
-Tier 2 verb portfolio — reserved verbs for AI, commerce, finance, operations, and comms.
-The canonical map of future machine intent CommandLayer will standardize; not all verbs are live yet,
-but the namespace is staked out.
-</p>
-<p style="margin-top:0.6rem;">
-<a href="/manifest.html">Explore the Manifest →</a>
-</p>
-</article>
-
-
-<article class="info-card">
-<h3>Runtime coming online</h3>
-<p>
-Execution & guarantees for every verb — where paid flows, routing decisions, and SLAs live,
-reusing the same free schemas so semantics stay stable while economics evolve.
-Runtime expands into x402 rails as they land.
-</p>
-<p style="margin-top:0.6rem;">
-<a href="/runtime.html">See Runtime plans →</a>
-</p>
-</article>
-
-
-<article class="info-card">
-<h3>Roadmap</h3>
-<p>
-See what’s already pinned and what’s next: expanded Commons verbs, additional Commercial flows,
-more Agent Cards, and the Runtime layer rolling out alongside x402 and ERC-8004 adoption.
-</p>
-<p style="margin-top:0.6rem;">
-<a href="/roadmap.html">See the roadmap →</a>
-</p>
-</article>
+<div class="stack-explanation">
+<code>ERC-8004</code> defines who exists.
+<code>x402</code> defines how value moves.
+<code>CommandLayer</code> defines what execution means and how completion is proven.<br /><br />
+This positions CommandLayer as protocol plumbing &mdash; not an application layer.
 </div>
 </div>
 </section>
 
 
-<!-- DOCS CTA SECTION -->
+<!-- SECTION 2 - THE PROBLEM -->
 <section class="section">
 <div class="container">
 <div class="section__header">
-<h2 style="font-size:1.75rem;">Ready to wire your first verb?</h2>
+<h2>Discovery Is Not Execution</h2>
 <p>
-The Docs walk through the full request/receipt flow, how to validate against the free schemas,
-and how to publish your own Agent Card.
+ERC-8004 makes services discoverable. It does not standardize
+what happens after discovery. CommandLayer fills that gap.
 </p>
 </div>
 
+<div class="problem-grid">
+<div class="problem-col">
+<h3>ERC-8004 does not standardize</h3>
+<ul>
+<li>Request semantics</li>
+<li>Output structure</li>
+<li>Deterministic completion proof</li>
+<li>Canonical receipt format</li>
+<li>Executor identity anchoring</li>
+</ul>
+</div>
+<div class="problem-col problem-col--provides">
+<h3>CommandLayer provides</h3>
+<ul>
+<li>Typed verbs</li>
+<li>JSON Schema&ndash;validated requests</li>
+<li>Canonical hashing</li>
+<li>Signature verification</li>
+<li>ENS-anchored executor identity</li>
+<li>Deterministic receipts</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
 
-<div class="info-card">
-<h3 style="margin-top:0;">Start with <code>summarize</code></h3>
-<p style="margin-top:0.4rem;">
-See a complete example: build a <code>summarize.request</code>, validate it with JSON Schema 2020-12,
-and receive a <code>summarize.receipt</code> from an agent — all using the Commons v1.0.0 contracts.
+
+<!-- SECTION 3 - RECEIPT EXAMPLE -->
+<section class="section section--muted">
+<div class="container">
+<div class="section__header">
+<h2>Receipt Structure</h2>
+<p>
+Every verb execution returns a receipt. Below is a minimal <code>analyze</code> receipt
+from the CommandLayer runtime.
 </p>
-<p style="margin-top:0.7rem;">
-<a href="/docs.html" class="cl-blue-link">Open the getting-started guide →</a>
+</div>
+
+<div class="json-block">
+<div class="json-block__label">// analyze.receipt</div>
+<pre>{
+  "x402": {
+    "verb": "analyze",
+    "version": "1.0.0",
+    "entry": "x402://runtime.commandlayer.eth/analyze/v1"
+  },
+  "trace": {
+    "trace_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "started_at": "2026-02-17T12:00:00Z",
+    "completed_at": "2026-02-17T12:00:01Z",
+    "duration_ms": 1042,
+    "provider": "runtime.commandlayer.eth"
+  },
+  "status": "success",
+  "result": {
+    "summary": "Input contains three distinct claims with supporting evidence.",
+    "insights": ["claim_count: 3", "evidence_ratio: 0.87"],
+    "score": 0.87
+  },
+  "metadata": {
+    "proof": {
+      "alg": "ed25519-sha256",
+      "canonical": "runtime-json-stringify-v1",
+      "signer_id": "runtime.commandlayer.eth",
+      "hash_sha256": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
+      "signature_b64": "RkFLRV9TSUdOQVRVUkVfRk9SX0RFTU8..."
+    }
+  }
+}</pre>
+</div>
+
+<div class="receipt-properties">
+<div class="receipt-prop">
+<strong>Canonically serialized</strong>
+Receipts use a frozen canonical form (<code>runtime-json-stringify-v1</code>) for deterministic byte representation.
+</div>
+<div class="receipt-prop">
+<strong>Deterministically hashed</strong>
+SHA-256 over the canonical bytes. Same input always produces the same hash.
+</div>
+<div class="receipt-prop">
+<strong>Cryptographically signed</strong>
+Ed25519 signature over the hash bytes, bound to the executor's ENS identity.
+</div>
+<div class="receipt-prop">
+<strong>Publicly verifiable</strong>
+Any third party can verify: resolve the signer's public key via ENS, recompute the hash, check the signature.
+</div>
+</div>
+</div>
+</section>
+
+
+<!-- SECTION 4 - COMMONS VS COMMERCIAL -->
+<section class="section">
+<div class="container">
+<div class="section__header">
+<h2>Commons vs. Commercial</h2>
+<p>
+Execution semantics are universal. Monetization is modular.
 </p>
-<p style="margin-top:0.4rem; font-size:0.85rem; color:#6b7280;">
-Start with one verb. As x402 and ERC-8004 adoption grows, the same free schemas and Agent Cards
-scale across more agents, runtimes, and payment rails.
-</p>
+</div>
+
+<div class="symmetry-grid">
+<div class="symmetry-card">
+<h3>Commons</h3>
+<ul>
+<li>Public verbs: <code>analyze</code>, <code>classify</code>, <code>clean</code>, <code>convert</code>, <code>describe</code>, <code>explain</code>, <code>fetch</code>, <code>format</code>, <code>parse</code>, <code>summarize</code></li>
+<li>Free endpoints</li>
+<li>Open schemas (MIT)</li>
+<li>Same receipt format</li>
+</ul>
+</div>
+<div class="symmetry-card">
+<h3>Commercial</h3>
+<ul>
+<li>Economic verbs: <code>authorize</code>, <code>checkout</code>, <code>purchase</code>, <code>ship</code>, <code>verify</code></li>
+<li>x402 pay-per-call</li>
+<li>Same schema structure</li>
+<li>Same receipt format</li>
+</ul>
+</div>
+</div>
+
+<div class="symmetry-footer">
+<strong>Design philosophy:</strong>
+Execution semantics are universal.
+Monetization is modular.
+Both tiers produce identical receipt structures &mdash; the schema and verification path are the same
+regardless of whether the call is free or paid.
 </div>
 </div>
 </section>
 </main>
 
 
+<!-- TECHNICAL FOOTER -->
 <footer class="site-footer">
 <div class="container site-footer__inner">
-<div>
-© CommandLayer — semantic layer for autonomous agents
+<div class="site-footer__row">
+<div class="site-footer__col">
+<div class="site-footer__col-title">Canonical CIDs</div>
+<div class="site-footer__cid">protocol-commons v1.0.0 &mdash; schemas pinned to IPFS with published checksums</div>
+<div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
 </div>
-<div>
-Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free, IPFS-pinned, checksummed, and ENS-anchored
+<div class="site-footer__col">
+<div class="site-footer__col-title">Security</div>
+<div>security@commandlayer.org</div>
+</div>
 </div>
 <div class="site-footer__links">
-<a href="/docs.html">Docs</a>
-<a href="/FAQ.html">FAQ</a>
+<a href="/commons.html">Schemas</a>
+<a href="/quickstart.html">Quickstart</a>
+<a href="/repositories.html">Repositories</a>
 <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
 </div>
 </div>
@@ -970,4 +1086,3 @@ header.classList.toggle("site-header--docs-open");
 </script>
 </body>
 </html>
-

@@ -529,22 +529,64 @@
     }
 
     /* Footer */
-    .site-footer { border-top: 1px solid rgba(255, 255, 255, 0.1); background: #020308; }
+    .site-footer {
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      background: #020308;
+    }
 
     .site-footer__inner {
-      padding: 1.4rem 1.5rem 1.8rem;
+      padding: 1.8rem 1.5rem 2rem;
       font-size: 0.78rem;
       color: var(--text-soft);
       display: flex;
       flex-direction: column;
-      gap: 0.4rem;
-      align-items: center;
-      text-align: center;
+      gap: 0.6rem;
     }
 
-    .site-footer__links { display: flex; gap: 0.8rem; justify-content: center; margin-top: 0.2rem; }
-    .site-footer__links a { color: var(--accent); text-decoration: none; }
-    .site-footer__links a:hover { text-decoration: underline; }
+    .site-footer__row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 2rem;
+    }
+
+    .site-footer__col {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .site-footer__col-title {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-soft);
+      margin-bottom: 0.2rem;
+    }
+
+    .site-footer__cid {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.72rem;
+      color: var(--accent-muted);
+      word-break: break-all;
+    }
+
+    .site-footer__links {
+      display: flex;
+      gap: 0.8rem;
+      margin-top: 0.8rem;
+      padding-top: 0.8rem;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .site-footer__links a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .site-footer__links a:hover {
+      text-decoration: underline;
+    }
 
     /* Mobile */
     @media (max-width: 880px) {
@@ -578,35 +620,42 @@
           <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
           <div class="site-header__text">
             <span class="site-header__title">CommandLayer</span>
-            <span class="site-header__subtitle">Semantic verb &amp; schema layer for agents</span>
+            <span class="site-header__subtitle">Execution + receipt layer</span>
           </div>
         </a>
 
         <!-- Mobile toggle -->
         <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
 
-        <nav class="site-header__nav" aria-label="Primary">
+        <nav class="site-header__nav">
           <a href="/" class="site-header__link">Overview</a>
           <a href="/quickstart.html" class="site-header__link site-header__link--active">Quickstart</a>
 
           <div class="site-header__dropdown">
-            <button class="site-header__dropdown-btn" type="button" aria-haspopup="true" aria-expanded="false">
-              Docs ▾
+            <button class="site-header__dropdown-btn" type="button">
+              Docs &#9662;
             </button>
-            <div class="site-header__dropdown-menu" role="menu" aria-label="Docs">
-              <a href="/commons.html" role="menuitem">Commons</a>
-              <a href="/commercial.html" role="menuitem">Commercial</a>
-              <a href="/agent-cards.html" role="menuitem">Agent Cards</a>
-              <a href="/runtime.html" role="menuitem">Runtime</a>
-              <a href="/manifest.html" role="menuitem">Manifest</a>
-              <a href="/roadmap.html" role="menuitem">Roadmap</a>
-              <a href="/licensing.html" role="menuitem">Licensing</a>
-              <a href="/about.html" role="menuitem">About CommandLayer</a>
+            <div class="site-header__dropdown-menu">
+              <a href="/commons.html">Commons</a>
+              <a href="/commercial.html">Commercial</a>
+              <a href="/agent-cards.html">Agent Cards</a>
+              <a href="/runtime.html">Runtime</a>
+              <a href="/manifest.html">Manifest</a>
+              <a href="/licensing.html">Licensing</a>
+              <a href="/about.html">About</a>
             </div>
           </div>
 
+          <a href="/repositories.html" class="site-header__link">Repositories</a>
           <a href="/demo.html" class="site-header__link">Live Demo</a>
-          <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
+          <a
+            href="https://github.com/commandlayer"
+            class="site-header__link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
         </nav>
       </div>
     </header>
@@ -1107,14 +1156,21 @@ Sample receipt: https://commandlayer.org/assets/receipts/clean.quickstart.v1.0.0
 
     <footer class="site-footer">
       <div class="container site-footer__inner">
-        <div>© CommandLayer — semantic layer for autonomous agents</div>
-        <div>
-          Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL ·
-          Schemas always free, IPFS-pinned, checksummed, and ENS-anchored
+        <div class="site-footer__row">
+          <div class="site-footer__col">
+            <div class="site-footer__col-title">Canonical CIDs</div>
+            <div class="site-footer__cid">protocol-commons v1.0.0 &mdash; schemas pinned to IPFS with published checksums</div>
+            <div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
+          </div>
+          <div class="site-footer__col">
+            <div class="site-footer__col-title">Security</div>
+            <div>security@commandlayer.org</div>
+          </div>
         </div>
         <div class="site-footer__links">
+          <a href="/commons.html">Schemas</a>
           <a href="/quickstart.html">Quickstart</a>
-          <a href="/FAQ.html">FAQ</a>
+          <a href="/repositories.html">Repositories</a>
           <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
         </div>
       </div>
