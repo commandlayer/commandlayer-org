@@ -566,21 +566,48 @@
       }
 
       .site-footer__inner {
-        padding: 1.4rem 1.5rem 1.8rem;
+        padding: 1.8rem 1.5rem 2rem;
         font-size: 0.78rem;
         color: var(--text-soft);
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
-        align-items: center;
-        text-align: center;
+        gap: 0.6rem;
+      }
+
+      .site-footer__row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 2rem;
+      }
+
+      .site-footer__col {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+
+      .site-footer__col-title {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-soft);
+        margin-bottom: 0.2rem;
+      }
+
+      .site-footer__cid {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.72rem;
+        color: var(--accent-muted);
+        word-break: break-all;
       }
 
       .site-footer__links {
         display: flex;
         gap: 0.8rem;
-        justify-content: center;
-        margin-top: 0.2rem;
+        margin-top: 0.8rem;
+        padding-top: 0.8rem;
+        border-top: 1px solid var(--border-soft);
       }
 
       .site-footer__links a {
@@ -633,6 +660,11 @@
           grid-template-columns: minmax(0, 1fr);
         }
 
+        .site-footer__row {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
         .site-footer__inner {
           padding-inline: 1rem;
         }
@@ -655,40 +687,42 @@
             <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Semantic verb &amp; schema layer for agents</span>
+              <span class="site-header__subtitle">Execution + receipt layer</span>
             </div>
           </a>
 
           <!-- Mobile toggle -->
           <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
 
-          <nav class="site-header__nav" aria-label="Primary">
+          <nav class="site-header__nav">
             <a href="/" class="site-header__link">Overview</a>
-            <a href="/manifest.html" class="site-header__link site-header__link--active">Manifest</a>
+            <a href="/quickstart.html" class="site-header__link">Quickstart</a>
 
             <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button" aria-expanded="false">
-                Docs ▾
+              <button class="site-header__dropdown-btn" type="button">
+                Docs &#9662;
               </button>
               <div class="site-header__dropdown-menu">
                 <a href="/commons.html">Commons</a>
                 <a href="/commercial.html">Commercial</a>
                 <a href="/agent-cards.html">Agent Cards</a>
                 <a href="/runtime.html">Runtime</a>
-                <a href="/roadmap.html">Roadmap</a>
+                <a href="/manifest.html">Manifest</a>
                 <a href="/licensing.html">Licensing</a>
-                <a href="/about.html">About CommandLayer</a>
+                <a href="/about.html">About</a>
               </div>
             </div>
 
+            <a href="/repositories.html" class="site-header__link">Repositories</a>
             <a href="/demo.html" class="site-header__link">Live Demo</a>
             <a
               href="https://github.com/commandlayer"
               class="site-header__link"
               target="_blank"
               rel="noopener noreferrer"
-              >GitHub</a
             >
+              GitHub
+            </a>
           </nav>
         </div>
       </header>
@@ -818,662 +852,47 @@
 
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <div>© CommandLayer — semantic layer for autonomous agents</div>
-          <div>
-            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL ·
-            Schemas always free
+          <div class="site-footer__row">
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Canonical CIDs</div>
+              <div class="site-footer__cid">protocol-commons v1.0.0 &mdash; schemas pinned to IPFS with published checksums</div>
+              <div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
+            </div>
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Security</div>
+              <div>security@commandlayer.org</div>
+            </div>
           </div>
           <div class="site-footer__links">
-            <a href="/docs.html">Docs</a>
-            <a href="/manifest.html">Manifest</a>
+            <a href="/commons.html">Schemas</a>
+            <a href="/quickstart.html">Quickstart</a>
+            <a href="/repositories.html">Repositories</a>
             <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
       </footer>
     </div>
 
-   <!-- DROP THIS WHOLE <script> IN PLACE OF YOUR CURRENT ONE.
-     Only change: added the 5 missing ENS (sign/publish/call/buy/authenticate)
-     and wired in auto-merge so they appear without duplicates. -->
-<script>
-  // Header toggle + Docs dropdown (improved UX + ARIA, same layout)
-  (function () {
-    const header = document.querySelector(".site-header");
-    const toggle = document.querySelector(".site-header__toggle");
-    const docsBtn = document.querySelector(".site-header__dropdown-btn");
-    const docsMenu = document.querySelector(".site-header__dropdown-menu");
+    <script>
+      (function () {
+        const header = document.querySelector(".site-header");
+        const toggle = document.querySelector(".site-header__toggle");
+        const docsBtn = document.querySelector(".site-header__dropdown-btn");
 
-    if (!header) return;
-
-    // ARIA wiring for docs menu
-    if (docsBtn && docsMenu) {
-      const menuId = "docs-menu";
-      docsMenu.id = menuId;
-      docsBtn.setAttribute("aria-controls", menuId);
-      docsBtn.setAttribute("aria-expanded", "false");
-    }
-
-    function setDocsOpen(next) {
-      header.classList.toggle("site-header--docs-open", next);
-      if (docsBtn) docsBtn.setAttribute("aria-expanded", next ? "true" : "false");
-    }
-
-    function setNavOpen(next) {
-      header.classList.toggle("site-header--open", next);
-      if (toggle) toggle.setAttribute("aria-expanded", next ? "true" : "false");
-      if (!next) setDocsOpen(false);
-    }
-
-    if (toggle) {
-      toggle.addEventListener("click", () => {
-        const isOpen = header.classList.contains("site-header--open");
-        setNavOpen(!isOpen);
-      });
-    }
-
-    if (docsBtn) {
-      docsBtn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const isOpen = header.classList.contains("site-header--docs-open");
-        setDocsOpen(!isOpen);
-      });
-    }
-
-    // Close docs on outside click
-    document.addEventListener("click", (e) => {
-      if (!header.classList.contains("site-header--docs-open")) return;
-      const insideDropdown = e.target.closest(".site-header__dropdown");
-      if (!insideDropdown) setDocsOpen(false);
-    });
-
-    // Close on Escape (docs + mobile nav)
-    document.addEventListener("keydown", (e) => {
-      if (e.key !== "Escape") return;
-      if (header.classList.contains("site-header--docs-open")) setDocsOpen(false);
-      if (header.classList.contains("site-header--open")) setNavOpen(false);
-    });
-
-    // If a nav link is clicked on mobile, close the nav; on desktop, close docs
-    header.addEventListener("click", (e) => {
-      const link = e.target.closest("a");
-      if (!link) return;
-      const isMobile = window.matchMedia("(max-width: 880px)").matches;
-      if (isMobile) setNavOpen(false);
-      else setDocsOpen(false);
-    });
-  })();
-
-  // --- Manifest verb catalog logic (AUTOMERGE: adds your master ENS list, de-duped) ---
-
-  // 1) Keep your curated entries exactly as-is
-  const verbs = [
-    // AI & intelligence (Commons — Tier 1)
-    {
-      verb: "summarize",
-      ens: "summarizeagent.eth",
-      category: "ai",
-      type: "commons",
-      status: "live",
-      tier: "free",
-      description: "Condense content into structured, machine-verifiable summaries.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    {
-      verb: "analyze",
-      ens: "analyzeagent.eth",
-      category: "ai",
-      type: "commons",
-      status: "live",
-      tier: "free",
-      description: "Perform structured analysis over inputs with traceable receipts.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    {
-      verb: "classify",
-      ens: "classifyagent.eth",
-      category: "ai",
-      type: "commons",
-      status: "live",
-      tier: "free",
-      description: "Assign labels or categories with verifiable classification receipts.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    {
-      verb: "parse",
-      ens: "parseagent.eth",
-      category: "ai",
-      type: "commons",
-      status: "live",
-      tier: "free",
-      description: "Parse unstructured inputs into structured JSON shapes for other agents.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    {
-      verb: "format",
-      ens: "formatagent.eth",
-      category: "ai",
-      type: "commons",
-      status: "live",
-      tier: "free",
-      description: "Reformat content into required layouts, schemas, or text surfaces.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    {
-      verb: "clean",
-      ens: "cleanagent.eth",
-      category: "ai",
-      type: "commons",
-      status: "live",
-      tier: "free",
-      description: "Clean and normalize noisy inputs before downstream processing.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    {
-      verb: "convert",
-      ens: "convertagent.eth",
-      category: "ai",
-      type: "commons",
-      status: "live",
-      tier: "free",
-      description: "Convert between formats, encodings, or representations.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    {
-      verb: "describe",
-      ens: "describeagent.eth",
-      category: "ai",
-      type: "commons",
-      status: "live",
-      tier: "free",
-      description: "Produce detailed, structured descriptions of inputs or resources.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    {
-      verb: "explain",
-      ens: "explainagent.eth",
-      category: "ai",
-      type: "commons",
-      status: "live",
-      tier: "free",
-      description: "Explain decisions, results, or content in human-readable form.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    {
-      verb: "fetch",
-      ens: "fetchagent.eth",
-      category: "ai",
-      type: "commons",
-      status: "live",
-      tier: "free",
-      description: "Retrieve and normalize external resources for downstream agents.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-
-    // AI & intelligence (portfolio extensions)
-    { verb: "generate", ens: "generateagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Generate new content or data from prompts." },
-    { verb: "optimize", ens: "optimizeagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Optimize plans, routes, or allocations under constraints." },
-    { verb: "anticipate", ens: "anticipateagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Anticipate future states or events from context." },
-    { verb: "evaluate", ens: "evaluateagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Evaluate quality, performance, or compliance." },
-    { verb: "assess", ens: "assessagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Assess risk, value, or suitability of options." },
-    { verb: "compute", ens: "computeagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Compute derived values or metrics." },
-    { verb: "learn", ens: "learnagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Learn from data or feedback to improve behavior." },
-    { verb: "plan", ens: "planagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Plan multi-step tasks or workflows for agents." },
-    { verb: "train", ens: "trainagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Train models or agents on data or feedback." },
-    { verb: "filter", ens: "filteragent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Filter items based on rules or predicates." },
-    { verb: "compress", ens: "compressagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Compress data or content while retaining meaning." },
-    { verb: "extract", ens: "extractagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Extract fields or entities from unstructured input." },
-    { verb: "visualize", ens: "visualizeagent.eth", category: "ai", type: "commons", status: "reserved", tier: "unpriced", description: "Visualize data or results as charts or graphics." },
-
-    // Operations / workflow / CRUD (Commons, mostly reserved)
-    { verb: "accept", ens: "acceptagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Accept offers, requests, or invitations." },
-    { verb: "cancel", ens: "cancelagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Cancel pending jobs, orders, or workflows." },
-    { verb: "create", ens: "createagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Create new entities, resources, or records." },
-    { verb: "delete", ens: "deleteagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Delete resources or records in a controlled way." },
-    { verb: "update", ens: "updateagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Update existing entities or records with changes." },
-    { verb: "save", ens: "saveagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Save state, drafts, or checkpoints." },
-    { verb: "file", ens: "fileagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "File documents, tickets, or forms into systems." },
-    { verb: "store", ens: "storeagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Store data or artifacts in designated locations." },
-    { verb: "record", ens: "recordagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Record events, logs, or observations." },
-    { verb: "list", ens: "listagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "List collections of entities or records." },
-    { verb: "query", ens: "queryagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Query data sources or indexes." },
-    { verb: "calculate", ens: "calculateagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Calculate values, metrics, or aggregates." },
-    { verb: "rewrite", ens: "rewriteagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Rewrite content with new constraints or tone." },
-    { verb: "compose", ens: "composeagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Compose new content from instructions or context." },
-    { verb: "copy", ens: "copyagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Copy resources, files, or content." },
-    { verb: "print", ens: "printagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Print or render outputs to physical or virtual media." },
-
-    // Commerce & payments (Commercial — Tier 1)
-    {
-      verb: "checkout",
-      ens: "checkoutagent.eth",
-      category: "commerce",
-      type: "commercial",
-      status: "live",
-      tier: "premium",
-      description: "Coordinate carts, totals, and payment authorization as a unified flow.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    {
-      verb: "authorize",
-      ens: "authorizeagent.eth",
-      category: "commerce",
-      type: "commercial",
-      status: "live",
-      tier: "premium",
-      description: "Perform payment authorizations with trace IDs and structured receipts.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    {
-      verb: "purchase",
-      ens: "purchaseagent.eth",
-      category: "commerce",
-      type: "commercial",
-      status: "live",
-      tier: "premium",
-      description: "Complete settlement events once authorization and risk checks pass.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    { verb: "refund", ens: "refundagent.eth", category: "commerce", type: "commercial", status: "reserved", tier: "premium", description: "Standardize how refunds are requested, processed, and proved." },
-    {
-      verb: "verify",
-      ens: "verifyagent.eth",
-      category: "commerce",
-      type: "commercial",
-      status: "live",
-      tier: "premium",
-      description: "Perform identity, KYC, or eligibility checks as reusable verification flows.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-
-    // Finance (Commercial portfolio)
-    { verb: "bill", ens: "billagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Bill accounts or customers for usage or services." },
-    { verb: "invoice", ens: "invoiceagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Issue invoices as structured, payable documents." },
-    { verb: "charge", ens: "chargeagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Charge accounts or payment methods." },
-    { verb: "fund", ens: "fundagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Fund wallets, positions, or balances." },
-    { verb: "disburse", ens: "disburseagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Disburse funds to one or many recipients." },
-    { verb: "remit", ens: "remitagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Remit funds across accounts, regions, or rails." },
-    { verb: "reimburse", ens: "reimburseagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Reimburse expenses or claims with proof." },
-    { verb: "payout", ens: "payoutagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Coordinate payouts to multiple recipients." },
-    { verb: "stream", ens: "streamagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Stream data or payments over time." },
-    { verb: "subscribe", ens: "subscribeagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Create and manage recurring subscription or billing agreements." },
-    { verb: "deposit", ens: "depositagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Handle deposits into accounts or contracts." },
-    { verb: "order", ens: "orderagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Place orders for goods, services, or workloads." },
-    { verb: "statement", ens: "statementagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Produce account or activity statements." },
-    { verb: "license", ens: "licenseagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Grant, update, or revoke usage licenses under clear terms." },
-    { verb: "issue", ens: "issueagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Issue credentials, cards, or instruments as structured events." },
-    { verb: "lend", ens: "lendagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Lend assets under defined terms." },
-    { verb: "lending", ens: "lendingagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "unpriced", description: "Coordinate lending marketplaces or flows." },
-
-    // Operations & logistics (Commons + Commercial)
-    {
-      verb: "ship",
-      ens: "shipagent.eth",
-      category: "operations",
-      type: "commercial",
-      status: "live",
-      tier: "premium",
-      description: "Encode fulfillment, carrier selection, and tracking into a shared verb.",
-      docsUrl: "https://www.commandlayer.org/docs.html",
-      cardUrl: "https://www.commandlayer.org/agent-cards.html"
-    },
-    { verb: "track", ens: "trackagent.eth", category: "operations", type: "commons", status: "reserved", tier: "free", description: "Track assets, shipments, or jobs with consistent state transitions." },
-    { verb: "schedule", ens: "scheduleagent.eth", category: "operations", type: "commons", status: "reserved", tier: "free", description: "Negotiate and confirm time windows across calendars and systems." },
-    { verb: "allocate", ens: "allocateagent.eth", category: "operations", type: "commons", status: "reserved", tier: "free", description: "Allocate resources like inventory, compute, or staff to tasks." },
-    { verb: "deliver", ens: "deliveragent.eth", category: "operations", type: "commercial", status: "reserved", tier: "unpriced", description: "Deliver digital or physical items to a destination." },
-    { verb: "return", ens: "returnagent.eth", category: "operations", type: "commercial", status: "reserved", tier: "unpriced", description: "Handle returns for orders with structured outcomes." },
-    { verb: "scan", ens: "scanagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Scan items, barcodes, or environments." },
-    { verb: "dispatch", ens: "dispatchagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Dispatch jobs, couriers, or workloads." },
-    { verb: "locate", ens: "locateagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Locate assets, people, or resources." },
-    { verb: "shipment", ens: "shipmentagent.eth", category: "operations", type: "commercial", status: "reserved", tier: "unpriced", description: "Manage shipments and their status." },
-    { verb: "receipt", ens: "receiptagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Represent receipts for deliveries or payments." },
-    { verb: "cart", ens: "cartagent.eth", category: "operations", type: "commercial", status: "reserved", tier: "unpriced", description: "Manage carts and items before checkout." },
-    { verb: "load", ens: "loadagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Load resources, items, or environments." },
-    { verb: "reach", ens: "reachagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Reach destinations, endpoints, or targets." },
-    { verb: "move", ens: "moveagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Move assets, items, or data between locations." },
-    { verb: "sync", ens: "syncagent.eth", category: "operations", type: "commons", status: "reserved", tier: "unpriced", description: "Sync data or state across systems." },
-
-    // Finance & risk (Commercial premium)
-    { verb: "price", ens: "priceagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "premium", description: "Quote deterministic prices for assets, services, or bundles." },
-    { verb: "quote", ens: "quoteagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "premium", description: "Respond with time-bound quotes that can be consumed by other agents." },
-    { verb: "hedge", ens: "hedgeagent.eth", category: "finance", type: "commercial", status: "reserved", tier: "premium", description: "Express hedging strategies as structured instructions between agents." },
-
-    // Comms & outreach
-    { verb: "notify", ens: "notifyagent.eth", category: "comms", type: "commons", status: "reserved", tier: "free", description: "Send structured notifications across channels with delivery receipts." },
-    { verb: "broadcast", ens: "broadcastagent.eth", category: "comms", type: "commons", status: "reserved", tier: "free", description: "Broadcast messages to many recipients with explicit fan-out semantics." },
-    { verb: "invite", ens: "inviteagent.eth", category: "comms", type: "commons", status: "reserved", tier: "free", description: "Issue structured invitations that agents can accept, decline, or delegate." },
-    { verb: "alert", ens: "alertagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send high-priority alerts with severity." },
-    { verb: "message", ens: "messageagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send generic messages between agents or users." },
-    { verb: "email", ens: "emailagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send and receive email-style messages." },
-    { verb: "dm", ens: "dmagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send direct messages between agents or users." },
-    { verb: "send", ens: "sendagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send payloads or items to recipients." },
-    { verb: "text", ens: "textagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Send SMS-style text messages." },
-    { verb: "follow", ens: "followagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Follow entities to receive updates." },
-    { verb: "notifymy", ens: "notifymyagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Notify a specific user or agent with targeted updates." },
-    { verb: "chatwith", ens: "chatwithagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Chat interactively with an agent." },
-    { verb: "talk", ens: "talkagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Carry on voice or text conversations." },
-    { verb: "reply", ens: "replyagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Reply to prior messages or threads." },
-    { verb: "ring", ens: "ringagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Ring or call attention to a target." },
-    { verb: "converse", ens: "converseagent.eth", category: "comms", type: "commons", status: "reserved", tier: "unpriced", description: "Maintain multi-turn conversations with context." },
-
-    // Other / system
-    { verb: "register", ens: "registeragent.eth", category: "other", type: "commons", status: "reserved", tier: "free", description: "Register resources, agents, or capabilities into shared registries." },
-    { verb: "attest", ens: "attestagent.eth", category: "other", type: "commercial", status: "reserved", tier: "premium", description: "Produce signed attestations that can be reused by other protocols." },
-    { verb: "govern", ens: "governagent.eth", category: "other", type: "commercial", status: "reserved", tier: "premium", description: "Express proposals, votes, and resolutions as structured governance flows." }
-  ];
-
-  // 2) MASTER LIST (311 + your 5 missing adds). This is merged in, de-duped by ENS.
-  const MASTER_VERB_AGENT_ENS = [
-    "acceptagent.eth","activateagent.eth","advertiseagent.eth","advertisingagent.eth","adviseagent.eth","aggregateagent.eth",
-    "alertagent.eth","allocateagent.eth","annotateagent.eth","anticipateagent.eth","applyagent.eth","approveagent.eth",
-    "archiveagent.eth","askagent.eth","assessagent.eth","assignagent.eth","attachagent.eth","attestagent.eth","autopilotagent.eth",
-    "automateagent.eth","balanceagent.eth","billagent.eth","billingagent.eth","browseagent.eth","buildagent.eth","buyeragent.eth",
-    "calculateagent.eth","calendaragent.eth","cancelagent.eth","careagent.eth","cartagent.eth","categorizeagent.eth","certifyagent.eth",
-    "chargeagent.eth","chatwithagent.eth","checkagent.eth","checkinagent.eth","claimagent.eth","classifyagent.eth","cleanagent.eth",
-    "clarifyagent.eth","clusteragent.eth","closeagent.eth","coachagent.eth","collaborateagent.eth","commandagent.eth","completeagent.eth",
-    "composeagent.eth","compressagent.eth","computeagent.eth","confirmagent.eth","configureagent.eth","consultagent.eth","contentagent.eth",
-    "contactagent.eth","controlagent.eth","concertagent.eth","converseagent.eth","convertagent.eth","copyagent.eth","coordinateagent.eth",
-    "coveragent.eth","crawlagent.eth","createagent.eth","critiqueagent.eth","decodeagent.eth","deactivateagent.eth","decryptagent.eth",
-    "declineagent.eth","defendagent.eth","delegateagent.eth","deliveragent.eth","deliveryagent.eth","depositagent.eth","designagent.eth",
-    "designeragent.eth","describeagent.eth","detachagent.eth","detectagent.eth","developagent.eth","diagramagent.eth","dialagent.eth",
-    "dinneragent.eth","disapproveagent.eth","disputeagent.eth","dismissagent.eth","dmagent.eth","docagent.eth","documentagent.eth",
-    "driveagent.eth","ejectagent.eth","enableagent.eth","endagent.eth","engageagent.eth","enforceagent.eth","escalateagent.eth",
-    "estimateagent.eth","evaluateagent.eth","eventagent.eth","exchangeagent.eth","executeagent.eth","expandagent.eth","explainagent.eth",
-    "exploreagent.eth","exportagent.eth","extractagent.eth","fetchagent.eth","financialagent.eth","finalizeagent.eth","findagent.eth",
-    "filmagent.eth","filteragent.eth","flightagent.eth","flyagent.eth","foodagent.eth","forecastagent.eth","formagent.eth","formatagent.eth",
-    "forwardagent.eth","freightagent.eth","freezeagent.eth","gatheragent.eth","generateagent.eth","getagent.eth","giftagent.eth",
-    "grantagent.eth","groupagent.eth","guardagent.eth","handleagent.eth","healagent.eth","healthcheckagent.eth","hostagent.eth","hragent.eth",
-    "identifyagent.eth","ingestagent.eth","initializeagent.eth","initiateagent.eth","inspectagent.eth","insureagent.eth","instructagent.eth",
-    "interactagent.eth","interpretagent.eth","interviewagent.eth","invalidateagent.eth","inventoryagent.eth","issueagent.eth","iterateagent.eth",
-    "joinagent.eth","kycagent.eth","labelagent.eth","lawyeragent.eth","leadagent.eth","learnagent.eth","leaseagent.eth","lendagent.eth",
-    "lendingagent.eth","listagent.eth","locateagent.eth","lockagent.eth","logoffagent.eth","mapagent.eth","medagent.eth","medicalagent.eth",
-    "mediateagent.eth","measureagent.eth","meetagent.eth","memoryagent.eth","mergeagent.eth","modelagent.eth","moderateagent.eth",
-    "monitoragent.eth","moveagent.eth","negotiateagent.eth","notifyagent.eth","observeagent.eth","offeragent.eth","onboardagent.eth",
-    "optimizeagent.eth","orchestrateagent.eth","orderagent.eth","organizeagent.eth","outputagent.eth","outlookagent.eth","overrideagent.eth",
-    "overseeagent.eth","patchagent.eth","patrolagent.eth","pauseagent.eth","payoutagent.eth","performagent.eth","permitagent.eth",
-    "personalizeagent.eth","phoneagent.eth","picagent.eth","pickupagent.eth","pictureagent.eth","pingagent.eth","planagent.eth","pleadagent.eth",
-    "polishagent.eth","preorderagent.eth","prepareagent.eth","presentagent.eth","prescribeagent.eth","printagent.eth","prioritizeagent.eth",
-    "processagent.eth","projectagent.eth","promoteagent.eth","proposalagent.eth","proposeagent.eth","protectagent.eth","pushagent.eth",
-    "queryagent.eth","queueagent.eth","rankagent.eth","ratifyagent.eth","readagent.eth","reasonagent.eth","rebootagent.eth","recoveragent.eth",
-    "recruitagent.eth","refactoragent.eth","referenceagent.eth","referagent.eth","regulateagent.eth","relocateagent.eth","rememberagent.eth",
-    "remindagent.eth","remitagent.eth","renewagent.eth","repairagent.eth","reimburseagent.eth","removeagent.eth","renderagent.eth","rentagent.eth",
-    "replaceagent.eth","replyagent.eth","representagent.eth","researchagent.eth","reserveagent.eth","resetagent.eth","restartagent.eth",
-    "respondagent.eth","resumeagent.eth","retrieveagent.eth","returnagent.eth","reverseagent.eth","reviewagent.eth","rewriteagent.eth",
-    "ringagent.eth","rollbackagent.eth","routeagent.eth","ruleagent.eth","runagent.eth","saveagent.eth","scanagent.eth","scrapeagent.eth",
-    "scrutinizeagent.eth","scoreagent.eth","sellagent.eth","selleragent.eth","sendagent.eth","serveagent.eth","settleagent.eth","shipagent.eth","shipmentagent.eth",
-    "shutdownagent.eth","signupagent.eth","simplifyagent.eth","solveagent.eth","sortagent.eth","speakagent.eth","spendagent.eth","splitagent.eth",
-    "spawnagent.eth","stageagent.eth","startagent.eth","statementagent.eth","statusagent.eth","stopagent.eth","storeagent.eth","structureagent.eth",
-    "submitagent.eth","summarizeagent.eth","summonagent.eth","supplyagent.eth","surveyagent.eth","switchagent.eth","syncagent.eth","tagagent.eth",
-    "talkagent.eth","talktoagent.eth","targetagent.eth","teachagent.eth","tellagent.eth","terminateagent.eth","textagent.eth","ticketsagent.eth",
-    "tokenizeagent.eth","touragent.eth","traceagent.eth","trainagent.eth","transcribeagent.eth","translateagent.eth","tutoragent.eth",
-    "underwriteagent.eth","unfollowagent.eth","unassignagent.eth","unitestagent.eth","unlockagent.eth","unsubscribeagent.eth","updateagent.eth",
-    "uploadagent.eth","useagent.eth","validateagent.eth","verifiedagent.eth","viewagent.eth","videoagent.eth","voteagent.eth","watchagent.eth",
-    "withdrawagent.eth","writeagent.eth",
-
-    // ---- ADDED (your missing 5) ----
-    "signagent.eth",
-    "publishagent.eth",
-    "callagent.eth",
-    "buyagent.eth",
-    "authenticateagent.eth"
-  ];
-
-  // 3) Category + type heuristics (curated entries override these)
-  const CATEGORY_HINTS = {
-    commerce: new Set(["authorize","checkout","purchase","refund","cart","order","quote","price","return","preorder","sell","buy"]),
-    finance: new Set([
-      "bill","billing","charge","invoice","disburse","remit","reimburse","payout","deposit","withdraw","fund","lend","lending",
-      "balance","allocate","license","settle","statement","cover","insure","underwrite","rent"
-    ]),
-    comms: new Set([
-      "message","email","dm","send","text","notify","broadcast","invite","reply","talk","chatwith","ring","converse","follow","unfollow","call","dial"
-    ]),
-    operations: new Set([
-      "ship","shipment","deliver","delivery","track","schedule","dispatch","route","move","load","store","record","file","scan",
-      "checkin","lookup","locate","reserve","pickup","submit","review","list","query","logoff","publish"
-    ]),
-    ai: new Set([
-      "analyze","summarize","classify","parse","format","clean","convert","describe","explain","fetch","generate","optimize","forecast",
-      "predict","evaluate","assess","compute","learn","plan","train","filter","compress","extract","visualize","rewrite","compose",
-      "decode","reason","critique","diagram","refactor","simplify","expand","iterate","model","reference","rank","sort","group","detect"
-    ])
-  };
-
-  function inferCategory(verb) {
-    const v = (verb || "").toLowerCase();
-    for (const [cat, set] of Object.entries(CATEGORY_HINTS)) {
-      if (set.has(v)) return cat;
-    }
-    // Governance + security-ish defaults
-    if (["govern","propose","vote","enforce","regulate","attest","verify","validate","authenticate","kyc","guard","protect","audit","sign"].includes(v)) {
-      return "other";
-    }
-    return "operations";
-  }
-
-  function inferType(category, verb) {
-    // money-moving / marketplace semantics default to commercial
-    if (category === "finance" || category === "commerce") return "commercial";
-    if (["insure","underwrite","cover","license","lease","rent"].includes((verb || "").toLowerCase())) return "commercial";
-    return "commons";
-  }
-
-  function inferTier(type, status) {
-    if (status === "live" && type === "commercial") return "premium";
-    if (type === "commercial") return "unpriced";
-    return status === "live" ? "free" : "unpriced";
-  }
-
-  function defaultDescription(_verb, category) {
-    const c =
-      category === "ai" ? "AI & intelligence" :
-      category === "commerce" ? "Commerce & payments" :
-      category === "finance" ? "Finance & risk" :
-      category === "comms" ? "Comms & outreach" :
-      category === "operations" ? "Operations & logistics" :
-      "Other / system";
-    return `Reserved ${c} verb for standardized agent intent.`;
-  }
-
-  // 4) Merge: add ONLY missing ENS (de-duped), categorized via heuristics.
-  (function mergeMasterIntoVerbs() {
-    const existing = new Set(verbs.map(v => String(v.ens || "").toLowerCase()));
-    const toAdd = [];
-
-    for (const ens of MASTER_VERB_AGENT_ENS) {
-      const key = String(ens || "").toLowerCase();
-      if (!key) continue;
-      if (existing.has(key)) continue;
-      if (!key.endsWith("agent.eth")) continue; // hard guard
-
-      const verb = key.replace(/agent\.eth$/i, "");
-      const category = inferCategory(verb);
-      const type = inferType(category, verb);
-      const status = "reserved";
-      const tier = inferTier(type, status);
-
-      toAdd.push({
-        verb,
-        ens: key,
-        category,
-        type,
-        status,
-        tier,
-        description: defaultDescription(verb, category)
-      });
-
-      existing.add(key);
-    }
-
-    // stable merge (keeps your curated ordering; new entries append)
-    verbs.push(...toAdd);
-  })();
-
-  // --- rest stays the same ---
-  const searchInput = document.getElementById("verb-search");
-  const categorySelect = document.getElementById("verb-category");
-  const typeSelect = document.getElementById("verb-type");
-  const statusSelect = document.getElementById("verb-status");
-  const verbGrid = document.getElementById("verb-grid");
-  const verbCount = document.getElementById("verb-count");
-
-  function labelCategory(cat) {
-    switch (cat) {
-      case "ai": return "AI & intelligence";
-      case "commerce": return "Commerce & payments";
-      case "operations": return "Operations & logistics";
-      case "finance": return "Finance & risk";
-      case "comms": return "Comms & outreach";
-      default: return "Other / system";
-    }
-  }
-
-  function labelStatus(status) {
-    switch (status) {
-      case "live": return "Live";
-      case "inflight": return "In flight";
-      default: return "Reserved";
-    }
-  }
-
-  function labelTier(tier) {
-    switch (tier) {
-      case "premium": return "Premium";
-      case "free": return "Free / Commons";
-      default: return "Unpriced";
-    }
-  }
-
-  function renderVerbs() {
-    const search = (searchInput.value || "").trim().toLowerCase();
-    const category = categorySelect.value;
-    const type = typeSelect.value;
-    const status = statusSelect.value;
-
-    let filtered = verbs.filter((v) => {
-      if (category !== "all" && v.category !== category) return false;
-      if (type !== "all" && v.type !== type) return false;
-      if (status !== "all" && v.status !== status) return false;
-
-      if (search) {
-        const haystack =
-          (v.verb || "") + " " +
-          (v.ens || "") + " " +
-          (v.description || "") + " " +
-          (v.category || "") + " " +
-          (v.type || "") + " " +
-          (v.status || "");
-        if (!haystack.toLowerCase().includes(search)) return false;
-      }
-      return true;
-    });
-
-    const categoryOrder = { ai: 1, commerce: 2, finance: 3, operations: 4, comms: 5, other: 6 };
-
-    filtered.sort((a, b) => {
-      const ca = categoryOrder[a.category] ?? 99;
-      const cb = categoryOrder[b.category] ?? 99;
-      if (ca !== cb) return ca - cb;
-
-      const ta = a.type === "commons" ? 1 : 2;
-      const tb = b.type === "commons" ? 1 : 2;
-      if (ta !== tb) return ta - tb;
-
-      return String(a.verb || "").localeCompare(String(b.verb || ""));
-    });
-
-    verbGrid.innerHTML = "";
-
-    if (filtered.length === 0) {
-      verbGrid.innerHTML = `
-        <article class="verb-card">
-          <div class="verb-card__header">
-            <div>
-              <div class="verb-card__verb">No matches</div>
-              <div class="verb-card__ens">Try clearing filters or widening your search.</div>
-            </div>
-            <div class="verb-card__type-badge">Manifest</div>
-          </div>
-          <div class="verb-card__description">
-            Nothing in the current slice matches those filters.
-          </div>
-        </article>
-      `;
-      verbCount.textContent = "Showing 0 verbs";
-      return;
-    }
-
-    filtered.forEach((v) => {
-      const card = document.createElement("article");
-      card.className = "verb-card";
-
-      const statusClass =
-        v.status === "live"
-          ? "tag tag--status-live"
-          : v.status === "inflight"
-          ? "tag tag--status-inflight"
-          : "tag tag--status-reserved";
-
-      let tierClass;
-      if (v.tier === "premium") tierClass = "tag tag--tier-premium";
-      else if (v.tier === "free") tierClass = "tag tag--tier-free";
-      else tierClass = "tag tag--tier-unpriced";
-
-      const typeLabel = v.type === "commercial" ? "Commercial" : v.type === "commons" ? "Commons" : "Other";
-
-      let linksHtml = "";
-      if (v.status === "live") {
-        if (v.docsUrl) {
-          linksHtml += `<a href="${v.docsUrl}" class="verb-card__link" target="_blank" rel="noopener noreferrer">Docs</a>`;
+        if (toggle && header) {
+          toggle.addEventListener("click", () => {
+            const isOpen = header.classList.toggle("site-header--open");
+            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+          });
         }
-        if (v.cardUrl) {
-          linksHtml += `<a href="${v.cardUrl}" class="verb-card__link" target="_blank" rel="noopener noreferrer">Agent Cards</a>`;
+
+        if (docsBtn && header) {
+          docsBtn.addEventListener("click", () => {
+            header.classList.toggle("site-header--docs-open");
+          });
         }
-      }
-
-      card.innerHTML = `
-        <div class="verb-card__header">
-          <div>
-            <div class="verb-card__verb">${v.verb}</div>
-            <div class="verb-card__ens">${v.ens}</div>
-          </div>
-          <div class="verb-card__type-badge">${typeLabel}</div>
-        </div>
-        <div class="verb-card__meta-row">
-          <span class="tag">${labelCategory(v.category)}</span>
-          <span class="${statusClass}">${labelStatus(v.status)}</span>
-          <span class="${tierClass}">${labelTier(v.tier)}</span>
-        </div>
-        <div class="verb-card__description">${v.description || ""}</div>
-        <div class="verb-card__links">${linksHtml}</div>
-      `;
-
-      verbGrid.appendChild(card);
-    });
-
-    verbCount.textContent = `Showing ${filtered.length} verb${filtered.length === 1 ? "" : "s"}`;
-  }
-
-  searchInput.addEventListener("input", renderVerbs);
-  categorySelect.addEventListener("change", renderVerbs);
-  typeSelect.addEventListener("change", renderVerbs);
-  statusSelect.addEventListener("change", renderVerbs);
-
-  renderVerbs();
-</script>
+      })();
+    </script>
 
   </body>
 </html>

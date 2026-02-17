@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>CommandLayer — Repositories</title>
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1, viewport-fit=cover"
+/>
+<meta
+name="description"
+content="CommandLayer protocol repositories: schemas, SDKs, runtimes, agent identity, and commercial execution. A multi-repo protocol architecture."
+/>
+
+
+<style>
+:root {
+--bg: #05060a;
+--bg-elevated: #0a0c14;
+--bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+--border-soft: rgba(255, 255, 255, 0.06);
+--border-strong: rgba(255, 255, 255, 0.18);
+--accent: #c5cbe0;
+--accent-strong: #e3e7ff;
+--accent-muted: #8f96b5;
+--text-main: #f7f8ff;
+--text-muted: #9ca3c7;
+--text-soft: #6b7280;
+--radius-lg: 16px;
+--radius-xl: 24px;
+--shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
+--max-width: 1120px;
+}
+
+
+* {
+box-sizing: border-box;
+}
+
+
+html,
+body {
+margin: 0;
+padding: 0;
+font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+"Inter", sans-serif;
+background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+color: var(--text-main);
+}
+
+
+body {
+min-height: 100vh;
+}
+
+
+a {
+color: inherit;
+}
+
+
+.page-shell {
+min-height: 100vh;
+display: flex;
+flex-direction: column;
+}
+
+
+.page-main {
+flex: 1;
+}
+
+
+.container {
+width: 100%;
+max-width: var(--max-width);
+margin: 0 auto;
+padding: 0 1.5rem;
+}
+
+
+/* Header */
+.site-header {
+background: var(--bg-header);
+border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+position: sticky;
+top: 0;
+z-index: 20;
+backdrop-filter: blur(18px);
+}
+
+
+.site-header__inner {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 0.9rem 1.5rem;
+}
+
+
+.site-header__brand {
+display: flex;
+align-items: center;
+gap: 0.75rem;
+text-decoration: none;
+color: inherit;
+}
+
+
+.site-header__logo-img {
+width: 28px;
+height: 28px;
+object-fit: contain;
+display: block;
+border-radius: 6px;
+box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
+0 14px 40px rgba(0, 0, 0, 0.9);
+}
+
+
+.site-header__text {
+display: flex;
+flex-direction: column;
+}
+
+
+.site-header__title {
+font-size: 0.98rem;
+font-weight: 600;
+letter-spacing: 0.03em;
+}
+
+
+.site-header__subtitle {
+font-size: 0.78rem;
+color: var(--text-muted);
+}
+
+
+.site-header__nav {
+display: flex;
+gap: 1rem;
+align-items: center;
+}
+
+
+.site-header__link {
+font-size: 0.86rem;
+padding: 0.35rem 0.8rem;
+border-radius: 999px;
+text-decoration: none;
+color: var(--text-muted);
+border: 1px solid transparent;
+white-space: nowrap;
+}
+
+
+.site-header__link:hover {
+color: var(--accent-strong);
+border-color: rgba(255, 255, 255, 0.18);
+background: rgba(15, 23, 42, 0.7);
+}
+
+
+.site-header__link--active {
+color: #020617;
+background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+border-color: rgba(255, 255, 255, 0.25);
+}
+
+
+/* Docs dropdown */
+.site-header__dropdown {
+position: relative;
+}
+
+
+.site-header__dropdown-btn {
+font-size: 0.86rem;
+padding: 0.35rem 0.8rem;
+border-radius: 999px;
+border: 1px solid transparent;
+background: transparent;
+color: var(--text-muted);
+display: inline-flex;
+align-items: center;
+gap: 0.25rem;
+cursor: pointer;
+}
+
+
+.site-header__dropdown-btn:hover {
+color: var(--accent-strong);
+border-color: rgba(255, 255, 255, 0.18);
+background: rgba(15, 23, 42, 0.7);
+}
+
+
+.site-header__dropdown-menu {
+position: absolute;
+top: 2.3rem;
+right: 0;
+background: rgba(15, 23, 42, 0.98);
+border-radius: 14px;
+border: 1px solid var(--border-soft);
+box-shadow: var(--shadow-soft);
+padding: 0.5rem 0.4rem;
+min-width: 210px;
+display: none;
+}
+
+
+.site-header__dropdown-menu a {
+display: block;
+padding: 0.35rem 0.7rem;
+font-size: 0.82rem;
+text-decoration: none;
+color: var(--text-muted);
+border-radius: 999px;
+}
+
+
+.site-header__dropdown-menu a:hover {
+color: var(--accent-strong);
+background: rgba(31, 41, 55, 0.95);
+}
+
+
+.site-header--docs-open .site-header__dropdown-menu {
+display: block;
+}
+
+
+/* Mobile toggle */
+.site-header__toggle {
+display: none;
+border-radius: 999px;
+border: 1px solid rgba(148, 163, 184, 0.7);
+background: rgba(15, 23, 42, 0.9);
+color: var(--text-main);
+padding: 0.25rem 0.6rem;
+font-size: 0.9rem;
+cursor: pointer;
+}
+
+
+.site-header__toggle:hover {
+background: rgba(15, 23, 42, 1);
+}
+
+
+/* Page header */
+.page-hero {
+padding: 3rem 0 2.5rem;
+border-bottom: 1px solid var(--border-soft);
+background: radial-gradient(circle at 0 0, #111827, #020308);
+}
+
+
+.page-hero h1 {
+margin: 0 0 0.6rem;
+font-size: 1.8rem;
+font-weight: 700;
+}
+
+
+.page-hero p {
+margin: 0;
+font-size: 0.95rem;
+color: var(--text-muted);
+max-width: 38rem;
+line-height: 1.7;
+}
+
+
+/* Section */
+.section {
+padding: 2.5rem 0;
+}
+
+
+.section--muted {
+background: rgb(6, 9, 18);
+border-top: 1px solid rgba(255, 255, 255, 0.06);
+border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+
+.section__header {
+margin-bottom: 1.2rem;
+}
+
+
+.section__header h2 {
+margin: 0 0 0.3rem;
+font-size: 1.15rem;
+}
+
+
+.section__header p {
+margin: 0;
+font-size: 0.88rem;
+color: var(--text-muted);
+}
+
+
+/* Layer label */
+.layer-label {
+display: inline-block;
+font-size: 0.72rem;
+text-transform: uppercase;
+letter-spacing: 0.1em;
+color: var(--accent-muted);
+border: 1px solid rgba(255, 255, 255, 0.12);
+border-radius: 999px;
+padding: 0.12rem 0.5rem;
+margin-bottom: 0.5rem;
+}
+
+
+/* Repo grid */
+.repo-grid {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 1rem;
+}
+
+
+.repo-card {
+background: rgba(15, 23, 42, 0.95);
+padding: 1.1rem 1.2rem;
+border-radius: var(--radius-lg);
+border: 1px solid var(--border-soft);
+display: flex;
+flex-direction: column;
+gap: 0.5rem;
+}
+
+
+.repo-card__name {
+font-size: 1rem;
+font-weight: 600;
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+margin: 0;
+}
+
+
+.repo-card__name a {
+color: var(--accent-strong);
+text-decoration: none;
+}
+
+
+.repo-card__name a:hover {
+text-decoration: underline;
+}
+
+
+.repo-card__desc {
+font-size: 0.86rem;
+color: var(--text-muted);
+margin: 0;
+line-height: 1.6;
+}
+
+
+.repo-card__meta {
+display: flex;
+gap: 0.5rem;
+flex-wrap: wrap;
+margin-top: 0.2rem;
+}
+
+
+.repo-card__tag {
+font-size: 0.72rem;
+color: var(--text-soft);
+border: 1px solid rgba(255, 255, 255, 0.1);
+border-radius: 999px;
+padding: 0.1rem 0.45rem;
+}
+
+
+/* Footer */
+.site-footer {
+border-top: 1px solid rgba(255, 255, 255, 0.1);
+background: #020308;
+}
+
+
+.site-footer__inner {
+padding: 1.8rem 1.5rem 2rem;
+font-size: 0.78rem;
+color: var(--text-soft);
+display: flex;
+flex-direction: column;
+gap: 0.6rem;
+}
+
+
+.site-footer__row {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+gap: 2rem;
+}
+
+
+.site-footer__col {
+display: flex;
+flex-direction: column;
+gap: 0.3rem;
+}
+
+
+.site-footer__col-title {
+font-size: 0.72rem;
+text-transform: uppercase;
+letter-spacing: 0.1em;
+color: var(--text-soft);
+margin-bottom: 0.2rem;
+}
+
+
+.site-footer__cid {
+font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+font-size: 0.72rem;
+color: var(--accent-muted);
+word-break: break-all;
+}
+
+
+.site-footer__links {
+display: flex;
+gap: 0.8rem;
+margin-top: 0.8rem;
+padding-top: 0.8rem;
+border-top: 1px solid var(--border-soft);
+}
+
+
+.site-footer__links a {
+color: var(--accent);
+text-decoration: none;
+}
+
+
+.site-footer__links a:hover {
+text-decoration: underline;
+}
+
+
+/* Mobile */
+@media (max-width: 880px) {
+.site-header__inner {
+padding-inline: 1rem;
+}
+
+
+.site-header__toggle {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+}
+
+
+.site-header__nav {
+display: none;
+flex-direction: column;
+align-items: flex-start;
+gap: 0.5rem;
+margin-top: 0.8rem;
+}
+
+
+.site-header.site-header--open .site-header__nav {
+display: flex;
+}
+
+
+.repo-grid {
+grid-template-columns: 1fr;
+}
+
+
+.site-footer__row {
+flex-direction: column;
+gap: 1rem;
+}
+
+
+.site-footer__inner {
+padding-inline: 1rem;
+}
+}
+</style>
+</head>
+
+
+<body>
+<div class="page-shell">
+<!-- HEADER -->
+<header class="site-header">
+<div class="site-header__inner container">
+<a href="/" class="site-header__brand">
+<img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+<div class="site-header__text">
+<span class="site-header__title">CommandLayer</span>
+<span class="site-header__subtitle">
+Execution + receipt layer
+</span>
+</div>
+</a>
+
+
+<!-- Mobile toggle -->
+<button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
+&#9776;
+</button>
+
+
+<nav class="site-header__nav">
+<a href="/" class="site-header__link">Overview</a>
+<a href="/quickstart.html" class="site-header__link">Quickstart</a>
+
+
+<div class="site-header__dropdown">
+<button class="site-header__dropdown-btn" type="button">
+Docs &#9662;
+</button>
+<div class="site-header__dropdown-menu">
+<a href="/commons.html">Commons</a>
+<a href="/commercial.html">Commercial</a>
+<a href="/agent-cards.html">Agent Cards</a>
+<a href="/runtime.html">Runtime</a>
+<a href="/manifest.html">Manifest</a>
+<a href="/licensing.html">Licensing</a>
+<a href="/about.html">About</a>
+</div>
+</div>
+
+
+<a href="/repositories.html" class="site-header__link site-header__link--active">Repositories</a>
+<a href="/demo.html" class="site-header__link">Live Demo</a>
+<a
+href="https://github.com/commandlayer"
+class="site-header__link"
+target="_blank"
+rel="noopener noreferrer"
+>
+GitHub
+</a>
+</nav>
+</div>
+</header>
+
+
+<main class="page-main">
+<!-- PAGE HERO -->
+<section class="page-hero">
+<div class="container">
+<h1>Repositories</h1>
+<p>
+CommandLayer is a multi-repo protocol architecture.
+Each repository owns a distinct layer of the execution and receipt stack.
+</p>
+</div>
+</section>
+
+
+<!-- SCHEMAS -->
+<section class="section">
+<div class="container">
+<div class="section__header">
+<h2>Schemas</h2>
+<p>Canonical verb definitions, receipt structures, and shared protocol types.</p>
+</div>
+
+<div class="repo-grid">
+<article class="repo-card">
+<div class="layer-label">schemas</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/protocol-commons" target="_blank" rel="noopener noreferrer">protocol-commons</a>
+</h3>
+<p class="repo-card__desc">
+Canonical verbs and typed payloads for agent interoperability.
+Standardizes machine intent through JSON Schema 2020-12 definitions
+for all Commons verbs (analyze, classify, clean, convert, describe, explain, fetch, format, parse, summarize).
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">MIT</span>
+<span class="repo-card__tag">JavaScript</span>
+<span class="repo-card__tag">IPFS-pinned</span>
+</div>
+</article>
+
+<article class="repo-card">
+<div class="layer-label">schemas</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/protocol-commercial" target="_blank" rel="noopener noreferrer">protocol-commercial</a>
+</h3>
+<p class="repo-card__desc">
+Economic machine intent and x402 execution endpoints for trustless value
+transfer and commercial fulfillment. Defines the authorize, checkout,
+purchase, ship, and verify verb schemas.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">JavaScript</span>
+<span class="repo-card__tag">x402</span>
+</div>
+</article>
+
+<article class="repo-card">
+<div class="layer-label">schemas</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/agent-cards" target="_blank" rel="noopener noreferrer">agent-cards</a>
+</h3>
+<p class="repo-card__desc">
+Verifiable identity and capabilities for autonomous agents.
+Binds ENS names to verbs, schemas, x402 entrypoints, and discovery metadata.
+Used by registries and clients to discover, rank, and route to agents.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">JavaScript</span>
+<span class="repo-card__tag">ENS</span>
+<span class="repo-card__tag">IPFS-pinned</span>
+</div>
+</article>
+</div>
+</div>
+</section>
+
+
+<!-- SDK -->
+<section class="section section--muted">
+<div class="container">
+<div class="section__header">
+<h2>SDK</h2>
+<p>Client libraries for calling verbs and verifying receipts.</p>
+</div>
+
+<div class="repo-grid">
+<article class="repo-card">
+<div class="layer-label">sdk</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/sdk" target="_blank" rel="noopener noreferrer">sdk</a>
+</h3>
+<p class="repo-card__desc">
+TypeScript + Python SDKs for calling ENS-addressed agent verbs
+and verifying cryptographic receipts via canonical schemas (IPFS)
+and checksums. Supports both Commons and Commercial verb tiers.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">MIT</span>
+<span class="repo-card__tag">TypeScript</span>
+<span class="repo-card__tag">Python</span>
+</div>
+</article>
+</div>
+</div>
+</section>
+
+
+<!-- RUNTIME -->
+<section class="section">
+<div class="container">
+<div class="section__header">
+<h2>Runtime</h2>
+<p>Reference execution environments that validate schemas and issue signed receipts.</p>
+</div>
+
+<div class="repo-grid">
+<article class="repo-card">
+<div class="layer-label">runtime</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/runtime" target="_blank" rel="noopener noreferrer">runtime</a>
+</h3>
+<p class="repo-card__desc">
+Reference HTTP runtime for CommandLayer verbs. Validates requests against
+pinned schemas and issues signed, verifiable receipts using ENS key
+discovery. Implements the canonical serialization and Ed25519 signing pipeline.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">MIT</span>
+<span class="repo-card__tag">JavaScript</span>
+<span class="repo-card__tag">Ed25519</span>
+</div>
+</article>
+
+<article class="repo-card">
+<div class="layer-label">runtime</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/runtime-core" target="_blank" rel="noopener noreferrer">runtime-core</a>
+</h3>
+<p class="repo-card__desc">
+Core runtime library. Shared execution logic, schema validation,
+canonical serialization, and receipt signing primitives used by
+runtime implementations.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">MIT</span>
+<span class="repo-card__tag">TypeScript</span>
+</div>
+</article>
+
+<article class="repo-card">
+<div class="layer-label">runtime</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/commercial-runtime" target="_blank" rel="noopener noreferrer">commercial-runtime</a>
+</h3>
+<p class="repo-card__desc">
+Runtime implementation for Commercial verb execution.
+Handles x402 payment envelope integration, economic verb flows
+(authorize, checkout, purchase, ship, verify), and receipt issuance.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">JavaScript</span>
+<span class="repo-card__tag">x402</span>
+</div>
+</article>
+</div>
+</div>
+</section>
+
+
+<!-- SITE -->
+<section class="section section--muted">
+<div class="container">
+<div class="section__header">
+<h2>Documentation</h2>
+<p>This site and its supporting infrastructure.</p>
+</div>
+
+<div class="repo-grid">
+<article class="repo-card">
+<div class="layer-label">docs</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/commandlayer-org" target="_blank" rel="noopener noreferrer">commandlayer-org</a>
+</h3>
+<p class="repo-card__desc">
+This website. Static HTML site with Vercel serverless API demos.
+Hosts published schemas, quickstart guides, live verb composer,
+and receipt verification examples.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">HTML</span>
+<span class="repo-card__tag">Vercel</span>
+</div>
+</article>
+</div>
+</div>
+</section>
+</main>
+
+
+<!-- TECHNICAL FOOTER -->
+<footer class="site-footer">
+<div class="container site-footer__inner">
+<div class="site-footer__row">
+<div class="site-footer__col">
+<div class="site-footer__col-title">Canonical CIDs</div>
+<div class="site-footer__cid">protocol-commons v1.0.0 &mdash; schemas pinned to IPFS with published checksums</div>
+<div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
+</div>
+<div class="site-footer__col">
+<div class="site-footer__col-title">Security</div>
+<div>security@commandlayer.org</div>
+</div>
+</div>
+<div class="site-footer__links">
+<a href="/commons.html">Schemas</a>
+<a href="/quickstart.html">Quickstart</a>
+<a href="/repositories.html">Repositories</a>
+<a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+</div>
+</div>
+</footer>
+</div>
+
+
+<script>
+(function () {
+const header = document.querySelector(".site-header");
+const toggle = document.querySelector(".site-header__toggle");
+const docsBtn = document.querySelector(".site-header__dropdown-btn");
+
+
+if (toggle && header) {
+toggle.addEventListener("click", () => {
+const isOpen = header.classList.toggle("site-header--open");
+toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+});
+}
+
+
+if (docsBtn && header) {
+docsBtn.addEventListener("click", () => {
+header.classList.toggle("site-header--docs-open");
+});
+}
+})();
+</script>
+</body>
+</html>
