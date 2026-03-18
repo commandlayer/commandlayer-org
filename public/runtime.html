@@ -497,7 +497,7 @@
             <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Commons first. Runtime second.</span>
+              <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
             </div>
           </a>
 
@@ -513,12 +513,15 @@
               <button class="site-header__dropdown-btn site-header__dropdown-btn--active" type="button">
                 Docs &#9662;
               </button>
-              <div class="site-header__dropdown-menu">
+                            <div class="site-header__dropdown-menu">
+                <a href="/docs.html">Docs</a>
                 <a href="/commons.html">Commons</a>
                 <a href="/commercial.html">Commercial</a>
                 <a href="/agent-cards.html">Agent Cards</a>
                 <a href="/runtime.html">Runtime</a>
                 <a href="/manifest.html">Manifest</a>
+                <a href="/FAQ.html">FAQ</a>
+                <a href="/roadmap.html">Roadmap</a>
                 <a href="/licensing.html">Licensing</a>
                 <a href="/about.html">About</a>
               </div>
@@ -598,7 +601,7 @@
             <div class="section__header">
               <h2>Where Runtime sits in the stack</h2>
               <p>
-                Runtime sits above schemas and below applications. Commons defines the minimum verifiable receipt contract, Commercial extends the same contract model for economic flows, and Runtime consumes those pinned contracts to execute them with optional metadata where orchestration, tracing, and proof are needed.
+                Runtime sits above schemas and below applications. Commons defines the minimum verifiable receipt contract, Commercial extends the same contract model for economic flows, and Runtime consumes those pinned contracts to execute them with optional metadata where orchestration, tracing, and proof are needed. Receipts are signed with Ed25519 and can be verified against ENS-anchored public keys.
               </p>
             </div>
 
@@ -783,6 +786,7 @@
             <a href="/repositories.html">Repositories</a>
             <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
+          <div style="color: var(--text-soft); font-size: 0.78rem;">Protocol v1.1.0 &middot; ERC-8004 registered</div>
         </div>
       </footer>
     </div>
