@@ -214,7 +214,7 @@ body {
 }
 
 .hero {
-  padding: 4.5rem 0 2rem;
+  padding: 4rem 0 1.4rem;
   background:
     radial-gradient(circle at 0 0, rgba(99, 102, 241, 0.15), transparent 35%),
     radial-gradient(circle at 100% 0, rgba(148, 163, 184, 0.12), transparent 30%),
@@ -232,7 +232,7 @@ body {
 .hero__eyebrow,
 .section__eyebrow,
 .card__eyebrow {
-  margin: 0 0 0.8rem;
+  margin: 0 0 0.55rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   font-size: 0.75rem;
@@ -252,22 +252,22 @@ body {
 }
 
 .hero__subtitle {
-  margin: 1.3rem 0 0;
+  margin: 0.8rem 0 0;
   color: #9aa4b2;
   font-size: 1.05rem;
-  line-height: 1.8;
-  max-width: 26rem;
+  line-height: 1.65;
+  max-width: 32rem;
 }
 
 .hero__cta-row {
   display: flex;
   flex-wrap: wrap;
   gap: 0.8rem;
-  margin-top: 2rem;
+  margin-top: 1.4rem;
 }
 
 .hero__support {
-  margin-top: 1rem;
+  margin-top: 0.8rem;
   color: var(--text-soft);
   font-size: 0.9rem;
 }
@@ -425,38 +425,38 @@ body {
 }
 
 .trust-strip {
-  padding: 1rem 0 0;
+  padding: 0.85rem 0 0;
 }
 
 .trust-strip__row {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  align-items: center;
 }
 
-.trust-pill {
-  background: rgba(15, 23, 42, 0.64);
-  border: 1px solid var(--border-soft);
-  border-radius: 999px;
-  padding: 0.8rem 1rem;
-  font-size: 0.84rem;
-  color: var(--accent);
-  text-align: center;
-}
-
+.trust-pill,
 .trust-proof {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.55rem;
   background: rgba(15, 23, 42, 0.64);
   border: 1px solid var(--border-soft);
   border-radius: 999px;
-  padding: 0.8rem 1rem;
-  font-size: 0.84rem;
+  padding: 0.68rem 0.92rem;
+  font-size: 0.82rem;
+  line-height: 1.25;
+  text-align: center;
+}
+
+.trust-pill {
+  color: var(--accent);
+}
+
+.trust-proof {
+  gap: 0.4rem;
   color: var(--accent-strong);
   text-decoration: none;
-  text-align: center;
 }
 
 .trust-proof:hover {
@@ -470,59 +470,44 @@ body {
 
 .positioning-callout {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
-  gap: 1.25rem;
+  gap: 1rem;
 }
 
-.positioning-callout__body,
-.positioning-callout__example {
+.positioning-callout__body {
   background: var(--bg-panel);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-xl);
-  padding: 1.4rem;
+  padding: 1rem;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 }
 
-.positioning-callout__body p,
-.positioning-callout__example p {
-  margin: 0.75rem 0 0;
+.positioning-callout__body p {
+  margin: 0.6rem 0 0;
   color: var(--text-muted);
-  line-height: 1.75;
+  line-height: 1.6;
 }
 
-.positioning-callout__body p:first-of-type,
-.positioning-callout__example p:first-of-type {
+.positioning-callout__body p:first-of-type {
   margin-top: 0;
 }
 
-.positioning-callout__body h2,
-.positioning-callout__example h3 {
+.positioning-callout__body h2 {
   margin: 0;
   letter-spacing: -0.03em;
 }
 
-.positioning-callout__example ul {
-  margin: 0.85rem 0 0;
-  padding-left: 1.1rem;
-  color: var(--text-muted);
-}
-
-.positioning-callout__example li + li {
-  margin-top: 0.45rem;
-}
-
 .receipt-bridge {
-  margin-top: 1rem;
+  margin-top: 0.85rem;
   padding: 0.95rem 1rem;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(15, 23, 42, 0.62);
   color: var(--text-muted);
-  line-height: 1.7;
+  line-height: 1.55;
 }
 
 .section {
-  padding: 4rem 0;
+  padding: 3rem 0;
 }
 
 .section--muted {
@@ -533,11 +518,11 @@ body {
 
 .section__header {
   max-width: 44rem;
-  margin-bottom: 1.8rem;
+  margin-bottom: 1.2rem;
 }
 
 .section__header h2 {
-  margin: 0 0 0.7rem;
+  margin: 0 0 0.45rem;
   font-size: clamp(1.7rem, 3vw, 2.4rem);
   letter-spacing: -0.03em;
 }
@@ -546,25 +531,25 @@ body {
   margin: 0;
   font-size: 1rem;
   color: var(--text-muted);
-  line-height: 1.75;
+  line-height: 1.6;
 }
 
 .two-up {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .panel {
   background: var(--bg-panel);
   border: 1px solid var(--border-soft);
   border-radius: var(--radius-xl);
-  padding: 1.35rem;
+  padding: 1.15rem;
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 }
 
 .panel h3 {
-  margin: 0 0 0.7rem;
+  margin: 0 0 0.5rem;
   font-size: 1.05rem;
 }
 
@@ -576,7 +561,7 @@ body {
 }
 
 .panel ul {
-  margin: 0.9rem 0 0;
+  margin: 0.65rem 0 0;
   padding: 0;
   list-style: none;
 }
@@ -585,7 +570,7 @@ body {
   color: var(--text-muted);
   font-size: 0.93rem;
   line-height: 1.65;
-  padding: 0.55rem 0;
+  padding: 0.45rem 0;
   border-bottom: 1px solid var(--border-soft);
 }
 
@@ -623,14 +608,14 @@ body {
   border: 1px solid var(--border-soft);
   font-size: 0.82rem;
   color: var(--accent-strong);
-  margin-bottom: 0.9rem;
+  margin-bottom: 0.7rem;
 }
 
 .step-card h3,
 .theme-card h3,
 .positioning-card h3,
 .cta-card h3 {
-  margin: 0 0 0.6rem;
+  margin: 0 0 0.35rem;
   font-size: 1rem;
 }
 
@@ -647,7 +632,7 @@ body {
 .receipt-showcase {
   display: grid;
   grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-  gap: 1.3rem;
+  gap: 1rem;
   align-items: start;
 }
 
@@ -662,14 +647,14 @@ body {
 }
 
 .receipt-highlights {
-  margin-top: 1.2rem;
+  margin-top: 0.9rem;
   display: grid;
   gap: 0.75rem;
 }
 
 .receipt-highlight {
   border-left: 2px solid rgba(229, 231, 235, 0.26);
-  padding-left: 0.9rem;
+  padding-left: 0.8rem;
   color: var(--text-muted);
   font-size: 0.92rem;
   line-height: 1.65;
@@ -711,11 +696,11 @@ body {
 
 .identity-points {
   display: grid;
-  gap: 0.9rem;
+  gap: 0.7rem;
 }
 
 .identity-point {
-  padding: 0.9rem 1rem;
+  padding: 0.8rem 0.95rem;
   border-radius: 14px;
   border: 1px solid var(--border-soft);
   background: rgba(15, 23, 42, 0.52);
@@ -819,7 +804,6 @@ body {
     align-items: flex-start;
   }
 
-  .trust-strip__row,
   .steps-grid,
   .themes-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -872,7 +856,6 @@ body {
     max-width: 12ch;
   }
 
-  .trust-strip__row,
   .steps-grid,
   .themes-grid {
     grid-template-columns: 1fr;
@@ -941,20 +924,19 @@ body {
         <div class="hero__layout">
           <div>
             <p class="hero__eyebrow">Trust infrastructure for autonomous agents</p>
-            <h1 class="hero__title">
-              Agents can act.<br />
-              <span>CommandLayer proves they acted.</span>
-            </h1>
+            <h1 class="hero__title">Agents can act. <span>CommandLayer proves they acted.</span></h1>
             <p class="hero__subtitle">
               Run agent flows. Emit signed receipts. Verify what happened.
+            </p>
+            <p class="hero__support">
+              Observability shows what happened inside your system.<br />
+              CommandLayer proves what an autonomous agent actually did.
             </p>
             <div class="hero__cta-row">
               <a href="/demo.html" class="btn btn--primary">Run Verified Flow</a>
               <a href="#receipts" class="btn btn--ghost">View Receipts</a>
             </div>
-            <div class="hero__support">
-              Semantic execution, ENS-anchored identity, ERC-8004 discoverability, and signed receipts.
-            </div>
+            <div class="hero__support">Semantic execution, ENS-anchored identity, ERC-8004 discoverability, and signed receipts.</div>
           </div>
 
           <aside class="hero-proof" aria-label="Verified execution receipt preview">
@@ -995,14 +977,14 @@ body {
             <div class="trust-pill">Verifiable Execution</div>
             <div class="trust-pill">Multi-Step Flows</div>
             <a
-              href="https://basescan.org/search?f=0&q=0xb511"
-              class="trust-proof"
+              href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d"
+              class="trust-proof trust-pill--onchain"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="ERC-8004 registered on Base Mainnet proof on Basescan"
+              aria-label="ERC-8004 registration proof on Base — View on Basescan"
             >
-              <span class="trust-proof__label">ERC-8004 registered on Base Mainnet</span>
-              <span class="trust-proof__hash mono">0xb511...</span>
+              <span class="trust-proof__label">ERC-8004 on Base · View on Basescan</span>
+              <span class="trust-proof__hash mono">(0xb511…899d ↗)</span>
             </a>
           </div>
         </div>
@@ -1015,22 +997,11 @@ body {
           <div class="positioning-callout__body">
             <p class="section__eyebrow">Why this is not logging</p>
             <h2>Observability shows what happened inside your system. CommandLayer proves what an autonomous agent actually did.</h2>
-            <p>
-              When an agent can spend money, sign transactions, or act on your behalf, logs are not enough.
-              You need proof: signed, verifiable receipts tied to identity.
-            </p>
-          </div>
-          <div class="positioning-callout__example">
-            <p class="card__eyebrow">Example</p>
-            <h3>An agent spends 125 USDC on your behalf.</h3>
+            <p>When agents can spend money, sign transactions, or act on your behalf, logs are not enough.</p>
+            <p><strong>Example:</strong><br />An agent spends 125 USDC on your behalf.</p>
             <p>CommandLayer produces a receipt that proves:</p>
-            <ul>
-              <li>which agent acted</li>
-              <li>what action was executed</li>
-              <li>what amount settled</li>
-              <li>which identity signed it</li>
-            </ul>
-            <p><strong>No guesswork. No trust me. Verifiable proof.</strong></p>
+            <p>• which agent acted<br />• what executed<br />• what amount settled<br />• which identity signed it</p>
+            <p><strong>No guesswork. Verifiable proof.</strong></p>
           </div>
         </div>
       </div>
@@ -1040,30 +1011,19 @@ body {
       <div class="container">
         <div class="section__header">
           <p class="section__eyebrow">Problem</p>
-          <h2>Agents can act. But no one can trust what they did.</h2>
-          <p>
-            Agents can now execute tasks, move value, and interact with real systems. But most agent
-            behavior is still opaque. Users need to verify what an agent did, what it spent, and
-            whether it followed instructions. Trust is the missing layer.
-          </p>
+          <h2>Where it breaks</h2>
         </div>
 
         <div class="two-up">
           <div class="panel">
-            <h3>What is happening now</h3>
-            <ul>
-              <li>Agents trigger workflows across APIs, wallets, tools, and services.</li>
-              <li>Outputs are easy to inspect, but execution paths usually are not.</li>
-              <li>Payment and coordination increase the cost of getting trust wrong.</li>
-            </ul>
+            <p>Agents trigger workflows across APIs, wallets, and services.<br />Outputs are visible. Execution is not.</p>
+            <p>There is no durable proof of:</p>
+            <p>• which agent acted<br />• what actually executed<br />• what value moved</p>
           </div>
           <div class="panel">
-            <h3>Why it breaks down</h3>
-            <ul>
-              <li>There is no durable proof of which agent acted and what it actually executed.</li>
-              <li>Spends, side effects, and retries disappear behind application logs.</li>
-              <li>Downstream agents and humans are forced to trust claims instead of evidence.</li>
-            </ul>
+            <p>Logs hide side effects.</p>
+            <p>Systems claim outcomes.</p>
+            <p>No one can verify them.</p>
           </div>
         </div>
       </div>
@@ -1073,29 +1033,20 @@ body {
       <div class="container">
         <div class="section__header">
           <p class="section__eyebrow">Solution</p>
-          <h2>CommandLayer makes agent execution auditable.</h2>
-          <p>
-            Every action produces a signed receipt tied to identity. Don’t trust outputs — verify
-            execution. CommandLayer makes agent behavior provable, inspectable, and reproducible.
-          </p>
+          <h2>CommandLayer makes agent execution provable.</h2>
+          <p>Every action emits a signed receipt tied to identity. Not output — evidence.</p>
         </div>
 
         <div class="two-up">
           <div class="panel">
-            <h3>What CommandLayer adds</h3>
             <ul>
-              <li>Semantic execution that describes what the agent was supposed to do.</li>
-              <li>Receipts with canonical data, hashes, and signatures bound to the signer.</li>
-              <li>Flow-level evidence across multiple steps instead of a single opaque result.</li>
+              <li>Semantic execution (what was intended)</li>
+              <li>Signed receipts (what actually happened)</li>
+              <li>Flow-level proof (how it happened across steps)</li>
             </ul>
           </div>
           <div class="panel">
-            <h3>Why it matters</h3>
-            <ul>
-              <li>Humans can audit high-value actions without reading raw infrastructure logs.</li>
-              <li>Agents can verify each other before cooperating or releasing payment.</li>
-              <li>Execution becomes portable infrastructure, not app-specific trust theater.</li>
-            </ul>
+            <p>Trust becomes verifiable, not assumed.</p>
           </div>
         </div>
       </div>
@@ -1105,32 +1056,26 @@ body {
       <div class="container">
         <div class="section__header">
           <p class="section__eyebrow">How it works</p>
-          <h2>From intent to proof in four steps.</h2>
-          <p>
-            Keep the flow tight: define the work, execute it, emit receipts, and verify the result.
-          </p>
+          <h2>From intent to proof.</h2>
+          <p>CommandLayer is trust infrastructure for coordinated agent services — not just single-agent outputs.</p>
         </div>
 
         <div class="steps-grid">
           <article class="step-card">
             <div class="step-card__num">01</div>
-            <h3>Define a flow</h3>
-            <p>Declare the sequence of agent actions, expected inputs, and the identity that is allowed to act.</p>
+            <h3>Define the flow</h3>
           </article>
           <article class="step-card">
             <div class="step-card__num">02</div>
-            <h3>Execute</h3>
-            <p>Run the multi-step flow through CommandLayer with explicit semantics instead of loose prompts.</p>
+            <h3>Execute with explicit semantics</h3>
           </article>
           <article class="step-card">
             <div class="step-card__num">03</div>
-            <h3>Generate receipts</h3>
-            <p>Emit signed receipts for each action with canonical hashes, outputs, timing, and signer identity.</p>
+            <h3>Emit signed receipts</h3>
           </article>
           <article class="step-card">
             <div class="step-card__num">04</div>
-            <h3>Verify</h3>
-            <p>Resolve identity, recompute proofs, and confirm exactly what happened before trusting the result.</p>
+            <h3>Verify independently</h3>
           </article>
         </div>
       </div>
@@ -1141,10 +1086,7 @@ body {
         <div class="section__header">
           <p class="section__eyebrow">Receipts</p>
           <h2>Not output. Evidence.</h2>
-          <p>
-            The receipt is the product. It binds agent identity to execution, captures the action,
-            and gives any third party enough material to verify the claim.
-          </p>
+          <p>Receipts bind identity to execution and give any third party enough data to verify what actually happened.</p>
         </div>
 
         <div class="receipt-showcase">
@@ -1192,7 +1134,7 @@ body {
         </div>
         <div class="receipt-bridge">
           The live demo uses simple Commons verbs like <code>fetch</code>, <code>analyze</code>, and <code>summarize</code>.
-          The same receipt system also secures high-stakes actions like approvals, payments, and multi-step execution.
+          The same receipt system secures high-stakes actions like approvals, payments, and multi-step execution.
         </div>
       </div>
     </section>
@@ -1200,30 +1142,26 @@ body {
     <section class="section">
       <div class="container">
         <div class="section__header">
-          <p class="section__eyebrow">Built for Synthesis themes</p>
+          <p class="section__eyebrow">Built for the agent economy</p>
           <h2>Built for the agent economy</h2>
-          <p>
-            As agents become economic actors, infrastructure has to support action, payment, trust,
-            and cooperation without losing auditability.
-          </p>
         </div>
 
         <div class="themes-grid">
           <article class="theme-card">
             <h3>Agents that act</h3>
-            <p>CommandLayer gives execution explicit structure, so an agent flow is more than an output blob or a best-effort trace.</p>
+            <p>Structured execution beyond raw outputs</p>
           </article>
           <article class="theme-card">
             <h3>Agents that pay</h3>
-            <p>When value moves, receipts become mandatory. CommandLayer makes paid actions inspectable before and after settlement.</p>
+            <p>Receipts make value movement inspectable</p>
           </article>
           <article class="theme-card">
             <h3>Agents that trust</h3>
-            <p>Signed receipts let agents and users verify claims independently instead of inheriting trust from a single interface.</p>
+            <p>Verification replaces assumptions</p>
           </article>
           <article class="theme-card">
             <h3>Agents that cooperate</h3>
-            <p>Shared receipts create a common truth layer for chained agents, delegated tasks, and multi-party workflows.</p>
+            <p>Shared receipts coordinate multi-agent systems</p>
           </article>
         </div>
       </div>
@@ -1234,10 +1172,7 @@ body {
         <div class="section__header">
           <p class="section__eyebrow">Identity</p>
           <h2>Identity is the anchor of trust</h2>
-          <p>
-            Discoverability and accountability start with identity. ENS names and ERC-8004 service
-            records make agents addressable; CommandLayer makes their actions verifiable.
-          </p>
+          <p>ENS makes agents human-readable. ERC-8004 makes them discoverable. CommandLayer makes their actions verifiable.</p>
         </div>
 
         <div class="identity-grid">
