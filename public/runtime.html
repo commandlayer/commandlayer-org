@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta
       name="description"
-      content="CommandLayer Runtime — reference execution layer for schema-stable verbs: receipts, verification, and a proving surface on top of pinned Commons & Commercial contracts."
+      content="CommandLayer Runtime — the execution layer that runs pinned Commons and Commercial contracts, then optionally attaches trace, proof, and orchestration metadata without redefining the base receipt."
     />
 
     <style>
@@ -453,7 +453,7 @@
             <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Execution + receipt layer</span>
+              <span class="site-header__subtitle">Commons first. Runtime second.</span>
             </div>
           </a>
 
@@ -507,18 +507,18 @@
 
               <p class="hero__subtitle">
                 Commons and Commercial define <strong>what</strong> a verb means: public request + receipt contracts.
-                Runtime is the <strong>execution surface</strong>: it runs schema-conformant verbs and returns
-                <strong>typed, signed receipts</strong> that can be verified independently — without changing semantics.
+                Runtime is the <strong>execution surface</strong>: it runs those contracts and may attach
+                <strong>optional</strong> trace, proof, and orchestration metadata — without changing the base receipt semantics.
               </p>
 
               <p class="hero__subtitle" style="margin-top:0.85rem;">
-                Today, Runtime is the live proving surface for CommandLayer flows. It sits on top of pinned schemas, signs receipts, and keeps execution accountable across Commons v1.1.0 and Commercial v1.0.0.
+                Today, Runtime is the live proving surface for CommandLayer flows. It sits on top of pinned schemas, executes against the Commons-first contract boundary, and keeps execution accountable across Commons v1.1.0 and Commercial v1.0.0.
               </p>
 
               <div class="hero__cta-row">
                 <a href="/demo.html" class="btn btn--primary">
                   <span class="btn__icon">▶️</span>
-                  <span>See live receipts</span>
+<span>See runtime metadata in context</span>
                 </a>
                 <a href="/agent-cards.html" class="btn btn--ghost">
                   <span class="btn__icon">🪪</span>
@@ -541,7 +541,7 @@
               </p>
               <ul>
                 <li><strong>Is:</strong> a reference runtime that executes schema-stable verbs.</li>
-                <li><strong>Is:</strong> an execution layer that can attach trace, proof, and orchestration metadata around the Commons receipt.</li>
+                <li><strong>Is:</strong> an execution layer that can attach trace, proof, timing, and orchestration metadata around the Commons receipt.</li>
                 <li><strong>Is:</strong> a proving surface — not just logs or responses.</li>
                 <li><strong>Is not:</strong> a closed semantic system — contracts remain public and portable.</li>
                 <li><strong>Is not:</strong> a finished policy or billing platform (yet).</li>
@@ -571,7 +571,7 @@
               <article class="info-card">
                 <h3>Execution</h3>
                 <p>
-                  Reference execution against pinned schemas, with optional runtime metadata for chaining, timing, and verification layered on top of the base receipt.
+                  Reference execution against pinned schemas, with optional runtime metadata for chaining, timing, and verification layered on top of the base receipt rather than replacing it.
                 </p>
               </article>
 
@@ -698,7 +698,7 @@
   }
 }</pre>
               <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                Runtime may add fields like <code>trace</code>, <code>usage</code>, or <code>metadata.proof</code> for execution, orchestration, and verification, but those should remain clearly runtime-specific additions.
+                Runtime may add fields like <code>trace</code>, <code>usage</code>, or <code>metadata.proof</code> for execution, orchestration, and verification, but those remain runtime-specific additions and should never be mistaken for the canonical Commons receipt.
               </p>
             </div>
           </div>

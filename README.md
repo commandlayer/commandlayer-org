@@ -10,7 +10,7 @@ The CommandLayer website + demo surface.
 - **Runtime:** execution layer, not a schema version line; it proves execution for the published schema versions above.
 - **Compatibility:** published `v1.0.0` Commons URLs remain live for verification and older integrations, but new examples should point to `v1.1.0`.
 
-This repo hosts the static site at **commandlayer.org** and the small set of **Vercel serverless APIs** that power the live demo and flow composer against the CommandLayer runtime.
+This repo hosts the static site at **commandlayer.org** and the small set of **Vercel serverless APIs** that power the live demo and flow composer against the CommandLayer runtime. The public website should teach the layer boundary in this order: Commons defines the minimum verifiable receipt, then Runtime executes actions and may attach optional metadata for chaining, orchestration, and proof.
 
 - Website: https://www.commandlayer.org/
 - GitHub org: https://github.com/commandlayer
@@ -100,7 +100,7 @@ The `api/` directory contains serverless endpoints used by the site.
 
 ### `/api/commons-flow`
 
-Orchestrates a multi-step “Commons flow” for the demo UI and Commons composer.
+Orchestrates a multi-step “Commons flow” for the demo UI and Commons composer while preserving the Commons-first teaching model.
 
 What it does:
 - Accepts an ordered list of steps: `{ verb, input }`
@@ -109,9 +109,10 @@ What it does:
     `${RUNTIME_BASE_URL}/{verb}/v1.1.0` (default for Commons)
 - Returns:
   - per-step request JSON
-  - per-step receipt JSON
+  - per-step receipt JSON (canonical contract first)
   - per-step reproducible `curl`
   - verification results (when enabled)
+  - optional runtime metadata when the executor exposes it
 
 Why this exists:
 - Browsers have CORS and request-size constraints
@@ -246,7 +247,7 @@ What it does:
 - Forwards them to `${COMMERCIAL_RUNTIME_BASE_URL}/{verb}/v1.0.0`
 - Returns per-step requests, receipts, and reproducible `curl`
 
-This is the only backend surface required by the public commercial demo.
+This is the only backend surface required by the public commercial demo, which should be framed as a runtime execution surface rather than the canonical protocol contract.
 
 ---
 

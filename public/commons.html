@@ -9,7 +9,7 @@
     />
     <meta
       name="description"
-      content="CommandLayer Commons — the canonical verb + schema public goods layer for agents. 10 universal verbs, strict JSON Schemas, permanently free, aligned with x402 and compatible with ERC-8004."
+      content="CommandLayer Commons — the canonical public-goods layer that defines the minimum verifiable receipt. Verbs and schemas stay stable while runtimes add optional execution metadata separately."
     />
 
     <style>
@@ -511,7 +511,7 @@
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
               <span class="site-header__subtitle">
-                Execution + receipt layer
+                Commons first. Runtime second.
               </span>
             </div>
           </a>
@@ -560,12 +560,11 @@
           <div class="container subhero__inner">
             <div>
               <div class="subhero__eyebrow">Commons</div>
-              <h1 class="subhero__title">Commons Verbs (v1.1.0)</h1>
+              <h1 class="subhero__title">Commons defines the canonical receipt (v1.1.0)</h1>
               <p class="subhero__subtitle">
-                A shared set of verified agent verbs for execution you can inspect and trust.
-                10 universal verbs, each with a strict <code>*.request</code> and <code>*.receipt</code>
-                JSON Schema, aligned with x402 and compatible with ERC-8004.
-                <strong>Schemas are permanently free</strong> — the economics live in execution, not in the verb language.
+                Commons is the public-goods contract layer: 10 universal verbs, each with a strict <code>*.request</code> and <code>*.receipt</code>
+                JSON Schema. This is the minimum verifiable receipt surface judges and builders should learn first.
+                <strong>Runtime may enrich execution</strong>, but it does not replace the canonical Commons contract.
               </p>
               <p style="margin:0.9rem 0 0;font-size:0.94rem;font-weight:500;color:var(--accent-strong);letter-spacing:0.01em;">
                 Agents can act. CommandLayer proves they acted.
@@ -593,10 +592,9 @@
             <div class="section__header">
               <h2>What the Commons layer is</h2>
               <p>
-                Commons is CommandLayer’s small, stable core: a shared language for verified agent execution
-                when agents analyze, summarize, clean, convert, and fetch. Each verb is pinned to a pair
-                of JSON Schemas so clients and agents can agree on shapes, traceability, and signed receipts —
-                without reinventing request formats on every integration.
+                Commons is CommandLayer’s small, stable core: a shared language for machine intent and the
+                minimum verifiable receipt. Each verb is pinned to a pair of JSON Schemas so clients and agents
+                can agree on the canonical request and receipt shape before any runtime-specific metadata enters the picture.
               </p>
             </div>
 
@@ -613,7 +611,7 @@
                 <h3>Request / receipt pairs</h3>
                 <p>
                   Every verb has a <code>*.request</code> and <code>*.receipt</code> schema so calls are
-                  traceable, idempotent, and easy to validate. The same signed receipt patterns repeat across verbs and runtimes.
+                  portable, easy to validate, and anchored to one canonical receipt contract. Runtime-specific proof or trace fields can be layered on later without changing that base meaning.
                 </p>
               </article>
 
@@ -621,8 +619,7 @@
                 <h3>Aligned with x402 / ERC-8004</h3>
                 <p>
                   Schemas are designed to sit cleanly inside x402 envelopes and work with ERC-8004-style
-                  discovery and routing — Commons defines the semantics; x402 and ERC-8004 handle payment
-                  and finding agents.
+                  discovery and routing — Commons defines the semantics and minimum receipt; x402 and ERC-8004 help move requests and find agents.
                 </p>
               </article>
             </div>

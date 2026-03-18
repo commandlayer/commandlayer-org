@@ -9,7 +9,7 @@
 />
 <meta
   name="description"
-  content="CommandLayer is the trust layer for agent execution: run multi-step agent flows, bind actions to ERC-8004 and ENS identity, and verify every result with signed receipts."
+  content="CommandLayer teaches the Commons-first protocol boundary: Commons defines the minimum verifiable receipt, and Runtime executes actions with optional metadata for orchestration, chaining, and proof."
 />
 
 <style>
@@ -877,7 +877,7 @@ body {
         <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
         <div class="site-header__text">
           <span class="site-header__title">CommandLayer</span>
-          <span class="site-header__subtitle">Execution + receipt layer</span>
+          <span class="site-header__subtitle">Commons first. Runtime second.</span>
         </div>
       </a>
 
@@ -923,50 +923,50 @@ body {
       <div class="container">
         <div class="hero__layout">
           <div>
-            <p class="hero__eyebrow">Trust infrastructure for autonomous agents</p>
-            <h1 class="hero__title">Agents can act. <span>CommandLayer proves they acted.</span></h1>
+            <p class="hero__eyebrow">Commons-first protocol truth</p>
+            <h1 class="hero__title">Commons defines the receipt. <span>Runtime executes it.</span></h1>
             <p class="hero__subtitle">
-              Commons defines the minimum verifiable receipt contract. Runtimes may attach optional metadata for orchestration and proof.
+              CommandLayer Commons is the canonical base contract: the minimum verifiable receipt every judge, builder, and verifier should learn first. Runtime sits above that contract and may attach optional metadata for chaining, orchestration, timing, or proof.
             </p>
             <p class="hero__support">
               Observability shows what happened inside your system.<br />
               CommandLayer proves what an autonomous agent actually did.
             </p>
             <div class="hero__cta-row">
-              <a href="/demo.html" class="btn btn--primary">Run Verified Flow</a>
-              <a href="#receipts" class="btn btn--ghost">View Receipts</a>
+              <a href="#receipts" class="btn btn--primary">See Canonical Receipt</a>
+              <a href="/demo.html" class="btn btn--ghost">See Runtime Demo</a>
             </div>
-            <div class="hero__support">Canonical receipts first, runtime metadata second, with ENS-anchored identity and ERC-8004 discoverability.</div>
+            <div class="hero__support">Teach the flat Commons receipt first; treat runtime metadata as an optional execution-layer add-on.</div>
           </div>
 
           <aside class="hero-proof" aria-label="Verified execution receipt preview">
             <div class="hero-proof__top">
               <span class="hero-proof__dot" aria-hidden="true"></span>
-              <div class="hero-proof__title">Verified Flow Receipt</div>
+              <div class="hero-proof__title">Canonical Commons Receipt</div>
             </div>
             <div class="hero-proof__grid">
               <div class="hero-proof__row">
-                <div class="hero-proof__label">verified</div>
-                <div class="hero-proof__value hero-proof__value--green">true</div>
+                <div class="hero-proof__label">status</div>
+                <div class="hero-proof__value hero-proof__value--green">ok</div>
               </div>
               <div class="hero-proof__row">
-                <div class="hero-proof__label">agent</div>
-                <div class="hero-proof__value mono">checkoutagent.eth<span class="hero-proof__subline">/ ERC-8004 service</span></div>
+                <div class="hero-proof__label">verb</div>
+                <div class="hero-proof__value mono">verify<span class="hero-proof__subline">/ Commons receipt meaning</span></div>
               </div>
               <div class="hero-proof__row">
-                <div class="hero-proof__label">flow</div>
-                <div class="hero-proof__value">authorize → checkout → verify</div>
+                <div class="hero-proof__label">x402</div>
+                <div class="hero-proof__value mono">verb: verify · version: v1.1.0</div>
               </div>
               <div class="hero-proof__row">
-                <div class="hero-proof__label">action</div>
-                <div class="hero-proof__value">Settled payment request and emitted receipt</div>
+                <div class="hero-proof__label">result</div>
+                <div class="hero-proof__value">Receipt validated against the canonical contract</div>
               </div>
               <div class="hero-proof__row">
-                <div class="hero-proof__label">proof</div>
-                <div class="hero-proof__value hero-proof__value--blue mono">sha256: 7e61b75b6c1c...f4c1<br />ed25519 signature</div>
+                <div class="hero-proof__label">runtime extras</div>
+                <div class="hero-proof__value hero-proof__value--blue mono">optional trace / proof / metadata</div>
               </div>
             </div>
-            <div class="hero-proof__footer">Signed • Inspectable • Reproducible</div>
+            <div class="hero-proof__footer">Flat base receipt first • Runtime additions optional</div>
           </aside>
         </div>
 
@@ -1033,8 +1033,8 @@ body {
       <div class="container">
         <div class="section__header">
           <p class="section__eyebrow">Solution</p>
-          <h2>CommandLayer makes agent execution provable.</h2>
-          <p>Every action emits a receipt tied to identity. Runtimes may add signatures, trace, and orchestration metadata on top.</p>
+          <h2>CommandLayer makes the contract boundary explicit.</h2>
+          <p>Commons defines the minimum verifiable receipt. Runtime executes the action and can optionally add signatures, trace, timing, and orchestration metadata on top.</p>
         </div>
 
         <div class="two-up">
@@ -1086,7 +1086,7 @@ body {
         <div class="section__header">
           <p class="section__eyebrow">Receipts</p>
           <h2>Not output. Evidence.</h2>
-          <p>Commons receipts bind identity to execution with a minimum canonical contract. Runtimes may attach extra metadata for proof and multi-step coordination.</p>
+          <p>Start with the flat Commons receipt as the canonical protocol truth. Only after that should viewers read any runtime metadata for proof, chaining, or execution context.</p>
         </div>
 
         <div class="receipt-showcase">
@@ -1107,20 +1107,20 @@ body {
               <span>signed / inspectable / reproducible</span>
             </div>
 <pre><code>{
-  "status": "success",
+  "status": "ok",
   "x402": {
     "verb": "verify",
-    "version": "1.0.0"
+    "version": "v1.1.0"
   },
   "result": {
-    "settlement": "confirmed",
-    "receipts_emitted": 3
+    "verified": true,
+    "summary": "Receipt matches the Commons contract"
   }
 }</code></pre>
           </div>
         </div>
         <div class="receipt-bridge">
-          The live demo uses simple Commons verbs like <code>fetch</code>, <code>analyze</code>, and <code>summarize</code>. High-stakes runtimes can layer trace, proof, and policy metadata on top without changing the minimum receipt contract websites should teach first.
+          The live demo uses simple Commons verbs like <code>fetch</code>, <code>analyze</code>, and <code>summarize</code>. Runtime may layer trace, proof, and policy metadata on top, but those fields are execution-layer additions rather than the canonical receipt a website should teach first.
         </div>
       </div>
     </section>
