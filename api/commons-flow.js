@@ -112,6 +112,35 @@ function normalizeInput(input) {
   return { content: String(input) };
 }
 
+
+function pickBestTextFromResult(result) {
+  if (!result || typeof result !== "object") return "";
+
+  const candidates = [
+    result.summary,
+    result.cleaned_content,
+    result.formatted_content,
+    result.description,
+    result.explanation,
+    result.converted_content,
+    result.body_preview,
+    result.analysis,
+    result.content,
+  ].filter(Boolean).map(String);
+
+  if (candidates.length) return candidates[0];
+
+  if (Array.isArray(result.items) && result.items[0] && result.items[0].body_preview) {
+    return String(result.items[0].body_preview);
+  }
+
+  try {
+    return JSON.stringify(result);
+  } catch {
+    return String(result);
+  }
+}
+
 function normalizeRuntimeBase(url) {
   // You want canonical runtime.commandlayer.org
   // - trim, remove trailing slash
@@ -271,10 +300,11 @@ module.exports = async function handler(req, res) {
     const verb = String(s?.verb || "").trim();
     if (!verb || !COMMON_VERBS.includes(verb)) continue;
 
+    const use_previous_result = !!s?.use_previous_result;
     const inputObj = normalizeInput(s?.input);
-    if (inputObj == null) continue;
+    if (inputObj == null && !use_previous_result) continue;
 
-    steps.push({ index: steps.length, verb, input: inputObj });
+    steps.push({ index: steps.length, verb, input: inputObj, use_previous_result });
   }
 
   if (!steps.length) {
@@ -298,7 +328,27 @@ module.exports = async function handler(req, res) {
 
   for (const step of steps) {
     const runtimeUrl = `${RUNTIME_BASE}/${step.verb}/v${VERSION}`;
-    const runtimeReq = buildRuntimeRequest(step.verb, trace_id, step.input);
+    let stepInput = step.input;
+
+    if (step.use_previous_result) {
+      const previousReceipt = responseSteps[responseSteps.length - 1]?.receipt;
+      const previousText = pickBestTextFromResult(previousReceipt?.result).trim();
+      if (!previousText) {
+        return res.status(400).json({
+          error: "Previous step result unavailable for chained input",
+          detail: { verb: step.verb, index: step.index },
+          meta: {
+            mode: "runtime-backed",
+            runtime_base: RUNTIME_BASE,
+            runtime_health,
+            server_time: nowIso(),
+          },
+        });
+      }
+      stepInput = { content: previousText };
+    }
+
+    const runtimeReq = buildRuntimeRequest(step.verb, trace_id, stepInput);
 
     const r = await postJson(runtimeUrl, runtimeReq, 20000);
 
