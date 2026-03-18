@@ -169,6 +169,12 @@
         background: rgba(15, 23, 42, 0.7);
       }
 
+      .site-header__dropdown-btn--active {
+        color: #020617;
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+
       .site-header__dropdown-menu {
         position: absolute;
         top: 2.3rem;
@@ -526,7 +532,7 @@
             <a href="/quickstart.html" class="site-header__link">Quickstart</a>
 
             <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button">
+              <button class="site-header__dropdown-btn site-header__dropdown-btn--active" type="button">
                 Docs &#9662;
               </button>
               <div class="site-header__dropdown-menu">
@@ -562,7 +568,7 @@
               <div class="subhero__eyebrow">Commons</div>
               <h1 class="subhero__title">Commons defines the canonical receipt (v1.1.0)</h1>
               <p class="subhero__subtitle">
-                Commons is the public-goods contract layer: 10 universal verbs, each with a strict <code>*.request</code> and <code>*.receipt</code>
+                Commons is the canonical public-goods contract layer: 10 universal verbs, each with a strict <code>*.request</code> and <code>*.receipt</code>
                 JSON Schema. This is the minimum verifiable receipt surface judges and builders should learn first.
                 Commons and Commercial share the same contract-first philosophy, and <strong>Runtime may enrich execution</strong>
                 without replacing the canonical Commons contract.
@@ -595,8 +601,7 @@
               <h2>What the Commons layer is</h2>
               <p>
                 Commons is CommandLayer’s small, stable core: a shared language for machine intent and the
-                minimum verifiable receipt. Each verb is pinned to a pair of JSON Schemas so clients and agents
-                can agree on the canonical request and receipt shape before any runtime-specific metadata enters the picture.
+                minimum verifiable receipt. Commons and Commercial share the same contract-first philosophy, but Commons is the public-goods semantic layer builders should learn before any runtime-specific enrichment enters the picture.
               </p>
             </div>
 
@@ -625,6 +630,9 @@
                 </p>
               </article>
             </div>
+            <p style="margin:1.15rem 0 0; color: var(--text-muted); line-height: 1.7;">
+              Commons and Commercial define contract surfaces; Agent Cards define discovery; Runtime defines execution. Verification and runtime proof can layer on top of Commons receipts without changing Commons semantics.
+            </p>
           </div>
         </section>
 

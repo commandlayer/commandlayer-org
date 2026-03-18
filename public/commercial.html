@@ -170,6 +170,12 @@
         background: rgba(15, 23, 42, 0.7);
       }
 
+      .site-header__dropdown-btn--active {
+        color: #020617;
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+
       .site-header__dropdown-menu {
         position: absolute;
         top: 2.3rem;
@@ -495,7 +501,7 @@
             <a href="/quickstart.html" class="site-header__link">Quickstart</a>
 
             <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button">
+              <button class="site-header__dropdown-btn site-header__dropdown-btn--active" type="button">
                 Docs &#9662;
               </button>
               <div class="site-header__dropdown-menu">
@@ -531,11 +537,8 @@
               <div class="subhero__eyebrow">Commercial</div>
               <h1 class="subhero__title">Commercial Verbs (v1.0.0)</h1>
               <p class="subhero__subtitle">
-                The <strong>economic contract layer</strong> of CommandLayer — verbs and schemas for
-                payments, settlement, fulfillment, and verification. Commercial extends the canonical contract model:
-                stable request/receipt schemas first, runtime execution metadata second. It builds on Commons semantics
-                and x402 transport so agents can <strong>authorize, checkout, purchase, ship, and verify</strong> with stable,
-                shared JSON contracts. Schemas remain public and portable; monetization lives in execution.
+                The economic contract layer of CommandLayer — verbs and schemas for
+                payments, settlement, fulfillment, and verification. Commercial extends the canonical contract model: stable request/receipt schemas first, runtime execution metadata second. <strong>All schemas are permanently free</strong>; monetization lives in execution, not in the verb language.
               </p>
             </div>
             <div class="subhero__meta">
@@ -558,9 +561,7 @@
               <p>
                 Commercial verbs capture the higher-value actions agents perform when money,
                 risk, and fulfillment are involved: taking payments, settling purchases,
-                shipping goods, and verifying identities. Commons gives you the shared
-                language for analysis and formatting; Commercial extends that language into
-                economic flows that can plug cleanly into x402 and ERC-8004 rails.
+                shipping goods, and verifying identities. Commercial extends the same contract model used across CommandLayer, building on Commons semantics rather than introducing a separate ideology or gated language layer.
               </p>
             </div>
 
@@ -580,7 +581,7 @@
                 <p>
                   Commercial assumes Commons exists. Analysis, summarization, parsing, and
                   formatting wrap around payment and logistics flows, so you don’t invent
-                  new formats every time you connect an economic agent.
+                  new formats every time you connect an economic agent. Commercial does not change the rule that semantics stay open.
                 </p>
               </article>
 
@@ -588,11 +589,13 @@
                 <h3>Schemas free, execution priced</h3>
                 <p>
                   Commercial schemas are versioned, pinned, and free to implement under
-                  Apache-2.0. Pricing, routing, SLAs, and guarantees live in the
-                  <strong>Runtime layer</strong>, not in the schema definitions.
+                  Apache-2.0. Schemas remain public and portable; monetization lives in execution through routing, guarantees, throughput, settlement, and other <strong>Runtime layer</strong> service surfaces.
                 </p>
               </article>
             </div>
+            <p style="margin:1.15rem 0 0; color: var(--text-muted); line-height: 1.7;">
+              Schemas remain public and portable; monetization lives in execution. Commercial does not change the rule that semantics stay open.
+            </p>
           </div>
         </section>
 
@@ -605,7 +608,7 @@
                 Initial set of economic verbs. Each row lists the verb, its purpose, and direct
                 links to the <strong>request</strong> and <strong>receipt</strong> JSON Schemas
                 under <code>https://commandlayer.org</code>. These schemas are the stable contracts
-                for the current commercial release, v1.0.0.
+                for the current commercial release, v1.0.0: request/receipt schemas first, runtime execution metadata second.
               </p>
             </div>
 
@@ -765,15 +768,12 @@
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem;">
                 In CommandLayer’s reference flows, the client builds a
                 <code>checkout.request</code>, validates it against the Commercial schema, sends it
-                into a runtime, and receives a <code>checkout.receipt</code> with trace IDs and
-                result fields. Later steps reuse the same pattern for
-                <code>purchase</code>, <code>ship</code>, and <code>verify</code> — only the verb
-                and result shape change.
+                into a runtime, and receives a canonical <code>checkout.receipt</code> first. Later steps may include trace IDs, proofs, and orchestration fields as runtime metadata, but the contract stays anchored to the portable receipt shape for
+                <code>purchase</code>, <code>ship</code>, and <code>verify</code>.
               </p>
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">
                 As x402 and ERC-8004 adoption grows, these same Commercial schemas slot into
-                x402-compatible payment and agent rails. Semantics stay fixed; routing, pricing,
-                and guarantees live in the Runtime layer.
+                x402-compatible payment and agent rails. Schemas remain public and portable; routing, pricing, guarantees, and settlement live in the Runtime layer.
               </p>
             </div>
           </div>
@@ -791,8 +791,7 @@
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem;">
                 Commercial schemas are published under <strong>Apache-2.0</strong> and treated as
                 open building blocks for the agent economy. Anyone can implement them; there is no
-                per-schema licensing. Commercial does not change the rule that semantics stay open.
-                Monetization sits in Runtime endpoints, SLAs, and routing — not in who is allowed to speak the verb language.
+                per-schema licensing. Schemas remain public and portable, and monetization sits in Runtime endpoints, SLAs, routing, throughput, and settlement surfaces — not in who is allowed to speak the verb language.
               </p>
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">
                 Future Commercial verbs (refunds, payouts, subscriptions, risk, and more) will

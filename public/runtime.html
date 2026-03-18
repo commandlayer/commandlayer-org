@@ -152,6 +152,12 @@
         background: rgba(15, 23, 42, 0.7);
       }
 
+      .site-header__dropdown-btn--active {
+        color: #020617;
+        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+        border-color: rgba(255, 255, 255, 0.25);
+      }
+
       .site-header__dropdown-menu {
         position: absolute;
         top: 2.35rem;
@@ -400,7 +406,7 @@
       }
 
       .site-footer__inner {
-        padding: 1.4rem 1.5rem 1.8rem;
+        padding: 1.8rem 1.5rem 2rem;
         font-size: 0.78rem;
         color: var(--text-soft);
       }
@@ -415,26 +421,43 @@
       .site-footer__col {
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
+        gap: 0.6rem;
+      }
+
+      .site-footer__row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 2rem;
+      }
+
+      .site-footer__col {
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
       }
 
       .site-footer__col-title {
-        color: var(--accent-strong);
-        font-size: 0.76rem;
-        font-weight: 600;
-        letter-spacing: 0.08em;
+        font-size: 0.72rem;
         text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--text-soft);
+        margin-bottom: 0.2rem;
       }
 
       .site-footer__cid {
-        color: var(--text-muted);
-        line-height: 1.5;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.72rem;
+        color: var(--accent-muted);
+        word-break: break-all;
       }
 
       .site-footer__links {
         display: flex;
         gap: 0.8rem;
-        flex-wrap: wrap;
+        margin-top: 0.8rem;
+        padding-top: 0.8rem;
+        border-top: 1px solid var(--border-soft);
       }
 
       .site-footer__links a {
@@ -487,7 +510,7 @@
             <a href="/quickstart.html" class="site-header__link">Quickstart</a>
 
             <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button">
+              <button class="site-header__dropdown-btn site-header__dropdown-btn--active" type="button">
                 Docs &#9662;
               </button>
               <div class="site-header__dropdown-menu">
@@ -527,15 +550,11 @@
               </h1>
 
               <p class="hero__subtitle">
-                Commons and Commercial define the contract. Runtime defines execution.
-                It runs pinned Commons and Commercial contracts and may attach <strong>optional</strong> trace, proof,
-                timing, and orchestration metadata — without changing the base receipt semantics.
+                Commons and Commercial define the contract. Runtime defines execution. Runtime is the <strong>execution surface</strong>: it runs pinned Commons and Commercial contracts and may attach <strong>optional</strong> trace, proof, timing, and orchestration metadata without changing the base receipt semantics.
               </p>
 
               <p class="hero__subtitle" style="margin-top:0.85rem;">
-                Today, Runtime is the live reference proving surface for CommandLayer flows. Runtime proof is an
-                execution-layer addition around the canonical receipt, not the canonical receipt itself. Broader
-                runtime policy, metering, guarantees, and ecosystem expansion are still in flight.
+                Today, Runtime is live as the reference proving surface for CommandLayer flows. Broader runtime policy, metering, guarantees, and ecosystem expansion are still in flight, but the execution layer already proves pinned contracts can run without redefining canonical receipt semantics.
               </p>
 
               <div class="hero__cta-row">
@@ -563,11 +582,11 @@
                 schemas and produces evidence.
               </p>
               <ul>
-                <li><strong>Is:</strong> a reference runtime that executes schema-stable verbs.</li>
-                <li><strong>Is:</strong> an execution layer that can attach trace, proof, timing, and orchestration metadata around the canonical receipt.</li>
-                <li><strong>Is:</strong> a proving surface — not just logs or responses.</li>
-                <li><strong>Is not:</strong> a closed semantic system — contracts remain public and portable.</li>
-                <li><strong>Is not:</strong> a finished policy or billing platform (yet).</li>
+                <li><strong>Is:</strong> a reference runtime that executes schema-stable Commons and Commercial verbs.</li>
+                <li><strong>Is:</strong> an execution layer that may attach optional proof and orchestration metadata around the canonical receipt.</li>
+                <li><strong>Is:</strong> a live proving surface — not just logs or responses.</li>
+                <li><strong>Is not:</strong> a closed semantic system — contracts and schemas remain public and portable.</li>
+                <li><strong>Is not:</strong> the finished shape of policy, metering, guarantees, or billing.</li>
               </ul>
             </aside>
           </div>
@@ -579,7 +598,7 @@
             <div class="section__header">
               <h2>Where Runtime sits in the stack</h2>
               <p>
-                Runtime sits above schemas and below applications. Commons defines the minimum receipt contract; Runtime consumes those schemas and may attach execution metadata where orchestration, tracing, and proof are needed.
+                Runtime sits above schemas and below applications. Commons defines the minimum verifiable receipt contract, Commercial extends the same contract model for economic flows, and Runtime consumes those pinned contracts to execute them with optional metadata where orchestration, tracing, and proof are needed.
               </p>
             </div>
 
@@ -601,7 +620,7 @@
               <article class="info-card">
                 <h3>Outputs</h3>
                 <p>
-                  Commons receipts first; optional runtime fields like <code>trace</code> and <code>metadata.proof</code> second. Clients should not confuse orchestration metadata with the core contract.
+                  Commons receipt first, runtime metadata second. Clients should not confuse execution-layer fields like <code>trace</code> and <code>metadata.proof</code> with the core contract.
                 </p>
               </article>
             </div>
@@ -632,8 +651,7 @@
                 <li><strong>Verification:</strong> schema + hash + signature can be checked independently.</li>
               </ul>
               <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                This layer is intentionally narrow: it proves the contract can be executed and proven reliably before
-                layering in commercial policy and economics.
+                Runtime proof is an execution-layer addition around the canonical receipt, not the canonical receipt itself. This layer is intentionally narrow: it proves the contract can be executed and proven reliably before layering in commercial policy and economics.
               </p>
             </div>
           </div>
@@ -684,7 +702,7 @@
               <ul>
                 <li><strong>Schemas remain public:</strong> the verb language stays accessible and portable.</li>
                 <li><strong>Receipts remain portable:</strong> evidence can be verified without trusting a vendor.</li>
-                <li><strong>Execution carries cost:</strong> guarantees, policy, reliability, and metering live at runtime.</li>
+                <li><strong>Execution carries cost:</strong> guarantees, routing, policy, reliability, and metering live at runtime.</li>
               </ul>
 
               <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
@@ -721,7 +739,7 @@
   }
 }</pre>
               <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                Runtime may add fields like <code>trace</code>, <code>usage</code>, or <code>metadata.proof</code> for execution, orchestration, and verification, but those remain runtime-specific additions and should never be mistaken for the canonical Commons receipt.
+                Runtime may add fields like <code>trace</code>, <code>usage</code>, or <code>metadata.proof</code> as an optional proof layer for execution, orchestration, and verification, but those remain runtime-specific additions around the canonical receipt and should never be mistaken for the canonical Commons receipt itself.
               </p>
             </div>
           </div>
@@ -743,7 +761,7 @@
               </ul>
 
               <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                Simple model: Commons receipt first, runtime metadata second. Semantics stay open. Execution becomes infrastructure.
+                Simple model: Commons and Commercial define the contract. Runtime defines execution. Semantics stay open. Execution becomes infrastructure.
               </p>
             </div>
           </div>

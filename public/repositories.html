@@ -562,179 +562,161 @@ GitHub
 <h1>Repositories</h1>
 <p>
 CommandLayer is a layered protocol stack: contract, discovery, execution, and tooling.
-Each repository owns a precise place in that architecture so canonical contracts stay distinct from routing metadata and execution metadata.
+Each repository owns one clear responsibility so canonical contracts stay portable while runtimes and clients build around them.
 </p>
 </div>
 </section>
 
-
-<!-- SCHEMAS -->
+<!-- STACK -->
 <section class="section">
 <div class="container">
 <div class="section__header">
-<h2>Contract and discovery</h2>
-<p>Read the stack in order: canonical contracts first, discovery metadata second.</p>
+<h2>Protocol stack</h2>
+<p>Read the repositories in stack order: contracts first, discovery next, execution after that, then tooling and publishing.</p>
 </div>
 
 <div class="repo-grid">
 <article class="repo-card">
-<div class="layer-label">schemas</div>
+<div class="layer-label">contract</div>
 <h3 class="repo-card__name">
 <a href="https://github.com/commandlayer/protocol-commons" target="_blank" rel="noopener noreferrer">protocol-commons</a>
 </h3>
 <p class="repo-card__desc">
-Canonical public contract base truth. Commons v1.1.0 defines the minimum verifiable receipt and the portable request/receipt schemas builders should learn first.
+The canonical contract base truth for CommandLayer. Commons defines the public request/receipt schemas, the minimum verifiable receipt, and the portable semantic layer builders should target first.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">MIT</span>
-<span class="repo-card__tag">JSON Schema</span>
+<span class="repo-card__tag">Canonical contract</span>
 <span class="repo-card__tag">IPFS-pinned</span>
 </div>
 </article>
 
 <article class="repo-card">
-<div class="layer-label">schemas</div>
+<div class="layer-label">contract</div>
 <h3 class="repo-card__name">
 <a href="https://github.com/commandlayer/protocol-commercial" target="_blank" rel="noopener noreferrer">protocol-commercial</a>
 </h3>
 <p class="repo-card__desc">
-Economic contract layer extending Commons. Commercial v1.0.0 carries stable schemas for authorize, checkout, purchase, ship, and verify without monetizing semantics.
+The economic contract layer that extends Commons with stable request/receipt schemas for payments, fulfillment, logistics, and verification. Commercial builds on Commons semantics instead of competing with them.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">Apache-2.0</span>
-<span class="repo-card__tag">JSON Schema</span>
+<span class="repo-card__tag">Economic contracts</span>
+<span class="repo-card__tag">Portable schemas</span>
+</div>
+</article>
+
+<article class="repo-card">
+<div class="layer-label">discovery</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/agent-cards" target="_blank" rel="noopener noreferrer">agent-cards</a>
+</h3>
+<p class="repo-card__desc">
+The identity, discovery, and routing layer. Agent Cards describe who an agent is, what capabilities it exposes, which schema versions it supports, and which entrypoints clients should call without redefining contract semantics.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">Apache-2.0</span>
+<span class="repo-card__tag">Identity + routing</span>
+<span class="repo-card__tag">IPFS-pinned</span>
+</div>
+</article>
+
+<article class="repo-card">
+<div class="layer-label">tooling</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/sdk" target="_blank" rel="noopener noreferrer">sdk</a>
+</h3>
+<p class="repo-card__desc">
+Client tooling above contracts and runtime. The SDK helps applications discover agents, call pinned contract surfaces, and verify canonical receipts plus any optional runtime metadata they receive back.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">License: see repo</span>
+<span class="repo-card__tag">TypeScript + Python</span>
+<span class="repo-card__tag">Client tooling</span>
+</div>
+</article>
+
+<article class="repo-card">
+<div class="layer-label">execution</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/runtime-core" target="_blank" rel="noopener noreferrer">runtime-core</a>
+</h3>
+<p class="repo-card__desc">
+Shared execution primitives used by runtime implementations: schema validation, canonical serialization, signing helpers, and execution-layer utilities that may attach proof and orchestration metadata around canonical receipts.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">Execution primitives</span>
+<span class="repo-card__tag">Shared library</span>
+</div>
+</article>
+
+<article class="repo-card">
+<div class="layer-label">execution</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/runtime-core" target="_blank" rel="noopener noreferrer">runtime-core</a>
+</h3>
+<p class="repo-card__desc">
+The live reference execution surface for Commons and Commercial contracts. It executes pinned schemas and may attach proof and orchestration metadata around canonical receipts without redefining the contract layer.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">Reference runtime</span>
+<span class="repo-card__tag">Execution surface</span>
+</div>
+</article>
+
+<article class="repo-card">
+<div class="layer-label">execution</div>
+<h3 class="repo-card__name">
+<a href="https://github.com/commandlayer/commercial-runtime" target="_blank" rel="noopener noreferrer">commercial-runtime</a>
+</h3>
+<p class="repo-card__desc">
+Commercial execution implementation for economic flows. It applies the same contract-first model to payment, checkout, purchase, shipping, and verification flows, and may attach proof and orchestration metadata around canonical receipts.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">Commercial execution</span>
 <span class="repo-card__tag">x402-aligned</span>
 </div>
 </article>
 
 <article class="repo-card">
-<div class="layer-label">schemas</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/agent-cards" target="_blank" rel="noopener noreferrer">agent-cards</a>
-</h3>
-<p class="repo-card__desc">
-Identity, discovery, and routing metadata for agents. Agent Cards describe identity, capabilities, schema versions, and entrypoints without redefining receipt semantics.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">Apache-2.0</span>
-<span class="repo-card__tag">ENS</span>
-<span class="repo-card__tag">IPFS-pinned</span>
-</div>
-</article>
-</div>
-</div>
-</section>
-
-
-<!-- SDK -->
-<section class="section section--muted">
-<div class="container">
-<div class="section__header">
-<h2>Tooling</h2>
-<p>Client tooling sits above contracts and runtimes.</p>
-</div>
-
-<div class="repo-grid">
-<article class="repo-card">
-<div class="layer-label">sdk</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/sdk" target="_blank" rel="noopener noreferrer">sdk</a>
-</h3>
-<p class="repo-card__desc">
-Client tooling for calling pinned Commons and Commercial contracts, resolving Agent Cards, and verifying canonical receipts plus optional runtime metadata.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">TypeScript</span>
-<span class="repo-card__tag">Python</span>
-</div>
-</article>
-</div>
-</div>
-</section>
-
-
-<!-- RUNTIME -->
-<section class="section">
-<div class="container">
-<div class="section__header">
-<h2>Execution</h2>
-<p>Execution repositories validate pinned contracts and may attach proof and orchestration metadata around canonical receipts.</p>
-</div>
-
-<div class="repo-grid">
-<article class="repo-card">
-<div class="layer-label">runtime</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/runtime-core" target="_blank" rel="noopener noreferrer">runtime-core</a>
-</h3>
-<p class="repo-card__desc">
-Shared execution primitives: schema validation, canonical serialization, signing helpers, and orchestration building blocks used across runtime implementations.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">Execution layer</span>
-<span class="repo-card__tag">TypeScript</span>
-</div>
-</article>
-
-<article class="repo-card">
-<div class="layer-label">runtime</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/runtime" target="_blank" rel="noopener noreferrer">runtime</a>
-</h3>
-<p class="repo-card__desc">
-Reference execution surface for CommandLayer. Validates pinned contracts and may attach proof and orchestration metadata around canonical receipts.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">Reference runtime</span>
-<span class="repo-card__tag">Ed25519</span>
-</div>
-</article>
-
-<article class="repo-card">
-<div class="layer-label">runtime</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/commercial-runtime" target="_blank" rel="noopener noreferrer">commercial-runtime</a>
-</h3>
-<p class="repo-card__desc">
-Commercial execution implementation for economic flows. Runs Commercial contracts and may attach proof and orchestration metadata around canonical receipts.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">Commercial execution</span>
-<span class="repo-card__tag">x402</span>
-</div>
-</article>
-</div>
-</div>
-</section>
-
-
-<!-- SITE -->
-<section class="section section--muted">
-<div class="container">
-<div class="section__header">
-<h2>Publishing</h2>
-<p>Docs, demos, and public protocol publishing.</p>
-</div>
-
-<div class="repo-grid">
-<article class="repo-card">
-<div class="layer-label">docs</div>
+<div class="layer-label">publishing</div>
 <h3 class="repo-card__name">
 <a href="https://github.com/commandlayer/commandlayer-org" target="_blank" rel="noopener noreferrer">commandlayer-org</a>
 </h3>
 <p class="repo-card__desc">
-Public publishing surface for docs, demos, schema links, and architectural guidance. It teaches the layered stack and keeps the public contract surfaces easy to inspect.
+The public publishing surface for docs, schemas, quickstart flows, and demos. This repo teaches the architecture, hosts the portable contracts, and shows how the stack fits together for builders and judges.
 </p>
 <div class="repo-card__meta">
-<span class="repo-card__tag">HTML</span>
-<span class="repo-card__tag">Vercel</span>
+<span class="repo-card__tag">Docs + demo</span>
+<span class="repo-card__tag">Publishing surface</span>
+</div>
+</article>
+</div>
+</div>
+</section>
+
+<section class="section section--muted">
+<div class="container">
+<div class="section__header">
+<h2>Architecture rule</h2>
+<p>Contracts define meaning first. Discovery and execution build around them.</p>
+</div>
+<div class="repo-grid">
+<article class="repo-card">
+<div class="layer-label">stack rule</div>
+<h3 class="repo-card__name">Canonical receipt first</h3>
+<p class="repo-card__desc">
+Commons and Commercial define the canonical request/receipt surfaces. Agent Cards describe discovery and routing. Runtime layers may add execution evidence, but proof fields sit around canonical contracts rather than inside the contract definition layer.
+</p>
+<div class="repo-card__meta">
+<span class="repo-card__tag">Contract first</span>
+<span class="repo-card__tag">Execution second</span>
 </div>
 </article>
 </div>
 </div>
 </section>
 </main>
-
 
 <!-- TECHNICAL FOOTER -->
 <footer class="site-footer">
