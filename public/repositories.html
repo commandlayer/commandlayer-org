@@ -306,15 +306,21 @@ color: var(--text-muted);
 
 /* Layer label */
 .layer-label {
-display: inline-block;
-font-size: 0.72rem;
+display: inline-flex;
+align-items: center;
+width: fit-content;
+font-size: 0.68rem;
+font-weight: 600;
 text-transform: uppercase;
-letter-spacing: 0.11em;
-color: rgba(197, 203, 224, 0.88);
-border: 1px solid rgba(255, 255, 255, 0.08);
+letter-spacing: 0.14em;
+color: #8dc2ff;
+border: 1px solid rgba(96, 165, 250, 0.78);
 border-radius: 999px;
-padding: 0.12rem 0.5rem;
+padding: 0.18rem 0.58rem;
 margin-bottom: 0.65rem;
+background: linear-gradient(180deg, rgba(5, 10, 22, 0.96) 0%, rgba(4, 8, 18, 0.92) 100%);
+box-shadow: inset 0 0 0 1px rgba(191, 219, 254, 0.05),
+0 0 10px rgba(59, 130, 246, 0.16);
 }
 
 
@@ -330,9 +336,8 @@ gap: 1rem;
 background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(9, 14, 28, 0.96) 100%);
 padding: 1.1rem 1.2rem;
 border-radius: var(--radius-lg);
-border: 1px solid rgba(59, 130, 246, 0.75);
-box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25),
-0 0 14px rgba(59, 130, 246, 0.10),
+border: 1px solid rgba(255, 255, 255, 0.08);
+box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03),
 0 16px 30px rgba(2, 6, 23, 0.42);
 display: flex;
 flex-direction: column;
@@ -343,9 +348,8 @@ transform 150ms ease;
 
 
 .repo-card:hover {
-border-color: rgba(59, 130, 246, 0.95);
-box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.45),
-0 0 18px rgba(59, 130, 246, 0.18),
+border-color: rgba(255, 255, 255, 0.12);
+box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04),
 0 20px 34px rgba(2, 6, 23, 0.5);
 transform: translateY(-2px);
 }
