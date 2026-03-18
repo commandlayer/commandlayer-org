@@ -2,1086 +2,1177 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CommandLayer — Semantic Execution + Receipt Layer for ERC-8004</title>
+<title>CommandLayer — The Trust Layer for Agent Execution</title>
 <meta
-name="viewport"
-content="width=device-width, initial-scale=1, viewport-fit=cover"
+  name="viewport"
+  content="width=device-width, initial-scale=1, viewport-fit=cover"
 />
 <meta
-name="description"
-content="CommandLayer is the semantic execution and receipt layer for ERC-8004-discoverable services. Typed verbs, JSON Schema-validated requests, canonical hashing, signature verification, and deterministic receipts."
+  name="description"
+  content="CommandLayer is the trust layer for agent execution: run multi-step agent flows, bind actions to ERC-8004 and ENS identity, and verify every result with signed receipts."
 />
-
 
 <style>
 :root {
---bg: #05060a;
---bg-elevated: #0a0c14;
---bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
---border-soft: rgba(255, 255, 255, 0.06);
---border-strong: rgba(255, 255, 255, 0.18);
---accent: #c5cbe0;
---accent-strong: #e3e7ff;
---accent-muted: #8f96b5;
---text-main: #f7f8ff;
---text-muted: #9ca3c7;
---text-soft: #6b7280;
---radius-lg: 16px;
---radius-xl: 24px;
---shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
---max-width: 1120px;
+  --bg: #05060a;
+  --bg-elevated: #0a0c14;
+  --bg-panel: rgba(10, 12, 20, 0.82);
+  --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+  --border-soft: rgba(255, 255, 255, 0.06);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --accent: #c5cbe0;
+  --accent-strong: #eef2ff;
+  --accent-muted: #8f96b5;
+  --text-main: #f7f8ff;
+  --text-muted: #a3abca;
+  --text-soft: #6b7280;
+  --success: #86efac;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --shadow-soft: 0 24px 80px rgba(0, 0, 0, 0.55);
+  --max-width: 1120px;
 }
-
 
 * {
-box-sizing: border-box;
+  box-sizing: border-box;
 }
-
 
 html,
 body {
-margin: 0;
-padding: 0;
-font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-"Inter", sans-serif;
-background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
-color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+  background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+  color: var(--text-main);
 }
-
 
 body {
-min-height: 100vh;
+  min-height: 100vh;
 }
-
 
 .page-shell {
-min-height: 100vh;
-display: flex;
-flex-direction: column;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
-
 
 .page-main {
-flex: 1;
+  flex: 1;
 }
-
 
 .container {
-width: 100%;
-max-width: var(--max-width);
-margin: 0 auto;
-padding: 0 1.5rem;
+  width: 100%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.5rem;
 }
 
-
-/* Header */
 .site-header {
-background: var(--bg-header);
-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-position: sticky;
-top: 0;
-z-index: 20;
-backdrop-filter: blur(18px);
+  background: var(--bg-header);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(18px);
 }
-
 
 .site-header__inner {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 0.9rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.9rem 1.5rem;
 }
-
 
 .site-header__brand {
-display: flex;
-align-items: center;
-gap: 0.75rem;
-text-decoration: none;
-color: inherit;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  text-decoration: none;
+  color: inherit;
 }
-
 
 .site-header__logo-img {
-width: 28px;
-height: 28px;
-object-fit: contain;
-display: block;
-border-radius: 6px;
-box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
-0 14px 40px rgba(0, 0, 0, 0.9);
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+  border-radius: 6px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
 }
-
 
 .site-header__text {
-display: flex;
-flex-direction: column;
+  display: flex;
+  flex-direction: column;
 }
-
 
 .site-header__title {
-font-size: 0.98rem;
-font-weight: 600;
-letter-spacing: 0.03em;
+  font-size: 0.98rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
-
 
 .site-header__subtitle {
-font-size: 0.78rem;
-color: var(--text-muted);
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
-
 
 .site-header__nav {
-display: flex;
-gap: 1rem;
-align-items: center;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
 }
-
 
 .site-header__link {
-font-size: 0.86rem;
-padding: 0.35rem 0.8rem;
-border-radius: 999px;
-text-decoration: none;
-color: var(--text-muted);
-border: 1px solid transparent;
-white-space: nowrap;
+  font-size: 0.86rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  text-decoration: none;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+  white-space: nowrap;
 }
-
 
 .site-header__link:hover {
-color: var(--accent-strong);
-border-color: rgba(255, 255, 255, 0.18);
-background: rgba(15, 23, 42, 0.7);
+  color: var(--accent-strong);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(15, 23, 42, 0.7);
 }
-
 
 .site-header__link--active {
-color: #020617;
-background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-border-color: rgba(255, 255, 255, 0.25);
+  color: #020617;
+  background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
-
-/* Docs dropdown */
 .site-header__dropdown {
-position: relative;
+  position: relative;
 }
-
 
 .site-header__dropdown-btn {
-font-size: 0.86rem;
-padding: 0.35rem 0.8rem;
-border-radius: 999px;
-border: 1px solid transparent;
-background: transparent;
-color: var(--text-muted);
-display: inline-flex;
-align-items: center;
-gap: 0.25rem;
-cursor: pointer;
+  font-size: 0.86rem;
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
 }
-
 
 .site-header__dropdown-btn:hover {
-color: var(--accent-strong);
-border-color: rgba(255, 255, 255, 0.18);
-background: rgba(15, 23, 42, 0.7);
+  color: var(--accent-strong);
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(15, 23, 42, 0.7);
 }
-
 
 .site-header__dropdown-menu {
-position: absolute;
-top: 2.3rem;
-right: 0;
-background: rgba(15, 23, 42, 0.98);
-border-radius: 14px;
-border: 1px solid var(--border-soft);
-box-shadow: var(--shadow-soft);
-padding: 0.5rem 0.4rem;
-min-width: 210px;
-display: none;
+  position: absolute;
+  top: 2.3rem;
+  right: 0;
+  background: rgba(15, 23, 42, 0.98);
+  border-radius: 14px;
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+  padding: 0.5rem 0.4rem;
+  min-width: 210px;
+  display: none;
 }
-
 
 .site-header__dropdown-menu a {
-display: block;
-padding: 0.35rem 0.7rem;
-font-size: 0.82rem;
-text-decoration: none;
-color: var(--text-muted);
-border-radius: 999px;
+  display: block;
+  padding: 0.35rem 0.7rem;
+  font-size: 0.82rem;
+  text-decoration: none;
+  color: var(--text-muted);
+  border-radius: 999px;
 }
-
 
 .site-header__dropdown-menu a:hover {
-color: var(--accent-strong);
-background: rgba(31, 41, 55, 0.95);
+  color: var(--accent-strong);
+  background: rgba(31, 41, 55, 0.95);
 }
-
 
 .site-header--docs-open .site-header__dropdown-menu {
-display: block;
+  display: block;
 }
 
-
-/* Mobile toggle */
 .site-header__toggle {
-display: none;
-border-radius: 999px;
-border: 1px solid rgba(148, 163, 184, 0.7);
-background: rgba(15, 23, 42, 0.9);
-color: var(--text-main);
-padding: 0.25rem 0.6rem;
-font-size: 0.9rem;
-cursor: pointer;
+  display: none;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--text-main);
+  padding: 0.25rem 0.6rem;
+  font-size: 0.9rem;
+  cursor: pointer;
 }
-
 
 .site-header__toggle:hover {
-background: rgba(15, 23, 42, 1);
+  background: rgba(15, 23, 42, 1);
 }
 
-
-/* Hero */
 .hero {
-padding: 4rem 0 3.5rem;
-border-bottom: 1px solid var(--border-soft);
-background: radial-gradient(circle at 0 0, #111827, #020308);
+  padding: 4.5rem 0 2rem;
+  background:
+    radial-gradient(circle at 0 0, rgba(99, 102, 241, 0.15), transparent 35%),
+    radial-gradient(circle at 100% 0, rgba(148, 163, 184, 0.12), transparent 30%),
+    linear-gradient(180deg, #05060a 0%, #020308 100%);
+  border-bottom: 1px solid var(--border-soft);
 }
 
-
-.hero__inner {
-max-width: 48rem;
+.hero__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+  gap: 2rem;
+  align-items: center;
 }
 
+.hero__eyebrow,
+.section__eyebrow,
+.card__eyebrow {
+  margin: 0 0 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: var(--accent-muted);
+}
 
 .hero__title {
-margin: 0 0 1.2rem;
-font-size: 2.2rem;
-line-height: 1.15;
-font-weight: 700;
-letter-spacing: -0.01em;
+  margin: 0;
+  font-size: clamp(2.4rem, 5vw, 4.4rem);
+  line-height: 0.98;
+  letter-spacing: -0.04em;
+  max-width: 10ch;
 }
 
-
-.hero__title-em {
-background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
--webkit-background-clip: text;
-background-clip: text;
-color: transparent;
+.hero__title span {
+  color: var(--accent-strong);
 }
-
 
 .hero__subtitle {
-margin: 0 0 1.2rem;
-color: var(--text-muted);
-font-size: 1rem;
-line-height: 1.7;
-max-width: 40rem;
+  margin: 1.3rem 0 0;
+  color: var(--text-muted);
+  font-size: 1.05rem;
+  line-height: 1.8;
+  max-width: 40rem;
 }
-
-
-.hero__subtitle code {
-background: rgba(255, 255, 255, 0.08);
-padding: 0.1em 0.35em;
-border-radius: 4px;
-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-font-size: 0.9em;
-}
-
 
 .hero__cta-row {
-display: flex;
-flex-wrap: wrap;
-gap: 0.8rem;
-margin-top: 2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 2rem;
 }
 
-
-.hero__meta {
-margin-top: 1.3rem;
-display: flex;
-flex-wrap: wrap;
-gap: 0.6rem;
-font-size: 0.8rem;
-color: var(--text-soft);
+.hero__support {
+  margin-top: 1rem;
+  color: var(--text-soft);
+  font-size: 0.9rem;
 }
-
-
-.hero__meta-pill {
-border-radius: 999px;
-border: 1px solid rgba(148, 163, 184, 0.6);
-padding: 0.18rem 0.55rem;
-}
-
 
 .btn {
-display: inline-flex;
-align-items: center;
-justify-content: center;
-gap: 0.45rem;
-padding: 0.6rem 1.1rem;
-border-radius: 999px;
-font-size: 0.9rem;
-text-decoration: none;
-border: 1px solid transparent;
-cursor: pointer;
-white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.72rem 1.15rem;
+  border-radius: 999px;
+  font-size: 0.92rem;
+  text-decoration: none;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
 }
-
 
 .btn--primary {
-background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-color: #020617;
-border-color: rgba(255, 255, 255, 0.3);
-box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
+  background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+  color: #020617;
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
 }
-
 
 .btn--primary:hover {
-filter: brightness(1.03);
+  filter: brightness(1.03);
 }
-
 
 .btn--ghost {
-background: rgba(15, 23, 42, 0.9);
-color: var(--accent-strong);
-border-color: rgba(148, 163, 184, 0.6);
+  background: rgba(15, 23, 42, 0.9);
+  color: var(--accent-strong);
+  border-color: rgba(148, 163, 184, 0.6);
 }
-
 
 .btn--ghost:hover {
-background: rgba(15, 23, 42, 1);
+  background: rgba(15, 23, 42, 1);
 }
 
+.hero-proof {
+  background: linear-gradient(180deg, rgba(12, 16, 27, 0.96), rgba(8, 10, 18, 0.96));
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xl);
+  padding: 1.35rem;
+  box-shadow: var(--shadow-soft);
+}
 
-/* Sections */
+.hero-proof__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.hero-proof__title {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.hero-proof__status {
+  border-radius: 999px;
+  padding: 0.2rem 0.55rem;
+  border: 1px solid rgba(134, 239, 172, 0.35);
+  color: var(--success);
+  font-size: 0.76rem;
+}
+
+.hero-proof__grid {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.hero-proof__row {
+  display: grid;
+  grid-template-columns: 102px 1fr;
+  gap: 0.75rem;
+  font-size: 0.84rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.hero-proof__row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.hero-proof__label {
+  color: var(--text-soft);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.hero-proof__value {
+  color: var(--text-main);
+  line-height: 1.6;
+  word-break: break-word;
+}
+
+.hero-proof__value code,
+.receipt-code code,
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.trust-strip {
+  padding: 1rem 0 0;
+}
+
+.trust-strip__row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.trust-pill {
+  background: rgba(15, 23, 42, 0.64);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 0.8rem 1rem;
+  font-size: 0.84rem;
+  color: var(--accent);
+  text-align: center;
+}
+
 .section {
-padding: 3rem 0;
+  padding: 4rem 0;
 }
-
 
 .section--muted {
-background: rgb(6, 9, 18);
-border-top: 1px solid rgba(255, 255, 255, 0.06);
-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgb(6, 9, 18);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
-
 
 .section__header {
-max-width: 40rem;
-margin-bottom: 1.6rem;
+  max-width: 44rem;
+  margin-bottom: 1.8rem;
 }
-
 
 .section__header h2 {
-margin: 0 0 0.5rem;
-font-size: 1.4rem;
+  margin: 0 0 0.7rem;
+  font-size: clamp(1.7rem, 3vw, 2.4rem);
+  letter-spacing: -0.03em;
 }
-
 
 .section__header p {
-margin: 0;
-font-size: 0.95rem;
-color: var(--text-muted);
-line-height: 1.7;
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-muted);
+  line-height: 1.75;
 }
 
-
-/* Stack diagram */
-.stack-diagram {
-max-width: 520px;
-margin: 0 auto;
+.two-up {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.5rem;
 }
 
-
-.stack-layer {
-display: flex;
-align-items: stretch;
-border: 1px solid var(--border-strong);
-border-radius: var(--radius-lg);
-margin-bottom: -1px;
-overflow: hidden;
+.panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: 1.35rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 }
 
-
-.stack-layer:first-child {
-border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+.panel h3 {
+  margin: 0 0 0.7rem;
+  font-size: 1.05rem;
 }
 
-
-.stack-layer:last-child {
-border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+.panel p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
 }
 
-
-.stack-layer__label {
-width: 180px;
-padding: 0.9rem 1rem;
-font-size: 0.82rem;
-color: var(--text-muted);
-background: rgba(15, 23, 42, 0.5);
-border-right: 1px solid var(--border-soft);
-display: flex;
-align-items: center;
-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.panel ul {
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-
-.stack-layer__value {
-flex: 1;
-padding: 0.9rem 1rem;
-font-size: 0.92rem;
-font-weight: 600;
-display: flex;
-align-items: center;
-background: rgba(15, 23, 42, 0.95);
+.panel li {
+  color: var(--text-muted);
+  font-size: 0.93rem;
+  line-height: 1.65;
+  padding: 0.55rem 0;
+  border-bottom: 1px solid var(--border-soft);
 }
 
-
-.stack-layer--cl .stack-layer__value {
-color: var(--accent-strong);
+.panel li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
 }
 
-
-.stack-explanation {
-margin-top: 1.5rem;
-font-size: 0.9rem;
-color: var(--text-muted);
-line-height: 1.8;
+.steps-grid,
+.themes-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
 }
 
-
-.stack-explanation code {
-background: rgba(255, 255, 255, 0.08);
-padding: 0.1em 0.35em;
-border-radius: 4px;
-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-font-size: 0.88em;
-color: var(--text-main);
+.step-card,
+.theme-card,
+.identity-grid .panel,
+.positioning-card,
+.cta-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: 1.25rem;
 }
 
-
-/* Problem grid */
-.problem-grid {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 1.5rem;
-margin-top: 1.5rem;
+.step-card__num {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(229, 231, 235, 0.1);
+  border: 1px solid var(--border-soft);
+  font-size: 0.82rem;
+  color: var(--accent-strong);
+  margin-bottom: 0.9rem;
 }
 
-
-.problem-col h3 {
-margin: 0 0 0.8rem;
-font-size: 0.95rem;
-color: var(--text-soft);
-text-transform: uppercase;
-letter-spacing: 0.08em;
+.step-card h3,
+.theme-card h3,
+.positioning-card h3,
+.cta-card h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1rem;
 }
 
-
-.problem-col ul {
-margin: 0;
-padding: 0;
-list-style: none;
+.step-card p,
+.theme-card p,
+.positioning-card p,
+.cta-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.93rem;
+  line-height: 1.7;
 }
 
-
-.problem-col li {
-padding: 0.35rem 0;
-font-size: 0.88rem;
-color: var(--text-muted);
-border-bottom: 1px solid var(--border-soft);
+.receipt-showcase {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  gap: 1.3rem;
+  align-items: start;
 }
 
-
-.problem-col li:last-child {
-border-bottom: none;
+.receipt-callout {
+  padding-right: 0.3rem;
 }
 
-
-.problem-col--provides li {
-color: var(--accent);
+.receipt-callout p {
+  color: var(--text-muted);
+  line-height: 1.75;
+  font-size: 0.98rem;
 }
 
-
-/* JSON example */
-.json-block {
-background: rgba(15, 23, 42, 0.95);
-border: 1px solid var(--border-soft);
-border-radius: var(--radius-lg);
-padding: 1.2rem 1.4rem;
-overflow-x: auto;
+.receipt-highlights {
+  margin-top: 1.2rem;
+  display: grid;
+  gap: 0.75rem;
 }
 
-
-.json-block pre {
-margin: 0;
-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-"Liberation Mono", "Courier New", monospace;
-font-size: 0.82rem;
-line-height: 1.6;
-white-space: pre;
-color: var(--text-main);
+.receipt-highlight {
+  border-left: 2px solid rgba(229, 231, 235, 0.26);
+  padding-left: 0.9rem;
+  color: var(--text-muted);
+  font-size: 0.92rem;
+  line-height: 1.65;
 }
 
-
-.json-block__label {
-font-size: 0.78rem;
-color: var(--text-soft);
-margin-bottom: 0.6rem;
-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+.receipt-code {
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
 }
 
-
-.receipt-properties {
-margin-top: 1.2rem;
-display: grid;
-grid-template-columns: repeat(2, 1fr);
-gap: 0.8rem;
+.receipt-code__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid var(--border-soft);
+  color: var(--text-soft);
+  font-size: 0.8rem;
 }
 
-
-.receipt-prop {
-font-size: 0.86rem;
-color: var(--text-muted);
-padding: 0.6rem 0.8rem;
-background: rgba(15, 23, 42, 0.6);
-border: 1px solid var(--border-soft);
-border-radius: 8px;
+.receipt-code pre {
+  margin: 0;
+  padding: 1.1rem 1rem 1.2rem;
+  overflow-x: auto;
+  font-size: 0.82rem;
+  line-height: 1.65;
+  color: var(--text-main);
 }
 
-
-.receipt-prop strong {
-color: var(--text-main);
-display: block;
-font-size: 0.82rem;
-margin-bottom: 0.2rem;
+.identity-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 1.3rem;
 }
 
-
-/* Symmetry grid */
-.symmetry-grid {
-display: grid;
-grid-template-columns: 1fr 1fr;
-gap: 1.5rem;
-margin-top: 1.5rem;
+.identity-points {
+  display: grid;
+  gap: 0.9rem;
 }
 
-
-.symmetry-card {
-background: rgba(15, 23, 42, 0.95);
-padding: 1.2rem;
-border-radius: var(--radius-lg);
-border: 1px solid var(--border-soft);
+.identity-point {
+  padding: 0.9rem 1rem;
+  border-radius: 14px;
+  border: 1px solid var(--border-soft);
+  background: rgba(15, 23, 42, 0.52);
 }
 
-
-.symmetry-card h3 {
-margin: 0 0 0.8rem;
-font-size: 1.05rem;
+.identity-point strong {
+  display: block;
+  margin-bottom: 0.2rem;
+  font-size: 0.9rem;
 }
 
-
-.symmetry-card ul {
-margin: 0;
-padding: 0 0 0 1.1rem;
-font-size: 0.88rem;
-color: var(--text-muted);
-line-height: 1.8;
+.identity-point span {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  line-height: 1.6;
 }
 
-
-.symmetry-footer {
-margin-top: 1.5rem;
-padding: 1rem 1.2rem;
-background: rgba(15, 23, 42, 0.6);
-border: 1px solid var(--border-soft);
-border-radius: var(--radius-lg);
-font-size: 0.9rem;
-color: var(--text-muted);
-line-height: 1.7;
+.cta-card,
+.positioning-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
 }
 
-
-.symmetry-footer strong {
-color: var(--text-main);
+.cta-card__actions {
+  display: flex;
+  gap: 0.8rem;
+  flex-wrap: wrap;
 }
 
-
-/* Always-blue links */
-.cl-blue-link {
-color: #7ca8ff !important;
-text-decoration: none;
-}
-.cl-blue-link:hover {
-text-decoration: underline;
-}
-.cl-blue-link:visited {
-color: #7ca8ff !important;
-}
-
-
-/* Footer */
 .site-footer {
-border-top: 1px solid rgba(255, 255, 255, 0.1);
-background: #020308;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: #020308;
 }
-
 
 .site-footer__inner {
-padding: 1.8rem 1.5rem 2rem;
-font-size: 0.78rem;
-color: var(--text-soft);
-display: flex;
-flex-direction: column;
-gap: 0.6rem;
+  padding: 1.8rem 1.5rem 2rem;
+  font-size: 0.78rem;
+  color: var(--text-soft);
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
-
 
 .site-footer__row {
-display: flex;
-justify-content: space-between;
-align-items: flex-start;
-gap: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 2rem;
 }
-
 
 .site-footer__col {
-display: flex;
-flex-direction: column;
-gap: 0.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
 }
-
 
 .site-footer__col-title {
-font-size: 0.72rem;
-text-transform: uppercase;
-letter-spacing: 0.1em;
-color: var(--text-soft);
-margin-bottom: 0.2rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-soft);
+  margin-bottom: 0.2rem;
 }
-
 
 .site-footer__cid {
-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-font-size: 0.72rem;
-color: var(--accent-muted);
-word-break: break-all;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.72rem;
+  color: var(--accent-muted);
+  word-break: break-all;
 }
-
 
 .site-footer__links {
-display: flex;
-gap: 0.8rem;
-margin-top: 0.8rem;
-padding-top: 0.8rem;
-border-top: 1px solid var(--border-soft);
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--border-soft);
+  flex-wrap: wrap;
 }
-
 
 .site-footer__links a {
-color: var(--accent);
-text-decoration: none;
+  color: var(--accent);
+  text-decoration: none;
 }
-
 
 .site-footer__links a:hover {
-text-decoration: underline;
+  text-decoration: underline;
 }
 
+@media (max-width: 980px) {
+  .hero__layout,
+  .receipt-showcase,
+  .identity-grid,
+  .two-up,
+  .cta-card,
+  .positioning-card {
+    grid-template-columns: 1fr;
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
-/* Mobile */
+  .trust-strip__row,
+  .steps-grid,
+  .themes-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 880px) {
-.site-header__inner {
-padding-inline: 1rem;
+  .site-header__inner {
+    padding-inline: 1rem;
+  }
+
+  .site-header__toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .site-header__nav {
+    display: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin-top: 0.8rem;
+  }
+
+  .site-header.site-header--open .site-header__nav {
+    display: flex;
+  }
+
+  .site-footer__row {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .site-footer__inner {
+    padding-inline: 1rem;
+  }
 }
 
+@media (max-width: 640px) {
+  .container {
+    padding: 0 1rem;
+  }
 
-.site-header__toggle {
-display: inline-flex;
-align-items: center;
-justify-content: center;
-}
+  .hero {
+    padding-top: 3.25rem;
+  }
 
+  .hero__title {
+    max-width: 12ch;
+  }
 
-.site-header__nav {
-display: none;
-flex-direction: column;
-align-items: flex-start;
-gap: 0.5rem;
-margin-top: 0.8rem;
-}
+  .trust-strip__row,
+  .steps-grid,
+  .themes-grid {
+    grid-template-columns: 1fr;
+  }
 
-
-.site-header.site-header--open .site-header__nav {
-display: flex;
-}
-
-
-.hero__title {
-font-size: 1.6rem;
-}
-
-
-.problem-grid,
-.symmetry-grid {
-grid-template-columns: 1fr;
-}
-
-
-.receipt-properties {
-grid-template-columns: 1fr;
-}
-
-
-.stack-layer__label {
-width: 130px;
-font-size: 0.75rem;
-}
-
-
-.site-footer__row {
-flex-direction: column;
-gap: 1rem;
-}
-
-
-.site-footer__inner {
-padding-inline: 1rem;
-}
+  .hero-proof__row {
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+  }
 }
 </style>
 </head>
 
-
 <body>
 <div class="page-shell">
-<!-- HEADER -->
-<header class="site-header">
-<div class="site-header__inner container">
-<a href="/" class="site-header__brand">
-<img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-<div class="site-header__text">
-<span class="site-header__title">CommandLayer</span>
-<span class="site-header__subtitle">
-Execution + receipt layer
-</span>
-</div>
-</a>
+  <header class="site-header">
+    <div class="site-header__inner container">
+      <a href="/" class="site-header__brand">
+        <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+        <div class="site-header__text">
+          <span class="site-header__title">CommandLayer</span>
+          <span class="site-header__subtitle">Execution + receipt layer</span>
+        </div>
+      </a>
 
+      <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
+        &#9776;
+      </button>
 
-<!-- Mobile toggle -->
-<button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
-&#9776;
-</button>
+      <nav class="site-header__nav">
+        <a href="/" class="site-header__link site-header__link--active">Overview</a>
+        <a href="/quickstart.html" class="site-header__link">Quickstart</a>
 
+        <div class="site-header__dropdown">
+          <button class="site-header__dropdown-btn" type="button">
+            Docs &#9662;
+          </button>
+          <div class="site-header__dropdown-menu">
+            <a href="/commons.html">Commons</a>
+            <a href="/commercial.html">Commercial</a>
+            <a href="/agent-cards.html">Agent Cards</a>
+            <a href="/runtime.html">Runtime</a>
+            <a href="/manifest.html">Manifest</a>
+            <a href="/licensing.html">Licensing</a>
+            <a href="/about.html">About</a>
+          </div>
+        </div>
 
-<nav class="site-header__nav">
-<a href="/" class="site-header__link site-header__link--active">Overview</a>
-<a href="/quickstart.html" class="site-header__link">Quickstart</a>
+        <a href="/repositories.html" class="site-header__link">Repositories</a>
+        <a href="/demo.html" class="site-header__link">Live Demo</a>
+        <a
+          href="https://github.com/commandlayer"
+          class="site-header__link"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
 
+  <main class="page-main">
+    <section class="hero">
+      <div class="container">
+        <div class="hero__layout">
+          <div>
+            <p class="hero__eyebrow">Trust infrastructure for autonomous agents</p>
+            <h1 class="hero__title">
+              Agents can act.<br />
+              <span>CommandLayer proves they acted.</span>
+            </h1>
+            <p class="hero__subtitle">
+              A trust layer for autonomous agents. Run multi-step agent flows and generate signed,
+              verifiable receipts for every action.
+            </p>
+            <div class="hero__cta-row">
+              <a href="/demo.html" class="btn btn--primary">Run a Verified Agent Flow</a>
+              <a href="#receipts" class="btn btn--ghost">View Receipts</a>
+            </div>
+            <div class="hero__support">
+              Semantic execution, ENS-anchored identity, ERC-8004 discoverability, and signed receipts.
+            </div>
+          </div>
 
-<div class="site-header__dropdown">
-<button class="site-header__dropdown-btn" type="button">
-Docs &#9662;
-</button>
-<div class="site-header__dropdown-menu">
-<a href="/commons.html">Commons</a>
-<a href="/commercial.html">Commercial</a>
-<a href="/agent-cards.html">Agent Cards</a>
-<a href="/runtime.html">Runtime</a>
-<a href="/manifest.html">Manifest</a>
-<a href="/licensing.html">Licensing</a>
-<a href="/about.html">About</a>
-</div>
-</div>
+          <aside class="hero-proof" aria-label="Verified execution receipt preview">
+            <div class="hero-proof__top">
+              <div class="hero-proof__title">Verified flow receipt</div>
+              <div class="hero-proof__status">verified: true</div>
+            </div>
+            <div class="hero-proof__grid">
+              <div class="hero-proof__row">
+                <div class="hero-proof__label">agent</div>
+                <div class="hero-proof__value mono">checkoutagent.eth / ERC-8004 service</div>
+              </div>
+              <div class="hero-proof__row">
+                <div class="hero-proof__label">flow</div>
+                <div class="hero-proof__value">authorize → checkout → verify</div>
+              </div>
+              <div class="hero-proof__row">
+                <div class="hero-proof__label">action</div>
+                <div class="hero-proof__value">Settled payment request and emitted signed receipt</div>
+              </div>
+              <div class="hero-proof__row">
+                <div class="hero-proof__label">proof</div>
+                <div class="hero-proof__value mono">sha256: 7e61b75b6c1c...f4c1 / ed25519</div>
+              </div>
+            </div>
+          </aside>
+        </div>
 
+        <div class="trust-strip" aria-label="Trust points">
+          <div class="trust-strip__row">
+            <div class="trust-pill">Agent Identity (ERC-8004)</div>
+            <div class="trust-pill">Signed Receipts</div>
+            <div class="trust-pill">Verifiable Execution</div>
+            <div class="trust-pill">Multi-Step Flows</div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<a href="/repositories.html" class="site-header__link">Repositories</a>
-<a href="/demo.html" class="site-header__link">Live Demo</a>
-<a
-href="https://github.com/commandlayer"
-class="site-header__link"
-target="_blank"
-rel="noopener noreferrer"
->
-GitHub
-</a>
-</nav>
-</div>
-</header>
+    <section class="section">
+      <div class="container">
+        <div class="section__header">
+          <p class="section__eyebrow">Problem</p>
+          <h2>Agents can act. But no one can trust what they did.</h2>
+          <p>
+            Agents can now execute tasks, move value, and interact with real systems. But most agent
+            behavior is still opaque. Users need to verify what an agent did, what it spent, and
+            whether it followed instructions. Trust is the missing layer.
+          </p>
+        </div>
 
+        <div class="two-up">
+          <div class="panel">
+            <h3>What is happening now</h3>
+            <ul>
+              <li>Agents trigger workflows across APIs, wallets, tools, and services.</li>
+              <li>Outputs are easy to inspect, but execution paths usually are not.</li>
+              <li>Payment and coordination increase the cost of getting trust wrong.</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>Why it breaks down</h3>
+            <ul>
+              <li>There is no durable proof of which agent acted and what it actually executed.</li>
+              <li>Spends, side effects, and retries disappear behind application logs.</li>
+              <li>Downstream agents and humans are forced to trust claims instead of evidence.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<main class="page-main">
-<!-- HERO -->
-<section class="hero">
-<div class="container hero__inner">
-<h1 class="hero__title">
-<span class="hero__title-em">A Semantic Execution + Receipt Layer</span>
-For ERC-8004&ndash;Discoverable Services
-</h1>
+    <section class="section section--muted">
+      <div class="container">
+        <div class="section__header">
+          <p class="section__eyebrow">Solution</p>
+          <h2>CommandLayer makes agent execution auditable.</h2>
+          <p>
+            Every action produces a signed receipt tied to identity. Don’t trust outputs — verify
+            execution. CommandLayer makes agent behavior provable, inspectable, and reproducible.
+          </p>
+        </div>
 
-<p class="hero__subtitle">
-ERC-8004 discovers services.<br />
-x402 moves value.<br />
-CommandLayer defines what execution means &mdash; and proves it.
-</p>
+        <div class="two-up">
+          <div class="panel">
+            <h3>What CommandLayer adds</h3>
+            <ul>
+              <li>Semantic execution that describes what the agent was supposed to do.</li>
+              <li>Receipts with canonical data, hashes, and signatures bound to the signer.</li>
+              <li>Flow-level evidence across multiple steps instead of a single opaque result.</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>Why it matters</h3>
+            <ul>
+              <li>Humans can audit high-value actions without reading raw infrastructure logs.</li>
+              <li>Agents can verify each other before cooperating or releasing payment.</li>
+              <li>Execution becomes portable infrastructure, not app-specific trust theater.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<p class="hero__subtitle" style="margin-top: 0;">
-Every execution produces a deterministic, hashable, verifiable receipt.
-CommandLayer is the missing execution + proof layer in the ERC-8004 stack.
-</p>
+    <section class="section">
+      <div class="container">
+        <div class="section__header">
+          <p class="section__eyebrow">How it works</p>
+          <h2>From intent to proof in four steps.</h2>
+          <p>
+            Keep the flow tight: define the work, execute it, emit receipts, and verify the result.
+          </p>
+        </div>
 
-<div class="hero__cta-row">
-<a href="/commons.html" class="btn btn--primary">
-View Schemas
-</a>
-<a href="/repositories.html" class="btn btn--ghost">
-View Repositories
-</a>
-</div>
+        <div class="steps-grid">
+          <article class="step-card">
+            <div class="step-card__num">01</div>
+            <h3>Define a flow</h3>
+            <p>Declare the sequence of agent actions, expected inputs, and the identity that is allowed to act.</p>
+          </article>
+          <article class="step-card">
+            <div class="step-card__num">02</div>
+            <h3>Execute</h3>
+            <p>Run the multi-step flow through CommandLayer with explicit semantics instead of loose prompts.</p>
+          </article>
+          <article class="step-card">
+            <div class="step-card__num">03</div>
+            <h3>Generate receipts</h3>
+            <p>Emit signed receipts for each action with canonical hashes, outputs, timing, and signer identity.</p>
+          </article>
+          <article class="step-card">
+            <div class="step-card__num">04</div>
+            <h3>Verify</h3>
+            <p>Resolve identity, recompute proofs, and confirm exactly what happened before trusting the result.</p>
+          </article>
+        </div>
+      </div>
+    </section>
 
-<div class="hero__meta">
-<span class="hero__meta-pill">Protocol v1.0.0</span>
-<span class="hero__meta-pill">Schemas pinned to IPFS</span>
-<span class="hero__meta-pill">ENS-anchored verbs</span>
-<span class="hero__meta-pill">Ed25519 signed receipts</span>
-</div>
-</div>
-</section>
+    <section class="section section--muted" id="receipts">
+      <div class="container">
+        <div class="section__header">
+          <p class="section__eyebrow">Receipts</p>
+          <h2>Not output. Evidence.</h2>
+          <p>
+            The receipt is the product. It binds agent identity to execution, captures the action,
+            and gives any third party enough material to verify the claim.
+          </p>
+        </div>
 
+        <div class="receipt-showcase">
+          <div class="receipt-callout">
+            <p>
+              CommandLayer receipts are designed for the agent economy: machine-readable, signed,
+              and legible to humans. The point is not to say an agent succeeded. The point is to
+              prove what it did.
+            </p>
+            <div class="receipt-highlights">
+              <div class="receipt-highlight"><strong>Identity-bound.</strong> Every receipt ties execution back to a signer and service identity.</div>
+              <div class="receipt-highlight"><strong>Flow-aware.</strong> Multi-step traces make it possible to inspect how an action actually happened.</div>
+              <div class="receipt-highlight"><strong>Verifier-friendly.</strong> Hashes and signatures make trust externalizable to wallets, agents, and auditors.</div>
+            </div>
+          </div>
 
-<!-- SECTION 1 - THE STACK -->
-<section class="section section--muted">
-<div class="container">
-<div class="section__header">
-<h2>The Stack</h2>
-</div>
-
-<div class="stack-diagram">
-<div class="stack-layer">
-<div class="stack-layer__label">Discovery</div>
-<div class="stack-layer__value">ERC-8004</div>
-</div>
-<div class="stack-layer">
-<div class="stack-layer__label">Payment</div>
-<div class="stack-layer__value">x402</div>
-</div>
-<div class="stack-layer stack-layer--cl">
-<div class="stack-layer__label">Execution Semantics</div>
-<div class="stack-layer__value">CommandLayer</div>
-</div>
-<div class="stack-layer stack-layer--cl">
-<div class="stack-layer__label">Receipts</div>
-<div class="stack-layer__value">CommandLayer</div>
-</div>
-</div>
-
-<div class="stack-explanation">
-<code>ERC-8004</code> defines who exists.
-<code>x402</code> defines how value moves.
-<code>CommandLayer</code> defines what execution means and how completion is proven.<br /><br />
-This positions CommandLayer as protocol plumbing &mdash; not an application layer.
-</div>
-</div>
-</section>
-
-
-<!-- SECTION 2 - THE PROBLEM -->
-<section class="section">
-<div class="container">
-<div class="section__header">
-<h2>Discovery Is Not Execution</h2>
-<p>
-ERC-8004 makes services discoverable. It does not standardize
-what happens after discovery. CommandLayer fills that gap.
-</p>
-</div>
-
-<div class="problem-grid">
-<div class="problem-col">
-<h3>ERC-8004 does not standardize</h3>
-<ul>
-<li>Request semantics</li>
-<li>Output structure</li>
-<li>Deterministic completion proof</li>
-<li>Canonical receipt format</li>
-<li>Executor identity anchoring</li>
-</ul>
-</div>
-<div class="problem-col problem-col--provides">
-<h3>CommandLayer provides</h3>
-<ul>
-<li>Typed verbs</li>
-<li>JSON Schema&ndash;validated requests</li>
-<li>Canonical hashing</li>
-<li>Signature verification</li>
-<li>ENS-anchored executor identity</li>
-<li>Deterministic receipts</li>
-</ul>
-</div>
-</div>
-</div>
-</section>
-
-
-<!-- SECTION 3 - RECEIPT EXAMPLE -->
-<section class="section section--muted">
-<div class="container">
-<div class="section__header">
-<h2>Receipt Structure</h2>
-<p>
-Every verb execution returns a receipt. Below is a minimal <code>analyze</code> receipt
-from the CommandLayer runtime.
-</p>
-</div>
-
-<div class="json-block">
-<div class="json-block__label">// analyze.receipt</div>
-<pre>{
-  "x402": {
-    "verb": "analyze",
-    "version": "1.0.0",
-    "entry": "x402://runtime.commandlayer.eth/analyze/v1"
+          <div class="receipt-code">
+            <div class="receipt-code__bar">
+              <span class="mono">receipt.verify.json</span>
+              <span>signed / inspectable / reproducible</span>
+            </div>
+<pre><code>{
+  "agent": "verifyagent.eth",
+  "signer": {
+    "ens": "runtime.commandlayer.eth",
+    "erc8004": "service:verifyagent.eth"
   },
-  "trace": {
-    "trace_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    "started_at": "2026-02-17T12:00:00Z",
-    "completed_at": "2026-02-17T12:00:01Z",
-    "duration_ms": 1042,
-    "provider": "runtime.commandlayer.eth"
+  "action": "verify_purchase_flow",
+  "input": {
+    "order_id": "ord_2048",
+    "amount": "125.00 USDC"
   },
-  "status": "success",
   "result": {
-    "summary": "Input contains three distinct claims with supporting evidence.",
-    "insights": ["claim_count: 3", "evidence_ratio: 0.87"],
-    "score": 0.87
+    "status": "success",
+    "settlement": "confirmed",
+    "receipts_emitted": 3
   },
-  "metadata": {
-    "proof": {
-      "alg": "ed25519-sha256",
-      "canonical": "runtime-json-stringify-v1",
-      "signer_id": "runtime.commandlayer.eth",
-      "hash_sha256": "b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9",
-      "signature_b64": "RkFLRV9TSUdOQVRVUkVfRk9SX0RFTU8..."
-    }
+  "proof": {
+    "hash_sha256": "7e61b75b6c1ce4f6b3f...f4c1",
+    "signature": "ed25519:Q29tbWFuZExheWVyU2lnbmVk",
+    "verified": true
   }
-}</pre>
-</div>
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<div class="receipt-properties">
-<div class="receipt-prop">
-<strong>Canonically serialized</strong>
-Receipts use a frozen canonical form (<code>runtime-json-stringify-v1</code>) for deterministic byte representation.
-</div>
-<div class="receipt-prop">
-<strong>Deterministically hashed</strong>
-SHA-256 over the canonical bytes. Same input always produces the same hash.
-</div>
-<div class="receipt-prop">
-<strong>Cryptographically signed</strong>
-Ed25519 signature over the hash bytes, bound to the executor's ENS identity.
-</div>
-<div class="receipt-prop">
-<strong>Publicly verifiable</strong>
-Any third party can verify: resolve the signer's public key via ENS, recompute the hash, check the signature.
-</div>
-</div>
-</div>
-</section>
+    <section class="section">
+      <div class="container">
+        <div class="section__header">
+          <p class="section__eyebrow">Built for Synthesis themes</p>
+          <h2>Built for the agent economy</h2>
+          <p>
+            As agents become economic actors, infrastructure has to support action, payment, trust,
+            and cooperation without losing auditability.
+          </p>
+        </div>
 
+        <div class="themes-grid">
+          <article class="theme-card">
+            <h3>Agents that act</h3>
+            <p>CommandLayer gives execution explicit structure, so an agent flow is more than an output blob or a best-effort trace.</p>
+          </article>
+          <article class="theme-card">
+            <h3>Agents that pay</h3>
+            <p>When value moves, receipts become mandatory. CommandLayer makes paid actions inspectable before and after settlement.</p>
+          </article>
+          <article class="theme-card">
+            <h3>Agents that trust</h3>
+            <p>Signed receipts let agents and users verify claims independently instead of inheriting trust from a single interface.</p>
+          </article>
+          <article class="theme-card">
+            <h3>Agents that cooperate</h3>
+            <p>Shared receipts create a common truth layer for chained agents, delegated tasks, and multi-party workflows.</p>
+          </article>
+        </div>
+      </div>
+    </section>
 
-<!-- SECTION 4 - COMMONS VS COMMERCIAL -->
-<section class="section">
-<div class="container">
-<div class="section__header">
-<h2>Commons vs. Commercial</h2>
-<p>
-Execution semantics are universal. Monetization is modular.
-</p>
-</div>
+    <section class="section section--muted">
+      <div class="container">
+        <div class="section__header">
+          <p class="section__eyebrow">Identity</p>
+          <h2>Identity is the anchor of trust</h2>
+          <p>
+            Discoverability and accountability start with identity. ENS names and ERC-8004 service
+            records make agents addressable; CommandLayer makes their actions verifiable.
+          </p>
+        </div>
 
-<div class="symmetry-grid">
-<div class="symmetry-card">
-<h3>Commons</h3>
-<ul>
-<li>Public verbs: <code>analyze</code>, <code>classify</code>, <code>clean</code>, <code>convert</code>, <code>describe</code>, <code>explain</code>, <code>fetch</code>, <code>format</code>, <code>parse</code>, <code>summarize</code></li>
-<li>Free endpoints</li>
-<li>Open schemas (MIT)</li>
-<li>Same receipt format</li>
-</ul>
-</div>
-<div class="symmetry-card">
-<h3>Commercial</h3>
-<ul>
-<li>Economic verbs: <code>authorize</code>, <code>checkout</code>, <code>purchase</code>, <code>ship</code>, <code>verify</code></li>
-<li>x402 pay-per-call</li>
-<li>Same schema structure</li>
-<li>Same receipt format</li>
-</ul>
-</div>
-</div>
+        <div class="identity-grid">
+          <div class="panel">
+            <h3>Why identity matters here</h3>
+            <p>
+              A receipt without identity is just telemetry. CommandLayer binds execution proofs to
+              recognizable agent identities so users, integrators, and other agents can discover,
+              verify, and hold actors accountable across environments.
+            </p>
+          </div>
+          <div class="identity-points">
+            <div class="identity-point">
+              <strong>ENS</strong>
+              <span>Human-readable naming for the signer behind execution and receipt verification.</span>
+            </div>
+            <div class="identity-point">
+              <strong>ERC-8004</strong>
+              <span>Discovery rails for agent services that need portable identity and explicit capabilities.</span>
+            </div>
+            <div class="identity-point">
+              <strong>Accountability</strong>
+              <span>Receipts tied to identity make claims inspectable, replayable, and easier to dispute when needed.</span>
+            </div>
+            <div class="identity-point">
+              <strong>Verification</strong>
+              <span>Identity resolution gives third parties the anchor they need to check signatures and trust the evidence.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
 
-<div class="symmetry-footer">
-<strong>Design philosophy:</strong>
-Execution semantics are universal.
-Monetization is modular.
-Both tiers produce identical receipt structures &mdash; the schema and verification path are the same
-regardless of whether the call is free or paid.
-</div>
-</div>
-</section>
-</main>
+    <section class="section">
+      <div class="container">
+        <div class="cta-card">
+          <div>
+            <p class="card__eyebrow">Live demo</p>
+            <h3>See it in action</h3>
+            <p>Run a real agent flow, inspect each step, and verify every receipt.</p>
+          </div>
+          <div class="cta-card__actions">
+            <a href="/demo.html" class="btn btn--primary">Launch Demo</a>
+            <a href="/quickstart.html" class="btn btn--ghost">Read Quickstart</a>
+          </div>
+        </div>
+      </div>
+    </section>
 
+    <section class="section">
+      <div class="container">
+        <div class="positioning-card">
+          <div>
+            <p class="card__eyebrow">Positioning</p>
+            <h3>The trust layer for agent execution</h3>
+            <p>
+              As agents move from tools to autonomous actors, trust becomes infrastructure.
+              CommandLayer ensures that every action can be verified — not assumed.
+            </p>
+          </div>
+          <div class="cta-card__actions">
+            <a href="/repositories.html" class="btn btn--ghost">Explore Repositories</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-<!-- TECHNICAL FOOTER -->
-<footer class="site-footer">
-<div class="container site-footer__inner">
-<div class="site-footer__row">
-<div class="site-footer__col">
-<div class="site-footer__col-title">Canonical CIDs</div>
-<div class="site-footer__cid">protocol-commons v1.0.0 &mdash; schemas pinned to IPFS with published checksums</div>
-<div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
+  <footer class="site-footer">
+    <div class="container site-footer__inner">
+      <div class="site-footer__row">
+        <div class="site-footer__col">
+          <div class="site-footer__col-title">Canonical CIDs</div>
+          <div class="site-footer__cid">protocol-commons v1.0.0 — schemas pinned to IPFS with published checksums</div>
+          <div class="site-footer__cid">agent-cards v1.0.0 — identity layer pinned to IPFS</div>
+        </div>
+        <div class="site-footer__col">
+          <div class="site-footer__col-title">Security</div>
+          <div>security@commandlayer.org</div>
+        </div>
+      </div>
+      <div class="site-footer__links">
+        <a href="/commons.html">Schemas</a>
+        <a href="/quickstart.html">Quickstart</a>
+        <a href="/repositories.html">Repositories</a>
+        <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+      </div>
+    </div>
+  </footer>
 </div>
-<div class="site-footer__col">
-<div class="site-footer__col-title">Security</div>
-<div>security@commandlayer.org</div>
-</div>
-</div>
-<div class="site-footer__links">
-<a href="/commons.html">Schemas</a>
-<a href="/quickstart.html">Quickstart</a>
-<a href="/repositories.html">Repositories</a>
-<a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
-</div>
-</div>
-</footer>
-</div>
-
 
 <script>
 (function () {
-const header = document.querySelector(".site-header");
-const toggle = document.querySelector(".site-header__toggle");
-const docsBtn = document.querySelector(".site-header__dropdown-btn");
+  const header = document.querySelector(".site-header");
+  const toggle = document.querySelector(".site-header__toggle");
+  const docsBtn = document.querySelector(".site-header__dropdown-btn");
 
+  if (toggle && header) {
+    toggle.addEventListener("click", () => {
+      const isOpen = header.classList.toggle("site-header--open");
+      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    });
+  }
 
-if (toggle && header) {
-toggle.addEventListener("click", () => {
-const isOpen = header.classList.toggle("site-header--open");
-toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-});
-}
-
-
-if (docsBtn && header) {
-docsBtn.addEventListener("click", () => {
-header.classList.toggle("site-header--docs-open");
-});
-}
+  if (docsBtn && header) {
+    docsBtn.addEventListener("click", () => {
+      header.classList.toggle("site-header--docs-open");
+    });
+  }
 })();
 </script>
 </body>
