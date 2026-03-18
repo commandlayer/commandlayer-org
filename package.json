@@ -1,6 +1,6 @@
 {
   "name": "commandlayer-org",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "description": "CommandLayer static site + Vercel API demos",
   "scripts": {

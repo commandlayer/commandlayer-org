@@ -22,11 +22,12 @@ const COMMON_VERBS = [
   "fetch",
 ];
 
-const VERSION = "1.0.0";
+const DEFAULT_VERSION = "1.1.0";
+const SUPPORTED_VERSIONS = new Set(["1.0.0", "1.1.0"]);
 
 // Minimal receipt.base validator (fast + stable)
 const receiptBaseSchema = {
-  $id: "https://www.commandlayer.org/schemas/v1.0.0/_shared/receipt.base.schema.json",
+  $id: "https://www.commandlayer.org/schemas/v1.1.0/_shared/receipt.base.schema.json",
   title: "receipt.base (minimal)",
   type: "object",
   additionalProperties: true, // runtime adds metadata/proof fields; do not block
@@ -168,12 +169,12 @@ function buildCurl(runtimeUrl, runtimeReq) {
   ].join("\n");
 }
 
-function buildRuntimeRequest(verb, trace_id, inputObj) {
+function buildRuntimeRequest(verb, trace_id, inputObj, version) {
   return {
     x402: {
-      entry: `x402://${verb}agent.eth/${verb}/v${VERSION}`,
+      entry: `x402://${verb}agent.eth/${verb}/v${version}`,
       verb,
-      version: VERSION,
+      version,
     },
     actor: "composer.commandlayer.org",
     trace: { trace_id },
@@ -293,8 +294,10 @@ module.exports = async function handler(req, res) {
 
   const body = req.body || {};
   const incomingSteps = Array.isArray(body.steps) ? body.steps : [];
+  const requestedVersion = String(body.version || DEFAULT_VERSION).trim();
+  const version = SUPPORTED_VERSIONS.has(requestedVersion) ? requestedVersion : DEFAULT_VERSION;
 
-  // ✅ Sequenced indices: 0..N-1 in actual execution order (after filtering invalid steps)
+  // Sequenced indices: 0..N-1 in actual execution order (after filtering invalid steps)
   const steps = [];
   for (const s of incomingSteps) {
     const verb = String(s?.verb || "").trim();
@@ -311,23 +314,22 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({
       error: "No valid steps provided. Each step needs a Commons verb and non-empty input (string or JSON).",
       expected: {
+        version: DEFAULT_VERSION,
         steps: [
           { verb: "summarize", input: { content: "hello" } },
           { verb: "convert", input: { content: "hi", source_format: "text", target_format: "markdown" } },
         ],
       },
+      supported_versions: Array.from(SUPPORTED_VERSIONS),
     });
   }
 
   const trace_id = body.trace_id ? String(body.trace_id).trim() : makeTraceId();
-
-  // health (object detail)
   const runtime_health = await checkRuntimeHealth(RUNTIME_BASE);
-
   const responseSteps = [];
 
   for (const step of steps) {
-    const runtimeUrl = `${RUNTIME_BASE}/${step.verb}/v${VERSION}`;
+    const runtimeUrl = `${RUNTIME_BASE}/${step.verb}/v${version}`;
     let stepInput = step.input;
 
     if (step.use_previous_result) {
@@ -340,6 +342,10 @@ module.exports = async function handler(req, res) {
           meta: {
             mode: "runtime-backed",
             runtime_base: RUNTIME_BASE,
+            commons_default_version: DEFAULT_VERSION,
+            requested_version: requestedVersion,
+            resolved_version: version,
+            supported_versions: Array.from(SUPPORTED_VERSIONS),
             runtime_health,
             server_time: nowIso(),
           },
@@ -348,8 +354,7 @@ module.exports = async function handler(req, res) {
       stepInput = { content: previousText };
     }
 
-    const runtimeReq = buildRuntimeRequest(step.verb, trace_id, stepInput);
-
+    const runtimeReq = buildRuntimeRequest(step.verb, trace_id, stepInput, version);
     const r = await postJson(runtimeUrl, runtimeReq, 20000);
 
     if (!r.ok) {
@@ -361,6 +366,10 @@ module.exports = async function handler(req, res) {
         meta: {
           mode: "runtime-backed",
           runtime_base: RUNTIME_BASE,
+          commons_default_version: DEFAULT_VERSION,
+          requested_version: requestedVersion,
+          resolved_version: version,
+          supported_versions: Array.from(SUPPORTED_VERSIONS),
           runtime_health,
           runtime_url: runtimeUrl,
           runtime_content_type: r.content_type || null,
@@ -370,8 +379,6 @@ module.exports = async function handler(req, res) {
     }
 
     const receipt = r.data;
-
-    // validate minimal receipt.base shape
     let ok = true;
     let errors = null;
 
@@ -385,11 +392,16 @@ module.exports = async function handler(req, res) {
         error: "Runtime receipt failed receipt.base validation",
         verb: step.verb,
         runtime_url: runtimeUrl,
+        version,
         details: errors,
         receipt,
         meta: {
           mode: "runtime-backed",
           runtime_base: RUNTIME_BASE,
+          commons_default_version: DEFAULT_VERSION,
+          requested_version: requestedVersion,
+          resolved_version: version,
+          supported_versions: Array.from(SUPPORTED_VERSIONS),
           runtime_health,
           receipt_base_validated: !!validateReceiptBase,
           ajv_setup_error: ajvSetupError,
@@ -399,9 +411,10 @@ module.exports = async function handler(req, res) {
     }
 
     responseSteps.push({
-      index: step.index, // ✅ now guaranteed sequential
+      index: step.index,
       verb: step.verb,
       runtime_url: runtimeUrl,
+      version,
       request: runtimeReq,
       curl: [`# ${step.verb.toUpperCase()} (real runtime)`, buildCurl(runtimeUrl, runtimeReq)].join("\n"),
       validation: { ok: true, errors: null },
@@ -417,6 +430,10 @@ module.exports = async function handler(req, res) {
     meta: {
       mode: "runtime-backed",
       runtime_base: RUNTIME_BASE,
+      commons_default_version: DEFAULT_VERSION,
+      requested_version: requestedVersion,
+      resolved_version: version,
+      supported_versions: Array.from(SUPPORTED_VERSIONS),
       runtime_health,
       receipt_base_validated: !!validateReceiptBase,
       ajv_setup_error: ajvSetupError,

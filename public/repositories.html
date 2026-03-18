@@ -562,7 +562,7 @@ GitHub
 <h1>Repositories</h1>
 <p>
 CommandLayer is a multi-repo protocol architecture.
-Each repository owns a distinct layer of the execution and receipt stack.
+Each repository owns a distinct layer in the trust layer for agent execution: schemas, identity, runtimes, and proofs.
 </p>
 </div>
 </section>
@@ -583,7 +583,7 @@ Each repository owns a distinct layer of the execution and receipt stack.
 <a href="https://github.com/commandlayer/protocol-commons" target="_blank" rel="noopener noreferrer">protocol-commons</a>
 </h3>
 <p class="repo-card__desc">
-Canonical verbs and typed payloads for agent interoperability.
+Canonical verbs and typed payloads for agent interoperability. Current public release: Commons v1.1.0.
 Standardizes machine intent through JSON Schema 2020-12 definitions
 for all Commons verbs (analyze, classify, clean, convert, describe, explain, fetch, format, parse, summarize).
 </p>
@@ -600,7 +600,7 @@ for all Commons verbs (analyze, classify, clean, convert, describe, explain, fet
 <a href="https://github.com/commandlayer/protocol-commercial" target="_blank" rel="noopener noreferrer">protocol-commercial</a>
 </h3>
 <p class="repo-card__desc">
-Economic machine intent and x402 execution endpoints for trustless value
+Economic machine intent and x402 execution endpoints for trustless value. Current public release: Commercial v1.0.0.
 transfer and commercial fulfillment. Defines the authorize, checkout,
 purchase, ship, and verify verb schemas.
 </p>
@@ -616,7 +616,7 @@ purchase, ship, and verify verb schemas.
 <a href="https://github.com/commandlayer/agent-cards" target="_blank" rel="noopener noreferrer">agent-cards</a>
 </h3>
 <p class="repo-card__desc">
-Verifiable identity and capabilities for autonomous agents.
+Verifiable identity and capabilities for autonomous agents. Current public release: Agent Cards v1.0.0.
 Binds ENS names to verbs, schemas, x402 entrypoints, and discovery metadata.
 Used by registries and clients to discover, rank, and route to agents.
 </p>
@@ -666,7 +666,7 @@ and checksums. Supports both Commons and Commercial verb tiers.
 <div class="container">
 <div class="section__header">
 <h2>Runtime</h2>
-<p>Reference execution environments that validate schemas and issue signed receipts.</p>
+<p>Reference execution environments that validate schemas, issue signed receipts, and prove execution.</p>
 </div>
 
 <div class="repo-grid">
@@ -759,7 +759,7 @@ and receipt verification examples.
 <div class="site-footer__row">
 <div class="site-footer__col">
 <div class="site-footer__col-title">Canonical CIDs</div>
-<div class="site-footer__cid">protocol-commons v1.0.0 &mdash; schemas pinned to IPFS with published checksums</div>
+<div class="site-footer__cid">protocol-commons v1.1.0 &mdash; schemas pinned to IPFS with published checksums</div>
 <div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
 </div>
 <div class="site-footer__col">

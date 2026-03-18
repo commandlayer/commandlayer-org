@@ -694,11 +694,11 @@
               </div>
 
               <div class="hero__meta" style="margin-top:1.3rem;">
-                <span class="hero__meta-pill">Protocol v1.0.0</span>
-                <span class="hero__meta-pill">Commons v1.0.0 · MIT · schemas free</span>
-                <span class="hero__meta-pill">Commercial v1.0.0 · Apache-2.0</span>
-                <span class="hero__meta-pill">Agent Cards v1.0.0 · Apache-2.0</span>
-                <span class="hero__meta-pill">Runtime coming online · BUSL · execution layer</span>
+                <span class="hero__meta-pill">Version policy: build new Commons integrations on v1.1.0</span>
+                <span class="hero__meta-pill">Commons v1.1.0 · MIT · authoritative now</span>
+                <span class="hero__meta-pill">Commercial v1.0.0 · Apache-2.0 · intentionally current</span>
+                <span class="hero__meta-pill">Agent Cards v1.0.0 · Apache-2.0 · intentionally current</span>
+                <span class="hero__meta-pill">Runtime receipts verify execution across versions</span>
               </div>
             </div>
 
@@ -707,8 +707,8 @@
               <p class="hero__card-body">
                 At minimum, you only need two things to integrate: a <strong>verb</strong> and its
                 <strong>schemas</strong>. If you also want others to discover and route to your
-                agent, you publish an <strong>Agent Card</strong>. When Runtime endpoints come
-                online, they reuse the same contracts — only execution changes, not semantics.
+                agent, you publish an <strong>Agent Card</strong>. Runtime is the proving surface:
+                it executes those contracts and returns signed receipts without changing semantics.
               </p>
 
               <ol class="hero__card-list">
@@ -721,8 +721,7 @@
                   so it can be discovered and routed to.
                 </li>
                 <li>
-                  As x402 rails and Runtime endpoints come online, you keep the same contracts —
-                  only the execution layer changes.
+                  Runtime can change routing, policy, and guarantees, but the semantic contract stays stable.
                 </li>
               </ol>
 
@@ -829,8 +828,7 @@
                   x402 / ERC-8004-aware registries.
                 </li>
                 <li>
-                  As x402 rails and Runtime endpoints come online, you keep the same contracts —
-                  only the execution layer changes.
+                  Runtime can change routing, policy, and guarantees, but the semantic contract stays stable.
                 </li>
               </ul>
             </div>
@@ -853,12 +851,12 @@
               <h3 class="card-block__title">1. Inspect the schemas</h3>
               <p class="card-block__subtitle">
                 Both schemas are public and versioned under
-                <code>https://commandlayer.org/schemas/v1.0.0/commons/summarize/</code>:
+                <code>https://commandlayer.org/schemas/v1.1.0/commons/summarize/</code>:
               </p>
               <ul>
                 <li>
                   <a
-                    href="https://commandlayer.org/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json"
+                    href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/requests/summarize.request.schema.json"
                     target="_blank"
                     class="cl-blue-link"
                     >summarize.request.schema.json</a
@@ -866,7 +864,7 @@
                 </li>
                 <li>
                   <a
-                    href="https://commandlayer.org/schemas/v1.0.0/commons/summarize/receipts/summarize.receipt.schema.json"
+                    href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/receipts/summarize.receipt.schema.json"
                     target="_blank"
                     class="cl-blue-link"
                     >summarize.receipt.schema.json</a
@@ -875,9 +873,9 @@
               </ul>
               <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem;">
                 All Commons schemas follow the same pattern:
-                <code>/schemas/v1.0.0/commons/&lt;verb&gt;/requests/&lt;verb&gt;.request.schema.json</code>
+                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/requests/&lt;verb&gt;.request.schema.json</code>
                 and
-                <code>/schemas/v1.0.0/commons/&lt;verb&gt;/receipts/&lt;verb&gt;.receipt.schema.json</code>.
+                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/receipts/&lt;verb&gt;.receipt.schema.json</code>.
               </p>
             </div>
 
@@ -891,7 +889,7 @@
 const ajv = new Ajv({ strict: true });
 
 const schema = await fetch(
-  "https://commandlayer.org/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json"
+  "https://commandlayer.org/schemas/v1.1.0/commons/summarize/requests/summarize.request.schema.json"
 ).then(r =&gt; r.json());
 
 const validate = ajv.compile(schema);
@@ -904,9 +902,8 @@ if (!validate(payload)) {
             <div class="card-block" style="margin-top:1.4rem;">
               <h3 class="card-block__title">3. Send &amp; receive a receipt</h3>
               <p class="card-block__subtitle">
-                Where you send the request depends on the agent. When reference agents are
-                available, you’ll typically hit an x402-compatible HTTP endpoint listed in an Agent
-                Card.
+                Where you send the request depends on the agent. In practice, you either call a runtime endpoint directly
+                or resolve an Agent Card and use its advertised x402 entrypoint.
               </p>
               <pre>const res = await fetch("https://&lt;agent-endpoint&gt;/summarize", {
   method: "POST",
@@ -946,14 +943,14 @@ const receipt = await res.json();
   "verbs": [
     {
       "name": "summarize",
-      "schema_version": "1.0.0",
+      "schema_version": "1.1.0",
       "tier": "commons"
     }
   ],
   "x402": [
     {
       "network": "eip155:1",
-      "entry": "x402://summarizeagent.eth/summarize/v1"
+      "entry": "x402://summarizeagent.eth/summarize/v1.1.0"
     }
   ]
 }</pre>
@@ -1002,9 +999,9 @@ const receipt = await res.json();
 
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <div>© CommandLayer — semantic layer for autonomous agents</div>
+          <div>© CommandLayer — trust layer for agent execution</div>
           <div>
-            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free
+            Version policy: Commons v1.1.0 now · Commercial v1.0.0 · Agent Cards v1.0.0 · Runtime proves execution · Schemas always free
           </div>
           <div class="site-footer__links">
             <a href="/docs.html">Docs</a>

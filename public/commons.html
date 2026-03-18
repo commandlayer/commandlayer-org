@@ -568,10 +568,11 @@
                 <strong>Schemas are permanently free</strong> — the economics live in execution, not in the verb language.
               </p>
               <p style="margin:0.9rem 0 0;font-size:0.94rem;font-weight:500;color:var(--accent-strong);letter-spacing:0.01em;">
-                Every verb execution produces a signed, verifiable receipt. Free.
+                Agents can act. CommandLayer proves they acted.
               </p>
               <p class="subhero__subtitle" style="margin-top: 0.75rem; font-size: 0.92rem;">
-                Every verb execution produces a signed, verifiable receipt. Free.
+                <strong>What changed in v1.1.0:</strong> Commons is now the canonical builder target across the site,
+                schema paths are promoted to <code>/schemas/v1.1.0/commons/...</code>, and the live Commons flow defaults to v1.1.0 receipts.
               </p>
             </div>
             <div class="subhero__meta">
@@ -579,8 +580,8 @@
               <div>MIT licensed · ERC-8004 registered · Schemas always free</div>
               <div style="margin-top: 0.3rem">
                 Path pattern:<br />
-                <code>/schemas/v1.0.0/commons/&lt;verb&gt;/requests/&lt;verb&gt;.request.schema.json</code><br />
-                <code>/schemas/v1.0.0/commons/&lt;verb&gt;/receipts/&lt;verb&gt;.receipt.schema.json</code>
+                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/requests/&lt;verb&gt;.request.schema.json</code><br />
+                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/receipts/&lt;verb&gt;.receipt.schema.json</code>
               </div>
             </div>
           </div>
@@ -632,7 +633,7 @@
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
-              <h2>Commons verbs — registry (v1.0.0)</h2>
+              <h2>Commons verbs — registry (v1.1.0)</h2>
               <p>
                 Each row is a universal verb with its purpose and direct links to the
                 <strong>request</strong> and <strong>receipt</strong> JSON Schemas under
@@ -643,9 +644,9 @@
             <div class="card-block">
               <h3 class="card-block__title">Commons schema index</h3>
               <p class="card-block__subtitle">
-                These links are stable for v1.0.0. Future versions will ship under
+                These links are stable for v1.1.0. Older v1.0.0 paths remain published for compatibility. Future major versions will ship under
                 <code>/schemas/vX.Y.Z/...</code> without breaking v1.0.0 — early builders can rely
-                on this version long-term.
+                on v1.1.0 long-term while still verifying older receipts.
               </p>
 
               <div class="table-wrapper">
@@ -664,14 +665,14 @@
                       <td>Inspect content for patterns, signals, or properties.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/analyze/requests/analyze.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/analyze/requests/analyze.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/analyze/receipts/analyze.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/analyze/receipts/analyze.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -683,14 +684,14 @@
                       <td>Assign labels or categories from a taxonomy.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/classify/requests/classify.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/classify/requests/classify.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/classify/receipts/classify.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/classify/receipts/classify.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -702,14 +703,14 @@
                       <td>Retrieve external data, documents, or resources.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/fetch/requests/fetch.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/fetch/requests/fetch.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/fetch/receipts/fetch.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/fetch/receipts/fetch.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -721,14 +722,14 @@
                       <td>Reformat content without changing the meaning.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/format/requests/format.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/format/requests/format.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/format/receipts/format.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/format/receipts/format.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -740,14 +741,14 @@
                       <td>Turn unstructured content into structured output.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/parse/requests/parse.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/parse/requests/parse.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/parse/receipts/parse.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/parse/receipts/parse.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -759,14 +760,14 @@
                       <td>Compress content while preserving key information.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/summarize/requests/summarize.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/requests/summarize.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/summarize/receipts/summarize.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/receipts/summarize.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -778,14 +779,14 @@
                       <td>Remove noise, normalize, and sanitize content.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/clean/requests/clean.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/clean/requests/clean.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/clean/receipts/clean.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/clean/receipts/clean.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -797,14 +798,14 @@
                       <td>Change representation or format (with rules).</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/convert/requests/convert.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/convert/requests/convert.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/convert/receipts/convert.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/convert/receipts/convert.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -816,14 +817,14 @@
                       <td>Produce neutral, human-readable descriptions.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/describe/requests/describe.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/describe/requests/describe.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/describe/receipts/describe.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/describe/receipts/describe.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -835,14 +836,14 @@
                       <td>Provide reasoning, rationale, or clarification.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/explain/requests/explain.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/explain/requests/explain.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.0.0/commons/explain/receipts/explain.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/explain/receipts/explain.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -861,11 +862,11 @@
             <div class="card-block">
               <h3 class="card-block__title">Stability &amp; governance</h3>
               <p class="card-block__subtitle">
-                Commons v1.0.0 is intentionally small and stable. Changes, if any, happen in new versions
+                Commons v1.1.0 is intentionally small and stable. Changes happen in new versions
                 (<code>v1.1.0</code>, <code>v2.0.0</code>) so agents can rely on these schemas long-term.
               </p>
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">
-                During the v1.0.0 cycle, the Commons set is curated under a single-maintainer model to keep the
+                In the v1.1.0 cycle, the Commons set is curated under a single-maintainer model to keep the
                 command language coherent and predictable for early builders. As the ecosystem grows, broader
                 participation and formal governance can layer on without breaking this version — the Commons verbs
                 are treated as semantic public goods for the agent economy.
@@ -880,7 +881,7 @@
           <div class="site-footer__row">
             <div class="site-footer__col">
               <div class="site-footer__col-title">Canonical CIDs</div>
-              <div class="site-footer__cid">protocol-commons v1.0.0 &mdash; schemas pinned to IPFS with published checksums</div>
+              <div class="site-footer__cid">protocol-commons v1.1.0 &mdash; schemas pinned to IPFS with published checksums</div>
               <div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
             </div>
             <div class="site-footer__col">

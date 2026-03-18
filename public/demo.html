@@ -462,7 +462,7 @@
             <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Semantic verb &amp; schema layer for agents</span>
+              <span class="site-header__subtitle">Trust layer for agent execution</span>
             </div>
           </a>
 
@@ -567,8 +567,7 @@
             <p class="demo-note">
               This page no longer depends on fake demo endpoints like <code>/api/authorize</code> or <code>/api/purchase</code>.
               The only backend needed is <code>/api/commercial-flow</code>, which forwards to the commercial runtime.
-              If the iframe fails, check Vercel env var <code>COMMERCIAL_RUNTIME_BASE_URL</code> and confirm your commercial runtime
-              responds to <code>/{verb}/v1.0.0</code> so the signed receipts can be returned.
+              If the iframe fails, check Vercel env var <code>COMMERCIAL_RUNTIME_BASE_URL</code>. This demo uses only <code>/api/commercial-flow</code>, and the commercial runtime it targets must support <code>/{verb}/v1.0.0</code> for signed receipts to come back.
             </p>
           </div>
         </section>
@@ -576,9 +575,9 @@
 
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <div>© CommandLayer — semantic layer for autonomous agents</div>
+          <div>© CommandLayer — trust layer for agent execution</div>
           <div>
-            Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free
+            Version policy: Commons v1.1.0 now · Commercial demo on v1.0.0 · Agent Cards v1.0.0 · Runtime proves execution
           </div>
           <div class="site-footer__links">
             <a href="/docs.html">Docs</a>
