@@ -392,6 +392,83 @@ body {
   text-align: center;
 }
 
+.trust-proof {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  background: rgba(15, 23, 42, 0.64);
+  border: 1px solid var(--border-soft);
+  border-radius: 999px;
+  padding: 0.8rem 1rem;
+  font-size: 0.84rem;
+  color: var(--accent-strong);
+  text-decoration: none;
+  text-align: center;
+}
+
+.trust-proof:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(30, 41, 59, 0.88);
+}
+
+.trust-proof__hash {
+  color: var(--text-muted);
+}
+
+.positioning-callout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+  gap: 1.25rem;
+}
+
+.positioning-callout__body,
+.positioning-callout__example {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-soft);
+  border-radius: var(--radius-xl);
+  padding: 1.4rem;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+}
+
+.positioning-callout__body p,
+.positioning-callout__example p {
+  margin: 0.75rem 0 0;
+  color: var(--text-muted);
+  line-height: 1.75;
+}
+
+.positioning-callout__body p:first-of-type,
+.positioning-callout__example p:first-of-type {
+  margin-top: 0;
+}
+
+.positioning-callout__body h2,
+.positioning-callout__example h3 {
+  margin: 0;
+  letter-spacing: -0.03em;
+}
+
+.positioning-callout__example ul {
+  margin: 0.85rem 0 0;
+  padding-left: 1.1rem;
+  color: var(--text-muted);
+}
+
+.positioning-callout__example li + li {
+  margin-top: 0.45rem;
+}
+
+.receipt-bridge {
+  margin-top: 1rem;
+  padding: 0.95rem 1rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.62);
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
 .section {
   padding: 4rem 0;
 }
@@ -861,6 +938,43 @@ body {
             <div class="trust-pill">Signed Receipts</div>
             <div class="trust-pill">Verifiable Execution</div>
             <div class="trust-pill">Multi-Step Flows</div>
+            <a
+              href="https://basescan.org/search?f=0&q=0xb511"
+              class="trust-proof"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="ERC-8004 registered on Base Mainnet proof on Basescan"
+            >
+              <span class="trust-proof__label">ERC-8004 registered on Base Mainnet</span>
+              <span class="trust-proof__hash mono">0xb511...</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--muted">
+      <div class="container">
+        <div class="positioning-callout">
+          <div class="positioning-callout__body">
+            <p class="section__eyebrow">Why this is not logging</p>
+            <h2>Observability shows what happened inside your system. CommandLayer proves what an autonomous agent actually did.</h2>
+            <p>
+              When an agent can spend money, sign transactions, or act on your behalf, logs are not enough.
+              You need proof: signed, verifiable receipts tied to identity.
+            </p>
+          </div>
+          <div class="positioning-callout__example">
+            <p class="card__eyebrow">Example</p>
+            <h3>An agent spends 125 USDC on your behalf.</h3>
+            <p>CommandLayer produces a receipt that proves:</p>
+            <ul>
+              <li>which agent acted</li>
+              <li>what action was executed</li>
+              <li>what amount settled</li>
+              <li>which identity signed it</li>
+            </ul>
+            <p><strong>No guesswork. No trust me. Verifiable proof.</strong></p>
           </div>
         </div>
       </div>
@@ -1020,6 +1134,10 @@ body {
 }</code></pre>
           </div>
         </div>
+        <div class="receipt-bridge">
+          The live demo uses simple Commons verbs like <code>fetch</code>, <code>analyze</code>, and <code>summarize</code>.
+          The same receipt system also secures high-stakes actions like approvals, payments, and multi-step execution.
+        </div>
       </div>
     </section>
 
@@ -1137,7 +1255,7 @@ body {
       <div class="site-footer__row">
         <div class="site-footer__col">
           <div class="site-footer__col-title">Canonical CIDs</div>
-          <div class="site-footer__cid">protocol-commons v1.0.0 — schemas pinned to IPFS with published checksums</div>
+          <div class="site-footer__cid">protocol-commons v1.1.0 — schemas pinned to IPFS with published checksums</div>
           <div class="site-footer__cid">agent-cards v1.0.0 — identity layer pinned to IPFS</div>
         </div>
         <div class="site-footer__col">
