@@ -320,11 +320,13 @@ details[open] summary::after { content: "▴"; }
 .builder-actions { margin-top: 0.9rem; }
 
 .site-footer { border-top: 1px solid rgba(255, 255, 255, 0.1); background: #020308; }
-.site-footer__inner {
-  padding: 1.4rem 1.5rem 1.8rem; font-size: 0.78rem; color: var(--text-soft);
-  display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-align: center;
-}
-.site-footer__links { display: flex; gap: 0.8rem; justify-content: center; margin-top: 0.2rem; }
+.site-footer__inner { padding: 1.6rem 1.5rem 2rem; display:grid; gap:1.2rem; font-size:0.78rem; color: var(--text-soft); }
+.site-footer__top { display:flex; flex-wrap:wrap; justify-content:space-between; gap:1rem; }
+.site-footer__cols { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+.site-footer__col { border-radius:18px; padding:1rem; background: rgba(10, 12, 20, 0.88); border: 1px solid var(--border-soft); }
+.site-footer__col-title { font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; color: var(--accent-muted); margin-bottom:0.45rem; }
+.site-footer__col p { margin:0; color: var(--text-muted); line-height:1.6; font-size:0.84rem; }
+.site-footer__links { display: flex; flex-wrap:wrap; gap: 1rem; }
 .site-footer__links a { color: var(--accent); text-decoration: none; }
 .site-footer__links a:hover { text-decoration: underline; }
 
@@ -361,13 +363,13 @@ details[open] summary::after { content: "▴"; }
           <a href="/commercial.html">Commercial</a>
           <a href="/agent-cards.html">Agent Cards</a>
           <a href="/runtime.html">Runtime</a>
-          <a href="/manifest.html">manifest</a>
-          <a href="/roadmap.html">Roadmap</a>
+          <a href="/manifest.html">Manifest</a>
           <a href="/licensing.html">Licensing</a>
-          <a href="/about.html">About CommandLayer</a>
+          <a href="/about.html">About</a>
         </div>
       </div>
-      <a href="/demo.html" class="site-header__link">Live Demo</a>
+      <a href="/repositories.html" class="site-header__link">Repositories</a>
+      <a href="/demo.html" class="site-header__link site-header__link--active">Live Demo</a>
       <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
     </nav>
   </div>
@@ -377,25 +379,25 @@ details[open] summary::after { content: "▴"; }
   <section class="hero">
     <div class="container hero__wrap">
       <div>
-        <div class="hero__eyebrow">Live Demo — Verified Agent Flow</div>
-        <h1 class="hero__title">Run a Multi-Step Commons Flow</h1>
-        <p class="hero__subtitle">Each step executes live and returns a signed, verifiable receipt.</p>
+        <div class="hero__eyebrow">Commons demo</div>
+        <h1 class="hero__title">Run the cleanest proof path on the site.</h1>
+        <p class="hero__subtitle">This Commons surface starts with a simple default flow: fetch → analyze → summarize. Each step returns the canonical Commons receipt. Runtime-backed verification checks the execution evidence around that receipt.</p>
         <div class="hero__cta">
           <button id="run-flow-hero" class="btn btn--primary" type="button"><span class="btn__icon">⚡</span><span>Run Verified Flow</span></button>
         </div>
         <div class="hero__proofs" aria-label="Proof points">
-          <span class="hero__proof-pill">Live Runtime</span>
-          <span class="hero__proof-pill">Signed Receipts</span>
-          <span class="hero__proof-pill">Independent Verification</span>
+          <span class="hero__proof-pill">Canonical receipt first</span>
+          <span class="hero__proof-pill">Runtime-backed verification second</span>
+          <span class="hero__proof-pill">Advanced builder kept secondary</span>
         </div>
       </div>
       <aside class="hero__aside">
         <h2>What the judge sees immediately</h2>
-        <p>A live three-step execution path that fetches, analyzes, and summarizes real data through <code>runtime.commandlayer.org</code>.</p>
+        <p>A live three-step execution path that teaches the contract-first model before anything advanced shows up.</p>
         <ul>
           <li>One click starts the default flow with no configuration required.</li>
-          <li>Each completed step returns a signed execution receipt.</li>
-          <li>Receipts can be verified inline and reproduced with <code>curl</code>.</li>
+          <li>Each completed step returns the canonical Commons receipt.</li>
+          <li>Runtime-backed verification stays visible, but clearly downstream of the receipt contract.</li>
         </ul>
       </aside>
     </div>
@@ -406,7 +408,7 @@ details[open] summary::after { content: "▴"; }
       <div class="section__header">
         <div class="section__eyebrow">Default Flow</div>
         <h2>fetch → analyze → summarize</h2>
-        <p>The page loads preconfigured to show the primary Commons proof path: live retrieval, structured processing, and a concise result, each backed by signed evidence.</p>
+        <p>The page loads preconfigured to show the primary Commons proof path: live retrieval, structured processing, and a concise result, each backed by canonical receipts first and runtime-backed verification second.</p>
       </div>
       <div class="panel">
         <div class="flow-strip" aria-label="Default verified flow strip">
@@ -431,7 +433,7 @@ details[open] summary::after { content: "▴"; }
           <div class="run-panel__meta">
             <span class="mini-pill">POST /api/commons-flow</span>
             <span class="mini-pill">Defaults to Commons v1.1.0</span>
-            <span class="mini-pill">Receipts verified inline</span>
+            <span class="mini-pill">Canonical receipts first</span>
           </div>
         </div>
       </div>
@@ -443,7 +445,7 @@ details[open] summary::after { content: "▴"; }
       <div class="section__header">
         <div class="section__eyebrow">Execution Status</div>
         <h2>Live step progression</h2>
-        <p>Track the proof path as each step runs, generates a receipt, and finishes verification.</p>
+        <p>Track the proof path as each step runs, returns a canonical receipt, and then completes runtime-backed verification.</p>
       </div>
       <div class="panel">
         <div id="status-grid" class="status-grid"></div>
@@ -455,9 +457,9 @@ details[open] summary::after { content: "▴"; }
   <section class="section">
     <div class="container">
       <div class="section__header">
-        <div class="section__eyebrow">Signed Execution Receipts</div>
-        <h2>Signed Execution Receipts</h2>
-        <p>Each step produces a cryptographically signed receipt that can be independently verified.</p>
+        <div class="section__eyebrow">Canonical receipts</div>
+        <h2>Canonical Commons receipts</h2>
+        <p>Each step produces the canonical Commons receipt. Verification evidence stays inspectable, but separate from base receipt semantics.</p>
       </div>
       <div id="receipt-cards" class="receipt-stack">
         <div class="panel mini-note">Run Verified Flow to render receipt cards for each step.</div>
@@ -469,20 +471,20 @@ details[open] summary::after { content: "▴"; }
     <div class="container">
       <div class="proof-strip">
         <div class="section__header" style="margin-bottom:0;">
-          <h2>Why this proves execution</h2>
+          <h2>Why this proves execution without blurring layers</h2>
         </div>
         <div class="proof-strip__points">
           <article class="proof-point">
-            <strong>Each step returned a signed receipt</strong>
-            <p>Receipts are emitted by the live runtime, not synthesized in the UI.</p>
+            <strong>Each step returned a canonical receipt</strong>
+            <p>The UI shows the contract payload directly instead of treating runtime wrappers as protocol truth.</p>
           </article>
           <article class="proof-point">
-            <strong>Each receipt is bound to a request hash</strong>
-            <p>The proof links the signed output back to the exact request and result payload.</p>
+            <strong>Runtime-backed proof stays around the receipt</strong>
+            <p>The proof layer links execution evidence back to the exact request and result payload without redefining receipt semantics.</p>
           </article>
           <article class="proof-point">
-            <strong>Verification checks integrity and signer identity</strong>
-            <p>Inline verification validates schema shape, payload integrity, and signature validity.</p>
+            <strong>Verification stays visible and understandable</strong>
+            <p>Inline verification validates schema shape, payload integrity, and signer identity after the receipt is already clear.</p>
           </article>
         </div>
       </div>
@@ -510,11 +512,11 @@ details[open] summary::after { content: "▴"; }
   <section class="section">
     <div class="container">
       <details class="advanced-panel">
-        <summary>Advanced Debug</summary>
+        <summary>Advanced builder and debug tools</summary>
         <div class="advanced-grid">
           <div>
             <h3 style="margin-top:0;">Advanced Flow Builder</h3>
-            <p class="advanced-note">The primary demo path above stays locked to fetch → analyze → summarize. Use these controls only if you want to inspect or modify the underlying Commons flow configuration.</p>
+            <p class="advanced-note">The default story above is the main proof surface. Use these controls only if you want to explore or modify the underlying Commons flow configuration as an advanced technical user.</p>
             <div class="form-row">
               <label for="step1-verb">Step 1 Verb</label>
               <select id="step1-verb"></select>
@@ -575,11 +577,24 @@ details[open] summary::after { content: "▴"; }
 
 <footer class="site-footer">
   <div class="container site-footer__inner">
-    <div>© CommandLayer — trust layer for agent execution</div>
-    <div>Version policy: Commons v1.1.0 now · Commercial v1.0.0 · Agent Cards v1.0.0 · Runtime proves execution</div>
+    <div class="site-footer__top">
+      <div>© CommandLayer — trust layer for agent execution</div>
+      <div>Commons v1.1.0 · Commercial v1.0.0 · Agent Cards v1.0.0 · Runtime proves execution</div>
+    </div>
+    <div class="site-footer__cols">
+      <div class="site-footer__col">
+        <div class="site-footer__col-title">Canonical CIDs</div>
+        <p>Commons receipts stay pinned to public contract semantics and remain inspectable independently of any runtime verification layer.</p>
+      </div>
+      <div class="site-footer__col">
+        <div class="site-footer__col-title">Security</div>
+        <p>Runtime-backed verification checks signer identity and execution evidence around the canonical receipt without becoming the receipt itself.</p>
+      </div>
+    </div>
     <div class="site-footer__links">
-      <a href="/docs.html">Docs</a>
-      <a href="/FAQ.html">FAQ</a>
+      <a href="/commons.html">Schemas</a>
+      <a href="/quickstart.html">Quickstart</a>
+      <a href="/repositories.html">Repositories</a>
       <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
     </div>
   </div>
