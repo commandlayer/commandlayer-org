@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CommandLayer — Commons Flow Composer</title>
+<title>CommandLayer — Run a Verified Agent Flow</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="description" content="Interactive CommandLayer Commons demo — compose up to three verbs, send a flow, and inspect real runtime receipts (Ajv-validated) from runtime.commandlayer.org." />
+<meta name="description" content="Execute a live multi-step agent flow and inspect signed receipts for every step. Real runtime. Real receipts. Cryptographically verified." />
 
 <style>
 /* --- KEEP YOUR ORIGINAL CSS EXACTLY (plus a few safe additions at the bottom) --- */
@@ -327,21 +327,21 @@ color: var(--text-muted);
   <section class="hero">
     <div class="container hero__inner">
       <div>
-        <div class="hero__eyebrow">Demo #2 — Commons Flow Composer</div>
+        <div class="hero__eyebrow">Live Demo — Verified Agent Flow</div>
         <h1 class="hero__title">
-          <span>Compose multi-step Commons flows</span>
-          <span class="hero__title-em">and inspect real runtime receipts.</span>
+          <span>Run a Verified Agent Flow</span>
+          <span class="hero__title-em">and inspect signed receipts for every step.</span>
         </h1>
 
         <p class="hero__subtitle">
-          This page calls <code>/api/commons-flow</code> (Vercel) which forwards each step to your runtime at
-          <code>https://runtime.commandlayer.org</code>.
-          You get back the <em>actual</em> per-step receipts — and you can verify <strong>schema + hash + signature</strong>
-          inline, then copy matching <code>curl</code> for reproduction.
+          Execute a live multi-step agent flow and inspect signed receipts for every step.
+          Each step calls <code>runtime.commandlayer.org</code> and returns a real receipt —
+          verified inline with <strong>schema + hash + signature</strong>.
+          Copy any step as <code>curl</code> to reproduce independently.
         </p>
 
         <div class="hero__cta-row">
-          <a href="#composer" class="btn btn--primary"><span class="btn__icon">▶️</span><span>Run a Commons flow</span></a>
+          <a href="#composer" class="btn btn--primary"><span class="btn__icon">▶️</span><span>Run a verified agent flow</span></a>
           <a href="/demo.html" class="btn btn--ghost"><span class="btn__icon">💳</span><span>Back to commerce demo</span></a>
         </div>
 
@@ -349,6 +349,7 @@ color: var(--text-muted);
           <span class="hero__meta-pill">Runtime-backed (runtime.commandlayer.org)</span>
           <span class="hero__meta-pill">Receipts = evidence (signed)</span>
           <span class="hero__meta-pill">Verify: schema + hash + signature</span>
+          <span class="hero__meta-pill">ERC-8004 registered</span>
         </div>
       </div>
 
@@ -368,7 +369,7 @@ color: var(--text-muted);
   <section class="section section--composer" id="composer">
     <div class="container">
       <div class="section__header">
-        <h2>Pick verbs, send a flow, inspect the receipts</h2>
+        <h2>Build an agent flow — inspect signed receipts</h2>
         <p>
           Under the hood: <code>POST /api/commons-flow</code>. The API forwards each step to your runtime base URL
           (from <code>RUNTIME_BASE_URL</code> on Vercel).
@@ -377,7 +378,7 @@ color: var(--text-muted);
 
       <div class="composer-grid">
         <div class="card">
-          <h3>Build a Commons flow</h3>
+          <h3>Configure agent flow</h3>
 
           <div class="steps-grid">
             <div class="step-card">
@@ -462,7 +463,7 @@ color: var(--text-muted);
           </div>
 
           <div class="form-actions">
-            <button id="run-flow" class="btn btn--primary"><span class="btn__icon">⚡</span><span>Run Commons flow</span></button>
+            <button id="run-flow" class="btn btn--primary"><span class="btn__icon">⚡</span><span>Run agent flow</span></button>
             <button id="reset-flow" class="btn btn--ghost" type="button"><span class="btn__icon">♻️</span><span>Reset</span></button>
             <button id="copy-curl" class="btn btn--ghost" type="button" title="Copies the last generated curl commands"><span class="btn__icon">📋</span><span>Copy curl</span></button>
           </div>
@@ -485,7 +486,7 @@ color: var(--text-muted);
         </div>
 
         <div class="card">
-          <h3>Flow output</h3>
+          <h3>Signed receipts</h3>
           <div class="output-label">Rendered receipts</div>
           <div id="receipt-cards" class="receipt-stack">
             <div class="mini-note">Run a flow to render per-step receipts with verify + curl.</div>
@@ -504,7 +505,7 @@ color: var(--text-muted);
 <footer class="site-footer">
   <div class="container site-footer__inner">
     <div>© CommandLayer — semantic layer for autonomous agents</div>
-    <div>Protocol v1.0.0 · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free</div>
+    <div>Protocol v1.1.0 · Commons MIT · ERC-8004 registered · Schemas always free</div>
     <div class="site-footer__links">
       <a href="/docs.html">Docs</a>
       <a href="/FAQ.html">FAQ</a>
