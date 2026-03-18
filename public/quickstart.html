@@ -703,7 +703,7 @@
 
             <ul class="hero__list">
               <li>Pick a verb (start with deterministic <code>clean</code>), call the runtime endpoint.</li>
-              <li>Receive the canonical Commons receipt: <code>status</code>, <code>x402</code>, <code>result</code>, plus any runtime-added fields.</li>
+              <li>Receive the canonical Commons receipt first: top-level verb identity, status, and verb-specific output fields. Treat any runtime-added metadata as separate.</li>
               <li>Verify: hash → signature (full verification adds schema + key resolution).</li>
             </ul>
 
@@ -730,7 +730,7 @@
             </p>
             <ol class="hero__card-list">
               <li>Call <code>POST /clean/v1.1.0</code> with the pinned Commons request shape.</li>
-              <li>Inspect the canonical receipt first: <code>status</code>, <code>x402</code>, and <code>result</code>.</li>
+              <li>Inspect the canonical receipt first: <code>verb</code>, <code>schema_version</code>, <code>status</code>, and the verb-specific output fields.</li>
               <li>Then inspect runtime fields like <code>trace</code> or <code>metadata.proof</code> only if your executor adds them.</li>
               <li>Resolve: use ENS TXT records to discover schema URLs &amp; entry.</li>
             </ol>
@@ -789,17 +789,13 @@
   -X POST 'https://runtime.commandlayer.org/clean/v1.1.0' \
   -H 'Content-Type: application/json' \
   --data-binary '{
-    "x402": {
-      "entry": "x402://cleanagent.eth/clean/v1.1.0",
-      "verb": "clean",
-      "version": "1.1.0"
-    },
-    "actor": "quickstart.commandlayer.org",
-    "trace": { "trace_id": "quickstart-001" },
-    "input": { "content": "   hello   world  ", "operations": ["collapse_whitespace","trim"] }
+    "verb": "clean",
+    "schema_version": "1.1.0",
+    "content": "   hello   world  ",
+    "operations": ["collapse_whitespace", "trim"]
   }'</pre>
               <div class="mini-example__note">
-                Tip: you can change <span class="kbd">trace_id</span> freely. Keep it stable if you chain steps.
+                Tip: start with the flat canonical request body above. If your runtime later adds trace metadata for chaining, treat that as execution context rather than part of the Commons request contract.
               </div>
             </div>
 
@@ -836,8 +832,7 @@
             <article class="info-card">
               <h3>Identity</h3>
               <p>
-                Receipts carry <code>x402.entry</code>, <code>verb</code>, and <code>version</code> so callers can route,
-                cache, and replay safely across runtimes.
+                Canonical receipts carry their own top-level identity such as <code>verb</code>, <code>schema_version</code>, and <code>status</code> so callers can validate the contract without learning any runtime wrapper first.
               </p>
             </article>
 
@@ -861,15 +856,14 @@
             <div class="mini-example">
               <div class="mini-example__row">
                 <div class="mini-example__label">// canonical Commons receipt</div>
-                <button class="copy-btn" type="button" data-copy='{"status":"success","x402":{"verb":"clean","version":"1.1.0","entry":"x402://cleanagent.eth/clean/v1.1.0"},"result":{"cleaned_content":"hello world","operations_applied":["collapse_whitespace","trim"]}}'>📋 Copy</button>
+                <button class="copy-btn" type="button" data-copy='{"verb":"clean","schema_version":"1.1.0","status":"success","cleaned_content":"hello world","operations_applied":["collapse_whitespace","trim"]}'>📋 Copy</button>
               </div>
               <pre>{
+  "verb": "clean",
+  "schema_version": "1.1.0",
   "status": "success",
-  "x402": { "verb": "clean", "version": "1.1.0", "entry": "x402://cleanagent.eth/clean/v1.1.0" },
-  "result": {
-    "cleaned_content": "hello world",
-    "operations_applied": ["collapse_whitespace", "trim"]
-  }
+  "cleaned_content": "hello world",
+  "operations_applied": ["collapse_whitespace", "trim"]
 }</pre>
             </div>
 
@@ -907,8 +901,8 @@
 cl.version                 1.1.0
 cl.class                   commons
 cl.entry                   x402://cleanagent.eth/clean/v1.1.0
-cl.schema.request          https://commandlayer.org/schemas/v1.1.0/...
-cl.schema.receipt          https://commandlayer.org/schemas/v1.1.0/...
+cl.schema.request          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.request.schema.json
+cl.schema.receipt          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.receipt.schema.json
 cl.cid.schemas             bafy...
 cl.schemas.mirror.ipfs     ipfs://bafy...
 cl.schemas.checksums.ipfs  ipfs://.../schemas.v1.1.0.checksums.txt
@@ -923,8 +917,8 @@ cl.receipt.pubkey_b64      ...">📋 Copy</button>
 cl.version                 1.1.0
 cl.class                   commons
 cl.entry                   x402://cleanagent.eth/clean/v1.1.0
-cl.schema.request          https://commandlayer.org/schemas/v1.1.0/...
-cl.schema.receipt          https://commandlayer.org/schemas/v1.1.0/...
+cl.schema.request          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.request.schema.json
+cl.schema.receipt          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.receipt.schema.json
 cl.cid.schemas             bafy...
 cl.schemas.mirror.ipfs     ipfs://bafy...
 cl.schemas.checksums.ipfs  ipfs://.../schemas.v1.1.0.checksums.txt
