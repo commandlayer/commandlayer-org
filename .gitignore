@@ -3,3 +3,6 @@ receipt.json
 body.*.json
 verify.out.json
 
+.env
+.env.local
+.env.*.local

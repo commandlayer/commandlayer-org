@@ -58,6 +58,45 @@ function tryParseJson(text) {
   }
 }
 
+function pickBoolean(...values) {
+  for (const value of values) {
+    if (typeof value === "boolean") return value;
+  }
+  return null;
+}
+
+function normalizeChecks(data, schemaRequested) {
+  const checks = data && typeof data.checks === "object" && data.checks ? { ...data.checks } : {};
+
+  const schemaValid = pickBoolean(
+    checks.schema_valid,
+    data?.schema_valid,
+    data?.schema?.valid,
+    data?.validation?.schema_valid,
+    data?.validation?.valid
+  );
+  const hashMatches = pickBoolean(
+    checks.hash_matches,
+    data?.hash_matches,
+    data?.hash_valid,
+    data?.integrity?.hash_matches,
+    data?.content_hash?.matches
+  );
+  const signatureValid = pickBoolean(
+    checks.signature_valid,
+    data?.signature_valid,
+    data?.signature?.valid,
+    data?.signer?.signature_valid,
+    data?.crypto?.signature_valid
+  );
+
+  checks.schema_valid = schemaValid == null ? (schemaRequested ? false : null) : schemaValid;
+  checks.hash_matches = hashMatches == null ? false : hashMatches;
+  checks.signature_valid = signatureValid == null ? false : signatureValid;
+
+  return checks;
+}
+
 module.exports = async function handler(req, res) {
   respondNoStore(res);
 
@@ -110,12 +149,14 @@ module.exports = async function handler(req, res) {
     const data = parsed.ok
       ? parsed.value
       : { ok: false, error: "Non-JSON response from runtime /verify", raw: String(upstream.text || "").slice(0, 2000) };
+    const normalizedChecks = normalizeChecks(data, schema === "1");
 
     // Preserve upstream status (200/4xx/5xx), but always include meta
     return res.status(upstream.status).end(
       JSON.stringify(
         {
           ...data,
+          checks: normalizedChecks,
           meta: {
             proxy: "vercel",
             runtime: `${RUNTIME_BASE}/verify`,

@@ -832,7 +832,7 @@ button { cursor: pointer; }
   ];
   const EXAMPLE_CHAIN = ["fetch", "analyze", "summarize"];
   const DEFAULT_INPUTS = {
-    fetch: "https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.request.schema.json",
+    fetch: "https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.request.schema.json",
     analyze: "Inspect the fetched contract for key fields and execution semantics.",
     summarize: "Summarize the previous result into an operator-ready brief.",
     classify: "Label the prior output by intent and confidence.",
@@ -859,6 +859,16 @@ button { cursor: pointer; }
   let selectedStepId = null;
   let lastFlow = null;
   let runtimeMeta = null;
+
+  function initializeComposer() {
+    if (!pipeline.length) {
+      seedPipeline();
+      return;
+    }
+    renderPipeline();
+    renderConfig();
+    renderResults(lastFlow);
+  }
 
   function escapeHtml(value) {
     return String(value)
@@ -1182,10 +1192,10 @@ button { cursor: pointer; }
       });
       const data = await res.json().catch(() => ({}));
       const checks = data?.checks || {};
-      return {
-        ok: !!(checks.schema_valid && checks.hash_matches && checks.signature_valid),
-        checks
-      };
+      const ok = typeof data?.ok === "boolean"
+        ? data.ok
+        : (checks.hash_matches === true && checks.signature_valid === true && checks.schema_valid !== false);
+      return { ok, checks };
     } catch {
       return { ok: false, checks: null };
     }
@@ -1294,8 +1304,7 @@ button { cursor: pointer; }
   executeBtn?.addEventListener("click", executePipeline);
 
   renderVerbPicker();
-  seedPipeline();
-  renderResults(null);
+  initializeComposer();
   setRuntimeVisualState(runtimeHealthEl.textContent, runtimeLatencyEl.textContent);
   probeRuntime();
 })();
