@@ -406,6 +406,33 @@
       }
 
       .site-footer__inner {
+  display: grid;
+  gap: 1.1rem;
+}
+.site-footer__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.site-footer__col {
+  border-radius: 18px;
+  padding: 1rem;
+  background: rgba(10, 12, 20, 0.88);
+  border: 1px solid var(--border-soft);
+}
+.site-footer__col-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-muted, var(--text-muted));
+  margin-bottom: 0.45rem;
+}
+.site-footer__cid {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 0.84rem;
+}
+.site-footer__inner {
         padding: 1.4rem 1.5rem 1.8rem;
         font-size: 0.78rem;
         color: var(--text-soft);
@@ -505,12 +532,15 @@
                 Docs &#9662;
               </button>
               <div class="site-header__dropdown-menu">
+                <a href="/docs.html">Docs</a>
                 <a href="/commons.html">Commons</a>
                 <a href="/commercial.html">Commercial</a>
                 <a href="/agent-cards.html">Agent Cards</a>
                 <a href="/runtime.html">Runtime</a>
                 <a href="/manifest.html">Manifest</a>
                 <a href="/licensing.html">Licensing</a>
+                <a href="/FAQ.html">FAQ</a>
+                <a href="/roadmap.html">Roadmap</a>
                 <a href="/about.html">About</a>
               </div>
             </div>
@@ -543,7 +573,7 @@
             </div>
             <div class="subhero__meta">
               <div>Commercial v1.0.0</div>
-              <div>Apache-2.0 · schemas free to use · current contract release</div>
+              <div>Apache-2.0 · commerce-oriented compatibility layer · built on Commons</div>
               <div style="margin-top: 0.3rem">
                 Path pattern:<br />
                 <code>/schemas/v1.0.0/commercial/&lt;verb&gt;/requests/&lt;verb&gt;.request.schema.json</code><br />
@@ -561,7 +591,7 @@
               <p>
                 Commercial verbs capture the higher-value actions agents perform when money,
                 risk, and fulfillment are involved: taking payments, settling purchases,
-                shipping goods, and verifying identities. Commercial extends the same contract model used across CommandLayer, building on Commons semantics rather than introducing a separate ideology or gated language layer.
+                shipping goods, and verifying identities. Commercial extends the same contract model used across CommandLayer, building on Commons semantics while preserving a commerce-oriented compatibility shape where that is useful.
               </p>
             </div>
 
@@ -581,7 +611,7 @@
                 <p>
                   Commercial assumes Commons exists. Analysis, summarization, parsing, and
                   formatting wrap around payment and logistics flows, so you don’t invent
-                  new formats every time you connect an economic agent. Commercial does not change the rule that semantics stay open.
+                  new formats every time you connect an economic agent. Commercial keeps semantics open while preserving a commerce-oriented compatibility shape for paid flows.
                 </p>
               </article>
 
@@ -594,7 +624,7 @@
               </article>
             </div>
             <p style="margin:1.15rem 0 0; color: var(--text-muted); line-height: 1.7;">
-              Schemas remain public and portable; monetization lives in execution. Commercial does not change the rule that semantics stay open.
+              Schemas remain public and portable; monetization lives in execution. Commercial keeps semantics open while preserving a commerce-oriented compatibility shape for paid flows.
             </p>
           </div>
         </section>
@@ -608,14 +638,14 @@
                 Initial set of economic verbs. Each row lists the verb, its purpose, and direct
                 links to the <strong>request</strong> and <strong>receipt</strong> JSON Schemas
                 under <code>https://commandlayer.org</code>. These schemas are the stable contracts
-                for the current commercial release, v1.0.0: request/receipt schemas first, runtime execution metadata second.
+                for Commercial v1.0.0: request/receipt schemas first, runtime execution metadata second. That commerce-oriented compatibility shape is intentional.
               </p>
             </div>
 
             <div class="card-block">
               <h3 class="card-block__title">Commercial schema index</h3>
               <p class="card-block__subtitle">
-                These links are stable for the current commercial release, v1.0.0. When Commercial advances, it will ship as a new version
+                These links are stable for Commercial v1.0.0. The commerce-oriented shape is intentional for compatibility. When Commercial advances, it will ship as a new version
                 (<code>v1.1.0</code>, <code>v2.0.0</code>) under
                 <code>/schemas/vX.Y.Z/commercial/...</code> — early adopters can keep targeting
                 v1.0.0 without churn.
@@ -763,7 +793,7 @@
                 A typical e-commerce or payments agent chains multiple Commercial verbs together —
                 for example:
                 <code>authorize → checkout → purchase → ship → verify</code> — while keeping the
-                same schema contracts across runtimes and rails.
+                same schema contracts across runtimes and rails. <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">View Base registration</a>.
               </p>
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem;">
                 In CommandLayer’s reference flows, the client builds a
@@ -785,7 +815,7 @@
             <div class="card-block">
               <h3 class="card-block__title">Stability, licensing &amp; evolution</h3>
               <p class="card-block__subtitle">
-                Commercial v1.0.0 is intentionally current, not forgotten. Names and schema paths are reserved and stable. Implementations
+                Commercial v1.0.0 is an intentionally current compatibility surface, not a forgotten branch. Names and schema paths are reserved and stable. Implementations
                 can iterate behind these contracts; breaking changes move to new versions.
               </p>
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem;">
@@ -807,18 +837,20 @@
         <div class="container site-footer__inner">
           <div class="site-footer__row">
             <div class="site-footer__col">
-              <div class="site-footer__col-title">Canonical CIDs</div>
-              <div class="site-footer__cid">protocol-commons v1.1.0 &mdash; schemas pinned to IPFS with published checksums</div>
-              <div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
+              <div class="site-footer__col-title">CommandLayer</div>
+              <div class="site-footer__cid">Agents can act. CommandLayer proves they acted.</div>
+              <div class="site-footer__cid">Protocol v1.1.0 &middot; ERC-8004 registered</div>
             </div>
             <div class="site-footer__col">
-              <div class="site-footer__col-title">Security</div>
-              <div>security@commandlayer.org</div>
+              <div class="site-footer__col-title">Stack status</div>
+              <div class="site-footer__cid">Commons is the canonical free, signed-receipt layer. Commercial extends that foundation for commerce-oriented flows.</div>
+              <div class="site-footer__cid">security@commandlayer.org</div>
             </div>
           </div>
           <div class="site-footer__links">
-            <a href="/commons.html">Schemas</a>
-            <a href="/quickstart.html">Quickstart</a>
+            <a href="/docs.html">Docs</a>
+            <a href="/FAQ.html">FAQ</a>
+            <a href="/roadmap.html">Roadmap</a>
             <a href="/repositories.html">Repositories</a>
             <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>

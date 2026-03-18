@@ -574,10 +574,38 @@ button { cursor: pointer; }
 }
 
 .site-footer { border-top: 1px solid rgba(255,255,255,0.07); background: #020308; }
+.site-footer__inner {
+  display: grid;
+  gap: 1.1rem;
+}
+.site-footer__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.site-footer__col {
+  border-radius: 18px;
+  padding: 1rem;
+  background: rgba(10, 12, 20, 0.88);
+  border: 1px solid var(--border-soft);
+}
+.site-footer__col-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-muted, var(--text-muted));
+  margin-bottom: 0.45rem;
+}
+.site-footer__cid {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 0.84rem;
+}
 .site-footer__inner { padding: 1.6rem 1.5rem 2rem; display: grid; gap: 1rem; font-size: 0.8rem; color: var(--text-soft); }
 .site-footer__links { display: flex; gap: 1rem; flex-wrap: wrap; }
 .site-footer__links a { color: var(--metal); text-decoration: none; }
 .site-footer__links a:hover { text-decoration: underline; }
+@media (max-width: 920px) { .site-footer__row { grid-template-columns: minmax(0, 1fr); } }
 
 @keyframes pulse {
   0%, 100% { opacity: 0.8; transform: scale(1); }
@@ -627,14 +655,17 @@ button { cursor: pointer; }
       <div class="site-header__dropdown">
         <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
         <div class="site-header__dropdown-menu">
-          <a href="/commons.html">Commons</a>
-          <a href="/commercial.html">Commercial</a>
-          <a href="/agent-cards.html">Agent Cards</a>
-          <a href="/runtime.html">Runtime</a>
-          <a href="/manifest.html">Manifest</a>
-          <a href="/licensing.html">Licensing</a>
-          <a href="/about.html">About</a>
-        </div>
+                <a href="/docs.html">Docs</a>
+                <a href="/commons.html">Commons</a>
+                <a href="/commercial.html">Commercial</a>
+                <a href="/agent-cards.html">Agent Cards</a>
+                <a href="/runtime.html">Runtime</a>
+                <a href="/manifest.html">Manifest</a>
+                <a href="/licensing.html">Licensing</a>
+                <a href="/FAQ.html">FAQ</a>
+                <a href="/roadmap.html">Roadmap</a>
+                <a href="/about.html">About</a>
+              </div>
       </div>
       <a href="/repositories.html" class="site-header__link">Repositories</a>
       <a href="/demo.html" class="site-header__link">Live Demo</a>
@@ -650,14 +681,14 @@ button { cursor: pointer; }
       <div class="hero__top">
         <div>
           <h1 class="hero__title">Compose verbs into a live runtime pipeline.</h1>
-          <p class="hero__lede">Pick verbs, chain them, and execute against the runtime. Each step returns a canonical receipt. Runtime may attach verification metadata.</p>
+          <p class="hero__lede">Pick verbs, chain them, and execute against the runtime. Each step returns a canonical receipt. Runtime may attach receipt verification details.</p>
         </div>
         <div class="hero__rail" aria-label="Pipeline qualities">
           <div class="hero__pill-group">
             <span class="mini-chip">Pipeline first</span>
             <span class="mini-chip">Sequential execution</span>
             <span class="mini-chip">Per-step receipts</span>
-            <span class="mini-chip">Verification visible</span>
+            <span class="mini-chip">Receipt checks visible</span>
           </div>
           <a href="/demo.html" class="hero__cta">Open Commercial Demo</a>
         </div>
@@ -757,16 +788,28 @@ button { cursor: pointer; }
 </main>
 
 <footer class="site-footer">
-  <div class="container site-footer__inner">
-    <div>© CommandLayer — trust layer for agent execution.</div>
-    <div class="site-footer__links">
-      <a href="/commons.html">Schemas</a>
-      <a href="/runtime.html">Runtime</a>
-      <a href="/repositories.html">Repositories</a>
-      <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
-    </div>
-  </div>
-</footer>
+        <div class="container site-footer__inner">
+          <div class="site-footer__row">
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">CommandLayer</div>
+              <div class="site-footer__cid">Agents can act. CommandLayer proves they acted.</div>
+              <div class="site-footer__cid">Protocol v1.1.0 &middot; ERC-8004 registered</div>
+            </div>
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Stack status</div>
+              <div class="site-footer__cid">Commons is the canonical free, signed-receipt layer. Commercial extends that foundation for commerce-oriented flows.</div>
+              <div class="site-footer__cid">security@commandlayer.org</div>
+            </div>
+          </div>
+          <div class="site-footer__links">
+            <a href="/docs.html">Docs</a>
+            <a href="/FAQ.html">FAQ</a>
+            <a href="/roadmap.html">Roadmap</a>
+            <a href="/repositories.html">Repositories</a>
+            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
+        </div>
+      </footer>
 </div>
 
 <script>
@@ -1016,12 +1059,12 @@ button { cursor: pointer; }
             </div>
             <div class="meta-row">
               <span class="result-status result-status--${escapeHtml(status)}">${escapeHtml(status)}</span>
-              <span class="badge badge--verify">${verificationOk ? "✓ Verified" : "Verification pending"}</span>
+              <span class="badge badge--verify">${verificationOk ? "✓ Verified" : "Receipt check pending"}</span>
             </div>
           </div>
           <div class="result-card__body">
             <div class="receipt-preview">
-              <span class="receipt-preview__label">Result preview</span>
+              <span class="receipt-preview__label">Execution result</span>
               <p>${escapeHtml(preview)}</p>
             </div>
             <div class="block-grid">
@@ -1030,7 +1073,7 @@ button { cursor: pointer; }
                 <pre>${escapeHtml(formatJson(receipt))}</pre>
               </div>
               <div class="meta-block">
-                <span class="block-label">Runtime metadata</span>
+                <span class="block-label">Runtime details</span>
                 <pre>${escapeHtml(formatJson(proof))}</pre>
               </div>
             </div>

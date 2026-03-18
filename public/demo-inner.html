@@ -87,7 +87,34 @@
       .kv div:nth-child(odd) { color: var(--text-muted); }
       .verification-card { border-radius:16px; padding:0.95rem; background: rgba(2,6,23,0.72); border:1px solid rgba(148,163,184,0.14); }
       .site-footer { border-top: 1px solid rgba(255,255,255,0.1); background: #020308; margin-top: auto; }
-      .site-footer__inner { padding: 1.6rem 1.5rem 2rem; display:grid; gap:1.2rem; }
+      .site-footer__inner {
+  display: grid;
+  gap: 1.1rem;
+}
+.site-footer__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.site-footer__col {
+  border-radius: 18px;
+  padding: 1rem;
+  background: rgba(10, 12, 20, 0.88);
+  border: 1px solid var(--border-soft);
+}
+.site-footer__col-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-muted, var(--text-muted));
+  margin-bottom: 0.45rem;
+}
+.site-footer__cid {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 0.84rem;
+}
+.site-footer__inner { padding: 1.6rem 1.5rem 2rem; display:grid; gap:1.2rem; }
       .site-footer__top { display:flex; flex-wrap:wrap; justify-content:space-between; gap:1rem; }
       .site-footer__cols { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
       .site-footer__col { border-radius:18px; padding:1rem; }
@@ -126,7 +153,16 @@
             <div class="site-header__dropdown">
               <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
               <div class="site-header__dropdown-menu">
-                <a href="/commons.html">Commons</a><a href="/commercial.html">Commercial</a><a href="/agent-cards.html">Agent Cards</a><a href="/runtime.html">Runtime</a><a href="/manifest.html">Manifest</a><a href="/licensing.html">Licensing</a><a href="/about.html">About</a>
+                <a href="/docs.html">Docs</a>
+                <a href="/commons.html">Commons</a>
+                <a href="/commercial.html">Commercial</a>
+                <a href="/agent-cards.html">Agent Cards</a>
+                <a href="/runtime.html">Runtime</a>
+                <a href="/manifest.html">Manifest</a>
+                <a href="/licensing.html">Licensing</a>
+                <a href="/FAQ.html">FAQ</a>
+                <a href="/roadmap.html">Roadmap</a>
+                <a href="/about.html">About</a>
               </div>
             </div>
             <a href="/repositories.html" class="site-header__link">Repositories</a>
@@ -146,7 +182,7 @@
               <div class="hero__proofs">
                 <span class="hero__proof-pill">authorize → checkout → purchase → ship → verify</span>
                 <span class="hero__proof-pill helper-pill">Canonical receipt first</span>
-                <span class="hero__proof-pill helper-pill">Runtime metadata second</span>
+                <span class="hero__proof-pill helper-pill">Runtime details second</span>
               </div>
             </div>
             <aside class="hero__aside">
@@ -155,7 +191,7 @@
               <ul>
                 <li>Result / action stays visible for the latest step.</li>
                 <li>Canonical receipt is shown independently of runtime-added metadata.</li>
-                <li>Verification and raw JSON remain inspectable for judges and technical reviewers.</li>
+                <li>Receipt verification and raw JSON remain inspectable for judges and technical reviewers.</li>
               </ul>
             </aside>
           </div>
@@ -218,7 +254,7 @@
                   <div class="step-card"><div class="step-card__index">2.</div><strong>Checkout</strong><span>Order context remains tied to the commercial contract.</span></div>
                   <div class="step-card"><div class="step-card__index">3.</div><strong>Purchase</strong><span>Execution moves forward while receipts remain inspectable.</span></div>
                   <div class="step-card"><div class="step-card__index">4.</div><strong>Ship</strong><span>Fulfillment step can attach runtime trace context.</span></div>
-                  <div class="step-card"><div class="step-card__index">5.</div><strong>Verify</strong><span>Verification checks evidence around the receipt.</span></div>
+                  <div class="step-card"><div class="step-card__index">5.</div><strong>Verify</strong><span>Receipt verification checks evidence around the receipt.</span></div>
                 </div>
               </article>
 
@@ -232,8 +268,8 @@
                 <div class="output-tabs">
                   <button class="tab active" data-tab="latest" onclick="setTab('latest')">Latest step</button>
                   <button class="tab" data-tab="receipt" onclick="setTab('receipt')">Canonical receipt</button>
-                  <button class="tab" data-tab="runtime" onclick="setTab('runtime')">Runtime metadata</button>
-                  <button class="tab" data-tab="verification" onclick="setTab('verification')">Verification</button>
+                  <button class="tab" data-tab="runtime" onclick="setTab('runtime')">Runtime details</button>
+                  <button class="tab" data-tab="verification" onclick="setTab('verification')">Receipt verification</button>
                   <button class="tab" data-tab="raw" onclick="setTab('raw')">Raw JSON</button>
                   <button class="tab" data-tab="curl" onclick="setTab('curl')">Curl</button>
                 </div>
@@ -252,7 +288,7 @@
                   </div>
                   <div class="verification-card">
                     <strong>Boundary reminder</strong>
-                    <p style="margin:0;">If a response returns <code>receipt</code> plus <code>runtime_metadata</code>, the canonical contract lives in <code>receipt</code>. Runtime metadata is proof and orchestration context around that contract.</p>
+                    <p style="margin:0;">If a response returns <code>receipt</code> plus <code>runtime_metadata</code>, the canonical contract lives in <code>receipt</code>. Runtime details are proof and orchestration context around that contract.</p>
                   </div>
                 </div>
               </article>
@@ -263,16 +299,24 @@
 
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <div class="site-footer__top">
-            <div>© CommandLayer — trust layer for agent execution</div>
-            <div>Commercial flow demo · Runtime executes · Receipts stay canonical</div>
-          </div>
-          <div class="site-footer__cols">
-            <div class="site-footer__col"><div class="site-footer__col-title">Canonical CIDs</div><p>Commercial receipts remain contract-grade payloads that can be inspected independently of runtime-added wrappers and metadata.</p></div>
-            <div class="site-footer__col"><div class="site-footer__col-title">Security</div><p>Proof, trace, and orchestration data help verify execution evidence while preserving a clean receipt boundary for protocol semantics.</p></div>
+          <div class="site-footer__row">
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">CommandLayer</div>
+              <div class="site-footer__cid">Agents can act. CommandLayer proves they acted.</div>
+              <div class="site-footer__cid">Protocol v1.1.0 &middot; ERC-8004 registered</div>
+            </div>
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Stack status</div>
+              <div class="site-footer__cid">Commons is the canonical free, signed-receipt layer. Commercial extends that foundation for commerce-oriented flows.</div>
+              <div class="site-footer__cid">security@commandlayer.org</div>
+            </div>
           </div>
           <div class="site-footer__links">
-            <a href="/commons.html">Schemas</a><a href="/quickstart.html">Quickstart</a><a href="/repositories.html">Repositories</a><a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a href="/docs.html">Docs</a>
+            <a href="/FAQ.html">FAQ</a>
+            <a href="/roadmap.html">Roadmap</a>
+            <a href="/repositories.html">Repositories</a>
+            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
       </footer>
@@ -304,8 +348,8 @@
       const TAB_NOTES = {
         latest: 'Latest step action and response summary.',
         receipt: 'Canonical Commercial receipt only. This is the contract layer.',
-        runtime: 'Runtime metadata only. This is trace / proof / orchestration context around the receipt.',
-        verification: 'Verification-focused fields extracted from the latest step.',
+        runtime: 'Runtime details only. This is trace / proof / orchestration context around the receipt.',
+        verification: 'Receipt verification fields extracted from the latest step.',
         raw: 'Raw wrapped response returned by the backend.',
         curl: 'Reproduce the latest request with curl.'
       };
@@ -337,7 +381,7 @@
         renderOutput();
       }
       function setPill(pillEl, textEl, mode, text) { pillEl.className = `status-pill ${mode}`; pillEl.style.display = 'inline-flex'; textEl.textContent = text; }
-      function getBasePayload() { return { buyer: $('buyer').value, chain_id: $('chain_id').value, order_id: $('order_id').value, sku: $('sku').value, qty: Number($('qty').value || 1), total_amount: $('total_amount').value, currency: $('currency').value, address: $('address').value }; }
+      function getBaseRequest() { return { buyer: $('buyer').value, chain_id: $('chain_id').value, order_id: $('order_id').value, sku: $('sku').value, qty: Number($('qty').value || 1), total_amount: $('total_amount').value, currency: $('currency').value, address: $('address').value }; }
       function effectiveTraceId() { const explicit = ($('trace_id').value || '').trim(); return explicit || state.trace_id || null; }
       function updateTrace(traceId) { if (!traceId) return; state.trace_id = traceId; if (!$('trace_id').value) $('trace_id').value = traceId; setPill($('status_pill'), $('status_text'), 'good', `Trace active: ${traceId}`); }
       function renderMetaFromStep(step) {
@@ -388,7 +432,7 @@
         if (!ALLOWED.has(verb)) return;
         try {
           disableButtons(true); setPill($('net_pill'), $('net_text'), 'warn', `Running ${verb}…`);
-          const base = getBasePayload(); const step = { verb, input: buildStepInput(verb, base) }; const trace_id = effectiveTraceId();
+          const base = getBaseRequest(); const step = { verb, input: buildStepInput(verb, base) }; const trace_id = effectiveTraceId();
           const data = await callCommercialFlow([step], trace_id); last = data; const step0 = Array.isArray(data?.steps) ? data.steps[0] : null; const receipt = currentReceipt(step0);
           if (receipt) { const t = safeGet(receipt, 'trace.trace_id') || safeGet(receipt, 'trace_id') || safeGet(currentRuntimeMetadata(step0), 'trace_id') || null; updateTrace(t); captureIdsFromReceipt(receipt); }
           renderMetaFromStep(step0); renderOutput(); setPill($('net_pill'), $('net_text'), 'good', `OK — ${verb} step returned.`);
@@ -399,7 +443,7 @@
         try {
           disableButtons(true); setPill($('net_pill'), $('net_text'), 'warn', 'Running full flow…');
           const keepTrace = ($('trace_id').value || '').trim(); state.last_order_id = null; state.last_shipment_id = null; if (!keepTrace) state.trace_id = null;
-          const base = getBasePayload(); const steps = VERBS.map((v) => ({ verb: v, input: buildStepInput(v, base) })); const trace_id = effectiveTraceId();
+          const base = getBaseRequest(); const steps = VERBS.map((v) => ({ verb: v, input: buildStepInput(v, base) })); const trace_id = effectiveTraceId();
           const data = await callCommercialFlow(steps, trace_id); last = data; const stepsArr = currentSteps(); const firstReceipt = currentReceipt(stepsArr[0]);
           if (firstReceipt) { const t = safeGet(firstReceipt, 'trace.trace_id') || safeGet(firstReceipt, 'trace_id') || safeGet(currentRuntimeMetadata(stepsArr[0]), 'trace_id') || null; updateTrace(t); }
           for (const s of stepsArr) captureIdsFromReceipt(currentReceipt(s));

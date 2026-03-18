@@ -109,7 +109,34 @@
       .proof-surface-cluster { display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 1rem 0 0.75rem; }
       .cta-band { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; align-items: center; }
       .site-footer { border-top: 1px solid rgba(255,255,255,0.1); background: #020308; }
-      .site-footer__inner { padding: 1.6rem 1.5rem 2rem; display: grid; gap: 1.2rem; }
+      .site-footer__inner {
+  display: grid;
+  gap: 1.1rem;
+}
+.site-footer__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.site-footer__col {
+  border-radius: 18px;
+  padding: 1rem;
+  background: rgba(10, 12, 20, 0.88);
+  border: 1px solid var(--border-soft);
+}
+.site-footer__col-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-muted, var(--text-muted));
+  margin-bottom: 0.45rem;
+}
+.site-footer__cid {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 0.84rem;
+}
+.site-footer__inner { padding: 1.6rem 1.5rem 2rem; display: grid; gap: 1.2rem; }
       .site-footer__top { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; }
       .site-footer__cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
       .site-footer__col { border-radius: 18px; padding: 1rem; background: rgba(10, 12, 20, 0.88); border: 1px solid var(--border-soft); }
@@ -118,6 +145,7 @@
       .site-footer__links { display: flex; flex-wrap: wrap; gap: 1rem; }
       .site-footer__links a { color: var(--accent); text-decoration: none; }
       .site-footer__links a:hover { text-decoration: underline; }
+@media (max-width: 920px) { .site-footer__row { grid-template-columns: minmax(0, 1fr); } }
       @media (max-width: 920px) {
         .site-header__inner { padding-inline: 1rem; }
         .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
@@ -145,12 +173,15 @@
             <div class="site-header__dropdown">
               <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
               <div class="site-header__dropdown-menu">
+                <a href="/docs.html">Docs</a>
                 <a href="/commons.html">Commons</a>
                 <a href="/commercial.html">Commercial</a>
                 <a href="/agent-cards.html">Agent Cards</a>
                 <a href="/runtime.html">Runtime</a>
                 <a href="/manifest.html">Manifest</a>
                 <a href="/licensing.html">Licensing</a>
+                <a href="/FAQ.html">FAQ</a>
+                <a href="/roadmap.html">Roadmap</a>
                 <a href="/about.html">About</a>
               </div>
             </div>
@@ -167,7 +198,7 @@
             <div>
               <div class="hero__eyebrow">Live Demo</div>
               <h1 class="hero__title">Proof surfaces that make the stack feel real.</h1>
-              <p class="hero__subtitle">Trigger execution, see the result, inspect the canonical receipt, inspect optional runtime metadata, and verify the proof. The demo layer shows CommandLayer as running infrastructure, not presentation copy.</p>
+              <p class="hero__subtitle">Trigger execution, see the execution result, inspect the canonical receipt, inspect runtime details, and verify the receipt proof. The demo layer shows CommandLayer as running infrastructure, not presentation copy.</p>
               <p class="hero__stack">CommandLayer demos show the full stack in motion: contract from Commons / Commercial, routing from Agent Cards, execution from Runtime.</p>
               <div class="hero__cta">
                 <a href="/composer.html" class="btn btn--primary">Open Commons demo</a>
@@ -177,14 +208,14 @@
                 <span class="hero__proof-pill">Canonical contract</span>
                 <span class="hero__proof-pill">Runtime-backed orchestration</span>
                 <span class="hero__proof-pill">Canonical receipt</span>
-                <span class="hero__proof-pill">Runtime metadata</span>
+                <span class="hero__proof-pill">Runtime details</span>
               </div>
               <div class="proof-surface-cluster">
                 <span class="proof-pill">Trigger execution</span>
                 <span class="proof-pill">See result</span>
                 <span class="proof-pill">Inspect receipt</span>
                 <span class="proof-pill">Inspect metadata</span>
-                <span class="proof-pill">Verify proof</span>
+                <span class="proof-pill">Verify receipt</span>
               </div>
             </div>
             <aside class="hero__aside">
@@ -263,8 +294,8 @@
                     <p>The protocol truth lives in Commons or Commercial receipt semantics. This is the contract layer judges should inspect first.</p>
                   </div>
                   <div class="split-box">
-                    <span class="split-box__tag">Runtime metadata</span>
-                    <strong>Runtime metadata</strong>
+                    <span class="split-box__tag">Runtime details</span>
+                    <strong>Runtime details</strong>
                     <p>Trace IDs, proof payloads, and orchestration details are useful execution evidence, but they are attached around the receipt by Runtime.</p>
                   </div>
                 </div>
@@ -278,7 +309,7 @@
                   <span class="proof-pill">See result</span>
                   <span class="proof-pill">Inspect receipt</span>
                   <span class="proof-pill">Inspect metadata</span>
-                  <span class="proof-pill">Verify proof</span>
+                  <span class="proof-pill">Verify receipt</span>
                 </div>
               </article>
             </div>
@@ -302,23 +333,22 @@
 
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <div class="site-footer__top">
-            <div>© CommandLayer — trust layer for agent execution</div>
-            <div>Commons v1.1.0 · Commercial v1.0.0 · Agent Cards v1.0.0 · Runtime proves execution</div>
-          </div>
-          <div class="site-footer__cols">
+          <div class="site-footer__row">
             <div class="site-footer__col">
-              <div class="site-footer__col-title">Canonical CIDs</div>
-              <p>Receipts and schema surfaces stay tied to pinned, inspectable contract definitions instead of shifting UI abstractions.</p>
+              <div class="site-footer__col-title">CommandLayer</div>
+              <div class="site-footer__cid">Agents can act. CommandLayer proves they acted.</div>
+              <div class="site-footer__cid">Protocol v1.1.0 &middot; ERC-8004 registered</div>
             </div>
             <div class="site-footer__col">
-              <div class="site-footer__col-title">Security</div>
-              <p>Verify signer identity, payload integrity, and runtime evidence without collapsing proof metadata into the receipt contract itself.</p>
+              <div class="site-footer__col-title">Stack status</div>
+              <div class="site-footer__cid">Commons is the canonical free, signed-receipt layer. Commercial extends that foundation for commerce-oriented flows.</div>
+              <div class="site-footer__cid">security@commandlayer.org</div>
             </div>
           </div>
           <div class="site-footer__links">
-            <a href="/commons.html">Schemas</a>
-            <a href="/quickstart.html">Quickstart</a>
+            <a href="/docs.html">Docs</a>
+            <a href="/FAQ.html">FAQ</a>
+            <a href="/roadmap.html">Roadmap</a>
             <a href="/repositories.html">Repositories</a>
             <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>

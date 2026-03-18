@@ -636,14 +636,17 @@
               Docs &#9662;
             </button>
             <div class="site-header__dropdown-menu">
-              <a href="/commons.html">Commons</a>
-              <a href="/commercial.html">Commercial</a>
-              <a href="/agent-cards.html">Agent Cards</a>
-              <a href="/runtime.html">Runtime</a>
-              <a href="/manifest.html">Manifest</a>
-              <a href="/licensing.html">Licensing</a>
-              <a href="/about.html">About</a>
-            </div>
+                <a href="/docs.html">Docs</a>
+                <a href="/commons.html">Commons</a>
+                <a href="/commercial.html">Commercial</a>
+                <a href="/agent-cards.html">Agent Cards</a>
+                <a href="/runtime.html">Runtime</a>
+                <a href="/manifest.html">Manifest</a>
+                <a href="/licensing.html">Licensing</a>
+                <a href="/FAQ.html">FAQ</a>
+                <a href="/roadmap.html">Roadmap</a>
+                <a href="/about.html">About</a>
+              </div>
           </div>
 
           <a href="/repositories.html" class="site-header__link">Repositories</a>
@@ -837,7 +840,7 @@
             </article>
 
             <article class="info-card">
-              <h3>Runtime metadata</h3>
+              <h3>Runtime details</h3>
               <p>
                 Runtimes may attach orchestration data such as <code>trace</code>, timing, or provider labels. That helps with chaining and observability, but it is runtime-specific context rather than the first thing to learn from the Commons contract.
               </p>
@@ -906,7 +909,7 @@ cl.schema.receipt          https://commandlayer.org/schemas/v1.1.0/commons/clean
 cl.cid.schemas             bafy...
 cl.schemas.mirror.ipfs     ipfs://bafy...
 cl.schemas.checksums.ipfs  ipfs://.../schemas.v1.1.0.checksums.txt
-cl.agentcard               https://commandlayer.org/agent-cards/...
+cl.agentcard               https://commandlayer.org/agent-cards/agents/v1.0.0/...
 cl.cid.agentcards          bafy...
 cl.owner                   commandlayer.eth
 cl.receipt.alg             ed25519
@@ -922,7 +925,7 @@ cl.schema.receipt          https://commandlayer.org/schemas/v1.1.0/commons/clean
 cl.cid.schemas             bafy...
 cl.schemas.mirror.ipfs     ipfs://bafy...
 cl.schemas.checksums.ipfs  ipfs://.../schemas.v1.1.0.checksums.txt
-cl.agentcard               https://commandlayer.org/agent-cards/...
+cl.agentcard               https://commandlayer.org/agent-cards/agents/v1.0.0/...
 cl.cid.agentcards          bafy...
 cl.owner                   commandlayer.eth
 cl.receipt.alg             ed25519
@@ -1131,26 +1134,28 @@ Sample receipt: https://commandlayer.org/assets/receipts/clean.quickstart.v1.1.0
     </main>
 
     <footer class="site-footer">
-      <div class="container site-footer__inner">
-        <div class="site-footer__row">
-          <div class="site-footer__col">
-            <div class="site-footer__col-title">Canonical CIDs</div>
-            <div class="site-footer__cid">protocol-commons v1.1.0 &mdash; schemas pinned to IPFS with published checksums</div>
-            <div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
+        <div class="container site-footer__inner">
+          <div class="site-footer__row">
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">CommandLayer</div>
+              <div class="site-footer__cid">Agents can act. CommandLayer proves they acted.</div>
+              <div class="site-footer__cid">Protocol v1.1.0 &middot; ERC-8004 registered</div>
+            </div>
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Stack status</div>
+              <div class="site-footer__cid">Commons is the canonical free, signed-receipt layer. Commercial extends that foundation for commerce-oriented flows.</div>
+              <div class="site-footer__cid">security@commandlayer.org</div>
+            </div>
           </div>
-          <div class="site-footer__col">
-            <div class="site-footer__col-title">Security</div>
-            <div>security@commandlayer.org</div>
+          <div class="site-footer__links">
+            <a href="/docs.html">Docs</a>
+            <a href="/FAQ.html">FAQ</a>
+            <a href="/roadmap.html">Roadmap</a>
+            <a href="/repositories.html">Repositories</a>
+            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
-        <div class="site-footer__links">
-          <a href="/commons.html">Schemas</a>
-          <a href="/quickstart.html">Quickstart</a>
-          <a href="/repositories.html">Repositories</a>
-          <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
-        </div>
-      </div>
-    </footer>
+      </footer>
   </div>
 
   <script>
