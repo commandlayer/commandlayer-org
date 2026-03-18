@@ -403,18 +403,38 @@
         padding: 1.4rem 1.5rem 1.8rem;
         font-size: 0.78rem;
         color: var(--text-soft);
+      }
+
+      .site-footer__row {
+        display: flex;
+        justify-content: space-between;
+        gap: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .site-footer__col {
         display: flex;
         flex-direction: column;
-        gap: 0.4rem;
-        align-items: center;
-        text-align: center;
+        gap: 0.35rem;
+      }
+
+      .site-footer__col-title {
+        color: var(--accent-strong);
+        font-size: 0.76rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .site-footer__cid {
+        color: var(--text-muted);
+        line-height: 1.5;
       }
 
       .site-footer__links {
         display: flex;
         gap: 0.8rem;
-        justify-content: center;
-        margin-top: 0.2rem;
+        flex-wrap: wrap;
       }
 
       .site-footer__links a {
@@ -439,6 +459,7 @@
         .hero__inner { grid-template-columns: minmax(0, 1fr); }
         .hero__card { margin-top: 1.2rem; }
         .grid--3 { grid-template-columns: minmax(0, 1fr); }
+        .site-footer__row { flex-direction: column; gap: 1rem; }
         .site-footer__inner { padding-inline: 1rem; }
       }
     </style>
@@ -506,13 +527,15 @@
               </h1>
 
               <p class="hero__subtitle">
-                Commons and Commercial define <strong>what</strong> a verb means: public request + receipt contracts.
-                Runtime is the <strong>execution surface</strong>: it runs those contracts and may attach
-                <strong>optional</strong> trace, proof, and orchestration metadata — without changing the base receipt semantics.
+                Commons and Commercial define the contract. Runtime defines execution.
+                It runs pinned Commons and Commercial contracts and may attach <strong>optional</strong> trace, proof,
+                timing, and orchestration metadata — without changing the base receipt semantics.
               </p>
 
               <p class="hero__subtitle" style="margin-top:0.85rem;">
-                Today, Runtime is the live proving surface for CommandLayer flows. It sits on top of pinned schemas, executes against the Commons-first contract boundary, and keeps execution accountable across Commons v1.1.0 and Commercial v1.0.0.
+                Today, Runtime is the live reference proving surface for CommandLayer flows. Runtime proof is an
+                execution-layer addition around the canonical receipt, not the canonical receipt itself. Broader
+                runtime policy, metering, guarantees, and ecosystem expansion are still in flight.
               </p>
 
               <div class="hero__cta-row">
@@ -541,7 +564,7 @@
               </p>
               <ul>
                 <li><strong>Is:</strong> a reference runtime that executes schema-stable verbs.</li>
-                <li><strong>Is:</strong> an execution layer that can attach trace, proof, timing, and orchestration metadata around the Commons receipt.</li>
+                <li><strong>Is:</strong> an execution layer that can attach trace, proof, timing, and orchestration metadata around the canonical receipt.</li>
                 <li><strong>Is:</strong> a proving surface — not just logs or responses.</li>
                 <li><strong>Is not:</strong> a closed semantic system — contracts remain public and portable.</li>
                 <li><strong>Is not:</strong> a finished policy or billing platform (yet).</li>
@@ -720,8 +743,7 @@
               </ul>
 
               <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                Simple model: Commons/Commercial are the public language. Runtime is what it means to run it correctly.
-                Semantics stay open. Execution becomes infrastructure.
+                Simple model: Commons receipt first, runtime metadata second. Semantics stay open. Execution becomes infrastructure.
               </p>
             </div>
           </div>
@@ -730,13 +752,21 @@
 
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <div>© CommandLayer — trust layer for agent execution</div>
-          <div>
-            Version policy: Commons v1.1.0 now · Commercial v1.0.0 · Agent Cards v1.0.0 · Runtime proves execution · Schemas always free
+          <div class="site-footer__row">
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Canonical CIDs</div>
+              <div class="site-footer__cid">protocol-commons v1.1.0 &mdash; schemas pinned to IPFS with published checksums</div>
+              <div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
+            </div>
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Security</div>
+              <div>security@commandlayer.org</div>
+            </div>
           </div>
           <div class="site-footer__links">
-            <a href="/docs.html">Docs</a>
-            <a href="/FAQ.html">FAQ</a>
+            <a href="/commons.html">Schemas</a>
+            <a href="/quickstart.html">Quickstart</a>
+            <a href="/repositories.html">Repositories</a>
             <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
         </div>

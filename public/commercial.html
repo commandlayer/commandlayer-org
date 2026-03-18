@@ -531,17 +531,16 @@
               <div class="subhero__eyebrow">Commercial</div>
               <h1 class="subhero__title">Commercial Verbs (v1.0.0)</h1>
               <p class="subhero__subtitle">
-                The <strong>economic side</strong> of CommandLayer — verbs and schemas for
-                payments, settlement, fulfillment, and verification. Commercial builds on
-                Commons semantics and x402 transport, so agents can
-                <strong>authorize, checkout, purchase, ship, and verify</strong> with stable,
-                shared JSON contracts. <strong>All schemas are permanently free</strong>; the
-                economics live in execution, not in the verb language.
+                The <strong>economic contract layer</strong> of CommandLayer — verbs and schemas for
+                payments, settlement, fulfillment, and verification. Commercial extends the canonical contract model:
+                stable request/receipt schemas first, runtime execution metadata second. It builds on Commons semantics
+                and x402 transport so agents can <strong>authorize, checkout, purchase, ship, and verify</strong> with stable,
+                shared JSON contracts. Schemas remain public and portable; monetization lives in execution.
               </p>
             </div>
             <div class="subhero__meta">
               <div>Commercial v1.0.0</div>
-              <div>Apache-2.0 · schemas free to use · current commercial release</div>
+              <div>Apache-2.0 · schemas free to use · current contract release</div>
               <div style="margin-top: 0.3rem">
                 Path pattern:<br />
                 <code>/schemas/v1.0.0/commercial/&lt;verb&gt;/requests/&lt;verb&gt;.request.schema.json</code><br />
@@ -792,8 +791,8 @@
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem;">
                 Commercial schemas are published under <strong>Apache-2.0</strong> and treated as
                 open building blocks for the agent economy. Anyone can implement them; there is no
-                per-schema licensing. Monetization sits in Runtime endpoints, SLAs, and routing —
-                not in who is allowed to speak the verb language.
+                per-schema licensing. Commercial does not change the rule that semantics stay open.
+                Monetization sits in Runtime endpoints, SLAs, and routing — not in who is allowed to speak the verb language.
               </p>
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">
                 Future Commercial verbs (refunds, payouts, subscriptions, risk, and more) will

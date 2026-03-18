@@ -561,8 +561,8 @@ GitHub
 <div class="container">
 <h1>Repositories</h1>
 <p>
-CommandLayer is a multi-repo protocol architecture.
-Each repository owns a distinct layer in the trust stack: Commons defines the canonical receipt contract, then identity, runtimes, SDKs, and proofs build around it.
+CommandLayer is a layered protocol stack: contract, discovery, execution, and tooling.
+Each repository owns a precise place in that architecture so canonical contracts stay distinct from routing metadata and execution metadata.
 </p>
 </div>
 </section>
@@ -572,8 +572,8 @@ Each repository owns a distinct layer in the trust stack: Commons defines the ca
 <section class="section">
 <div class="container">
 <div class="section__header">
-<h2>Schemas</h2>
-<p>Canonical verb definitions, minimum receipt structures, and shared protocol types.</p>
+<h2>Contract and discovery</h2>
+<p>Read the stack in order: canonical contracts first, discovery metadata second.</p>
 </div>
 
 <div class="repo-grid">
@@ -583,13 +583,11 @@ Each repository owns a distinct layer in the trust stack: Commons defines the ca
 <a href="https://github.com/commandlayer/protocol-commons" target="_blank" rel="noopener noreferrer">protocol-commons</a>
 </h3>
 <p class="repo-card__desc">
-Canonical verbs and typed payloads for agent interoperability. This is the base truth judges should learn first: Commons v1.1.0 defines the minimum verifiable receipt.
-Standardizes machine intent through JSON Schema 2020-12 definitions
-for all Commons verbs (analyze, classify, clean, convert, describe, explain, fetch, format, parse, summarize).
+Canonical public contract base truth. Commons v1.1.0 defines the minimum verifiable receipt and the portable request/receipt schemas builders should learn first.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">MIT</span>
-<span class="repo-card__tag">JavaScript</span>
+<span class="repo-card__tag">JSON Schema</span>
 <span class="repo-card__tag">IPFS-pinned</span>
 </div>
 </article>
@@ -600,13 +598,12 @@ for all Commons verbs (analyze, classify, clean, convert, describe, explain, fet
 <a href="https://github.com/commandlayer/protocol-commercial" target="_blank" rel="noopener noreferrer">protocol-commercial</a>
 </h3>
 <p class="repo-card__desc">
-Economic machine intent and x402 execution endpoints for trustless value. Current public release: Commercial v1.0.0.
-transfer and commercial fulfillment. Defines the authorize, checkout,
-purchase, ship, and verify verb schemas.
+Economic contract layer extending Commons. Commercial v1.0.0 carries stable schemas for authorize, checkout, purchase, ship, and verify without monetizing semantics.
 </p>
 <div class="repo-card__meta">
-<span class="repo-card__tag">JavaScript</span>
-<span class="repo-card__tag">x402</span>
+<span class="repo-card__tag">Apache-2.0</span>
+<span class="repo-card__tag">JSON Schema</span>
+<span class="repo-card__tag">x402-aligned</span>
 </div>
 </article>
 
@@ -616,12 +613,10 @@ purchase, ship, and verify verb schemas.
 <a href="https://github.com/commandlayer/agent-cards" target="_blank" rel="noopener noreferrer">agent-cards</a>
 </h3>
 <p class="repo-card__desc">
-Verifiable identity and capabilities for autonomous agents. Current public release: Agent Cards v1.0.0.
-Binds ENS names to verbs, schemas, x402 entrypoints, and discovery metadata.
-Used by registries and clients to discover, rank, and route to agents.
+Identity, discovery, and routing metadata for agents. Agent Cards describe identity, capabilities, schema versions, and entrypoints without redefining receipt semantics.
 </p>
 <div class="repo-card__meta">
-<span class="repo-card__tag">JavaScript</span>
+<span class="repo-card__tag">Apache-2.0</span>
 <span class="repo-card__tag">ENS</span>
 <span class="repo-card__tag">IPFS-pinned</span>
 </div>
@@ -635,8 +630,8 @@ Used by registries and clients to discover, rank, and route to agents.
 <section class="section section--muted">
 <div class="container">
 <div class="section__header">
-<h2>SDK</h2>
-<p>Client libraries for calling verbs and verifying receipts.</p>
+<h2>Tooling</h2>
+<p>Client tooling sits above contracts and runtimes.</p>
 </div>
 
 <div class="repo-grid">
@@ -646,12 +641,9 @@ Used by registries and clients to discover, rank, and route to agents.
 <a href="https://github.com/commandlayer/sdk" target="_blank" rel="noopener noreferrer">sdk</a>
 </h3>
 <p class="repo-card__desc">
-TypeScript + Python SDKs for calling ENS-addressed agent verbs
-and verifying cryptographic receipts via canonical schemas (IPFS)
-and checksums. Supports both Commons and Commercial verb tiers.
+Client tooling for calling pinned Commons and Commercial contracts, resolving Agent Cards, and verifying canonical receipts plus optional runtime metadata.
 </p>
 <div class="repo-card__meta">
-<span class="repo-card__tag">MIT</span>
 <span class="repo-card__tag">TypeScript</span>
 <span class="repo-card__tag">Python</span>
 </div>
@@ -665,41 +657,36 @@ and checksums. Supports both Commons and Commercial verb tiers.
 <section class="section">
 <div class="container">
 <div class="section__header">
-<h2>Runtime</h2>
-<p>Reference execution environments that validate schemas, execute actions, and may attach proof or orchestration metadata around the base receipt.</p>
+<h2>Execution</h2>
+<p>Execution repositories validate pinned contracts and may attach proof and orchestration metadata around canonical receipts.</p>
 </div>
 
 <div class="repo-grid">
 <article class="repo-card">
 <div class="layer-label">runtime</div>
 <h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/runtime" target="_blank" rel="noopener noreferrer">runtime</a>
+<a href="https://github.com/commandlayer/runtime-core" target="_blank" rel="noopener noreferrer">runtime-core</a>
 </h3>
 <p class="repo-card__desc">
-Reference HTTP runtime for CommandLayer verbs. Validates requests against
-pinned schemas, then may attach signed, verifiable proof metadata using ENS key
-discovery. Implements the canonical serialization and Ed25519 signing pipeline.
+Shared execution primitives: schema validation, canonical serialization, signing helpers, and orchestration building blocks used across runtime implementations.
 </p>
 <div class="repo-card__meta">
-<span class="repo-card__tag">MIT</span>
-<span class="repo-card__tag">JavaScript</span>
-<span class="repo-card__tag">Ed25519</span>
+<span class="repo-card__tag">Execution layer</span>
+<span class="repo-card__tag">TypeScript</span>
 </div>
 </article>
 
 <article class="repo-card">
 <div class="layer-label">runtime</div>
 <h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/runtime-core" target="_blank" rel="noopener noreferrer">runtime-core</a>
+<a href="https://github.com/commandlayer/runtime" target="_blank" rel="noopener noreferrer">runtime</a>
 </h3>
 <p class="repo-card__desc">
-Core runtime library. Shared execution logic, schema validation,
-canonical serialization, and optional receipt-signing primitives used by
-runtime implementations.
+Reference execution surface for CommandLayer. Validates pinned contracts and may attach proof and orchestration metadata around canonical receipts.
 </p>
 <div class="repo-card__meta">
-<span class="repo-card__tag">MIT</span>
-<span class="repo-card__tag">TypeScript</span>
+<span class="repo-card__tag">Reference runtime</span>
+<span class="repo-card__tag">Ed25519</span>
 </div>
 </article>
 
@@ -709,12 +696,10 @@ runtime implementations.
 <a href="https://github.com/commandlayer/commercial-runtime" target="_blank" rel="noopener noreferrer">commercial-runtime</a>
 </h3>
 <p class="repo-card__desc">
-Runtime implementation for Commercial verb execution.
-Handles x402 payment envelope integration, economic verb flows
-(authorize, checkout, purchase, ship, verify), and receipt issuance.
+Commercial execution implementation for economic flows. Runs Commercial contracts and may attach proof and orchestration metadata around canonical receipts.
 </p>
 <div class="repo-card__meta">
-<span class="repo-card__tag">JavaScript</span>
+<span class="repo-card__tag">Commercial execution</span>
 <span class="repo-card__tag">x402</span>
 </div>
 </article>
@@ -727,8 +712,8 @@ Handles x402 payment envelope integration, economic verb flows
 <section class="section section--muted">
 <div class="container">
 <div class="section__header">
-<h2>Documentation</h2>
-<p>This site and its supporting infrastructure.</p>
+<h2>Publishing</h2>
+<p>Docs, demos, and public protocol publishing.</p>
 </div>
 
 <div class="repo-grid">
@@ -738,9 +723,7 @@ Handles x402 payment envelope integration, economic verb flows
 <a href="https://github.com/commandlayer/commandlayer-org" target="_blank" rel="noopener noreferrer">commandlayer-org</a>
 </h3>
 <p class="repo-card__desc">
-This website. Static HTML site with Vercel serverless API demos.
-Hosts published schemas, quickstart guides, live verb composer,
-and Commons-first receipt teaching plus verification examples.
+Public publishing surface for docs, demos, schema links, and architectural guidance. It teaches the layered stack and keeps the public contract surfaces easy to inspect.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">HTML</span>
