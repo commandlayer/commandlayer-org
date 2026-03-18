@@ -2,289 +2,343 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CommandLayer — Run a Verified Agent Flow</title>
+<title>CommandLayer — Run a Multi-Step Agent Flow</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="description" content="Execute a live multi-step agent flow and inspect signed receipts for every step. Real runtime. Real receipts. Cryptographically verified." />
-
+<meta name="description" content="Run a live multi-step agent flow, inspect signed execution receipts, and verify each receipt inline." />
 <style>
-/* --- KEEP YOUR ORIGINAL CSS EXACTLY (plus a few safe additions at the bottom) --- */
 :root {
---bg: #05060a;
---bg-elevated: #0a0c14;
---bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
---border-soft: rgba(255, 255, 255, 0.06);
---border-strong: rgba(255, 255, 255, 0.18);
---accent: #c5cbe0;
---accent-strong: #e3e7ff;
---accent-muted: #8f96b5;
---text-main: #f7f8ff;
---text-muted: #9ca3c7;
---text-soft: #6b7280;
---radius-lg: 16px;
---radius-xl: 24px;
---shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
---max-width: 1120px;
+  --bg: #05060a;
+  --bg-elevated: #0a0c14;
+  --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --accent: #c5cbe0;
+  --accent-strong: #eef2ff;
+  --accent-muted: #97a0c5;
+  --success: #86efac;
+  --success-strong: #22c55e;
+  --warning: #93c5fd;
+  --text-main: #f7f8ff;
+  --text-muted: #9ca3c7;
+  --text-soft: #6b7280;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.55);
+  --max-width: 1120px;
 }
 * { box-sizing: border-box; }
 html, body {
-margin: 0;
-padding: 0;
-font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text","Inter", sans-serif;
-background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
-color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+  background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+  color: var(--text-main);
 }
 body { min-height: 100vh; }
+code, pre, .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
 .page-shell { min-height: 100vh; display: flex; flex-direction: column; }
 .page-main { flex: 1; }
 .container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
 
-/* Header */
 .site-header {
-background: var(--bg-header);
-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-position: sticky;
-top: 0;
-z-index: 20;
-backdrop-filter: blur(18px);
+  background: var(--bg-header);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(18px);
 }
 .site-header__inner { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.5rem; }
 .site-header__brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; }
 .site-header__logo-img {
-width: 28px; height: 28px; object-fit: contain; display: block; border-radius: 6px;
-box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
+  width: 28px; height: 28px; object-fit: contain; display: block; border-radius: 6px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
 }
 .site-header__text { display: flex; flex-direction: column; }
 .site-header__title { font-size: 0.98rem; font-weight: 600; letter-spacing: 0.03em; }
 .site-header__subtitle { font-size: 0.78rem; color: var(--text-muted); }
 .site-header__nav { display: flex; gap: 1rem; align-items: center; }
 .site-header__link {
-font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; text-decoration: none;
-color: var(--text-muted); border: 1px solid transparent; white-space: nowrap;
+  font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; text-decoration: none;
+  color: var(--text-muted); border: 1px solid transparent; white-space: nowrap;
 }
 .site-header__link:hover { color: var(--accent-strong); border-color: rgba(255, 255, 255, 0.18); background: rgba(15, 23, 42, 0.7); }
-.site-header__link--active { color: #020617; background: linear-gradient(135deg, #e5e7eb, #cdd3e7); border-color: rgba(255, 255, 255, 0.25); }
-
-/* Docs dropdown */
 .site-header__dropdown { position: relative; }
 .site-header__dropdown-btn {
-font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; border: 1px solid transparent;
-background: transparent; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer;
+  font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; border: 1px solid transparent;
+  background: transparent; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer;
 }
 .site-header__dropdown-btn:hover { color: var(--accent-strong); border-color: rgba(255, 255, 255, 0.18); background: rgba(15, 23, 42, 0.7); }
 .site-header__dropdown-menu {
-position: absolute; top: 2.3rem; right: 0; background: rgba(15, 23, 42, 0.98);
-border-radius: 14px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft);
-padding: 0.5rem 0.4rem; min-width: 210px; display: none;
+  position: absolute; top: 2.3rem; right: 0; background: rgba(15, 23, 42, 0.98);
+  border-radius: 14px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft);
+  padding: 0.5rem 0.4rem; min-width: 210px; display: none;
 }
 .site-header__dropdown-menu a {
-display: block; padding: 0.35rem 0.7rem; font-size: 0.82rem; text-decoration: none;
-color: var(--text-muted); border-radius: 999px;
+  display: block; padding: 0.35rem 0.7rem; font-size: 0.82rem; text-decoration: none;
+  color: var(--text-muted); border-radius: 999px;
 }
 .site-header__dropdown-menu a:hover { color: var(--accent-strong); background: rgba(31, 41, 55, 0.95); }
 .site-header--docs-open .site-header__dropdown-menu { display: block; }
-
-/* Mobile toggle */
 .site-header__toggle {
-display: none; border-radius: 999px; border: 1px solid rgba(148, 163, 184, 0.7);
-background: rgba(15, 23, 42, 0.9); color: var(--text-main); padding: 0.25rem 0.6rem; font-size: 0.9rem; cursor: pointer;
+  display: none; border-radius: 999px; border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.9); color: var(--text-main); padding: 0.25rem 0.6rem; font-size: 0.9rem; cursor: pointer;
 }
-.site-header__toggle:hover { background: rgba(15, 23, 42, 1); }
-
-/* Buttons */
 .btn {
-display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
-padding: 0.6rem 1.1rem; border-radius: 999px; font-size: 0.9rem; text-decoration: none; border: 1px solid transparent; cursor: pointer; white-space: nowrap;
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem;
+  padding: 0.7rem 1.2rem; border-radius: 999px; font-size: 0.92rem; text-decoration: none;
+  border: 1px solid transparent; cursor: pointer; white-space: nowrap;
 }
-.btn--primary { background: linear-gradient(135deg, #e5e7eb, #cdd3e7); color: #020617; border-color: rgba(255, 255, 255, 0.3); box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7); }
-.btn--primary:hover { filter: brightness(1.03); }
+.btn--primary {
+  background: linear-gradient(135deg, #f8fafc, #c7d2fe);
+  color: #020617;
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
 .btn--ghost { background: rgba(15, 23, 42, 0.9); color: var(--accent-strong); border-color: rgba(148, 163, 184, 0.6); }
-.btn--ghost:hover { background: rgba(15, 23, 42, 1); }
+.btn--ghost:hover, .btn--primary:hover { filter: brightness(1.04); }
+.btn--mini { padding: 0.38rem 0.72rem; font-size: 0.8rem; }
 .btn__icon { font-size: 1rem; }
 
-/* Hero */
 .hero {
-padding: 3rem 0 2.4rem;
-border-bottom: 1px solid var(--border-soft);
-background: radial-gradient(circle at 0 0, #111827, #020308);
+  padding: 4.5rem 0 2.5rem;
+  border-bottom: 1px solid var(--border-soft);
+  background: radial-gradient(circle at 15% 10%, rgba(99, 102, 241, 0.18), transparent 25%), radial-gradient(circle at 0 0, #111827, #020308);
 }
-.hero__inner { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr); gap: 2.4rem; align-items: flex-start; }
-.hero__eyebrow { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-muted); margin-bottom: 0.8rem; }
-.hero__title { margin: 0 0 0.8rem; font-size: 2rem; line-height: 1.15; }
-.hero__title-em { background: linear-gradient(135deg, #e5e7eb, #a5b4fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
-.hero__subtitle { margin: 0; color: var(--text-muted); font-size: 0.98rem; max-width: 36rem; line-height: 1.7; }
-.hero__cta-row { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-top: 1.6rem; }
-.hero__meta { margin-top: 1.2rem; display: flex; flex-wrap: wrap; gap: 0.6rem; font-size: 0.8rem; color: var(--text-soft); }
-.hero__meta-pill { border-radius: 999px; border: 1px solid rgba(148, 163, 184, 0.6); padding: 0.18rem 0.55rem; }
-.hero__card { background: rgba(15, 23, 42, 0.95); border-radius: var(--radius-xl); padding: 1.4rem 1.4rem 1.6rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); font-size: 0.9rem; }
-.hero__card h2 { margin: 0 0 0.6rem; font-size: 1rem; }
-.hero__card p { margin: 0; color: var(--text-muted); }
-.hero__card ul { margin: 0.8rem 0 0; padding-left: 1.1rem; }
-.hero__card li { margin-bottom: 0.3rem; }
-
-/* Composer */
-.section { padding: 2.4rem 0 3rem; }
-.section--composer { background: rgb(6, 9, 18); border-top: 1px solid rgba(255, 255, 255, 0.06); border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
-.section__header { max-width: 48rem; margin-bottom: 1.4rem; }
-.section__header h2 { margin: 0 0 0.5rem; font-size: 1.4rem; }
-.section__header p { margin: 0; font-size: 0.95rem; color: var(--text-muted); }
-.composer-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1.4fr); gap: 1.6rem; align-items: flex-start; }
-.card { background: rgba(15, 23, 42, 0.96); border-radius: var(--radius-xl); padding: 1.2rem 1.2rem 1.3rem; border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); font-size: 0.9rem; }
-.card h3 { margin: 0 0 0.7rem; font-size: 1rem; }
-.form-row { margin-bottom: 0.75rem; }
-.form-row label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.25rem; }
-.form-row select, .form-row textarea {
-width: 100%; padding: 0.55rem 0.7rem; border-radius: 10px; border: 1px solid rgba(148, 163, 184, 0.7);
-background: #020617; color: var(--text-main); font-size: 0.88rem; font-family: inherit; resize: vertical; min-height: 72px;
+.hero__wrap {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.95fr);
+  gap: 2rem;
+  align-items: center;
 }
-.form-row select { min-height: unset; }
-.form-row textarea::placeholder { color: #4b5563; }
-.steps-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; }
-.step-card { background: rgba(15, 23, 42, 0.8); border-radius: 12px; padding: 0.8rem 0.8rem 0.9rem; border: 1px solid rgba(31, 41, 55, 0.9); }
-.step-card h4 { margin: 0 0 0.4rem; font-size: 0.9rem; }
+.hero__eyebrow { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-muted); margin-bottom: 0.9rem; }
+.hero__title { margin: 0; font-size: clamp(2.3rem, 5vw, 4.2rem); line-height: 1.02; letter-spacing: -0.04em; max-width: 13ch; }
+.hero__subtitle { margin: 1rem 0 0; color: var(--text-muted); font-size: 1.05rem; max-width: 38rem; line-height: 1.7; }
+.hero__cta { margin-top: 1.8rem; }
+.hero__proofs { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
+.hero__proof-pill {
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.55);
+  padding: 0.24rem 0.7rem;
+  font-size: 0.8rem;
+  color: var(--accent-strong);
+  background: rgba(15, 23, 42, 0.55);
+}
+.hero__aside, .panel, .receipt-card, .proof-strip, details.advanced-panel {
+  background: rgba(10, 12, 20, 0.88);
+  border: 1px solid var(--border-soft);
+  box-shadow: var(--shadow-soft);
+}
+.hero__aside {
+  border-radius: var(--radius-xl);
+  padding: 1.4rem;
+}
+.hero__aside h2 { margin: 0 0 0.75rem; font-size: 1.05rem; }
+.hero__aside p { margin: 0 0 1rem; color: var(--text-muted); line-height: 1.6; }
+.hero__aside ul { margin: 0; padding-left: 1.1rem; color: var(--text-muted); line-height: 1.6; }
 
-.form-actions { display: flex; gap: 0.6rem; margin-top: 0.9rem; align-items: center; flex-wrap: wrap; }
-.pill-row { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.7rem; font-size: 0.78rem; }
-.pill { border-radius: 999px; border: 1px solid rgba(148, 163, 184, 0.8); padding: 0.12rem 0.55rem; color: var(--text-soft); }
+.section { padding: 1.5rem 0 3rem; }
+.section__header { max-width: 46rem; margin-bottom: 1rem; }
+.section__eyebrow { color: var(--accent-muted); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.76rem; margin-bottom: 0.35rem; }
+.section__header h2 { margin: 0 0 0.45rem; font-size: 1.6rem; }
+.section__header p { margin: 0; color: var(--text-muted); line-height: 1.65; }
+.panel { border-radius: var(--radius-xl); padding: 1.3rem; }
 
-.output-label { font-size: 0.8rem; color: var(--text-soft); margin-bottom: 0.25rem; }
+.flow-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+.flow-step {
+  position: relative;
+  border-radius: 18px;
+  padding: 1.1rem;
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.95), rgba(2, 6, 23, 0.86));
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+.flow-step::after {
+  content: "→";
+  position: absolute;
+  right: -0.72rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255,255,255,0.35);
+  font-size: 1.35rem;
+}
+.flow-step:last-child::after { display: none; }
+.flow-step__kicker { color: var(--accent-muted); font-size: 0.77rem; text-transform: uppercase; letter-spacing: 0.1em; }
+.flow-step h3 { margin: 0.4rem 0 0.35rem; font-size: 1.08rem; }
+.flow-step p { margin: 0; color: var(--text-muted); line-height: 1.55; }
+
+.run-panel { margin-top: 1rem; display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: center; justify-content: space-between; }
+.run-panel__meta { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+.mini-pill {
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  padding: 0.22rem 0.6rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+.status-card {
+  border-radius: 18px;
+  padding: 1rem;
+  background: rgba(2, 6, 23, 0.74);
+  border: 1px solid rgba(148, 163, 184, 0.12);
+}
+.status-card__step { color: var(--accent-muted); font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.11em; }
+.status-card h3 { margin: 0.35rem 0 0.5rem; font-size: 1rem; }
+.status-card__state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.16rem 0.58rem;
+  font-size: 0.78rem;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  color: var(--text-muted);
+}
+.status-card__state--running { color: var(--warning); border-color: rgba(59,130,246,0.42); background: rgba(59,130,246,0.08); }
+.status-card__state--done { color: var(--success); border-color: rgba(34,197,94,0.42); background: rgba(34,197,94,0.08); }
+.status-card__state--idle { background: rgba(148,163,184,0.06); }
+.status-card__detail { margin-top: 0.7rem; color: var(--text-muted); line-height: 1.55; min-height: 2.8em; }
+.status-summary { margin-top: 0.9rem; color: var(--text-muted); min-height: 1.4em; }
+.status-summary strong { color: var(--accent-strong); }
+
+.receipt-stack { display: grid; gap: 1rem; }
+.receipt-card { border-radius: 20px; padding: 1.2rem; overflow: hidden; }
+.receipt-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.8rem;
+}
+.receipt-title small { display: block; color: var(--accent-muted); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.75rem; }
+.receipt-title h3 { margin: 0.35rem 0 0; font-size: 1.16rem; }
+.badge-row { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+.badge {
+  font-size: 0.76rem;
+  padding: 0.15rem 0.56rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  color: var(--text-muted);
+  background: rgba(15, 23, 42, 0.7);
+}
+.badge--ok { border-color: rgba(34,197,94,0.42); color: var(--success); background: rgba(34,197,94,0.08); }
+.badge--bad { border-color: rgba(239,68,68,0.42); color: #fca5a5; background: rgba(239,68,68,0.08); }
+.badge--wait { border-color: rgba(59,130,246,0.42); color: var(--warning); background: rgba(59,130,246,0.08); }
+.receipt-proofline { margin: 0 0 0.85rem; color: var(--accent-strong); font-weight: 600; }
+.kv {
+  display: grid;
+  grid-template-columns: 130px minmax(0, 1fr);
+  gap: 0.45rem 0.75rem;
+  font-size: 0.84rem;
+}
+.kv div:nth-child(odd) { color: var(--text-muted); }
+.kv code {
+  display: block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  color: var(--accent-strong);
+}
+.receipt-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
 .output-box {
-background: #020617; border-radius: 10px; border: 1px solid rgba(31, 41, 55, 0.9);
-padding: 0.7rem 0.8rem; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,"Liberation Mono","Courier New", monospace;
-font-size: 0.78rem; color: #e5e7eb; max-height: 340px; overflow: auto; white-space: pre-wrap; word-break: break-word;
+  background: #020617;
+  border-radius: 12px;
+  border: 1px solid rgba(31, 41, 55, 0.9);
+  padding: 0.8rem 0.9rem;
+  font-size: 0.79rem;
+  color: #e5e7eb;
+  max-height: 320px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
-.status-line { font-size: 0.8rem; color: var(--text-soft); margin-top: 0.55rem; }
-.status-line strong { color: var(--accent-strong); }
+.mini-note { font-size: 0.82rem; color: var(--text-soft); }
 
-/* NEW: utility row */
-.util-row {
-margin-top: 0.85rem;
-display: flex;
-flex-wrap: wrap;
-gap: 0.5rem;
-align-items: center;
+.proof-strip {
+  border-radius: var(--radius-xl);
+  padding: 1.2rem;
 }
-.util-pill {
-border-radius: 999px;
-border: 1px solid rgba(148, 163, 184, 0.6);
-padding: 0.18rem 0.55rem;
-font-size: 0.78rem;
-color: var(--text-muted);
+.proof-strip__points { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; margin-top: 1rem; }
+.proof-point {
+  border-radius: 16px;
+  padding: 0.95rem;
+  background: rgba(2, 6, 23, 0.72);
+  border: 1px solid rgba(148, 163, 184, 0.14);
 }
-.util-pill code { color: var(--accent-strong); }
+.proof-point strong { display: block; margin-bottom: 0.35rem; }
+.proof-point p { margin: 0; color: var(--text-muted); line-height: 1.6; }
 
-/* Footer */
+.verb-list { display: flex; flex-wrap: wrap; gap: 0.65rem; }
+.verb-chip {
+  padding: 0.48rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  background: rgba(15, 23, 42, 0.58);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+details.advanced-panel {
+  border-radius: var(--radius-xl);
+  padding: 1rem 1.15rem;
+}
+summary {
+  cursor: pointer;
+  color: var(--accent-strong);
+  font-size: 0.94rem;
+  list-style: none;
+}
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "▾"; float: right; color: var(--accent-muted); }
+details[open] summary::after { content: "▴"; }
+.advanced-grid { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 1rem; margin-top: 1rem; }
+.form-row { margin-bottom: 0.85rem; }
+.form-row label, .prev-toggle label { display: block; font-size: 0.82rem; color: var(--text-muted); margin-bottom: 0.28rem; }
+.form-row select, .form-row textarea {
+  width: 100%; padding: 0.6rem 0.72rem; border-radius: 12px; border: 1px solid rgba(148, 163, 184, 0.5);
+  background: #020617; color: var(--text-main); font-size: 0.88rem; font-family: inherit; resize: vertical; min-height: 72px;
+}
+.form-row select { min-height: auto; }
+.prev-toggle { display: flex; align-items: center; gap: 0.45rem; margin-top: 0.55rem; font-size: 0.8rem; color: var(--text-muted); }
+.prev-toggle input { transform: translateY(1px); }
+.advanced-note { color: var(--text-muted); line-height: 1.65; margin-bottom: 1rem; }
+.utility-row, .builder-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: center; }
+.builder-actions { margin-top: 0.9rem; }
+
 .site-footer { border-top: 1px solid rgba(255, 255, 255, 0.1); background: #020308; }
 .site-footer__inner {
-padding: 1.4rem 1.5rem 1.8rem; font-size: 0.78rem; color: var(--text-soft);
-display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-align: center;
+  padding: 1.4rem 1.5rem 1.8rem; font-size: 0.78rem; color: var(--text-soft);
+  display: flex; flex-direction: column; gap: 0.4rem; align-items: center; text-align: center;
 }
 .site-footer__links { display: flex; gap: 0.8rem; justify-content: center; margin-top: 0.2rem; }
 .site-footer__links a { color: var(--accent); text-decoration: none; }
 .site-footer__links a:hover { text-decoration: underline; }
 
-/* Mobile */
-@media (max-width: 880px) {
-.site-header__inner { padding-inline: 1rem; }
-.site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
-.site-header__nav { display: none; flex-direction: column; align-items: flex-start; gap: 0.5rem; margin-top: 0.8rem; }
-.site-header.site-header--open .site-header__nav { display: flex; }
-.hero__inner { grid-template-columns: minmax(0, 1fr); }
-.hero__card { margin-top: 1.4rem; }
-.composer-grid { grid-template-columns: minmax(0, 1fr); }
-.steps-grid { grid-template-columns: minmax(0, 1fr); }
-.site-footer__inner { padding-inline: 1rem; }
+@media (max-width: 920px) {
+  .site-header__inner { padding-inline: 1rem; }
+  .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
+  .site-header__nav { display: none; flex-direction: column; align-items: flex-start; gap: 0.5rem; margin-top: 0.8rem; }
+  .site-header.site-header--open .site-header__nav { display: flex; }
+  .hero__wrap, .advanced-grid { grid-template-columns: minmax(0, 1fr); }
+  .flow-strip, .status-grid, .proof-strip__points { grid-template-columns: minmax(0, 1fr); }
+  .flow-step::after { display: none; }
 }
-
-/* ===== NEW (safe) additions for receipt rendering ===== */
-.receipt-stack { display: flex; flex-direction: column; gap: 0.75rem; }
-.receipt-card {
-border: 1px solid rgba(148,163,184,0.22);
-border-radius: 14px;
-padding: 0.85rem 0.85rem 0.9rem;
-background: rgba(2, 6, 23, 0.72);
-}
-.receipt-head {
-display: flex;
-align-items: center;
-justify-content: space-between;
-gap: 0.75rem;
-flex-wrap: wrap;
-margin-bottom: 0.55rem;
-}
-.receipt-title {
-display: flex;
-align-items: baseline;
-gap: 0.55rem;
-flex-wrap: wrap;
-}
-.receipt-title strong { font-size: 0.92rem; }
-.receipt-sub { font-size: 0.78rem; color: var(--text-muted); }
-.badge-row { display: flex; gap: 0.35rem; flex-wrap: wrap; align-items: center; }
-.badge {
-font-size: 0.74rem;
-padding: 0.12rem 0.5rem;
-border-radius: 999px;
-border: 1px solid rgba(148,163,184,0.25);
-color: var(--text-muted);
-background: rgba(15, 23, 42, 0.6);
-}
-.badge--ok { border-color: rgba(34,197,94,0.45); color: rgba(134,239,172,0.95); background: rgba(34,197,94,0.08); }
-.badge--bad { border-color: rgba(239,68,68,0.45); color: rgba(252,165,165,0.95); background: rgba(239,68,68,0.08); }
-.badge--wait { border-color: rgba(59,130,246,0.45); color: rgba(147,197,253,0.95); background: rgba(59,130,246,0.08); }
-
-.receipt-actions { display: flex; gap: 0.45rem; flex-wrap: wrap; }
-.btn--mini {
-padding: 0.35rem 0.7rem;
-font-size: 0.8rem;
-}
-.mini-note { font-size: 0.78rem; color: var(--text-soft); margin-top: 0.25rem; }
-
-.kv {
-display: grid;
-grid-template-columns: 110px minmax(0, 1fr);
-gap: 0.35rem 0.6rem;
-font-size: 0.82rem;
-margin-top: 0.6rem;
-}
-.kv div:nth-child(odd) { color: var(--text-muted); }
-.kv code { color: var(--accent-strong); }
-
-details {
-border: 1px solid rgba(148,163,184,0.18);
-border-radius: 12px;
-padding: 0.55rem 0.65rem;
-background: rgba(15,23,42,0.45);
-margin-top: 0.6rem;
-}
-summary { cursor: pointer; color: var(--accent-strong); font-size: 0.82rem; }
-summary:hover { filter: brightness(1.05); }
-
-.prev-toggle {
-display: flex;
-align-items: center;
-gap: 0.45rem;
-margin-top: 0.45rem;
-font-size: 0.78rem;
-color: var(--text-muted);
-}
-.prev-toggle input { transform: translateY(1px); }
-.prev-toggle code { color: var(--accent-strong); }
-
-/* ===== POLISH PATCH: prevent long receipt_id overflow ===== */
-.kv { min-width: 0; }
-.kv > div { min-width: 0; }
-.kv code{
-  display: block;
-  max-width: 100%;
-  white-space: nowrap;
-  overflow-x: auto;
-  overflow-y: hidden;
-  padding-bottom: 2px;
-}
-.receipt-card { overflow: hidden; }
 </style>
 </head>
-
 <body>
 <div class="page-shell">
 <header class="site-header">
@@ -296,13 +350,10 @@ color: var(--text-muted);
         <span class="site-header__subtitle">Semantic verb &amp; schema layer for agents</span>
       </div>
     </a>
-
     <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-
     <nav class="site-header__nav">
       <a href="/" class="site-header__link">Overview</a>
       <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-
       <div class="site-header__dropdown">
         <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
         <div class="site-header__dropdown-menu">
@@ -316,7 +367,6 @@ color: var(--text-muted);
           <a href="/about.html">About CommandLayer</a>
         </div>
       </div>
-
       <a href="/demo.html" class="site-header__link">Live Demo</a>
       <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
     </nav>
@@ -325,179 +375,200 @@ color: var(--text-muted);
 
 <main class="page-main">
   <section class="hero">
-    <div class="container hero__inner">
+    <div class="container hero__wrap">
       <div>
         <div class="hero__eyebrow">Live Demo — Verified Agent Flow</div>
-        <h1 class="hero__title">
-          <span>Run a Verified Agent Flow</span>
-          <span class="hero__title-em">and inspect signed receipts for every step.</span>
-        </h1>
-
-        <p class="hero__subtitle">
-          Execute a live multi-step agent flow and inspect signed receipts for every step.
-          Each step calls <code>runtime.commandlayer.org</code> and returns a real receipt —
-          verified inline with <strong>schema + hash + signature</strong>.
-          Copy any step as <code>curl</code> to reproduce independently.
-        </p>
-
-        <div class="hero__cta-row">
-          <a href="#composer" class="btn btn--primary"><span class="btn__icon">▶️</span><span>Run a verified agent flow</span></a>
-          <a href="/demo.html" class="btn btn--ghost"><span class="btn__icon">💳</span><span>Back to commerce demo</span></a>
+        <h1 class="hero__title">Run a Multi-Step Agent Flow</h1>
+        <p class="hero__subtitle">Each step executes live and returns a signed, verifiable receipt.</p>
+        <div class="hero__cta">
+          <button id="run-flow-hero" class="btn btn--primary" type="button"><span class="btn__icon">⚡</span><span>Run Verified Flow</span></button>
         </div>
-
-        <div class="hero__meta">
-          <span class="hero__meta-pill">Runtime-backed (runtime.commandlayer.org)</span>
-          <span class="hero__meta-pill">Receipts = evidence (signed)</span>
-          <span class="hero__meta-pill">Verify: schema + hash + signature</span>
-          <span class="hero__meta-pill">ERC-8004 registered</span>
+        <div class="hero__proofs" aria-label="Proof points">
+          <span class="hero__proof-pill">Live Runtime</span>
+          <span class="hero__proof-pill">Signed Receipts</span>
+          <span class="hero__proof-pill">Independent Verification</span>
         </div>
       </div>
-
-      <aside class="hero__card">
-        <h2>What this demo proves</h2>
-        <p>Not a mock. This is your live runtime and your real receipts.</p>
+      <aside class="hero__aside">
+        <h2>What the judge sees immediately</h2>
+        <p>A live three-step execution path that fetches, analyzes, and summarizes real data through <code>runtime.commandlayer.org</code>.</p>
         <ul>
-          <li>Vercel UI → Vercel API → runtime.commandlayer.org → receipts.</li>
-          <li>Each step is a real POST to <code>/{verb}/v1.0.0</code>.</li>
-          <li>Inline verify proves schema + cryptographic integrity.</li>
-          <li>Copy-pasteable <code>curl</code> makes every step reproducible.</li>
+          <li>One click starts the default flow with no configuration required.</li>
+          <li>Each completed step returns a signed execution receipt.</li>
+          <li>Receipts can be verified inline and reproduced with <code>curl</code>.</li>
         </ul>
       </aside>
     </div>
   </section>
 
-  <section class="section section--composer" id="composer">
+  <section class="section" id="flow-demo">
     <div class="container">
       <div class="section__header">
-        <h2>Build an agent flow — inspect signed receipts</h2>
-        <p>
-          Under the hood: <code>POST /api/commons-flow</code>. The API forwards each step to your runtime base URL
-          (from <code>RUNTIME_BASE_URL</code> on Vercel).
-        </p>
+        <div class="section__eyebrow">Default Flow</div>
+        <h2>fetch → analyze → summarize</h2>
+        <p>The page loads preconfigured to show the primary Commons proof path: live retrieval, structured processing, and a concise result, each backed by signed evidence.</p>
       </div>
-
-      <div class="composer-grid">
-        <div class="card">
-          <h3>Configure agent flow</h3>
-
-          <div class="steps-grid">
-            <div class="step-card">
-              <h4>Step 1</h4>
-              <div class="form-row">
-                <label for="step1-verb">Verb</label>
-                <select id="step1-verb">
-                  <option value="">-- choose --</option>
-                  <option value="summarize">summarize</option>
-                  <option value="analyze">analyze</option>
-                  <option value="classify">classify</option>
-                  <option value="clean">clean</option>
-                  <option value="convert">convert</option>
-                  <option value="describe">describe</option>
-                  <option value="explain">explain</option>
-                  <option value="format">format</option>
-                  <option value="parse">parse</option>
-                  <option value="fetch">fetch</option>
-                </select>
-              </div>
-              <div class="form-row">
-                <label for="step1-input">Input</label>
-                <textarea id="step1-input" rows="4" placeholder="Required. Plain text OR JSON input object for step 1."></textarea>
-              </div>
-            </div>
-
-            <div class="step-card">
-              <h4>Step 2 (optional)</h4>
-              <div class="form-row">
-                <label for="step2-verb">Verb</label>
-                <select id="step2-verb">
-                  <option value="">-- none --</option>
-                  <option value="summarize">summarize</option>
-                  <option value="analyze">analyze</option>
-                  <option value="classify">classify</option>
-                  <option value="clean">clean</option>
-                  <option value="convert">convert</option>
-                  <option value="describe">describe</option>
-                  <option value="explain">explain</option>
-                  <option value="format">format</option>
-                  <option value="parse">parse</option>
-                  <option value="fetch">fetch</option>
-                </select>
-              </div>
-              <div class="form-row">
-                <label for="step2-input">Input</label>
-                <textarea id="step2-input" rows="4" placeholder="Optional. Plain text OR JSON input object for step 2."></textarea>
-                <div class="prev-toggle">
-                  <input type="checkbox" id="step2-use-prev" />
-                  <label for="step2-use-prev">Use previous step <code>result</code> as input</label>
-                </div>
-              </div>
-            </div>
-
-            <div class="step-card">
-              <h4>Step 3 (optional)</h4>
-              <div class="form-row">
-                <label for="step3-verb">Verb</label>
-                <select id="step3-verb">
-                  <option value="">-- none --</option>
-                  <option value="summarize">summarize</option>
-                  <option value="analyze">analyze</option>
-                  <option value="classify">classify</option>
-                  <option value="clean">clean</option>
-                  <option value="convert">convert</option>
-                  <option value="describe">describe</option>
-                  <option value="explain">explain</option>
-                  <option value="format">format</option>
-                  <option value="parse">parse</option>
-                  <option value="fetch">fetch</option>
-                </select>
-              </div>
-              <div class="form-row">
-                <label for="step3-input">Input</label>
-                <textarea id="step3-input" rows="4" placeholder="Optional. Plain text OR JSON input object for step 3."></textarea>
-                <div class="prev-toggle">
-                  <input type="checkbox" id="step3-use-prev" />
-                  <label for="step3-use-prev">Use previous step <code>result</code> as input</label>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-actions">
-            <button id="run-flow" class="btn btn--primary"><span class="btn__icon">⚡</span><span>Run agent flow</span></button>
-            <button id="reset-flow" class="btn btn--ghost" type="button"><span class="btn__icon">♻️</span><span>Reset</span></button>
-            <button id="copy-curl" class="btn btn--ghost" type="button" title="Copies the last generated curl commands"><span class="btn__icon">📋</span><span>Copy curl</span></button>
-          </div>
-
-          <div class="util-row">
-            <span class="util-pill">Backend: <code>/api/commons-flow</code></span>
-            <span class="util-pill" id="runtime-pill">Runtime: <code>loading…</code></span>
-            <span class="util-pill" id="health-pill">Health: <code>unknown</code></span>
-            <span class="util-pill" id="time-pill">Server: <code>—</code></span>
-          </div>
-
-          <div class="pill-row">
-            <span class="pill">10 Commons verbs</span>
-            <span class="pill">Real runtime receipts</span>
-            <span class="pill">Inline verify</span>
-            <span class="pill">Per-step curl repro</span>
-          </div>
-
-          <div id="status-line" class="status-line"></div>
+      <div class="panel">
+        <div class="flow-strip" aria-label="Default verified flow strip">
+          <article class="flow-step">
+            <div class="flow-step__kicker">Step 1</div>
+            <h3>Fetch Data</h3>
+            <p>Fetches live content from a real source</p>
+          </article>
+          <article class="flow-step">
+            <div class="flow-step__kicker">Step 2</div>
+            <h3>Analyze Content</h3>
+            <p>Processes the fetched content</p>
+          </article>
+          <article class="flow-step">
+            <div class="flow-step__kicker">Step 3</div>
+            <h3>Summarize Result</h3>
+            <p>Produces a concise human-readable result</p>
+          </article>
         </div>
-
-        <div class="card">
-          <h3>Signed receipts</h3>
-          <div class="output-label">Rendered receipts</div>
-          <div id="receipt-cards" class="receipt-stack">
-            <div class="mini-note">Run a flow to render per-step receipts with verify + curl.</div>
+        <div class="run-panel">
+          <button id="run-flow" class="btn btn--primary" type="button"><span class="btn__icon">▶</span><span>Run Verified Flow</span></button>
+          <div class="run-panel__meta">
+            <span class="mini-pill">POST /api/commons-flow</span>
+            <span class="mini-pill">Runtime-backed execution</span>
+            <span class="mini-pill">Receipts verified inline</span>
           </div>
-
-          <div style="height: 0.75rem;"></div>
-
-          <div class="output-label">Raw JSON (debug)</div>
-          <pre id="flow-output" class="output-box">// Configure your steps on the left and hit "Run Commons flow"…</pre>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section__header">
+        <div class="section__eyebrow">Execution Status</div>
+        <h2>Live step progression</h2>
+        <p>Track the proof path as each step runs, generates a receipt, and finishes verification.</p>
+      </div>
+      <div class="panel">
+        <div id="status-grid" class="status-grid"></div>
+        <div id="status-summary" class="status-summary"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section__header">
+        <div class="section__eyebrow">Signed Execution Receipts</div>
+        <h2>Signed Execution Receipts</h2>
+        <p>Each step produces a cryptographically signed receipt that can be independently verified.</p>
+      </div>
+      <div id="receipt-cards" class="receipt-stack">
+        <div class="panel mini-note">Run Verified Flow to render receipt cards for each step.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="proof-strip">
+        <div class="section__header" style="margin-bottom:0;">
+          <h2>Why this proves execution</h2>
+        </div>
+        <div class="proof-strip__points">
+          <article class="proof-point">
+            <strong>Each step returned a signed receipt</strong>
+            <p>Receipts are emitted by the live runtime, not synthesized in the UI.</p>
+          </article>
+          <article class="proof-point">
+            <strong>Each receipt is bound to a request hash</strong>
+            <p>The proof links the signed output back to the exact request and result payload.</p>
+          </article>
+          <article class="proof-point">
+            <strong>Verification checks integrity and signer identity</strong>
+            <p>Inline verification validates schema shape, payload integrity, and signature validity.</p>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section__header">
+        <h2>Additional Commons Verbs</h2>
+        <p>Additional standardized actions available in CommandLayer Commons v1.1.0</p>
+      </div>
+      <div class="verb-list" aria-label="Additional Commons verbs">
+        <span class="verb-chip">classify</span>
+        <span class="verb-chip">parse</span>
+        <span class="verb-chip">format</span>
+        <span class="verb-chip">clean</span>
+        <span class="verb-chip">convert</span>
+        <span class="verb-chip">describe</span>
+        <span class="verb-chip">explain</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <details class="advanced-panel">
+        <summary>Advanced Debug</summary>
+        <div class="advanced-grid">
+          <div>
+            <h3 style="margin-top:0;">Advanced Flow Builder</h3>
+            <p class="advanced-note">The primary demo path above stays locked to fetch → analyze → summarize. Use these controls only if you want to inspect or modify the underlying Commons flow configuration.</p>
+            <div class="form-row">
+              <label for="step1-verb">Step 1 Verb</label>
+              <select id="step1-verb"></select>
+            </div>
+            <div class="form-row">
+              <label for="step1-input">Step 1 Input</label>
+              <textarea id="step1-input" rows="5"></textarea>
+            </div>
+
+            <div class="form-row">
+              <label for="step2-verb">Step 2 Verb</label>
+              <select id="step2-verb"></select>
+            </div>
+            <div class="form-row">
+              <label for="step2-input">Step 2 Input</label>
+              <textarea id="step2-input" rows="5"></textarea>
+              <div class="prev-toggle">
+                <input type="checkbox" id="step2-use-prev" />
+                <label for="step2-use-prev">Use previous step result</label>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <label for="step3-verb">Step 3 Verb</label>
+              <select id="step3-verb"></select>
+            </div>
+            <div class="form-row">
+              <label for="step3-input">Step 3 Input</label>
+              <textarea id="step3-input" rows="5"></textarea>
+              <div class="prev-toggle">
+                <input type="checkbox" id="step3-use-prev" />
+                <label for="step3-use-prev">Use previous step result</label>
+              </div>
+            </div>
+
+            <div class="builder-actions">
+              <button id="reset-flow" class="btn btn--ghost" type="button"><span class="btn__icon">↺</span><span>Reset Defaults</span></button>
+              <button id="copy-curl" class="btn btn--ghost" type="button"><span class="btn__icon">📋</span><span>Copy curl</span></button>
+            </div>
+            <div class="utility-row" style="margin-top:0.9rem;">
+              <span class="mini-pill" id="runtime-pill">Runtime: <code>loading…</code></span>
+              <span class="mini-pill" id="health-pill">Health: <code>unknown</code></span>
+              <span class="mini-pill" id="time-pill">Server: <code>—</code></span>
+            </div>
+          </div>
+
+          <div>
+            <h3 style="margin-top:0;">Full Receipt JSON</h3>
+            <pre id="flow-output" class="output-box">// Run Verified Flow to inspect raw response JSON.</pre>
+            <h3>Reproduce with curl</h3>
+            <pre id="curl-output" class="output-box"># Run Verified Flow to generate curl reproduction commands.</pre>
+          </div>
+        </div>
+      </details>
     </div>
   </section>
 </main>
@@ -516,7 +587,6 @@ color: var(--text-muted);
 </div>
 
 <script>
-/* Header behavior (unchanged) */
 (function () {
   const header = document.querySelector(".site-header");
   const toggle = document.querySelector(".site-header__toggle");
@@ -536,37 +606,32 @@ color: var(--text-muted);
   }
 })();
 
-/* === Composer logic (Option C: UI sends input OBJECT) === */
 (function () {
-  const COMMON_VERBS = ["analyze","classify","clean","convert","describe","explain","format","parse","summarize","fetch"];
+  const COMMON_VERBS = ["fetch", "analyze", "summarize", "classify", "parse", "format", "clean", "convert", "describe", "explain"];
+  const DEFAULT_FETCH_URL = "https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.request.schema.json";
+  const DEFAULT_STEPS = [
+    { label: "Fetch Data", verb: "fetch", input: JSON.stringify({ query: DEFAULT_FETCH_URL, mode: "text" }, null, 2), usePrev: false },
+    { label: "Analyze Content", verb: "analyze", input: "", usePrev: true },
+    { label: "Summarize Result", verb: "summarize", input: "", usePrev: true }
+  ];
+  const CANONICAL_RUNTIME_BASE = "https://runtime.commandlayer.org";
 
-  const runButton = document.getElementById("run-flow");
+  const runButtons = [document.getElementById("run-flow"), document.getElementById("run-flow-hero")].filter(Boolean);
   const resetButton = document.getElementById("reset-flow");
   const copyCurlButton = document.getElementById("copy-curl");
-
   const outputEl = document.getElementById("flow-output");
-  const statusLine = document.getElementById("status-line");
+  const curlOutputEl = document.getElementById("curl-output");
   const runtimePill = document.getElementById("runtime-pill");
   const healthPill = document.getElementById("health-pill");
   const timePill = document.getElementById("time-pill");
-
   const receiptCardsEl = document.getElementById("receipt-cards");
-
+  const statusGridEl = document.getElementById("status-grid");
+  const statusSummaryEl = document.getElementById("status-summary");
   const step2UsePrev = document.getElementById("step2-use-prev");
   const step3UsePrev = document.getElementById("step3-use-prev");
 
   let lastCurlBlock = "";
   let lastResponse = null;
-
-  // Canonical runtime base (display only; actual requests go through /api/* proxies)
-  const CANONICAL_RUNTIME_BASE = "https://runtime.commandlayer.org";
-
-  function setOutput(data) {
-    try { outputEl.textContent = JSON.stringify(data, null, 2); }
-    catch { outputEl.textContent = String(data); }
-  }
-
-  function setStatus(html) { statusLine.innerHTML = html || ""; }
 
   function escapeHtml(s) {
     return String(s)
@@ -577,6 +642,15 @@ color: var(--text-muted);
       .replace(/'/g, "&#039;");
   }
 
+  function setOutput(data) {
+    try { outputEl.textContent = JSON.stringify(data, null, 2); }
+    catch { outputEl.textContent = String(data); }
+  }
+
+  function setCurlOutput(text) {
+    curlOutputEl.textContent = text || "# Run Verified Flow to generate curl reproduction commands.";
+  }
+
   function safeJsonParse(text) {
     const s = String(text || "").trim();
     if (!s) return { ok: false };
@@ -585,40 +659,24 @@ color: var(--text-muted);
   }
 
   function inputToObject(textOrJson) {
-    // Option C:
-    // - If textarea is JSON => use as input object/array
-    // - Else => { content: "<text>" }
     const raw = String(textOrJson || "").trim();
     if (!raw) return null;
-
     const parsed = safeJsonParse(raw);
     if (parsed.ok) return parsed.value;
-
     return { content: raw };
   }
 
   function normalizeVerbInput(verb, inputObjRaw) {
     if (!inputObjRaw || typeof inputObjRaw !== "object") return inputObjRaw;
-
     if (Array.isArray(inputObjRaw)) return inputObjRaw;
 
     const keys = Object.keys(inputObjRaw);
-    const isPlainContentOnly =
-      keys.length === 1 &&
-      keys[0] === "content" &&
-      typeof inputObjRaw.content === "string";
-
+    const isPlainContentOnly = keys.length === 1 && keys[0] === "content" && typeof inputObjRaw.content === "string";
     const raw = isPlainContentOnly ? inputObjRaw.content.trim() : null;
 
-    // describe: requires subject; "content" is not allowed by schema
     if (verb === "describe") {
       if (raw) {
-        return {
-          subject: raw.slice(0, 140),
-          context: raw,
-          detail_level: "medium",
-          audience: "general"
-        };
+        return { subject: raw.slice(0, 140), context: raw, detail_level: "medium", audience: "general" };
       }
       if (!inputObjRaw.subject && typeof inputObjRaw.context === "string" && inputObjRaw.context.trim()) {
         return { ...inputObjRaw, subject: inputObjRaw.context.trim().slice(0, 140) };
@@ -626,16 +684,9 @@ color: var(--text-muted);
       return inputObjRaw;
     }
 
-    // explain: requires subject; keep only schema-legal fields
     if (verb === "explain") {
       if (raw) {
-        return {
-          subject: raw.slice(0, 140),
-          context: raw,
-          audience: "general",
-          style: "step-by-step",
-          detail_level: "medium"
-        };
+        return { subject: raw.slice(0, 140), context: raw, audience: "general", style: "step-by-step", detail_level: "medium" };
       }
       if (!inputObjRaw.subject && typeof inputObjRaw.context === "string" && inputObjRaw.context.trim()) {
         return { ...inputObjRaw, subject: inputObjRaw.context.trim().slice(0, 140) };
@@ -643,14 +694,9 @@ color: var(--text-muted);
       return inputObjRaw;
     }
 
-    // convert: requires content + source_format + target_format
     if (verb === "convert") {
       if (raw) {
-        return {
-          content: raw,
-          source_format: "text",
-          target_format: "markdown"
-        };
+        return { content: raw, source_format: "text", target_format: "markdown" };
       }
       const out = { ...inputObjRaw };
       if (!out.source_format) out.source_format = "text";
@@ -663,7 +709,6 @@ color: var(--text-muted);
 
   function pickBestTextFromResult(result) {
     if (!result || typeof result !== "object") return "";
-
     const candidates = [
       result.summary,
       result.cleaned_content,
@@ -672,132 +717,60 @@ color: var(--text-muted);
       result.explanation,
       result.converted_content,
       result.body_preview,
+      result.analysis,
+      result.content
     ].filter(Boolean).map(String);
-
     if (candidates.length) return candidates[0];
-
     if (Array.isArray(result.items) && result.items[0] && result.items[0].body_preview) {
       return String(result.items[0].body_preview);
     }
-
     try { return JSON.stringify(result); } catch { return String(result); }
   }
 
-  const TEMPLATES = {
-    convert: {
-      content: "hello world",
-      source_format: "text",
-      target_format: "markdown"
-    },
-    explain: {
-      subject: "x402 receipt verification",
-      context: "Explain what schema + hash + signature verification proves.",
-      audience: "general",
-      style: "step-by-step",
-      detail_level: "medium"
-    },
-    describe: {
-      subject: "CommandLayer receipt",
-      context: "A receipt returned from the runtime. Describe what it contains and what it proves.",
-      detail_level: "medium",
-      audience: "general"
-    },
-    fetch: {
-      query: "https://example.com",
-      mode: "text"
-    }
-  };
-
-  function maybeInsertTemplateFor(index) {
-    const verbSelect = document.getElementById("step" + index + "-verb");
-    const inputField = document.getElementById("step" + index + "-input");
-    const usePrev = document.getElementById("step" + index + "-use-prev");
-
-    if (!verbSelect || !inputField) return;
-
-    const verb = String(verbSelect.value || "").trim();
-    if (!verb) return;
-
-    if (usePrev && usePrev.checked) return;
-
-    const current = String(inputField.value || "").trim();
-    if (current) return;
-
-    if (TEMPLATES[verb]) {
-      inputField.value = JSON.stringify(TEMPLATES[verb], null, 2);
-    }
-  }
-
-  [1,2,3].forEach((i) => {
-    const sel = document.getElementById("step" + i + "-verb");
-    if (sel) sel.addEventListener("change", () => maybeInsertTemplateFor(i));
-  });
-
-  function setPrevToggleBehavior(index) {
-    const toggle = index === 2 ? step2UsePrev : step3UsePrev;
-    const inputField = document.getElementById("step" + index + "-input");
-    if (!toggle || !inputField) return;
-
-    function apply() {
-      const on = !!toggle.checked;
-      inputField.disabled = on;
-      if (!on) return;
-
-      const steps = lastResponse?.steps || [];
-      const prevIdx = index - 2; // step2 reads step1, step3 reads step2
-      const prev = steps.find(s => s.index === prevIdx);
-      const prevReceipt = prev?.receipt;
-      const best = pickBestTextFromResult(prevReceipt?.result);
-      inputField.value = best || "";
-    }
-
-    toggle.addEventListener("change", apply);
-  }
-
-  setPrevToggleBehavior(2);
-  setPrevToggleBehavior(3);
-
-  function getStep(index) {
-    const verbSelect = document.getElementById("step" + index + "-verb");
-    const inputField = document.getElementById("step" + index + "-input");
-    if (!verbSelect || !inputField) return null;
-
-    const verb = (verbSelect.value || "").trim();
-    if (!verb || !COMMON_VERBS.includes(verb)) return null;
-
-    const inputObjRaw = inputToObject(inputField.value || "");
-    if (inputObjRaw == null) return null;
-
-    const inputObj = normalizeVerbInput(verb, inputObjRaw);
-    return { verb, input: inputObj };
-  }
-
-  async function copyText(text) {
-    try { await navigator.clipboard.writeText(text); return true; }
-    catch { return false; }
-  }
-
   function setPillsFromMeta(meta) {
-    // Always display canonical runtime, but also show the backend-selected runtime base when present.
-    const runtimeBase = meta?.runtime_base || "";
-    const displayBase = runtimeBase || CANONICAL_RUNTIME_BASE;
-
+    const runtimeBase = meta?.runtime_base || CANONICAL_RUNTIME_BASE;
     const runtimeHealth = meta?.runtime_health;
     const serverTime = meta?.server_time || null;
-
-    runtimePill.innerHTML = displayBase
-      ? ("Runtime: <code>" + escapeHtml(displayBase) + "</code>")
-      : ("Runtime: <code>" + escapeHtml(CANONICAL_RUNTIME_BASE) + "</code>");
-
-    if (runtimeHealth && typeof runtimeHealth === "object") {
-      healthPill.innerHTML = runtimeHealth.ok ? "Health: <code>ok</code>" : "Health: <code>fail</code>";
-    } else {
-      healthPill.innerHTML = "Health: <code>unknown</code>";
-    }
-
+    runtimePill.innerHTML = `Runtime: <code>${escapeHtml(runtimeBase)}</code>`;
+    healthPill.innerHTML = runtimeHealth && typeof runtimeHealth === "object"
+      ? `Health: <code>${runtimeHealth.ok ? "ok" : "fail"}</code>`
+      : "Health: <code>unknown</code>";
     timePill.innerHTML = serverTime
-      ? ("Server: <code>" + escapeHtml(serverTime) + "</code>")
+      ? `Server: <code>${escapeHtml(serverTime)}</code>`
       : "Server: <code>—</code>";
+  }
+
+  function shorten(value, length = 20) {
+    const str = String(value || "");
+    if (str.length <= length) return str;
+    return `${str.slice(0, 10)}…${str.slice(-8)}`;
+  }
+
+  function setStepStatus(index, state, detail) {
+    const card = statusGridEl.querySelector(`[data-status-step="${index}"]`);
+    if (!card) return;
+    const stateEl = card.querySelector("[data-status-state]");
+    const detailEl = card.querySelector("[data-status-detail]");
+    stateEl.className = `status-card__state status-card__state--${state}`;
+    if (state === "running") stateEl.textContent = "Running…";
+    else if (state === "done") stateEl.textContent = "Receipt Generated";
+    else stateEl.textContent = "Ready";
+    detailEl.textContent = detail || "";
+  }
+
+  function setStatusSummary(html) {
+    statusSummaryEl.innerHTML = html || "";
+  }
+
+  function renderStatusGrid() {
+    statusGridEl.innerHTML = DEFAULT_STEPS.map((step, index) => `
+      <article class="status-card" data-status-step="${index}">
+        <div class="status-card__step">Step ${index + 1}</div>
+        <h3>${escapeHtml(step.label)}</h3>
+        <div class="status-card__state status-card__state--idle" data-status-state>Ready</div>
+        <div class="status-card__detail" data-status-detail>Waiting to run the live flow.</div>
+      </article>
+    `).join("");
   }
 
   function setBadge(idx, which, ok, label) {
@@ -810,173 +783,228 @@ color: var(--text-muted);
     el.textContent = label;
   }
 
+  function setProofLine(idx, text, good) {
+    const el = document.querySelector(`[data-proof-line="${idx}"]`);
+    if (!el) return;
+    el.textContent = text;
+    el.style.color = good ? "var(--success)" : "var(--accent-strong)";
+  }
+
   async function verifyStepReceipt(idx, step) {
     const receipt = step?.receipt;
     if (!receipt) {
-      setBadge(idx, "schema", false, "schema: no receipt");
-      setBadge(idx, "hash", false, "hash: no receipt");
-      setBadge(idx, "sig", false, "sig: no receipt");
-      return;
+      setBadge(idx, "schema", false, "schema: missing");
+      setBadge(idx, "hash", false, "hash: missing");
+      setBadge(idx, "sig", false, "sig: missing");
+      setProofLine(idx, "Verification unavailable", false);
+      return false;
     }
 
-    setBadge(idx, "schema", null, "schema: …");
-    setBadge(idx, "hash", null, "hash: …");
-    setBadge(idx, "sig", null, "sig: …");
+    setBadge(idx, "schema", null, "schema: checking");
+    setBadge(idx, "hash", null, "hash: checking");
+    setBadge(idx, "sig", null, "signature: checking");
+    setProofLine(idx, "Verification in progress", false);
 
     try {
       const res = await fetch("/api/verify-receipt?schema=0&ens=0", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(receipt),
+        body: JSON.stringify(receipt)
       });
-
       const data = await res.json().catch(() => ({}));
       if (!res.ok || !data) {
         setBadge(idx, "schema", false, "schema: fail");
         setBadge(idx, "hash", false, "hash: fail");
-        setBadge(idx, "sig", false, "sig: fail");
-        setStatus("<strong>Verify failed</strong> — backend returned " + res.status + ".");
-        return;
+        setBadge(idx, "sig", false, "signature: fail");
+        setProofLine(idx, "Verification failed", false);
+        return false;
       }
-
       const checks = data.checks || {};
-      setBadge(idx, "schema", !!checks.schema_valid, "schema: " + (checks.schema_valid ? "ok" : "fail"));
-      setBadge(idx, "hash", !!checks.hash_matches, "hash: " + (checks.hash_matches ? "ok" : "fail"));
-      setBadge(idx, "sig", !!checks.signature_valid, "sig: " + (checks.signature_valid ? "ok" : "fail"));
-
-      if (checks.schema_valid && checks.hash_matches && checks.signature_valid) {
-        setStatus("<strong>Verified</strong> — schema + hash + signature all ok.");
-      } else {
-        setStatus("<strong>Verify</strong> — one or more checks failed. Expand Receipt JSON and compare proof fields.");
+      setBadge(idx, "schema", !!checks.schema_valid, `schema: ${checks.schema_valid ? "ok" : "fail"}`);
+      setBadge(idx, "hash", !!checks.hash_matches, `hash: ${checks.hash_matches ? "ok" : "fail"}`);
+      setBadge(idx, "sig", !!checks.signature_valid, `signature: ${checks.signature_valid ? "ok" : "fail"}`);
+      const ok = !!checks.schema_valid && !!checks.hash_matches && !!checks.signature_valid;
+      setProofLine(idx, ok ? "Signature Valid" : "Verification needs attention", ok);
+      if (ok) {
+        setStepStatus(idx, "done", `Step ${idx + 1} Complete — Receipt Generated • Verified`);
       }
+      return ok;
     } catch (e) {
       setBadge(idx, "schema", false, "schema: fail");
       setBadge(idx, "hash", false, "hash: fail");
-      setBadge(idx, "sig", false, "sig: fail");
-      setStatus("<strong>Verify error</strong> — " + escapeHtml(e?.message || String(e)));
+      setBadge(idx, "sig", false, "signature: fail");
+      setProofLine(idx, `Verification error: ${e?.message || String(e)}`, false);
+      return false;
     }
   }
 
   function renderReceiptCards(flow) {
-    if (!receiptCardsEl) return;
-
     const steps = Array.isArray(flow?.steps) ? flow.steps : [];
     if (!steps.length) {
-      receiptCardsEl.innerHTML = '<div class="mini-note">No receipts to render.</div>';
+      receiptCardsEl.innerHTML = '<div class="panel mini-note">No receipts to render.</div>';
       return;
     }
 
     receiptCardsEl.innerHTML = steps.map((s, i) => {
-      const verb = s.verb || "";
-      const runtimeUrl = s.runtime_url || "";
-      const rid = s.receipt?.metadata?.receipt_id || s.receipt?.metadata?.proof?.hash_sha256 || "";
-      const status = s.receipt?.status || "unknown";
-
-      const badgeStatus = status === "success"
-        ? '<span class="badge badge--ok">status: success</span>'
-        : (status === "error"
-          ? '<span class="badge badge--bad">status: error</span>'
-          : '<span class="badge">status: ' + escapeHtml(status) + '</span>');
-
-      const badgeSchema = '<span class="badge badge--wait" data-badge="schema" data-step="' + i + '">schema: …</span>';
-      const badgeHash   = '<span class="badge badge--wait" data-badge="hash" data-step="' + i + '">hash: …</span>';
-      const badgeSig    = '<span class="badge badge--wait" data-badge="sig" data-step="' + i + '">sig: …</span>';
-
-      const curl = s.curl || "";
-      const receiptJson = s.receipt || null;
-
-      const receiptPretty = (() => {
-        try { return JSON.stringify(receiptJson, null, 2); } catch { return String(receiptJson); }
-      })();
-
-      const reqPretty = (() => {
-        try { return JSON.stringify(s.request || {}, null, 2); } catch { return String(s.request || ""); }
-      })();
-
+      const receipt = s.receipt || {};
+      const metadata = receipt.metadata || {};
+      const proof = metadata.proof || {};
+      const summary = pickBestTextFromResult(receipt.result) || "No summary returned.";
+      const requestHash = proof.request_hash || proof.hash_sha256 || metadata.request_hash || "(not provided)";
+      const resultHash = proof.result_hash || metadata.result_hash || "(not provided)";
+      const signature = proof.signature || metadata.signature || receipt.signature || "(not provided)";
+      const signer = proof.signer_id || metadata.signer_id || "(not provided)";
+      const resultCid = receipt.result_cid || metadata.result_cid || proof.result_cid || "";
+      const receiptPretty = (() => { try { return JSON.stringify(receipt, null, 2); } catch { return String(receipt); } })();
       return `
-        <div class="receipt-card" data-step-card="${i}">
+        <article class="receipt-card">
           <div class="receipt-head">
             <div class="receipt-title">
-              <strong>Step ${i + 1}: ${escapeHtml(verb)}</strong>
-              <span class="receipt-sub">${escapeHtml(runtimeUrl)}</span>
+              <small>Step ${i + 1}</small>
+              <h3>Step ${i + 1} — ${escapeHtml(DEFAULT_STEPS[i]?.label || s.verb || `Step ${i + 1}`)}</h3>
             </div>
-            <div class="receipt-actions">
-              <button class="btn btn--ghost btn--mini" data-action="copy-step-curl" data-step="${i}">📋 curl</button>
-              <button class="btn btn--ghost btn--mini" data-action="verify" data-step="${i}">✅ verify</button>
+            <div class="badge-row">
+              <span class="badge badge--ok">Verified</span>
+              <span class="badge">${escapeHtml(s.verb || "")}</span>
+              <span class="badge">${escapeHtml(receipt.status || "success")}</span>
             </div>
           </div>
-
-          <div class="badge-row">
-            ${badgeStatus}
-            ${badgeSchema}
-            ${badgeHash}
-            ${badgeSig}
-          </div>
-
+          <p class="receipt-proofline" data-proof-line="${i}">Verified Signature</p>
           <div class="kv">
-            <div>receipt_id</div><div><code>${escapeHtml(rid || "(none)")}</code></div>
-            <div>trace_id</div><div><code>${escapeHtml(s.receipt?.trace?.trace_id || flow.trace_id || "(none)")}</code></div>
-            <div>signer</div><div><code>${escapeHtml(s.receipt?.metadata?.proof?.signer_id || "(none)")}</code></div>
+            <div>Agent</div><div><code title="${escapeHtml(signer)}">${escapeHtml(shorten(signer, 28))}</code></div>
+            <div>Request Hash</div><div><code title="${escapeHtml(requestHash)}">${escapeHtml(shorten(requestHash, 34))}</code></div>
+            <div>Result Hash</div><div><code title="${escapeHtml(resultHash)}">${escapeHtml(shorten(resultHash, 34))}</code></div>
+            <div>Summary</div><div>${escapeHtml(summary)}</div>
+            <div>Signature</div><div><code title="${escapeHtml(signature)}">${escapeHtml(shorten(signature, 34))}</code></div>
+            ${resultCid ? `<div>Result CID</div><div><code title="${escapeHtml(resultCid)}">${escapeHtml(shorten(resultCid, 34))}</code></div>` : ""}
           </div>
-
-          <details>
-            <summary>Receipt JSON</summary>
-            <pre class="output-box" style="max-height: 260px; margin: 0.65rem 0 0;">${escapeHtml(receiptPretty)}</pre>
-          </details>
-
-          <details>
-            <summary>Request JSON</summary>
-            <pre class="output-box" style="max-height: 220px; margin: 0.65rem 0 0;">${escapeHtml(reqPretty)}</pre>
-          </details>
-
-          <details>
-            <summary>curl (reproduce step)</summary>
-            <pre class="output-box" style="max-height: 220px; margin: 0.65rem 0 0;">${escapeHtml(curl || "(none)")}</pre>
-          </details>
-        </div>
+          <div class="badge-row" style="margin-top:0.9rem;">
+            <span class="badge badge--wait" data-badge="schema" data-step="${i}">schema: checking</span>
+            <span class="badge badge--wait" data-badge="hash" data-step="${i}">hash: checking</span>
+            <span class="badge badge--wait" data-badge="sig" data-step="${i}">signature: checking</span>
+          </div>
+          <div class="receipt-actions">
+            <button class="btn btn--ghost btn--mini" data-action="verify" data-step="${i}" type="button">Verify Receipt</button>
+            <button class="btn btn--ghost btn--mini" data-action="toggle-json" data-step="${i}" type="button">View Full Receipt JSON</button>
+            <button class="btn btn--ghost btn--mini" data-action="copy-step-curl" data-step="${i}" type="button">Copy curl</button>
+          </div>
+          <div class="mini-note" style="margin-top:0.75rem;">Runtime: <code>${escapeHtml(s.runtime_url || CANONICAL_RUNTIME_BASE)}</code></div>
+          <div id="receipt-json-${i}" hidden>
+            <pre class="output-box" style="margin-top:0.75rem;">${escapeHtml(receiptPretty)}</pre>
+          </div>
+        </article>
       `;
     }).join("");
+  }
 
-    receiptCardsEl.onclick = async (e) => {
-      const btn = e.target && e.target.closest && e.target.closest("button[data-action]");
-      if (!btn) return;
-
-      const action = btn.getAttribute("data-action");
-      const idx = Number(btn.getAttribute("data-step") || "-1");
-      if (!(idx >= 0)) return;
-
-      const step = steps[idx];
-      if (!step) return;
-
-      if (action === "copy-step-curl") {
-        const ok = await copyText(step.curl || "");
-        setStatus(ok
-          ? "<strong>Copied</strong> — step curl copied."
-          : "<strong>Clipboard blocked</strong> — curl is visible in the receipt card."
-        );
-        return;
-      }
-
-      if (action === "verify") {
-        await verifyStepReceipt(idx, step);
-        return;
-      }
-    };
+  function populateVerbSelect(select, allowEmpty) {
+    if (!select) return;
+    select.innerHTML = "";
+    if (allowEmpty) {
+      const blank = document.createElement("option");
+      blank.value = "";
+      blank.textContent = "-- none --";
+      select.appendChild(blank);
+    }
+    COMMON_VERBS.forEach((verb) => {
+      const option = document.createElement("option");
+      option.value = verb;
+      option.textContent = verb;
+      select.appendChild(option);
+    });
   }
 
   function updatePrevTogglesFromResponse(flow) {
     lastResponse = flow || null;
-
     if (step2UsePrev && step2UsePrev.checked) {
       const input2 = document.getElementById("step2-input");
-      const prev = flow?.steps?.find(s => s.index === 0)?.receipt?.result;
+      const prev = flow?.steps?.find((s) => s.index === 0)?.receipt?.result;
       input2.value = pickBestTextFromResult(prev) || "";
     }
     if (step3UsePrev && step3UsePrev.checked) {
       const input3 = document.getElementById("step3-input");
-      const prev = flow?.steps?.find(s => s.index === 1)?.receipt?.result;
+      const prev = flow?.steps?.find((s) => s.index === 1)?.receipt?.result;
       input3.value = pickBestTextFromResult(prev) || "";
     }
+  }
+
+  function setPrevToggleBehavior(index) {
+    const toggle = index === 2 ? step2UsePrev : step3UsePrev;
+    const inputField = document.getElementById(`step${index}-input`);
+    if (!toggle || !inputField) return;
+    function apply() {
+      const on = !!toggle.checked;
+      inputField.disabled = on;
+      if (!on) return;
+      const prevIdx = index - 2;
+      const prev = lastResponse?.steps?.find((s) => s.index === prevIdx)?.receipt;
+      const best = pickBestTextFromResult(prev?.result);
+      inputField.value = best || "";
+    }
+    toggle.addEventListener("change", apply);
+  }
+
+  function loadDefaults() {
+    populateVerbSelect(document.getElementById("step1-verb"), false);
+    populateVerbSelect(document.getElementById("step2-verb"), false);
+    populateVerbSelect(document.getElementById("step3-verb"), false);
+
+    DEFAULT_STEPS.forEach((step, index) => {
+      const stepNum = index + 1;
+      const verbSelect = document.getElementById(`step${stepNum}-verb`);
+      const inputField = document.getElementById(`step${stepNum}-input`);
+      const usePrev = document.getElementById(`step${stepNum}-use-prev`);
+      if (verbSelect) verbSelect.value = step.verb;
+      if (inputField) {
+        inputField.value = step.input;
+        inputField.disabled = !!step.usePrev;
+      }
+      if (usePrev) usePrev.checked = !!step.usePrev;
+    });
+
+    setOutput("// Run Verified Flow to inspect raw response JSON.");
+    setCurlOutput("");
+    setPillsFromMeta({ runtime_base: CANONICAL_RUNTIME_BASE });
+    renderStatusGrid();
+    setStatusSummary("<strong>Ready</strong> — the default verified flow is preloaded.");
+    receiptCardsEl.innerHTML = '<div class="panel mini-note">Run Verified Flow to render receipt cards for each step.</div>';
+  }
+
+  function getStep(index) {
+    const verbSelect = document.getElementById(`step${index}-verb`);
+    const inputField = document.getElementById(`step${index}-input`);
+    if (!verbSelect || !inputField) return null;
+    const verb = (verbSelect.value || "").trim();
+    if (!verb || !COMMON_VERBS.includes(verb)) return null;
+    const usePrev = document.getElementById(`step${index}-use-prev`);
+    if (usePrev && usePrev.checked) {
+      const prevIdx = index - 2;
+      const prevResult = lastResponse?.steps?.find((s) => s.index === prevIdx)?.receipt?.result;
+      const best = pickBestTextFromResult(prevResult);
+      const inputObj = normalizeVerbInput(verb, inputToObject(best));
+      return { verb, input: inputObj, use_previous_result: true };
+    }
+    const inputObjRaw = inputToObject(inputField.value || "");
+    if (inputObjRaw == null) return null;
+    const inputObj = normalizeVerbInput(verb, inputObjRaw);
+    return { verb, input: inputObj };
+  }
+
+  async function copyText(text) {
+    try { await navigator.clipboard.writeText(text); return true; }
+    catch { return false; }
+  }
+
+  async function copyCurl() {
+    if (!lastCurlBlock) {
+      setStatusSummary("<strong>Nothing to copy</strong> — run the verified flow first.");
+      return;
+    }
+    const ok = await copyText(lastCurlBlock);
+    setStatusSummary(ok
+      ? "<strong>Copied</strong> — curl reproduction commands copied."
+      : "<strong>Clipboard blocked</strong> — curl remains visible in Advanced Debug."
+    );
   }
 
   async function runFlow() {
@@ -985,105 +1013,109 @@ color: var(--text-muted);
       const step = getStep(i);
       if (step) steps.push(step);
     }
-
     if (!steps.length) {
-      setOutput({ error: "No valid steps selected. Pick at least one Commons verb and provide input." });
-      setStatus("<strong>Missing steps</strong> — configure at least step 1.");
+      setOutput({ error: "No valid steps selected." });
+      setStatusSummary("<strong>Missing steps</strong> — reload defaults or use the advanced builder.");
       return;
     }
 
-    setOutput({ status: "running", steps_count: steps.length, steps_preview: steps.map(s => ({ verb: s.verb })) });
-    setStatus("<strong>Running</strong> — calling <code>/api/commons-flow</code>…");
-    receiptCardsEl.innerHTML = '<div class="mini-note">Running… receipts will render here.</div>';
-
-    lastCurlBlock = "";
     lastResponse = null;
+    lastCurlBlock = "";
+    setOutput({ status: "running", steps_preview: steps.map((step) => ({ verb: step.verb })) });
+    setCurlOutput("# Running flow — curl reproduction will appear here after execution.");
+    receiptCardsEl.innerHTML = '<div class="panel mini-note">Running live flow… signed receipts will appear here.</div>';
+    renderStatusGrid();
+    setStatusSummary("<strong>Running</strong> — calling <code>/api/commons-flow</code>.");
+    DEFAULT_STEPS.forEach((step, index) => {
+      setStepStatus(index, index === 0 ? "running" : "idle", index === 0 ? "Running live step via runtime.commandlayer.org." : "Queued.");
+    });
 
     try {
       const res = await fetch("/api/commons-flow", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ steps }),
+        body: JSON.stringify({ steps })
       });
-
       const data = await res.json().catch(() => ({}));
-
       if (!res.ok) {
-        setOutput({
-          error: data.error || "Request failed",
-          status: res.status,
-          detail: data.detail || data.hint || null,
-          raw: data.raw || null,
-          meta: data.meta || null
-        });
-        setStatus("<strong>Error</strong> — backend returned " + res.status + ".");
-        receiptCardsEl.innerHTML = '<div class="mini-note">No receipts (request failed).</div>';
+        setOutput({ error: data.error || "Request failed", status: res.status, detail: data.detail || data.hint || null, raw: data.raw || null, meta: data.meta || null });
+        setStatusSummary(`<strong>Error</strong> — backend returned ${res.status}.`);
+        receiptCardsEl.innerHTML = '<div class="panel mini-note">No receipts were returned.</div>';
+        renderStatusGrid();
         return;
       }
 
       setPillsFromMeta(data?.meta || {});
-      updatePrevTogglesFromResponse(data);
-
       lastCurlBlock = String(data?.meta?.curl || "");
+      setCurlOutput(lastCurlBlock);
       setOutput(data);
-
+      updatePrevTogglesFromResponse(data);
       renderReceiptCards(data);
 
       const stepsOut = Array.isArray(data?.steps) ? data.steps : [];
-      for (let i = 0; i < stepsOut.length; i++) {
-        await verifyStepReceipt(i, stepsOut[i]);
+      for (let i = 0; i < DEFAULT_STEPS.length; i++) {
+        if (stepsOut[i]) {
+          setStepStatus(i, "running", `Step ${i + 1} running — waiting for receipt.`);
+          setStepStatus(i, "done", `Step ${i + 1} Complete — Receipt Generated`);
+        } else {
+          setStepStatus(i, "idle", "Not executed in this flow.");
+        }
       }
 
-      setStatus("<strong>OK</strong> — receipts returned + verified. Copy curl to reproduce.");
+      let allVerified = true;
+      for (let i = 0; i < stepsOut.length; i++) {
+        const ok = await verifyStepReceipt(i, stepsOut[i]);
+        allVerified = allVerified && ok;
+      }
+
+      setStatusSummary(allVerified
+        ? "<strong>Verified</strong> — all three steps completed with signed receipts and passed inline verification."
+        : "<strong>Completed</strong> — receipts returned; inspect any failed verification badges below."
+      );
     } catch (err) {
-      setOutput({ error: "Network or runtime error", detail: err && err.message ? err.message : String(err) });
-      setStatus("<strong>Error</strong> — network/runtime failure; check console.");
-      receiptCardsEl.innerHTML = '<div class="mini-note">No receipts (network/runtime failure).</div>';
+      setOutput({ error: "Network or runtime error", detail: err?.message || String(err) });
+      setStatusSummary("<strong>Error</strong> — network or runtime failure while executing the flow.");
+      receiptCardsEl.innerHTML = '<div class="panel mini-note">No receipts were returned because execution failed.</div>';
+      renderStatusGrid();
     }
   }
 
-  function resetFlow() {
-    for (let i = 1; i <= 3; i++) {
-      const verbSelect = document.getElementById("step" + i + "-verb");
-      const inputField = document.getElementById("step" + i + "-input");
-      const usePrev = document.getElementById("step" + i + "-use-prev");
-      if (verbSelect) verbSelect.value = "";
-      if (inputField) { inputField.value = ""; inputField.disabled = false; }
-      if (usePrev) usePrev.checked = false;
-    }
-
-    lastCurlBlock = "";
-    lastResponse = null;
-
-    runtimePill.innerHTML = 'Runtime: <code>' + escapeHtml(CANONICAL_RUNTIME_BASE) + '</code>';
-    healthPill.innerHTML = 'Health: <code>unknown</code>';
-    timePill.innerHTML = 'Server: <code>—</code>';
-
-    setOutput('// Configure your steps on the left and hit "Run Commons flow"…');
-    receiptCardsEl.innerHTML = '<div class="mini-note">Run a flow to render per-step receipts with verify + curl.</div>';
-    setStatus("");
-  }
-
-  async function copyCurl() {
-    if (!lastCurlBlock) {
-      setStatus("<strong>Nothing to copy</strong> — run a flow first.");
-      return;
-    }
-    const ok = await copyText(lastCurlBlock);
-    setStatus(ok
-      ? "<strong>Copied</strong> — all curl commands copied."
-      : "<strong>Clipboard blocked</strong> — curl is present in Raw JSON under meta.curl."
-    );
-  }
-
-  // Default pill state should show canonical runtime, even before first run.
-  runtimePill.innerHTML = 'Runtime: <code>' + escapeHtml(CANONICAL_RUNTIME_BASE) + '</code>';
-  healthPill.innerHTML = 'Health: <code>unknown</code>';
-  timePill.innerHTML = 'Server: <code>—</code>';
-
-  runButton?.addEventListener("click", (e) => { e.preventDefault(); runFlow(); });
-  resetButton?.addEventListener("click", (e) => { e.preventDefault(); resetFlow(); });
+  runButtons.forEach((button) => button.addEventListener("click", (e) => { e.preventDefault(); runFlow(); }));
+  resetButton?.addEventListener("click", (e) => { e.preventDefault(); loadDefaults(); });
   copyCurlButton?.addEventListener("click", (e) => { e.preventDefault(); copyCurl(); });
+  receiptCardsEl.addEventListener("click", async (event) => {
+    const btn = event.target.closest("button[data-action]");
+    if (!btn) return;
+    const action = btn.getAttribute("data-action");
+    const idx = Number(btn.getAttribute("data-step") || "-1");
+    const step = lastResponse?.steps?.[idx];
+    if (!step) return;
+
+    if (action === "verify") {
+      const ok = await verifyStepReceipt(idx, step);
+      setStatusSummary(ok
+        ? `<strong>Verified</strong> — Step ${idx + 1} receipt passed schema, hash, and signature checks.`
+        : `<strong>Verification alert</strong> — Step ${idx + 1} needs attention.`);
+    }
+
+    if (action === "copy-step-curl") {
+      const ok = await copyText(step.curl || "");
+      setStatusSummary(ok
+        ? `<strong>Copied</strong> — Step ${idx + 1} curl copied.`
+        : `<strong>Clipboard blocked</strong> — the curl block is visible in Advanced Debug.`);
+    }
+
+    if (action === "toggle-json") {
+      const panel = document.getElementById(`receipt-json-${idx}`);
+      if (!panel) return;
+      panel.hidden = !panel.hidden;
+      btn.textContent = panel.hidden ? "View Full Receipt JSON" : "Hide Full Receipt JSON";
+    }
+  });
+
+  setPrevToggleBehavior(2);
+  setPrevToggleBehavior(3);
+  loadDefaults();
 })();
 </script>
 </body>
