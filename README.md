@@ -24,7 +24,7 @@ This repo hosts the static site at **commandlayer.org** and the small set of **V
 
 - **Static pages** live in `public/` (plain HTML / CSS / JS).
 - **Serverless endpoints** live in `api/` (Vercel Functions).
-- The root contains standard Node / Vercel project files.
+- The root contains standard Node project files and deployment configuration is handled by the platform settings described below.
 
 This keeps the site:
 - easy to deploy
@@ -60,9 +60,9 @@ This keeps the site:
 │ └── commercial-flow.js
 │
 ├── package.json
-├── vercel.json
+├── package-lock.json
 ├── README.md
-└── LICENSE
+└── docs/
 ```
 
 URLs are part of the protocol surface.  
@@ -217,8 +217,7 @@ Styling rules:
 
 If shared styles are needed:
 
-- Add them to `public/assets/css/cl-base.css`
-- Link explicitly from each page
+- Keep styles inline or update the existing shared stylesheet files already in the repo, then link them explicitly from each page when needed.
 
 Once published, page URLs must remain stable.
 
@@ -252,8 +251,6 @@ This is the only backend surface required by the public commercial demo, which s
 ---
 
 ## License
-
-Website code and documentation are published under this repo’s `LICENSE` file.
 
 CommandLayer protocol licensing (Commons, Commercial, Agent Cards, Runtime) is documented at:
 

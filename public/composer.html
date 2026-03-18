@@ -645,7 +645,7 @@ button { cursor: pointer; }
       <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
       <div class="site-header__text">
         <span class="site-header__title">CommandLayer</span>
-        <span class="site-header__subtitle">Commons first. Runtime second.</span>
+        <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
       </div>
     </a>
     <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
@@ -654,16 +654,16 @@ button { cursor: pointer; }
       <a href="/quickstart.html" class="site-header__link">Quickstart</a>
       <div class="site-header__dropdown">
         <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
-        <div class="site-header__dropdown-menu">
+                      <div class="site-header__dropdown-menu">
                 <a href="/docs.html">Docs</a>
                 <a href="/commons.html">Commons</a>
                 <a href="/commercial.html">Commercial</a>
                 <a href="/agent-cards.html">Agent Cards</a>
                 <a href="/runtime.html">Runtime</a>
                 <a href="/manifest.html">Manifest</a>
-                <a href="/licensing.html">Licensing</a>
                 <a href="/FAQ.html">FAQ</a>
                 <a href="/roadmap.html">Roadmap</a>
+                <a href="/licensing.html">Licensing</a>
                 <a href="/about.html">About</a>
               </div>
       </div>
@@ -680,8 +680,8 @@ button { cursor: pointer; }
       <div class="hero__eyebrow">Runtime Pipeline Builder</div>
       <div class="hero__top">
         <div>
-          <h1 class="hero__title">Compose verbs into a live runtime pipeline.</h1>
-          <p class="hero__lede">Pick verbs, chain them, and execute against the runtime. Each step returns a canonical receipt. Runtime may attach receipt verification details.</p>
+          <h1 class="hero__title">Compose multi-step agent flows with signed receipts.</h1>
+          <p class="hero__lede">Pick verbs, chain them, and execute against the runtime. Each step returns a canonical receipt. Runtime may attach verification metadata.</p>
         </div>
         <div class="hero__rail" aria-label="Pipeline qualities">
           <div class="hero__pill-group">
@@ -788,28 +788,17 @@ button { cursor: pointer; }
 </main>
 
 <footer class="site-footer">
-        <div class="container site-footer__inner">
-          <div class="site-footer__row">
-            <div class="site-footer__col">
-              <div class="site-footer__col-title">CommandLayer</div>
-              <div class="site-footer__cid">Agents can act. CommandLayer proves they acted.</div>
-              <div class="site-footer__cid">Protocol v1.1.0 &middot; ERC-8004 registered</div>
-            </div>
-            <div class="site-footer__col">
-              <div class="site-footer__col-title">Stack status</div>
-              <div class="site-footer__cid">Commons is the canonical free, signed-receipt layer. Commercial extends that foundation for commerce-oriented flows.</div>
-              <div class="site-footer__cid">security@commandlayer.org</div>
-            </div>
-          </div>
-          <div class="site-footer__links">
-            <a href="/docs.html">Docs</a>
-            <a href="/FAQ.html">FAQ</a>
-            <a href="/roadmap.html">Roadmap</a>
-            <a href="/repositories.html">Repositories</a>
-            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
-          </div>
-        </div>
-      </footer>
+  <div class="container site-footer__inner">
+    <div>© CommandLayer — trust layer for agent execution.</div>
+    <div class="site-footer__links">
+      <a href="/commons.html">Schemas</a>
+      <a href="/runtime.html">Runtime</a>
+      <a href="/repositories.html">Repositories</a>
+      <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </div>
+          <div style="color: var(--text-soft); font-size: 0.78rem;">Protocol v1.1.0 &middot; ERC-8004 registered</div>
+  </div>
+</footer>
 </div>
 
 <script>
