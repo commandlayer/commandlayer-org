@@ -530,8 +530,8 @@
               <p>A concrete, inspectable proof surface for a verified agent flow:</p>
               <ul>
                 <li>Each step returns a typed JSON receipt.</li>
-                <li>Agent flow trace threads the steps end-to-end.</li>
-                <li>Inline verification proves cryptographic integrity.</li>
+                <li>Any cross-step trace/chaining data shown here is runtime metadata for orchestration.</li>
+                <li>Inline verification applies only when the runtime attaches a proof layer.</li>
                 <li>The site displays the flow while execution happens against the live runtime.</li>
               </ul>
             </aside>
@@ -545,8 +545,7 @@
               <h2>Interactive verified agent flow</h2>
               <p>
                 The iframe below runs a live agent flow. It calls <code>/api/commercial-flow</code> (Vercel),
-                which forwards each step to your <b>commercial runtime</b>. You get back signed per-step receipts, then
-                verify them inline and copy matching curl for reproduction.
+                which forwards each step to your <b>commercial runtime</b>. You get back per-step receipts plus whatever runtime-specific trace or proof metadata that executor exposes, then inspect and reproduce the flow.
               </p>
             </div>
 

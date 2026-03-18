@@ -698,12 +698,12 @@
             </p>
 
             <p class="hero__tldr">
-              TL;DR: call <code>POST /clean/v1.1.0</code> → get a signed receipt → verify <code>hash + signature</code> independently.
+              TL;DR: call <code>POST /clean/v1.1.0</code> → get the Commons receipt contract first → then inspect any runtime proof fields separately.
             </p>
 
             <ul class="hero__list">
               <li>Pick a verb (start with deterministic <code>clean</code>), call the runtime endpoint.</li>
-              <li>Receive a structured receipt with cryptographic proof.</li>
+              <li>Receive the canonical Commons receipt: <code>status</code>, <code>x402</code>, <code>result</code>, plus any runtime-added fields.</li>
               <li>Verify: hash → signature (full verification adds schema + key resolution).</li>
             </ul>
 
@@ -729,9 +729,9 @@
               and confirm the receipt is valid.
             </p>
             <ol class="hero__card-list">
-              <li>Call <code>POST /clean/v1.1.0</code> with an <code>x402</code> envelope.</li>
-              <li>Inspect the receipt: <code>status</code>, <code>result</code>, <code>trace</code>, <code>metadata.proof</code>.</li>
-              <li>Verify cryptographically: hash ok, signature ok (schema + key resolution is the full verifier).</li>
+              <li>Call <code>POST /clean/v1.1.0</code> with the pinned Commons request shape.</li>
+              <li>Inspect the canonical receipt first: <code>status</code>, <code>x402</code>, and <code>result</code>.</li>
+              <li>Then inspect runtime fields like <code>trace</code> or <code>metadata.proof</code> only if your executor adds them.</li>
               <li>Resolve: use ENS TXT records to discover schema URLs &amp; entry.</li>
             </ol>
 
@@ -770,8 +770,7 @@
           <div class="section__header">
             <h2>Step 1 — Call a live agent runtime</h2>
             <p>
-              This is a real runtime endpoint. You send an <code>x402</code> envelope (identity) plus <code>input</code>.
-              The runtime returns a receipt you can validate and verify.
+              This is a real runtime endpoint. You send the pinned Commons request shape and get back a receipt that should still teach the Commons minimum contract first. Runtime-specific execution metadata may be attached on top.
             </p>
           </div>
 
@@ -829,8 +828,7 @@
           <div class="section__header">
             <h2>Step 2 — Understand the receipt</h2>
             <p>
-              A CommandLayer receipt is evidence, not a log. It includes the verb identity, trace, result payload,
-              and a cryptographic proof block.
+              Commons defines the minimum verifiable receipt contract. Start with the canonical fields the protocol promises, then treat runtime metadata as an optional execution/chaining layer.
             </p>
           </div>
 
@@ -844,50 +842,40 @@
             </article>
 
             <article class="info-card">
-              <h3>Trace</h3>
+              <h3>Runtime metadata</h3>
               <p>
-                Traces link multi-step flows and allow attribution. Use one shared <code>trace_id</code> across steps
-                to group receipts.
+                Runtimes may attach orchestration data such as <code>trace</code>, timing, or provider labels. That helps with chaining and observability, but it is runtime-specific context rather than the first thing to learn from the Commons contract.
               </p>
             </article>
 
             <article class="info-card">
-              <h3>Proof</h3>
+              <h3>Optional proof layer</h3>
               <p>
-                <code>metadata.proof</code> includes the hash and signature. Third parties can verify receipts offline
-                using the signer public key.
+                Some runtimes attach <code>metadata.proof</code> with hashes and signatures. That is useful execution evidence, but it is an optional runtime layer on top of the canonical Commons receipt.
               </p>
             </article>
           </div>
 
           <article class="info-card" style="margin-top:1.2rem;">
-            <h3>Receipt excerpt (shape)</h3>
+            <h3>Canonical Commons receipt (first shape to learn)</h3>
             <div class="mini-example">
               <div class="mini-example__row">
-                <div class="mini-example__label">// receipt (shape)</div>
-                <button class="copy-btn" type="button" data-copy='{"status":"success","x402":{"entry":"x402://cleanagent.eth/clean/v1.1.0","verb":"clean","version":"1.1.0"},"trace":{"trace_id":"quickstart-001"},"result":{"content":"hello world"},"metadata":{"proof":{"alg":"ed25519-sha256","canonical":"runtime-json-stringify-v1","signer_id":"runtime.commandlayer.eth","hash_sha256":"…","signature_b64":"…"}}}'>📋 Copy</button>
+                <div class="mini-example__label">// canonical Commons receipt</div>
+                <button class="copy-btn" type="button" data-copy='{"status":"success","x402":{"verb":"clean","version":"1.1.0","entry":"x402://cleanagent.eth/clean/v1.1.0"},"result":{"cleaned_content":"hello world","operations_applied":["collapse_whitespace","trim"]}}'>📋 Copy</button>
               </div>
               <pre>{
   "status": "success",
-  "x402": { "entry": "x402://cleanagent.eth/clean/v1.1.0", "verb": "clean", "version": "1.1.0" },
-  "trace": { "trace_id": "quickstart-001" },
-  "result": { "content": "hello world" },
-  "metadata": {
-    "proof": {
-      "alg": "ed25519-sha256",
-      "canonical": "runtime-json-stringify-v1",
-      "signer_id": "runtime.commandlayer.eth",
-      "hash_sha256": "…",
-      "signature_b64": "…"
-    }
+  "x402": { "verb": "clean", "version": "1.1.0", "entry": "x402://cleanagent.eth/clean/v1.1.0" },
+  "result": {
+    "cleaned_content": "hello world",
+    "operations_applied": ["collapse_whitespace", "trim"]
   }
 }</pre>
             </div>
 
             <div class="callouts">
               <div class="callout callout--success">
-                <strong>Stability guarantee:</strong> <code>runtime-json-stringify-v1</code> is frozen for Protocol v1.x.
-                Protocol v1.1.0 keeps <code>runtime-json-stringify-v1</code>. A future major version may adopt RFC 8785 (JCS) under a new explicit label.
+                <strong>Layering note:</strong> the JSON above is the minimum receipt model this quickstart should teach first. If your runtime returns <code>trace</code>, <code>usage</code>, or <code>metadata.proof</code>, read those as optional execution-layer additions.
               </div>
             </div>
 
@@ -973,8 +961,7 @@ cl.receipt.pubkey_b64      ...</pre>
           <div class="section__header">
             <h2>Step 4 — Verify a receipt (Node.js)</h2>
             <p>
-              Minimal verification should be boring and deterministic: <strong>hash → signature</strong>.
-              Full verification adds: <strong>schema validation</strong> + <strong>key resolution</strong>.
+              If your runtime includes a proof block, verification should be boring and deterministic: <strong>hash → signature</strong>. Full verification adds: <strong>schema validation</strong> + <strong>key resolution</strong>.
             </p>
           </div>
 

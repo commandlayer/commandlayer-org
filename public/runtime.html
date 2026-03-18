@@ -528,8 +528,8 @@
 
               <div class="hero__meta">
                 <span class="hero__meta-pill">Schemas are public and pinned</span>
-                <span class="hero__meta-pill">Runtime executes + proves</span>
-                <span class="hero__meta-pill">Receipts are verifiable evidence</span>
+                <span class="hero__meta-pill">Runtime may attach optional execution metadata</span>
+                <span class="hero__meta-pill">Commons contract stays minimal and portable</span>
               </div>
             </div>
 
@@ -541,7 +541,7 @@
               </p>
               <ul>
                 <li><strong>Is:</strong> a reference runtime that executes schema-stable verbs.</li>
-                <li><strong>Is:</strong> a canonical receipt generator (traceable, hashable, verifiable).</li>
+                <li><strong>Is:</strong> an execution layer that can attach trace, proof, and orchestration metadata around the Commons receipt.</li>
                 <li><strong>Is:</strong> a proving surface — not just logs or responses.</li>
                 <li><strong>Is not:</strong> a closed semantic system — contracts remain public and portable.</li>
                 <li><strong>Is not:</strong> a finished policy or billing platform (yet).</li>
@@ -556,8 +556,7 @@
             <div class="section__header">
               <h2>Where Runtime sits in the stack</h2>
               <p>
-                Runtime sits above schemas and below applications. It consumes the same immutable JSON Schemas and returns
-                the same receipt shapes — but introduces a real execution surface where guarantees can be enforced over time.
+                Runtime sits above schemas and below applications. Commons defines the minimum receipt contract; Runtime consumes those schemas and may attach execution metadata where orchestration, tracing, and proof are needed.
               </p>
             </div>
 
@@ -565,23 +564,21 @@
               <article class="info-card">
                 <h3>Inputs</h3>
                 <p>
-                  Schema-shaped verb invocations (Commons today). Routing is explicit and deterministic — no hidden
-                  payloads, no semantic drift.
+                  Schema-shaped verb invocations (Commons today). The protocol contract stays stable and portable before any runtime-specific fields are considered.
                 </p>
               </article>
 
               <article class="info-card">
                 <h3>Execution</h3>
                 <p>
-                  Reference execution against pinned schemas, producing deterministic receipts. Validation and proof are
-                  first-class outputs, not afterthoughts.
+                  Reference execution against pinned schemas, with optional runtime metadata for chaining, timing, and verification layered on top of the base receipt.
                 </p>
               </article>
 
               <article class="info-card">
                 <h3>Outputs</h3>
                 <p>
-                  Typed receipts with trace IDs and cryptographic proofs. Clients read what happened — they don’t infer it.
+                  Commons receipts first; optional runtime fields like <code>trace</code> and <code>metadata.proof</code> second. Clients should not confuse orchestration metadata with the core contract.
                 </p>
               </article>
             </div>
@@ -605,9 +602,9 @@
                 What exists now, end-to-end, in the live demo and runtime-backed flows.
               </p>
               <ul>
-                <li><strong>Schema enforcement:</strong> requests and receipts conform to pinned JSON Schemas.</li>
-                <li><strong>Traceability:</strong> every execution returns a <code>trace_id</code>.</li>
-                <li><strong>Receipts as evidence:</strong> signed, hashable receipts — not logs.</li>
+                <li><strong>Schema enforcement:</strong> requests and canonical receipts conform to pinned JSON Schemas.</li>
+                <li><strong>Optional runtime metadata:</strong> execution may add <code>trace</code>, timing, and orchestration fields.</li>
+                <li><strong>Optional proof layer:</strong> runtimes may attach signed, hashable evidence on top of the base receipt.</li>
                 <li><strong>Reproducibility:</strong> calls can be replayed via copy-pasteable <code>curl</code>.</li>
                 <li><strong>Verification:</strong> schema + hash + signature can be checked independently.</li>
               </ul>
@@ -631,7 +628,7 @@
               <ul>
                 <li><strong>Policy layers:</strong> allow/deny rules, safety filters, execution constraints.</li>
                 <li><strong>Idempotency:</strong> safe retries for multi-step and commercial flows.</li>
-                <li><strong>Metering:</strong> standardized usage fields in receipts.</li>
+                <li><strong>Metering:</strong> runtime-level usage and accounting fields layered on top of the base contract.</li>
                 <li><strong>Pricing:</strong> SLA-based execution tiers (latency/throughput/policy bundles).</li>
                 <li><strong>Settlement:</strong> execution-time economics on standardized rails.</li>
                 <li><strong>Multi-runtime portability:</strong> same contracts, different executors.</li>
@@ -679,46 +676,29 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>Receipt envelope (shape you can verify)</h2>
+              <h2>Commons receipt first, runtime metadata second</h2>
               <p>
-                Runtime receipts are designed to be checked independently: schema-valid, hash-stable, and signature-verifiable.
-                The live demo returns real receipts; the snippet below shows the kind of fields Runtime standardizes.
+                Commons defines the minimum verifiable receipt contract. Runtimes may then attach execution metadata for tracing, chaining, timing, and proof. The snippets below separate those layers.
               </p>
             </div>
 
             <div class="card-block">
-              <h3 class="card-block__title">Example receipt (fields representative)</h3>
+              <h3 class="card-block__title">Canonical Commons receipt</h3>
               <p class="card-block__subtitle">
-                Replace placeholders with any live receipt from the demo to verify end-to-end.
+                This is the minimum contract websites and SDKs should teach first.
               </p>
               <pre>{
+  "status": "success",
   "x402": {
     "verb": "convert",
     "version": "1.1.0"
   },
-  "trace": {
-    "trace_id": "trace_00f07ceec643",
-    "started_at": "2025-12-26T02:14:14.397Z",
-    "completed_at": "2025-12-26T02:14:14.397Z",
-    "duration_ms": 0
-  },
-  "status": "success",
   "result": {
     "converted_content": "..."
-  },
-  "metadata": {
-    "proof": {
-      "alg": "ed25519-sha256",
-      "canonical": "json-stringify",
-      "signer_id": "runtime.commandlayer.eth",
-      "hash_sha256": "...",
-      "signature_b64": "..."
-    }
   }
 }</pre>
               <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                The point: clients don’t guess what happened. They read a typed receipt tied to a schema version and a trace ID,
-                with a proof they can verify.
+                Runtime may add fields like <code>trace</code>, <code>usage</code>, or <code>metadata.proof</code> for execution, orchestration, and verification, but those should remain clearly runtime-specific additions.
               </p>
             </div>
           </div>
@@ -733,7 +713,7 @@
                 Runtime ships in phases. Each phase hardens execution without changing semantics.
               </p>
               <ul>
-                <li><strong>Phase 1 (now):</strong> reference runtime + receipts + verification.</li>
+                <li><strong>Phase 1 (now):</strong> reference runtime + optional execution metadata + verification around Commons receipts.</li>
                 <li><strong>Phase 2:</strong> policy hooks + metered usage fields in receipts.</li>
                 <li><strong>Phase 3:</strong> commercial verbs + idempotent execution semantics.</li>
                 <li><strong>Phase 4:</strong> settlement + multi-runtime ecosystems on shared contracts.</li>

@@ -926,7 +926,7 @@ body {
             <p class="hero__eyebrow">Trust infrastructure for autonomous agents</p>
             <h1 class="hero__title">Agents can act. <span>CommandLayer proves they acted.</span></h1>
             <p class="hero__subtitle">
-              Run agent flows. Emit signed receipts. Verify what happened.
+              Commons defines the minimum verifiable receipt contract. Runtimes may attach optional metadata for orchestration and proof.
             </p>
             <p class="hero__support">
               Observability shows what happened inside your system.<br />
@@ -936,7 +936,7 @@ body {
               <a href="/demo.html" class="btn btn--primary">Run Verified Flow</a>
               <a href="#receipts" class="btn btn--ghost">View Receipts</a>
             </div>
-            <div class="hero__support">Semantic execution, ENS-anchored identity, ERC-8004 discoverability, and signed receipts.</div>
+            <div class="hero__support">Canonical receipts first, runtime metadata second, with ENS-anchored identity and ERC-8004 discoverability.</div>
           </div>
 
           <aside class="hero-proof" aria-label="Verified execution receipt preview">
@@ -1034,15 +1034,15 @@ body {
         <div class="section__header">
           <p class="section__eyebrow">Solution</p>
           <h2>CommandLayer makes agent execution provable.</h2>
-          <p>Every action emits a signed receipt tied to identity. Not output — evidence.</p>
+          <p>Every action emits a receipt tied to identity. Runtimes may add signatures, trace, and orchestration metadata on top.</p>
         </div>
 
         <div class="two-up">
           <div class="panel">
             <ul>
-              <li>Semantic execution (what was intended)</li>
-              <li>Signed receipts (what actually happened)</li>
-              <li>Flow-level proof (how it happened across steps)</li>
+              <li>Commons receipts (the minimum canonical contract)</li>
+              <li>Runtime metadata (optional execution/chaining context)</li>
+              <li>Independent verification when a runtime attaches proof</li>
             </ul>
           </div>
           <div class="panel">
@@ -1086,20 +1086,18 @@ body {
         <div class="section__header">
           <p class="section__eyebrow">Receipts</p>
           <h2>Not output. Evidence.</h2>
-          <p>Receipts bind identity to execution and give any third party enough data to verify what actually happened.</p>
+          <p>Commons receipts bind identity to execution with a minimum canonical contract. Runtimes may attach extra metadata for proof and multi-step coordination.</p>
         </div>
 
         <div class="receipt-showcase">
           <div class="receipt-callout">
             <p>
-              CommandLayer receipts are designed for the agent economy: machine-readable, signed,
-              and legible to humans. The point is not to say an agent succeeded. The point is to
-              prove what it did.
+              CommandLayer receipts are designed for the agent economy: machine-readable, legible to humans, and anchored to a stable contract. The point is not to hide semantics inside executor-specific payloads.
             </p>
             <div class="receipt-highlights">
-              <div class="receipt-highlight"><strong>Identity-bound.</strong> Every receipt ties execution back to a signer and service identity.</div>
-              <div class="receipt-highlight"><strong>Flow-aware.</strong> Multi-step traces make it possible to inspect how an action actually happened.</div>
-              <div class="receipt-highlight"><strong>Verifier-friendly.</strong> Hashes and signatures make trust externalizable to wallets, agents, and auditors.</div>
+              <div class="receipt-highlight"><strong>Canonical first.</strong> Start with the minimum Commons receipt contract before reading runtime extras.</div>
+              <div class="receipt-highlight"><strong>Runtime-aware.</strong> Trace and chaining data belong to the execution layer, not the base protocol story.</div>
+              <div class="receipt-highlight"><strong>Verifier-friendly.</strong> Hashes and signatures are useful when a runtime chooses to attach a proof layer.</div>
             </div>
           </div>
 
@@ -1109,32 +1107,20 @@ body {
               <span>signed / inspectable / reproducible</span>
             </div>
 <pre><code>{
-  "agent": "verifyagent.eth",
-  "signer": {
-    "ens": "runtime.commandlayer.eth",
-    "erc8004": "service:verifyagent.eth"
-  },
-  "action": "verify_purchase_flow",
-  "input": {
-    "order_id": "ord_2048",
-    "amount": "125.00 USDC"
+  "status": "success",
+  "x402": {
+    "verb": "verify",
+    "version": "1.0.0"
   },
   "result": {
-    "status": "success",
     "settlement": "confirmed",
     "receipts_emitted": 3
-  },
-  "proof": {
-    "hash_sha256": "7e61b75b6c1ce4f6b3f...f4c1",
-    "signature": "ed25519:Q29tbWFuZExheWVyU2lnbmVk",
-    "verified": true
   }
 }</code></pre>
           </div>
         </div>
         <div class="receipt-bridge">
-          The live demo uses simple Commons verbs like <code>fetch</code>, <code>analyze</code>, and <code>summarize</code>.
-          The same receipt system secures high-stakes actions like approvals, payments, and multi-step execution.
+          The live demo uses simple Commons verbs like <code>fetch</code>, <code>analyze</code>, and <code>summarize</code>. High-stakes runtimes can layer trace, proof, and policy metadata on top without changing the minimum receipt contract websites should teach first.
         </div>
       </div>
     </section>
