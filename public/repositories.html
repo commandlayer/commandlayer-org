@@ -309,12 +309,12 @@ color: var(--text-muted);
 display: inline-block;
 font-size: 0.72rem;
 text-transform: uppercase;
-letter-spacing: 0.1em;
-color: var(--accent-muted);
-border: 1px solid rgba(255, 255, 255, 0.12);
+letter-spacing: 0.11em;
+color: rgba(197, 203, 224, 0.88);
+border: 1px solid rgba(255, 255, 255, 0.08);
 border-radius: 999px;
 padding: 0.12rem 0.5rem;
-margin-bottom: 0.5rem;
+margin-bottom: 0.65rem;
 }
 
 
@@ -327,13 +327,27 @@ gap: 1rem;
 
 
 .repo-card {
-background: rgba(15, 23, 42, 0.95);
+background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(9, 14, 28, 0.96) 100%);
 padding: 1.1rem 1.2rem;
 border-radius: var(--radius-lg);
-border: 1px solid var(--border-soft);
+border: 1px solid rgba(59, 130, 246, 0.75);
+box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25),
+0 0 14px rgba(59, 130, 246, 0.10),
+0 16px 30px rgba(2, 6, 23, 0.42);
 display: flex;
 flex-direction: column;
 gap: 0.5rem;
+transition: border-color 150ms ease, box-shadow 150ms ease,
+transform 150ms ease;
+}
+
+
+.repo-card:hover {
+border-color: rgba(59, 130, 246, 0.95);
+box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.45),
+0 0 18px rgba(59, 130, 246, 0.18),
+0 20px 34px rgba(2, 6, 23, 0.5);
+transform: translateY(-2px);
 }
 
 
