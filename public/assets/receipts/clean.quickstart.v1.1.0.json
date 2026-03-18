@@ -1,0 +1,23 @@
+{
+  "status": "success",
+  "x402": {
+    "entry": "x402://cleanagent.eth/clean/v1.1.0",
+    "verb": "clean",
+    "version": "1.1.0"
+  },
+  "trace": {
+    "trace_id": "quickstart-001"
+  },
+  "result": {
+    "content": "hello world"
+  },
+  "metadata": {
+    "proof": {
+      "alg": "ed25519-sha256",
+      "canonical": "runtime-json-stringify-v1",
+      "signer_id": "runtime.commandlayer.eth",
+      "hash_sha256": "\u2026",
+      "signature_b64": "\u2026"
+    }
+  }
+}

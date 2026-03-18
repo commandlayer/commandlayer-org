@@ -2,6 +2,14 @@
 
 The CommandLayer website + demo surface.
 
+## Version policy
+
+- **Commons:** `v1.1.0` is the current builder target across the site and demo composer.
+- **Commercial:** `v1.0.0` is the current commercial release.
+- **Agent Cards:** `v1.0.0` is the current card format.
+- **Runtime:** execution layer, not a schema version line; it proves execution for the published schema versions above.
+- **Compatibility:** published `v1.0.0` Commons URLs remain live for verification and older integrations, but new examples should point to `v1.1.0`.
+
 This repo hosts the static site at **commandlayer.org** and the small set of **Vercel serverless APIs** that power the live demo and flow composer against the CommandLayer runtime.
 
 - Website: https://www.commandlayer.org/
@@ -48,7 +56,8 @@ This keeps the site:
 │ └── assets/ # Images, PDFs, sample receipts
 │
 ├── api/ # Vercel serverless functions
-│ └── commons-flow.js
+│ ├── commons-flow.js
+│ └── commercial-flow.js
 │
 ├── package.json
 ├── vercel.json
@@ -91,13 +100,13 @@ The `api/` directory contains serverless endpoints used by the site.
 
 ### `/api/commons-flow`
 
-Orchestrates a multi-step “Commons flow” for the demo UI.
+Orchestrates a multi-step “Commons flow” for the demo UI and Commons composer.
 
 What it does:
 - Accepts an ordered list of steps: `{ verb, input }`
 - For each step:
   - POSTs to the runtime at  
-    `${RUNTIME_BASE_URL}/{verb}/v1.0.0`
+    `${RUNTIME_BASE_URL}/{verb}/v1.1.0` (default for Commons)
 - Returns:
   - per-step request JSON
   - per-step receipt JSON
@@ -212,7 +221,7 @@ If shared styles are needed:
 
 Once published, page URLs must remain stable.
 
-## Downloads (PDFs, sample receipts)
+## Downloads (sample receipts and static assets)
 
 To make assets downloadable:
 
@@ -220,21 +229,24 @@ To make assets downloadable:
 
 Examples:
 
-public/assets/commandlayer-quickstart.pdf
-public/assets/receipts/clean.quickstart.v1.0.0.json
-
-powershell
-Copy code
+public/assets/receipts/clean.quickstart.v1.1.0.json
 
 Link using same-origin URLs:
 
-/assets/commandlayer-quickstart.pdf
-/assets/receipts/clean.quickstart.v1.0.0.json
-
-yaml
-Copy code
+/assets/receipts/clean.quickstart.v1.1.0.json
 
 Tip: the HTML `<a download>` attribute works best for same-origin files.
+
+### `/api/commercial-flow`
+
+Orchestrates the commercial demo flow used by `public/demo.html` and `public/demo-inner.html`.
+
+What it does:
+- Accepts ordered Commercial steps: `authorize`, `checkout`, `purchase`, `ship`, `verify`
+- Forwards them to `${COMMERCIAL_RUNTIME_BASE_URL}/{verb}/v1.0.0`
+- Returns per-step requests, receipts, and reproducible `curl`
+
+This is the only backend surface required by the public commercial demo.
 
 ---
 
