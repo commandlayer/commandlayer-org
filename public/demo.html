@@ -20,6 +20,12 @@
         --accent-muted: #97a0c5;
         --success: #86efac;
         --warning: #93c5fd;
+        --neon-blue: rgba(59, 130, 246, 0.85);
+        --neon-blue-soft: rgba(59, 130, 246, 0.35);
+        --neon-blue-glow: rgba(59, 130, 246, 0.14);
+        --neon-green: rgba(34, 197, 94, 0.9);
+        --neon-green-soft: rgba(34, 197, 94, 0.35);
+        --neon-green-glow: rgba(34, 197, 94, 0.16);
         --text-main: #f7f8ff;
         --text-muted: #9ca3c7;
         --text-soft: #6b7280;
@@ -61,10 +67,12 @@
       .site-header__dropdown-menu a:hover { color: var(--accent-strong); background: rgba(31,41,55,0.95); }
       .site-header--docs-open .site-header__dropdown-menu { display: block; }
       .site-header__toggle { display: none; border-radius: 999px; border: 1px solid rgba(148,163,184,0.7); background: rgba(15,23,42,0.9); color: var(--text-main); padding: 0.25rem 0.6rem; font-size: 0.9rem; cursor: pointer; }
-      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.7rem 1.2rem; border-radius: 999px; font-size: 0.92rem; text-decoration: none; border: 1px solid transparent; cursor: pointer; white-space: nowrap; }
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.7rem 1.2rem; border-radius: 999px; font-size: 0.92rem; text-decoration: none; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease, color 180ms ease, filter 180ms ease; }
       .btn--primary { background: linear-gradient(135deg, #f8fafc, #c7d2fe); color: #020617; border-color: rgba(255,255,255,0.35); box-shadow: 0 16px 40px rgba(0,0,0,0.55); }
       .btn--ghost { background: rgba(15,23,42,0.9); color: var(--accent-strong); border-color: rgba(148,163,184,0.6); }
-      .btn--ghost:hover, .btn--primary:hover { filter: brightness(1.04); }
+      .btn:hover, .btn:focus-visible { transform: translateY(-1px); outline: none; }
+      .btn--primary:hover, .btn--primary:focus-visible, .btn--ghost:hover, .btn--ghost:focus-visible { filter: brightness(1.05); border-color: var(--neon-green); box-shadow: 0 0 0 1px var(--neon-green-soft), 0 0 14px var(--neon-green-glow), 0 18px 40px rgba(0,0,0,0.45); }
+      .btn:active { transform: translateY(0); filter: brightness(1.02); }
       .hero { padding: 4.5rem 0 2.8rem; border-bottom: 1px solid var(--border-soft); background: radial-gradient(circle at 15% 10%, rgba(99,102,241,0.18), transparent 25%), radial-gradient(circle at 0 0, #111827, #020308); }
       .hero__wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.95fr); gap: 2rem; align-items: center; }
       .hero__eyebrow, .section__eyebrow { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-muted); margin-bottom: 0.9rem; }
@@ -73,7 +81,11 @@
       .hero__stack { margin: 1rem 0 0; color: var(--accent-strong); font-size: 0.98rem; max-width: 44rem; }
       .hero__cta { margin-top: 1.8rem; display: flex; flex-wrap: wrap; gap: 0.8rem; }
       .hero__proofs, .proof-pills { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
-      .hero__proof-pill, .proof-pill { border-radius: 999px; border: 1px solid rgba(148,163,184,0.55); padding: 0.24rem 0.7rem; font-size: 0.8rem; color: var(--accent-strong); background: rgba(15,23,42,0.55); }
+      .hero__proof-pill, .proof-pill, .path-card__badge, .split-box__tag { border-radius: 999px; padding: 0.26rem 0.72rem; font-size: 0.78rem; color: #dbeafe; background: rgba(9, 16, 30, 0.82); border: 1px solid var(--neon-blue); box-shadow: 0 0 0 1px var(--neon-blue-soft), 0 0 12px var(--neon-blue-glow); transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
+      .hero__proof-pill:hover, .proof-pill--blue:hover, .path-card__badge:hover, .split-box__tag:hover,
+      .hero__proof-pill:focus-visible, .proof-pill--blue:focus-visible, .path-card__badge:focus-visible, .split-box__tag:focus-visible { transform: translateY(-1px); border-color: rgba(96, 165, 250, 0.95); box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.45), 0 0 18px rgba(59, 130, 246, 0.2); outline: none; }
+      .proof-pill { color: #dcfce7; background: rgba(7, 20, 12, 0.78); border-color: var(--neon-green); box-shadow: 0 0 0 1px var(--neon-green-soft), 0 0 12px var(--neon-green-glow); }
+      .proof-pill:hover, .proof-pill:focus-visible { transform: translateY(-1px); border-color: rgba(74, 222, 128, 0.98); box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.45), 0 0 18px rgba(34, 197, 94, 0.2); outline: none; }
       .hero__aside, .panel, .path-card, .note-card { background: rgba(10,12,20,0.88); border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); }
       .hero__aside { border-radius: var(--radius-xl); padding: 1.4rem; }
       .hero__aside h2, .section__header h2, .path-card h3, .note-card h3 { margin: 0 0 0.75rem; }
@@ -85,7 +97,6 @@
       .path-card { border-radius: 22px; padding: 1.3rem; display: grid; gap: 0.9rem; }
       .path-card__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
       .path-card__label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-muted); }
-      .path-card__badge { border-radius: 999px; padding: 0.2rem 0.6rem; border: 1px solid rgba(148,163,184,0.22); font-size: 0.76rem; color: var(--accent-strong); }
       .path-card ul { margin: 0; padding-left: 1rem; }
       .path-card li { margin-bottom: 0.45rem; }
       .path-card__foot { display: flex; flex-wrap: wrap; gap: 0.55rem; }
@@ -93,7 +104,9 @@
       .note-card { border-radius: 20px; padding: 1.25rem; }
       .note-card__split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
       .split-box { border-radius: 16px; padding: 0.95rem; background: rgba(2,6,23,0.72); border: 1px solid rgba(148,163,184,0.14); }
+      .split-box__tag { display: inline-flex; margin-bottom: 0.65rem; }
       .split-box strong { display: block; margin-bottom: 0.35rem; color: var(--accent-strong); }
+      .proof-surface-cluster { display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 1rem 0 0.75rem; }
       .cta-band { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; align-items: center; }
       .site-footer { border-top: 1px solid rgba(255,255,255,0.1); background: #020308; }
       .site-footer__inner { padding: 1.6rem 1.5rem 2rem; display: grid; gap: 1.2rem; }
@@ -161,9 +174,17 @@
                 <a href="/demo-inner.html" class="btn btn--ghost">Open Commercial demo</a>
               </div>
               <div class="hero__proofs">
-                <span class="hero__proof-pill">Canonical receipt first</span>
-                <span class="hero__proof-pill">Runtime metadata second</span>
-                <span class="hero__proof-pill">Verification visible</span>
+                <span class="hero__proof-pill">Canonical contract</span>
+                <span class="hero__proof-pill">Runtime-backed orchestration</span>
+                <span class="hero__proof-pill">Canonical receipt</span>
+                <span class="hero__proof-pill">Runtime metadata</span>
+              </div>
+              <div class="proof-surface-cluster">
+                <span class="proof-pill">Trigger execution</span>
+                <span class="proof-pill">See result</span>
+                <span class="proof-pill">Inspect receipt</span>
+                <span class="proof-pill">Inspect metadata</span>
+                <span class="proof-pill">Verify proof</span>
               </div>
             </div>
             <aside class="hero__aside">
@@ -237,10 +258,12 @@
                 <h3>Keep the boundary clean.</h3>
                 <div class="note-card__split">
                   <div class="split-box">
+                    <span class="split-box__tag">Canonical receipt</span>
                     <strong>Canonical receipt</strong>
                     <p>The protocol truth lives in Commons or Commercial receipt semantics. This is the contract layer judges should inspect first.</p>
                   </div>
                   <div class="split-box">
+                    <span class="split-box__tag">Runtime metadata</span>
                     <strong>Runtime metadata</strong>
                     <p>Trace IDs, proof payloads, and orchestration details are useful execution evidence, but they are attached around the receipt by Runtime.</p>
                   </div>
