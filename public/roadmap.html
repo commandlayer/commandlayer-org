@@ -502,412 +502,242 @@
             <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">
-                Commons first. Runtime second.
-              </span>
+              <span class="site-header__subtitle">Commons first. Runtime second.</span>
             </div>
           </a>
 
-          <!-- Mobile toggle -->
-          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
-            ☰
-          </button>
+          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
 
           <nav class="site-header__nav">
             <a href="/" class="site-header__link">Overview</a>
             <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-
             <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button">
-                Docs ▾
-              </button>
+              <button class="site-header__dropdown-btn" type="button" aria-haspopup="menu" aria-expanded="false">Docs &#9662;</button>
               <div class="site-header__dropdown-menu">
                 <a href="/commons.html">Commons</a>
                 <a href="/commercial.html">Commercial</a>
                 <a href="/agent-cards.html">Agent Cards</a>
                 <a href="/runtime.html">Runtime</a>
                 <a href="/manifest.html">Manifest</a>
-                <a href="/roadmap.html">Roadmap (this page)</a>
                 <a href="/licensing.html">Licensing</a>
-                <a href="/about.html">About CommandLayer</a>
+                <a href="/about.html">About</a>
               </div>
             </div>
-
+            <a href="/repositories.html" class="site-header__link">Repositories</a>
             <a href="/demo.html" class="site-header__link">Live Demo</a>
-            <a
-              href="https://github.com/commandlayer"
-              class="site-header__link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
-            </a>
+            <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
           </nav>
         </div>
       </header>
 
       <main class="page-main">
-        <!-- SUBHERO -->
         <section class="subhero">
           <div class="container subhero__inner">
             <div>
               <div class="subhero__eyebrow">Roadmap</div>
-              <h1 class="subhero__title">Where CommandLayer is going next</h1>
+              <h1 class="subhero__title">Execution is already live. The roadmap hardens it.</h1>
               <p class="subhero__subtitle">
-                From <strong>10 core Commons verbs today</strong> to a complete semantic framework
-                for the agent economy. CommandLayer ships a small, stable language first, then grows
-                Commercial flows, Agent Cards, and Runtime endpoints in lockstep with
-                <strong>x402</strong> and <strong>ERC-8004</strong> adoption.
+                CommandLayer is past the “does this exist?” stage. <strong>Commons v1.1.0</strong>, <strong>Commercial v1.0.0</strong>,
+                and <strong>Agent Cards v1.0.0</strong> are released. <strong>Runtime is already live as a reference proving surface.</strong>
+                The next phases deepen policy, metering, guarantees, and multi-runtime execution around the contract surface that already exists.
               </p>
             </div>
             <div class="subhero__meta">
-              <div>Version policy snapshot</div>
-              <div>Commons v1.1.0 · Commercial v1.0.0 · Agent Cards v1.0.0</div>
-              <div>Runtime layer · coming online</div>
-              <div style="margin-top:0.3rem;">
-                <strong>Schemas are permanently free</strong> — economics live in the execution
-                layer, not in the verb language.
-              </div>
+              <div>Released now · Commons v1.1.0 · Commercial v1.0.0 · Agent Cards v1.0.0</div>
+              <div>Live now · Runtime reference proving surface</div>
+              <div>Next · policy, metering, idempotency, guarantees, multi-runtime support</div>
+              <div style="margin-top:0.3rem;"><strong>The contract surface is already in place; the roadmap expands execution infrastructure around it.</strong></div>
             </div>
           </div>
         </section>
 
-        <!-- LEGEND / FRAMING -->
         <section class="section">
           <div class="container">
             <div class="section__header">
               <h2>How to read this roadmap</h2>
               <p>
-                The focus is simple: ship a trusted execution layer first, then expand it as
-                <strong>x402 rails</strong> and <strong>ERC-8004 registries</strong> come online.
-                The cards below show what’s already shipped, what’s being wired now, and what’s
-                staged next.
+                This is not a future-existence roadmap. It is an operational roadmap layered on top of released contracts and a live reference runtime.
+                <strong>Commons and Commercial define the contract.</strong> <strong>Agent Cards define discovery.</strong> <strong>Runtime defines execution.</strong>
               </p>
               <div class="legend">
-                <span class="legend__pill legend__pill--done">Done</span>
-                <span class="legend__pill legend__pill--flight">In flight</span>
-                <span class="legend__pill legend__pill--planned">Planned</span>
+                <span class="legend__pill legend__pill--done">Released</span>
+                <span class="legend__pill legend__pill--flight">Live / in flight</span>
+                <span class="legend__pill legend__pill--planned">Planned expansion</span>
               </div>
             </div>
-
             <div class="grid grid--3">
               <article class="info-card">
-                <h3>Lead with semantics</h3>
-                <p>
-                  Commons v1.1.0 locks down a small, stable verb set and strict schemas — the
-                  language contract that agents can rely on regardless of which runtime or rail
-                  executes them.
-                </p>
+                <h3>Proof over hype</h3>
+                <p>Runtime is already live as a reference proving surface, so the roadmap is about hardening execution rather than inventing it.</p>
               </article>
               <article class="info-card">
-                <h3>Complete the stack, don’t compete</h3>
-                <p>
-                  x402 moves money. ERC-8004 helps you find agents. CommandLayer defines what they
-                  do. The roadmap assumes those standards win and makes the missing trust layer
-                  inevitable.
-                </p>
+                <h3>Canonical receipt first</h3>
+                <p>The contract surface is stable now. Runtime proof, trace, and orchestration metadata layer on top of the canonical receipt instead of replacing it.</p>
               </article>
               <article class="info-card">
-                <h3>Schemas free, economics in execution</h3>
-                <p>
-                  The verb language and JSON Schemas are public goods. Long-term economics sit in
-                  Runtime endpoints, routing, and guarantees — not in locking up schema access.
-                </p>
+                <h3>Open semantics, credible business model</h3>
+                <p>Schemas stay public and portable. Monetization lives in execution, guarantees, routing, and commercial service surfaces.</p>
               </article>
             </div>
           </div>
         </section>
 
-        <!-- PHASE 1 -->
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
-              <h2>Phase 1 — Foundations of the trust layer</h2>
-              <p>
-                Lock down the core language: a small Commons set, strict schemas, pinned artifacts,
-                and framing that makes CommandLayer the default trust layer on top of x402 and
-                ERC-8004.
-              </p>
+              <h2>1. Released foundations</h2>
+              <p>The protocol core is already published. Judges should read this as shipped architecture, not aspiration.</p>
             </div>
-
             <div class="grid">
               <div class="card-block">
-                <div class="card-block__title-row">
-                  <h3 class="card-block__title">Foundations — Commons v1.1.0</h3>
-                  <span class="card-block__badge card-block__badge--done">Done</span>
-                </div>
-                <p class="card-block__subtitle">
-                  10 universal Commons verbs with request/receipt schemas, shared primitives, and
-                  strict validation.
-                </p>
+                <div class="card-block__title-row"><h3 class="card-block__title">Commons v1.1.0</h3><span class="card-block__badge card-block__badge--done">Released</span></div>
+                <p class="card-block__subtitle">Canonical public-goods request and receipt schemas for the base verb set.</p>
                 <ul>
-                  <li>
-                    Verbs: <code>analyze</code>, <code>classify</code>, <code>summarize</code>,
-                    <code>parse</code>, <code>format</code>, <code>clean</code>,
-                    <code>convert</code>, <code>describe</code>, <code>explain</code>,
-                    <code>fetch</code>.
-                  </li>
-                  <li>JSON Schema 2020-12, strict mode, no ad-hoc drift.</li>
-                  <li>MIT-licensed and treated as semantic public goods.</li>
+                  <li>Strict JSON Schema contracts for requests and canonical receipts.</li>
+                  <li>Pinned artifacts and checksums for deterministic validation.</li>
+                  <li>Public builder target for interoperable integrations.</li>
                 </ul>
               </div>
-
               <div class="card-block">
-                <div class="card-block__title-row">
-                  <h3 class="card-block__title">Immutable protocol artifacts</h3>
-                  <span class="card-block__badge card-block__badge--done">Done</span>
-                </div>
-                <p class="card-block__subtitle">
-                  Make the language durable: deterministic IDs, pinned CIDs, and repeatable builds
-                  so clients can trust what they resolve.
-                </p>
+                <div class="card-block__title-row"><h3 class="card-block__title">Commercial v1.0.0</h3><span class="card-block__badge card-block__badge--done">Released</span></div>
+                <p class="card-block__subtitle">Economic verbs for payments, checkout, fulfillment, shipping, and verification on the same schema discipline.</p>
                 <ul>
-                  <li>Canonical <code>$id</code> layout for all schemas.</li>
-                  <li>Manifest + SHA-256 checksums for clients and registries.</li>
-                  <li>CI validation before anything is tagged as v1.1.0.</li>
+                  <li>Commercial contracts stay public and portable.</li>
+                  <li>Aligned with the broader x402 / agent commerce landscape without competing with transport rails.</li>
+                  <li>Portable canonical receipts remain first-class.</li>
                 </ul>
               </div>
-
               <div class="card-block">
-                <div class="card-block__title-row">
-                  <h3 class="card-block__title">Semantic layer framing</h3>
-                  <span class="card-block__badge card-block__badge--flight">In flight</span>
-                </div>
-                <p class="card-block__subtitle">
-                  Make it explicit to standards bodies and ecosystem partners what CommandLayer
-                  does and does not do.
-                </p>
+                <div class="card-block__title-row"><h3 class="card-block__title">Agent Cards v1.0.0</h3><span class="card-block__badge card-block__badge--done">Released</span></div>
+                <p class="card-block__subtitle">Open identity and routing descriptors that let clients discover capabilities without guessing.</p>
                 <ul>
-                  <li>
-                    Positioning: “x402 moves money, ERC-8004 finds agents, CommandLayer defines what
-                    they do.”
-                  </li>
-                  <li>
-                    Docs and site copy aligned to “semantic verb &amp; schema layer for agents”.
-                  </li>
-                  <li>
-                    Clear separation between Commons (MIT), Commercial (Apache-2.0), and Runtime
-                    (BUSL).
-                  </li>
+                  <li>ENS-linked discovery and routing metadata.</li>
+                  <li>Machine-readable capability declarations.</li>
+                  <li>Identity layer pinned to canonical artifacts.</li>
                 </ul>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- PHASE 2 -->
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>Phase 2 — Agent Cards, Commercial verbs &amp; expanding Commons</h2>
-              <p>
-                Once the initial Commons surface is stable, Phase 2 extends the protocol into
-                <strong>identity</strong>, <strong>economic flows</strong>, and a richer semantic
-                language for agents.
-              </p>
+              <h2>2. Live reference execution now</h2>
+              <p>Runtime is not hypothetical. It is already live in reference form and proving the execution thesis today.</p>
             </div>
-
             <div class="grid">
               <div class="card-block">
-                <div class="card-block__title-row">
-                  <h3 class="card-block__title">Agent Cards v1.0.0</h3>
-                  <span class="card-block__badge card-block__badge--done">Done</span>
-                </div>
-                <p class="card-block__subtitle">
-                  Bind ENS names to verbs, schema versions, and entrypoints so agents become
-                  discoverable and composable across runtimes and infra.
-                </p>
+                <div class="card-block__title-row"><h3 class="card-block__title">Reference proving surface</h3><span class="card-block__badge card-block__badge--flight">Live now</span></div>
+                <p class="card-block__subtitle">Execute published contracts, return canonical receipts, and optionally attach runtime proof and trace metadata.</p>
                 <ul>
-                  <li>Canonical JSON documents served from <code>/agent-cards/v1.0.0/</code>.</li>
-                  <li>
-                    Fields for identity, capabilities, limits, and one or more x402
-                    <code>entry</code> URIs.
-                  </li>
-                  <li>
-                    Compatible with ERC-8004-style discovery flows and third-party registries.
-                  </li>
+                  <li>Canonical receipt first, runtime metadata second.</li>
+                  <li>Execution proves the contract can survive beyond a static schema repo.</li>
+                  <li>Reference-grade surface for demos, validation, and protocol credibility.</li>
                 </ul>
               </div>
-
               <div class="card-block">
-                <div class="card-block__title-row">
-                  <h3 class="card-block__title">Commercial verbs v1.0.0</h3>
-                  <span class="card-block__badge card-block__badge--done">Done</span>
-                </div>
-                <p class="card-block__subtitle">
-                  Define the first Commercial verbs focused on money movement and fulfillment,
-                  separate from Commons semantics.
-                </p>
+                <div class="card-block__title-row"><h3 class="card-block__title">Current operational focus</h3><span class="card-block__badge card-block__badge--flight">In flight</span></div>
+                <p class="card-block__subtitle">Move from reference execution toward hardened infrastructure without changing the contract layer underneath.</p>
                 <ul>
-                  <li>
-                    Initial set: <code>authorize</code>, <code>checkout</code>,
-                    <code>purchase</code>, <code>ship</code>, <code>verify</code>.
-                  </li>
-                  <li>
-                    Apache-2.0 schemas with clear economic intent; MIT Commons stays the neutral
-                    baseline.
-                  </li>
-                  <li>Schema patterns aligned with x402 payment envelopes and receipts.</li>
-                </ul>
-              </div>
-
-              <div class="card-block">
-                <div class="card-block__title-row">
-                  <h3 class="card-block__title">Expanding the Commons surface</h3>
-                  <span class="card-block__badge card-block__badge--planned">Planned</span>
-                </div>
-                <p class="card-block__subtitle">
-                  Grow beyond the initial 10 verbs into richer workflows, data operations, and
-                  reasoning primitives while preserving backwards compatibility.
-                </p>
-                <ul>
-                  <li>Workflow: <code>notify</code>, <code>reply</code>, <code>schedule</code>.</li>
-                  <li>Data ops: <code>filter</code>, <code>visualize</code>, <code>optimize</code>.</li>
-                  <li>
-                    Cognition &amp; state: <code>reason</code>, <code>update</code>,
-                    <code>store</code> — all versioned and schema-first.
-                  </li>
+                  <li>Policy enforcement and request classification.</li>
+                  <li>Metering, throughput control, and idempotent execution flows.</li>
+                  <li>Guarantee surfaces that justify commercial execution value.</li>
                 </ul>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- PHASE 3 -->
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
-              <h2>Phase 3 — Runtime &amp; ecosystem integrations</h2>
-              <p>
-                With Commons, Commercial, and Agent Cards in place, Phase 3 brings the
-                <strong>Runtime layer</strong> online and integrates with wallets, processors, and
-                registries — all reusing the same free schemas.
-              </p>
+              <h2>3. In-flight operational hardening</h2>
+              <p>These are the next real steps: more operational depth around a stack that already ships.</p>
             </div>
-
             <div class="grid">
               <div class="card-block">
-                <div class="card-block__title-row">
-                  <h3 class="card-block__title">Runtime proving surface</h3>
-                  <span class="card-block__badge card-block__badge--flight">In flight</span>
-                </div>
-                <p class="card-block__subtitle">
-                  Execution endpoints for Commons and Commercial verbs. Where paid flows, routing
-                  decisions, and guarantees live — all on top of the same semantic contracts.
-                </p>
+                <div class="card-block__title-row"><h3 class="card-block__title">Policy and metering</h3><span class="card-block__badge card-block__badge--flight">In flight</span></div>
                 <ul>
-                  <li>
-                    BUSL-licensed Runtime repo for providers who want stronger guarantees around
-                    uptime, ordering, and receipts.
-                  </li>
-                  <li>
-                    x402-compatible HTTP endpoints that accept CommandLayer
-                    <code>*.request</code> payloads and return structured receipts.
-                  </li>
-                  <li>
-                    No new schema surface — Runtime reuses the <strong>free verb language</strong>
-                    defined in Commons and Commercial.
-                  </li>
+                  <li>Execution policy, retries, backpressure, and abuse controls.</li>
+                  <li>Usage metering for commercial and managed runtime surfaces.</li>
+                  <li>Clear separation between public contracts and paid operational guarantees.</li>
                 </ul>
               </div>
-
               <div class="card-block">
-                <div class="card-block__title-row">
-                  <h3 class="card-block__title">Registries &amp; discovery</h3>
-                  <span class="card-block__badge card-block__badge--planned">Planned</span>
-                </div>
-                <p class="card-block__subtitle">
-                  Make it trivial for ERC-8004 registries and third-party indexes to treat
-                  CommandLayer as the default semantic contract.
-                </p>
+                <div class="card-block__title-row"><h3 class="card-block__title">Proof and trace discipline</h3><span class="card-block__badge card-block__badge--flight">In flight</span></div>
                 <ul>
-                  <li>
-                    Reference “semantic-first” registry patterns over Agent Cards and schema
-                    versions.
-                  </li>
-                  <li>
-                    Example queries: “all <code>summarize</code> agents on mainnet with
-                    <code>v1.1.0</code> Commons schemas”.
-                  </li>
-                  <li>
-                    Guidance for wallets, hubs, and platforms to surface verbs as first-class
-                    objects.
-                  </li>
+                  <li>More durable runtime metadata and provenance surfaces.</li>
+                  <li>Structured trace attachments that do not mutate canonical receipt meaning.</li>
+                  <li>Operational observability for managed execution providers.</li>
                 </ul>
               </div>
-
               <div class="card-block">
-                <div class="card-block__title-row">
-                  <h3 class="card-block__title">Ecosystem playbook</h3>
-                  <span class="card-block__badge card-block__badge--planned">Planned</span>
-                </div>
-                <p class="card-block__subtitle">
-                  Document how infra providers, API vendors, and builders plug into the semantic
-                  layer without fragmenting it.
-                </p>
+                <div class="card-block__title-row"><h3 class="card-block__title">Commercial hardening</h3><span class="card-block__badge card-block__badge--planned">Next</span></div>
                 <ul>
-                  <li>Integration guides for x402 providers and execution hubs.</li>
-                  <li>
-                    Patterns for logging, tracing, and receipts that align with Commons/Commercial
-                    schemas.
-                  </li>
-                  <li>
-                    Clear story for how economic value accrues to Runtime &amp; endpoints while
-                    schemas remain free.
-                  </li>
+                  <li>SLA-style guarantees and priority routing.</li>
+                  <li>Managed commercial service surfaces around execution quality.</li>
+                  <li>Support for more production-grade fulfillment and verification flows.</li>
                 </ul>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- WHERE BUILDERS FIT -->
         <section class="section">
           <div class="container">
-            <div class="card-block">
-              <div class="card-block__title-row">
-                <h3 class="card-block__title">Where builders fit in</h3>
+            <div class="section__header">
+              <h2>4. Planned ecosystem expansion</h2>
+              <p>The next layer grows the ecosystem around the same released contract system rather than replacing it.</p>
+            </div>
+            <div class="grid">
+              <div class="card-block">
+                <div class="card-block__title-row"><h3 class="card-block__title">Multi-runtime execution</h3><span class="card-block__badge card-block__badge--planned">Planned</span></div>
+                <ul>
+                  <li>More runtime implementations honoring the same public schemas.</li>
+                  <li>Competitive execution markets on top of shared meaning.</li>
+                  <li>No lock-in at the contract layer.</li>
+                </ul>
               </div>
-              <p class="card-block__subtitle">
-                You don’t need to wait for “all phases” to land. One verb, one Agent Card, or one
-                example agent is enough to plug into the trust layer today.
-              </p>
-              <ul>
-                <li>
-                  Pick a Commons verb (e.g. <code>summarize</code>) and wire your agent to its
-                  <code>*.request</code> / <code>*.receipt</code> schemas.
-                </li>
-                <li>
-                  Validate payloads against the pinned, free schemas using your JSON Schema
-                  validator of choice.
-                </li>
-                <li>
-                  Describe your agent with an Agent Card so ERC-8004-style registries and clients
-                  can discover and route to it.
-                </li>
-                <li>
-                  As x402 rails and Runtime endpoints come online, you keep the same contracts —
-                  only the execution layer changes.
-                </li>
-              </ul>
-              <p style="font-size:0.9rem;color:var(--text-muted);margin-top:0.8rem;">
-                Start with one verb. As the ecosystem grows around x402 and ERC-8004, your agents
-                are already speaking the shared language that the agent economy will use.
-              </p>
+              <div class="card-block">
+                <div class="card-block__title-row"><h3 class="card-block__title">Registry and routing expansion</h3><span class="card-block__badge card-block__badge--planned">Planned</span></div>
+                <ul>
+                  <li>Richer Agent Card indexing and discovery patterns.</li>
+                  <li>More explicit routing across providers and commercial surfaces.</li>
+                  <li>Cleaner integration paths for standards-adjacent ecosystems.</li>
+                </ul>
+              </div>
+              <div class="card-block">
+                <div class="card-block__title-row"><h3 class="card-block__title">Broader contract coverage</h3><span class="card-block__badge card-block__badge--planned">Planned</span></div>
+                <ul>
+                  <li>Careful expansion of live schemas without turning reserved namespace into fake surface area.</li>
+                  <li>Manifest remains strategic namespace, not the builder contract.</li>
+                  <li>Build against published Commons and Commercial schemas, not reserved verbs.</li>
+                </ul>
+              </div>
             </div>
           </div>
         </section>
       </main>
 
+
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <div>© CommandLayer — trust layer for agent execution</div>
-          <div>
-            Version policy snapshot · Commons MIT · Commercial &amp; Agent Cards Apache-2.0 · Runtime BUSL · Schemas always free
+          <div class="site-footer__row">
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Canonical CIDs</div>
+              <div class="site-footer__cid">protocol-commons v1.1.0 &mdash; schemas pinned to IPFS with published checksums</div>
+              <div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
+            </div>
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Security</div>
+              <div>security@commandlayer.org</div>
+            </div>
           </div>
           <div class="site-footer__links">
-            <a href="/docs.html">Docs</a>
-            <a href="/FAQ.html">FAQ</a>
+            <a href="/commons.html">Schemas</a>
+            <a href="/quickstart.html">Quickstart</a>
+            <a href="/repositories.html">Repositories</a>
             <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
@@ -919,19 +749,69 @@
         const header = document.querySelector(".site-header");
         const toggle = document.querySelector(".site-header__toggle");
         const docsBtn = document.querySelector(".site-header__dropdown-btn");
+        const dropdown = document.querySelector(".site-header__dropdown");
+        const nav = document.querySelector(".site-header__nav");
+
+        function setDocsOpen(open) {
+          if (!header || !docsBtn) return;
+          header.classList.toggle("site-header--docs-open", !!open);
+          docsBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        }
+
+        function setNavOpen(open) {
+          if (!header || !toggle) return;
+          header.classList.toggle("site-header--open", !!open);
+          toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        }
 
         if (toggle && header) {
           toggle.addEventListener("click", () => {
             const isOpen = header.classList.toggle("site-header--open");
             toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            if (isOpen) setDocsOpen(false);
           });
         }
 
         if (docsBtn && header) {
-          docsBtn.addEventListener("click", () => {
-            header.classList.toggle("site-header--docs-open");
+          docsBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const willOpen = !header.classList.contains("site-header--docs-open");
+            setDocsOpen(willOpen);
           });
         }
+
+        document.addEventListener("click", (e) => {
+          const isOpen = header?.classList.contains("site-header--docs-open");
+          if (!isOpen) return;
+          if (dropdown && dropdown.contains(e.target)) return;
+          setDocsOpen(false);
+        });
+
+        document.addEventListener("keydown", (e) => {
+          if (e.key !== "Escape") return;
+          setDocsOpen(false);
+          setNavOpen(false);
+        });
+
+        if (nav) {
+          nav.addEventListener("click", (e) => {
+            const a = e.target?.closest?.("a");
+            if (!a) return;
+            setDocsOpen(false);
+            setNavOpen(false);
+          });
+        }
+
+        function openFromHash() {
+          const id = (location.hash || "").replace("#", "");
+          if (!id) return;
+          const el = document.getElementById(id);
+          if (!el) return;
+          if (el.tagName.toLowerCase() === "details") el.open = true;
+        }
+        window.addEventListener("hashchange", openFromHash);
+        openFromHash();
       })();
     </script>
   </body>
