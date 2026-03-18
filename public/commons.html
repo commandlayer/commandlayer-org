@@ -570,7 +570,8 @@
               <p class="subhero__subtitle">
                 Commons is the canonical public-goods contract layer: 10 universal verbs, each with a strict <code>*.request</code> and <code>*.receipt</code>
                 JSON Schema. This is the minimum verifiable receipt surface judges and builders should learn first.
-                <strong>Runtime may enrich execution</strong>, but it does not replace the canonical Commons contract.
+                Commons and Commercial share the same contract-first philosophy, and <strong>Runtime may enrich execution</strong>
+                without replacing the canonical Commons contract.
               </p>
               <p style="margin:0.9rem 0 0;font-size:0.94rem;font-weight:500;color:var(--accent-strong);letter-spacing:0.01em;">
                 Agents can act. CommandLayer proves they acted.
@@ -578,6 +579,7 @@
               <p class="subhero__subtitle" style="margin-top: 0.75rem; font-size: 0.92rem;">
                 <strong>What changed in v1.1.0:</strong> Commons is now the canonical builder target across the site,
                 schema paths are promoted to <code>/schemas/v1.1.0/commons/...</code>, and the live Commons flow defaults to v1.1.0 receipts.
+                Learn the canonical contract first; runtime-specific enrichment can layer on later.
               </p>
             </div>
             <div class="subhero__meta">
@@ -871,10 +873,14 @@
                 (<code>v1.1.0</code>, <code>v2.0.0</code>) so agents can rely on these schemas long-term.
               </p>
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">
+                Commons and Commercial define contract surfaces; Agent Cards define discovery; Runtime defines execution.
                 In the v1.1.0 cycle, the Commons set is curated under a single-maintainer model to keep the
                 command language coherent and predictable for early builders. As the ecosystem grows, broader
                 participation and formal governance can layer on without breaking this version — the Commons verbs
                 are treated as semantic public goods for the agent economy.
+              </p>
+              <p style="font-size:0.9rem;color:var(--text-muted);margin:0.6rem 0 0;">
+                Verification and runtime proof can layer on top of Commons receipts without changing Commons semantics.
               </p>
             </div>
           </div>

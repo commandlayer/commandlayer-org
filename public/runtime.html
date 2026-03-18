@@ -409,6 +409,16 @@
         padding: 1.8rem 1.5rem 2rem;
         font-size: 0.78rem;
         color: var(--text-soft);
+      }
+
+      .site-footer__row {
+        display: flex;
+        justify-content: space-between;
+        gap: 2rem;
+        margin-bottom: 1rem;
+      }
+
+      .site-footer__col {
         display: flex;
         flex-direction: column;
         gap: 0.6rem;
@@ -472,6 +482,7 @@
         .hero__inner { grid-template-columns: minmax(0, 1fr); }
         .hero__card { margin-top: 1.2rem; }
         .grid--3 { grid-template-columns: minmax(0, 1fr); }
+        .site-footer__row { flex-direction: column; gap: 1rem; }
         .site-footer__inner { padding-inline: 1rem; }
       }
     </style>
