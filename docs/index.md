@@ -1,16 +1,25 @@
-# CommandLayer Documentation
+# CommandLayer documentation
 
-1
+The public docs hub for CommandLayer lives on the website in `public/docs.html`, with the related contract pages in `public/commons.html`, `public/commercial.html`, `public/runtime.html`, and `public/agent-cards.html`.
 
-## Reference (Canonical)
+This `docs/` tree is the lightweight repo-facing companion:
 
-- [What is an Agent Receipt](./reference/what-is-a-receipt.md)
-- [How to Verify Agent Output](./reference/verify-receipts.md)
-- [Agent Receipt Hashing](./reference/receipt-hashing.md)
-- [Runtime-Agnostic Agents](./reference/runtime-portability.md)
-- [Agent Discovery and Identity](./reference/agent-discovery.md)
-- [Common Agent Verbs](./reference/common-verbs.md)
+- it gives contributors and reviewers a short Markdown reference to the core trust model
+- it points at the canonical public pages and schema paths
+- it avoids duplicating long-form product copy that is maintained on the site
 
-## Live Proof
+## Read in this order
 
-1
+1. [What is an agent receipt](./reference/what-is-a-receipt.md)
+2. [How to verify receipts](./reference/verify-receipts.md)
+3. [Receipt hashing](./reference/receipt-hashing.md)
+4. [Common verbs](./reference/common-verbs.md)
+5. [Runtime portability](./reference/runtime-portability.md)
+6. [Agent discovery and identity](./reference/agent-discovery.md)
+7. [ERC-8004 and x402 compatibility](./reference/erc8004-and-x402.md)
+
+## Authority model
+
+- The site is the primary public explanation surface.
+- The Markdown docs in this repo are short reference notes for contributors, reviewers, and source control readers.
+- Versioned JSON Schemas under published `/schemas/...` paths remain the contract authority for requests and receipts.

@@ -629,9 +629,7 @@
                 <span class="hero__title-em">CommandLayer proves they acted.</span>
               </h1>
               <p class="hero__subtitle">
-                Most “agent systems” are demos glued together by private prompt formats and one-off APIs.
-                CommandLayer is the opposite: a small set of canonical verbs, strict schemas, verifiable identity,
-                and receipts — so agents can interoperate across runtimes, vendors, and payment rails without breaking.
+                CommandLayer exists because agent execution needs evidence, not just logs. The system stays intentionally small: canonical contracts, signed receipts, verifiable identity, and execution surfaces that can be inspected instead of merely trusted.
               </p>
 
               <div class="hero__cta-row">
@@ -649,42 +647,40 @@
             <aside class="hero__card">
               <h2>What CommandLayer actually is</h2>
               <p>
-                A trust layer for agent execution — verbs + schemas + identity + receipts — designed so
-                execution can be swapped without losing proof or meaning.
+                A trust layer for autonomous agent execution. The system is split on purpose so meaning stays portable and proof stays inspectable.
               </p>
               <ul>
-                <li><strong>Commons:</strong> public-good verbs + schemas (free forever).</li>
-                <li><strong>Commercial:</strong> same openness, but execution is metered.</li>
-                <li><strong>Agent Cards:</strong> identity + discovery bindings for routing.</li>
-                <li><strong>Runtime:</strong> where policy, guarantees, and economics live.</li>
+                <li><strong>Commons:</strong> the canonical open contract layer and minimum verifiable receipt.</li>
+                <li><strong>Commercial:</strong> a commerce-oriented extension built on the same contract discipline.</li>
+                <li><strong>Agent Cards:</strong> discovery and routing metadata tied to identity.</li>
+                <li><strong>Runtime:</strong> the proving surface that executes contracts and can attach execution metadata.</li>
               </ul>
             </aside>
           </div>
         </section>
 
-        <!-- ECONOMIC RULE (GIANT) -->
+        <!-- BUSINESS BOUNDARY -->
         <section class="section section--muted" id="economic-rule">
           <div class="container">
             <div class="section__header">
-              <h2>CommandLayer Economic Rule (Final)</h2>
+              <h2>Open contracts, paid execution</h2>
               <p>
-                This is the whole economic system, with no ambiguity. If someone misunderstands CommandLayer,
-                it’s because they don’t have this sentence in their head.
+                CommandLayer keeps the contract layer open and puts monetization at execution. That is the business boundary and the trust boundary.
               </p>
             </div>
 
             <div class="card-block">
               <div class="big-rule">
-                <div class="big-rule__kicker">Economic Rule</div>
+                <div class="big-rule__kicker">Business boundary</div>
                 <h3 class="big-rule__headline">
-                  <strong>Commons defines the open execution layer.</strong><br />
-                  <strong>Commercial extends it for paid flows.</strong>
+                  <strong>Commons defines the canonical open contract layer.</strong><br />
+                  <strong>Commercial extends it for paid, commerce-oriented execution.</strong>
                 </h3>
 
                 <!-- 3-line legend -->
                 <div class="legend">
-                  <div><strong>FREE</strong> → schemas, identity, discovery, Commons execution</div>
-                  <div><strong>PAID</strong> → commercial execution, throughput, guarantees</div>
+                  <div><strong>FREE</strong> → schemas, identity, discovery, receipt verification</div>
+                  <div><strong>PAID</strong> → commercial execution, guarantees, routing, throughput</div>
                   <div><strong>NEVER TAXED</strong> → meaning, validation, interoperability</div>
                 </div>
 
@@ -700,42 +696,42 @@
               <div class="split">
                 <div class="info-card" style="border-radius: 22px;">
                   <h3>Protocol-Commons</h3>
-                  <p>Public goods layer. No rent. No tolls. No “open core” tricks.</p>
+                  <p>The canonical public contract layer. Small, stable, and free to implement.</p>
                   <ul class="list">
                     <li>Schemas: <strong>FREE</strong></li>
                     <li>Agent-Cards: <strong>FREE</strong></li>
                     <li>Discovery (ENS): <strong>FREE</strong></li>
-                    <li>Runtime execution: <strong>FREE</strong> (best-effort, reference-grade)</li>
+                    <li>Reference runtime execution: <strong>available</strong> as a proving surface</li>
                   </ul>
 
                   <div class="codebox">Commons exists to:
-- prove semantics
-- maximize adoption
-- eliminate friction
-- create trust</div>
+- define the minimum receipt
+- keep semantics portable
+- give builders one canonical starting point
+- make verification boring</div>
                 </div>
 
                 <div class="info-card" style="border-radius: 22px;">
                   <h3>Protocol-Commercial</h3>
-                  <p>Same openness — the tax is only on execution when money moves.</p>
+                  <p>A commerce-oriented extension that keeps schemas public while charging at execution time when risk, settlement, or fulfillment matter.</p>
                   <ul class="list">
                     <li>Schemas: <strong>FREE</strong></li>
                     <li>Agent-Cards: <strong>FREE</strong></li>
                     <li>Discovery: <strong>FREE</strong></li>
-                    <li>Runtime execution: <strong>TAXED</strong></li>
+                    <li>Managed execution: <strong>PAID</strong> when commerce-oriented guarantees matter</li>
                   </ul>
 
-                  <div class="codebox">The tax applies to:
+                  <div class="codebox">Commercial value accrues in:
 - execution of commercial verbs
-- throughput / volume
-- SLA guarantees
-- priority or certified execution
-- leasing of verb-bound agents</div>
+- throughput and routing
+- guarantees and certified delivery
+- settlement and fulfillment operations
+- managed service quality</div>
                 </div>
               </div>
 
               <p style="margin: 1.1rem 0 0; color: var(--text-muted); line-height: 1.75;">
-                Commons keeps the canonical execution layer open. Commercial builds on it for paid, commerce-oriented flows.
+                Commons is the canonical open model. Commercial extends it without taking over product identity or closing the contract layer.
               </p>
             </div>
           </div>
@@ -745,32 +741,32 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>Where the tax lives</h2>
+              <h2>Where monetization lives</h2>
               <p>
-                The tax is not hidden. It is not embedded in standards. It lives at execution time inside
-                runtimes — because that’s where enforcement is natural and clean.
+                Monetization is not embedded in standards. It lives at execution time inside
+                runtimes, where routing, guarantees, and operational responsibility already live.
               </p>
             </div>
 
             <div class="grid grid--3">
               <article class="info-card">
-                <h3>The tax is not in</h3>
+                <h3>Not in the contract</h3>
                 <p>
-                  The schema, the Agent-Card, ENS, or discovery. Meaning stays neutral and portable.
+                  The schema, Agent Cards, ENS identity, or receipt verification. Meaning stays neutral and portable.
                 </p>
               </article>
 
               <article class="info-card">
-                <h3>The tax is in</h3>
+                <h3>In execution</h3>
                 <p>
-                  Execution: metering, guarantees, priority, certified delivery, and throughput control.
+                  Execution: routing, metering, guarantees, fulfillment operations, and throughput control.
                 </p>
               </article>
 
               <article class="info-card">
                 <h3>Why this matters</h3>
                 <p>
-                  Standards-clean. Regulator-clean. Developer-trustworthy. No paywalled semantics.
+                  It keeps the story legible: open semantics, inspectable verification, and monetization where operational responsibility actually lives.
                 </p>
               </article>
             </div>
@@ -778,9 +774,9 @@
             <div style="height: 1.2rem"></div>
 
             <div class="card-block">
-              <h3 class="card-block__title">Enforcement model</h3>
+              <h3 class="card-block__title">Execution model</h3>
               <p class="card-block__subtitle">
-                No semantic fork. No schema gating. No hidden rules.
+                No semantic fork. No paywalled contracts. Execution policy and guarantees live above the contract layer.
               </p>
 
               <div class="codebox">Runtime resolves ENS + Agent-Card
@@ -794,7 +790,7 @@ Runtime enforces:
   receipts that reflect commercial execution</div>
 
               <p style="margin: 0.9rem 0 0; color: var(--text-muted); line-height: 1.75;">
-                 <strong>CommandLayer makes meaning free and taxes execution when money moves.</strong>
+                 <strong>CommandLayer keeps meaning open and monetizes execution where operational cost is real.</strong>
               </p>
             </div>
           </div>
@@ -806,8 +802,7 @@ Runtime enforces:
             <div class="section__header">
               <h2>Why this architecture works</h2>
               <p>
-                Most protocols try to tax access. CommandLayer taxes outcomes. That’s the difference between
-                “standards drama” and “standards gravity.”
+                The architecture works because it keeps the contract layer portable while letting execution quality become the competitive surface.
               </p>
             </div>
 
@@ -821,7 +816,7 @@ Runtime enforces:
               </ul>
 
               <p style="margin: 0.9rem 0 0; color: var(--text-muted); line-height: 1.75;">
-                This is now a coherent economic protocol, not just tech.
+                This keeps the protocol story and the business story aligned.
               </p>
             </div>
           </div>
@@ -835,9 +830,9 @@ Runtime enforces:
                 <div>
                   <h3>Greg Soucy</h3>
                   <p>
-                    Founder / Architect of CommandLayer. Focused on protocol-grade semantics: strict schemas,
-                    identity + discovery bindings, and receipts that make agent execution auditable and enforceable.
-                    CommandLayer is designed to scale into a multi-maintainer standard without breaking v1 behavior.
+                    Founder / Architect of CommandLayer. The emphasis is protocol discipline: strict schemas,
+                    identity + discovery bindings, and receipts that make agent execution attributable and inspectable.
+                    CommandLayer is being built to scale as infrastructure without rewriting the core trust model.
                   </p>
                 </div>
               </div>

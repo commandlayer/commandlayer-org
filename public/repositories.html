@@ -580,8 +580,7 @@ GitHub
 <div class="container">
 <h1>Repositories</h1>
 <p>
-CommandLayer is a layered protocol stack: contract, discovery, execution, and tooling.
-Each repository owns one clear responsibility so canonical contracts stay portable while runtimes and clients build around them.
+CommandLayer is one system with separate repos for separate layers. Read this page top-down: Commons and Commercial define the contract, Agent Cards define discovery, runtimes prove execution, and public surfaces explain the stack.
 </p>
 </div>
 </section>
@@ -591,7 +590,7 @@ Each repository owns one clear responsibility so canonical contracts stay portab
 <div class="container">
 <div class="section__header">
 <h2>Protocol stack</h2>
-<p>Read the repositories in stack order: contracts first, discovery next, execution after that, then tooling and publishing.</p>
+<p>Read the repositories in stack order: contract first, discovery second, execution third, then SDK and publishing surfaces around that core.</p>
 </div>
 
 <div class="repo-grid">
@@ -601,7 +600,7 @@ Each repository owns one clear responsibility so canonical contracts stay portab
 <a href="https://github.com/commandlayer/protocol-commons" target="_blank" rel="noopener noreferrer">protocol-commons</a>
 </h3>
 <p class="repo-card__desc">
-The canonical contract base truth for CommandLayer. Commons defines the public request/receipt schemas, the minimum verifiable receipt, and the portable semantic layer builders should target first.
+The canonical open contract layer. This repo defines the public request and receipt schemas, the minimum verifiable receipt, and the baseline semantics builders should target first.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">MIT</span>
@@ -616,7 +615,7 @@ The canonical contract base truth for CommandLayer. Commons defines the public r
 <a href="https://github.com/commandlayer/protocol-commercial" target="_blank" rel="noopener noreferrer">protocol-commercial</a>
 </h3>
 <p class="repo-card__desc">
-The economic contract layer that extends Commons with stable request/receipt schemas for payments, fulfillment, logistics, and verification. Commercial builds on Commons semantics instead of competing with them.
+The commerce-oriented contract extension. It adds payment, checkout, fulfillment, shipping, and verification schemas while preserving the Commons-first model and portable receipt discipline.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">Apache-2.0</span>
@@ -631,7 +630,7 @@ The economic contract layer that extends Commons with stable request/receipt sch
 <a href="https://github.com/commandlayer/agent-cards" target="_blank" rel="noopener noreferrer">agent-cards</a>
 </h3>
 <p class="repo-card__desc">
-The identity, discovery, and routing layer. Agent Cards describe who an agent is, what capabilities it exposes, which schema versions it supports, and which entrypoints clients should call without redefining contract semantics.
+The discovery and identity layer. Agent Cards say who an agent is, which verbs and versions it supports, and where clients should route requests without redefining the contract itself.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">Apache-2.0</span>
@@ -646,7 +645,7 @@ The identity, discovery, and routing layer. Agent Cards describe who an agent is
 <a href="https://github.com/commandlayer/sdk" target="_blank" rel="noopener noreferrer">sdk</a>
 </h3>
 <p class="repo-card__desc">
-Client tooling above contracts and runtime. The SDK helps applications discover agents, call pinned contract surfaces, and verify canonical receipts plus any optional runtime metadata they receive back.
+Client-side tooling for integrating the stack. The SDK helps applications discover agents, call pinned contract surfaces, and verify receipts without blurring contract data with runtime metadata.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">License: see repo</span>
@@ -661,7 +660,7 @@ Client tooling above contracts and runtime. The SDK helps applications discover 
 <a href="https://github.com/commandlayer/runtime-core" target="_blank" rel="noopener noreferrer">runtime-core</a>
 </h3>
 <p class="repo-card__desc">
-Shared execution primitives used by runtime implementations: schema validation, canonical serialization, signing helpers, and execution-layer utilities that may attach proof and orchestration metadata around canonical receipts.
+Shared execution and verification primitives. Runtime-core holds schema validation, canonical serialization, signing, and receipt-proof helpers used by runtime implementations.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">Execution primitives</span>
@@ -675,7 +674,7 @@ Shared execution primitives used by runtime implementations: schema validation, 
 <a href="https://github.com/commandlayer/commercial-runtime" target="_blank" rel="noopener noreferrer">commercial-runtime</a>
 </h3>
 <p class="repo-card__desc">
-Commercial execution implementation for economic flows. It applies the same contract-first model to payment, checkout, purchase, shipping, and verification flows, and may attach proof and orchestration metadata around canonical receipts.
+The commerce-oriented execution surface. It runs Commercial flows against the public contracts and may attach proof, trace, and orchestration metadata around the canonical receipts it returns.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">Commercial execution</span>
@@ -689,7 +688,7 @@ Commercial execution implementation for economic flows. It applies the same cont
 <a href="https://github.com/commandlayer/commandlayer-org" target="_blank" rel="noopener noreferrer">commandlayer-org</a>
 </h3>
 <p class="repo-card__desc">
-The public publishing surface for docs, schemas, quickstart flows, and demos. This repo teaches the architecture, hosts the portable contracts, and shows how the stack fits together for builders and judges.
+The public explanation and proof surface. This repo hosts the website, docs hub, quickstart, demos, and schema publishing paths that make the rest of the stack legible to builders and judges.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">Docs + demo</span>
@@ -704,7 +703,7 @@ The public publishing surface for docs, schemas, quickstart flows, and demos. Th
 <div class="container">
 <div class="section__header">
 <h2>Architecture rule</h2>
-<p>Contracts define meaning first. Discovery and execution build around them.</p>
+<p>Do not read these repos as separate products. They are one stack with a strict boundary: contracts define meaning, discovery binds identity, and execution proves what happened.</p>
 </div>
 <div class="repo-grid">
 <article class="repo-card">

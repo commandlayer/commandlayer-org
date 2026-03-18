@@ -567,8 +567,8 @@
               <div class="subhero__eyebrow">Commercial</div>
               <h1 class="subhero__title">Commercial Verbs (v1.0.0)</h1>
               <p class="subhero__subtitle">
-                The economic contract layer of CommandLayer — verbs and schemas for
-                payments, settlement, fulfillment, and verification. Commercial extends the canonical contract model: stable request/receipt schemas first, runtime execution metadata second. <strong>All schemas are permanently free</strong>; monetization lives in execution, not in the verb language.
+                The commerce-oriented contract layer of CommandLayer — verbs and schemas for
+                payments, settlement, fulfillment, and verification. Commercial extends Commons: stable request/receipt schemas first, runtime execution metadata second. <strong>All schemas remain free</strong>; monetization lives in execution, not in the verb language.
               </p>
             </div>
             <div class="subhero__meta">
@@ -611,8 +611,7 @@
                 <h3>Built on Commons semantics</h3>
                 <p>
                   Commercial assumes Commons exists. Analysis, summarization, parsing, and
-                  formatting wrap around payment and logistics flows, so you don’t invent
-                  new formats every time you connect an economic agent. Commercial keeps semantics open while preserving a commerce-oriented compatibility shape for paid flows.
+                  formatting still come from the canonical layer. Commercial keeps semantics open while preserving a commerce-oriented compatibility shape for payment rails and execution systems that already exist today.
                 </p>
               </article>
 
@@ -625,7 +624,7 @@
               </article>
             </div>
             <p style="margin:1.15rem 0 0; color: var(--text-muted); line-height: 1.7;">
-              Schemas remain public and portable; monetization lives in execution. Commercial keeps semantics open while preserving a commerce-oriented compatibility shape for paid flows.
+              Schemas remain public and portable; monetization lives in execution. Commercial keeps semantics open while preserving a commerce-oriented compatibility shape for paid flows today.
             </p>
           </div>
         </section>
@@ -646,10 +645,7 @@
             <div class="card-block">
               <h3 class="card-block__title">Commercial schema index</h3>
               <p class="card-block__subtitle">
-                These links are stable for Commercial v1.0.0. The commerce-oriented shape is intentional for compatibility. When Commercial advances, it will ship as a new version
-                (<code>v1.1.0</code>, <code>v2.0.0</code>) under
-                <code>/schemas/vX.Y.Z/commercial/...</code> — early adopters can keep targeting
-                v1.0.0 without churn.
+                These links are stable for Commercial v1.0.0. The commerce-oriented shape is intentional and compatibility-preserving: Commons is the cleaner canonical model, while Commercial keeps the structure needed for current economic flows. Future cleanup should arrive in new versions, not silent drift.
               </p>
 
               <div class="table-wrapper">
@@ -816,8 +812,8 @@
             <div class="card-block">
               <h3 class="card-block__title">Stability, licensing &amp; evolution</h3>
               <p class="card-block__subtitle">
-                Commercial v1.0.0 is an intentionally current compatibility surface, not a forgotten branch. Names and schema paths are reserved and stable. Implementations
-                can iterate behind these contracts; breaking changes move to new versions.
+                Commercial v1.0.0 is an intentionally current compatibility surface, not a side branch. Names and schema paths are stable. Implementations
+                can evolve behind these contracts; structural cleanup belongs in future versions, not in-place rewrites.
               </p>
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem;">
                 Commercial schemas are published under <strong>Apache-2.0</strong> and treated as

@@ -1,40 +1,48 @@
-# Runtime-Agnostic Agents
+# Runtime portability
 
-1
+CommandLayer is designed so meaning survives a runtime swap.
 
-## Swap Runtimes Without Breaking Meaning
+That is the point of separating contracts from execution.
 
-1
+## What should stay stable
 
-## What Must Stay Stable
+Across runtimes, the following should remain stable:
 
-1
+- verb names
+- schema versions
+- request semantics
+- receipt semantics
+- verification rules for canonical contracts
 
-## What May Change (Safely)
+## What may differ safely
 
-1
+Different runtimes may still differ in:
 
-## Envelope Compatibility
+- routing
+- scheduling
+- policy enforcement
+- throughput
+- pricing
+- trace and orchestration metadata
+- optional proof attachments
 
-1
+Those differences belong to the execution layer, not the contract layer.
 
-### ERC-8004 as a Transport Layer
+## Portability rule
 
-1
+A client should be able to:
 
-### x402 as a Transport Layer
+1. build against a published schema
+2. send the request through different compliant runtimes
+3. receive canonical receipts that still validate against the same published contract
 
-1
+That is the architectural trust story: open semantics, competitive execution.
 
-## Bring Your Own Runtime (Compatibility Checklist)
+## Commercial note
 
-1
+Commercial currently preserves a commerce-oriented compatibility shape, while Commons is the cleaner canonical model. That structural asymmetry should be understood as a compatibility-preserving product reality, not as a contradiction in the stack.
 
-## Example: Same Request, Different Runtime, Same Verifiable Receipt
+## Related references
 
-1
-
-## Related Reference Pages
-
-- [Agent Receipt Schema + Definition](./what-is-a-receipt.md)
-- [How to Verify Agent Output](./verify-receipts.md)
+- [What is an agent receipt](./what-is-a-receipt.md)
+- [How to verify receipts](./verify-receipts.md)

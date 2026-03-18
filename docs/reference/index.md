@@ -1,20 +1,27 @@
-# CommandLayer Reference
+# CommandLayer reference
 
-1
+This folder is the repo-side reference index for the CommandLayer trust model.
 
-## Tier 1: Core Authority
+Use it when you need a concise explanation of:
 
-- [What is an Agent Receipt](./what-is-a-receipt.md)
-- [How to Verify Agent Output](./verify-receipts.md)
+- what a canonical receipt is
+- how verification works
+- how Commons, Commercial, Agent Cards, and Runtime fit together
+- which surfaces are live versus strategic
 
-## Tier 2: Verification + Hashing
+## Core references
 
-- [Agent Receipt Hashing](./receipt-hashing.md)
+- [What is an agent receipt](./what-is-a-receipt.md)
+- [How to verify receipts](./verify-receipts.md)
+- [Receipt hashing](./receipt-hashing.md)
 
-## Tier 3: Schemas + Portability + Discovery
+## Stack references
 
-- [Common Agent Verbs](./common-verbs.md)
-- [Runtime-Agnostic Agents](./runtime-portability.md)
-- [Agent Discovery and Identity](./agent-discovery.md)
+- [Common verbs](./common-verbs.md)
+- [Runtime portability](./runtime-portability.md)
+- [Agent discovery and identity](./agent-discovery.md)
+- [ERC-8004 and x402 compatibility](./erc8004-and-x402.md)
 
-- [ERC-8004 and x402 Compatibility](./erc8004-and-x402.md)
+## Scope note
+
+These files are intentionally short. They support the website docs and schema artifacts; they do not try to become a second long-form docs product inside the repo.
