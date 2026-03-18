@@ -9,7 +9,7 @@ content="width=device-width, initial-scale=1, viewport-fit=cover"
 />
 <meta
 name="description"
-content="CommandLayer protocol repositories: schemas, SDKs, runtimes, agent identity, and commercial execution. A multi-repo protocol architecture."
+content="CommandLayer protocol repositories: Commons defines the canonical receipt contract, while runtimes and SDKs sit above it as execution and tooling layers."
 />
 
 
@@ -507,7 +507,7 @@ padding-inline: 1rem;
 <div class="site-header__text">
 <span class="site-header__title">CommandLayer</span>
 <span class="site-header__subtitle">
-Execution + receipt layer
+Commons first. Runtime second.
 </span>
 </div>
 </a>
@@ -562,7 +562,7 @@ GitHub
 <h1>Repositories</h1>
 <p>
 CommandLayer is a multi-repo protocol architecture.
-Each repository owns a distinct layer in the trust layer for agent execution: schemas, identity, runtimes, and proofs.
+Each repository owns a distinct layer in the trust stack: Commons defines the canonical receipt contract, then identity, runtimes, SDKs, and proofs build around it.
 </p>
 </div>
 </section>
@@ -573,7 +573,7 @@ Each repository owns a distinct layer in the trust layer for agent execution: sc
 <div class="container">
 <div class="section__header">
 <h2>Schemas</h2>
-<p>Canonical verb definitions, receipt structures, and shared protocol types.</p>
+<p>Canonical verb definitions, minimum receipt structures, and shared protocol types.</p>
 </div>
 
 <div class="repo-grid">
@@ -583,7 +583,7 @@ Each repository owns a distinct layer in the trust layer for agent execution: sc
 <a href="https://github.com/commandlayer/protocol-commons" target="_blank" rel="noopener noreferrer">protocol-commons</a>
 </h3>
 <p class="repo-card__desc">
-Canonical verbs and typed payloads for agent interoperability. Current public release: Commons v1.1.0.
+Canonical verbs and typed payloads for agent interoperability. This is the base truth judges should learn first: Commons v1.1.0 defines the minimum verifiable receipt.
 Standardizes machine intent through JSON Schema 2020-12 definitions
 for all Commons verbs (analyze, classify, clean, convert, describe, explain, fetch, format, parse, summarize).
 </p>
@@ -666,7 +666,7 @@ and checksums. Supports both Commons and Commercial verb tiers.
 <div class="container">
 <div class="section__header">
 <h2>Runtime</h2>
-<p>Reference execution environments that validate schemas, issue signed receipts, and prove execution.</p>
+<p>Reference execution environments that validate schemas, execute actions, and may attach proof or orchestration metadata around the base receipt.</p>
 </div>
 
 <div class="repo-grid">
@@ -677,7 +677,7 @@ and checksums. Supports both Commons and Commercial verb tiers.
 </h3>
 <p class="repo-card__desc">
 Reference HTTP runtime for CommandLayer verbs. Validates requests against
-pinned schemas and issues signed, verifiable receipts using ENS key
+pinned schemas, then may attach signed, verifiable proof metadata using ENS key
 discovery. Implements the canonical serialization and Ed25519 signing pipeline.
 </p>
 <div class="repo-card__meta">
@@ -694,7 +694,7 @@ discovery. Implements the canonical serialization and Ed25519 signing pipeline.
 </h3>
 <p class="repo-card__desc">
 Core runtime library. Shared execution logic, schema validation,
-canonical serialization, and receipt signing primitives used by
+canonical serialization, and optional receipt-signing primitives used by
 runtime implementations.
 </p>
 <div class="repo-card__meta">
@@ -740,7 +740,7 @@ Handles x402 payment envelope integration, economic verb flows
 <p class="repo-card__desc">
 This website. Static HTML site with Vercel serverless API demos.
 Hosts published schemas, quickstart guides, live verb composer,
-and receipt verification examples.
+and Commons-first receipt teaching plus verification examples.
 </p>
 <div class="repo-card__meta">
 <span class="repo-card__tag">HTML</span>

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta
       name="description"
-      content="Interactive CommandLayer commerce demo — run authorize, checkout, purchase, ship, and verify flows backed by Commercial verbs and real runtime receipts."
+      content="Interactive CommandLayer commerce demo — inspect a runtime-backed execution surface while keeping the Commons-first receipt boundary clear: base contracts first, runtime metadata second."
     />
 
     <style>
@@ -462,7 +462,7 @@
             <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Trust layer for agent execution</span>
+              <span class="site-header__subtitle">Commons first. Runtime second.</span>
             </div>
           </a>
 
@@ -504,7 +504,7 @@
                 <span class="hero__title-em">authorize → checkout → purchase → ship → verify.</span>
               </h1>
               <p class="hero__subtitle">
-                Execute a live multi-step flow and inspect signed receipts for every step.
+                Execute a live multi-step flow and inspect how runtime execution wraps the underlying receipt contract.
               </p>
 
               <div class="hero__cta-row">
@@ -514,23 +514,23 @@
                 </a>
                 <a href="/composer.html" class="btn btn--ghost">
                   <span class="btn__icon">🧩</span>
-                  <span>Try Commons Composer (Demo #2)</span>
+<span>Try Commons-first Composer (Demo #2)</span>
                 </a>
               </div>
 
               <div class="hero__meta">
                 <span class="hero__meta-pill">Commercial runtime-backed</span>
-                <span class="hero__meta-pill">Receipts = evidence (signed)</span>
+                <span class="hero__meta-pill">Base contract first, runtime extras second</span>
                 <span class="hero__meta-pill">Per-step curl reproduction</span>
               </div>
             </div>
 
             <aside class="hero__card">
               <h2>What this demo shows</h2>
-              <p>A concrete, inspectable proof surface for a verified agent flow:</p>
+              <p>A concrete, inspectable execution surface that keeps the layer split explicit:</p>
               <ul>
-                <li>Each step returns a typed JSON receipt.</li>
-                <li>Any cross-step trace/chaining data shown here is runtime metadata for orchestration.</li>
+                <li>Each step starts from a typed request/receipt contract.</li>
+                <li>Any cross-step trace, proof, or chaining data shown here is runtime metadata for orchestration.</li>
                 <li>Inline verification applies only when the runtime attaches a proof layer.</li>
                 <li>The site displays the flow while execution happens against the live runtime.</li>
               </ul>
@@ -545,7 +545,7 @@
               <h2>Interactive verified agent flow</h2>
               <p>
                 The iframe below runs a live agent flow. It calls <code>/api/commercial-flow</code> (Vercel),
-                which forwards each step to your <b>commercial runtime</b>. You get back per-step receipts plus whatever runtime-specific trace or proof metadata that executor exposes, then inspect and reproduce the flow.
+                which forwards each step to your <b>commercial runtime</b>. You get back per-step receipts plus any runtime-specific trace or proof metadata that executor exposes, so viewers can distinguish the base contract from the optional execution context.
               </p>
             </div>
 

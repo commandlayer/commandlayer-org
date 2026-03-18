@@ -9,7 +9,7 @@
     />
     <meta
       name="description"
-      content="Getting started with CommandLayer — Commons verbs, Commercial flows, Agent Cards, and the Runtime layer on top of x402 and ERC-8004. Schemas are always free; value lives in execution."
+      content="Getting started with CommandLayer — learn Commons as the canonical receipt contract first, then Runtime as the optional execution layer that can enrich receipts with metadata."
     />
 
     <style>
@@ -618,7 +618,7 @@
             <div class="site-header__text">
               <span class="site-header__title">CommandLayer</span>
               <span class="site-header__subtitle">
-                Execution + receipt layer
+                Commons first. Runtime second.
               </span>
             </div>
           </a>
@@ -669,17 +669,17 @@
               <div class="hero__eyebrow">Docs</div>
               <h1 class="hero__title">Getting started with CommandLayer</h1>
               <p class="hero__subtitle">
-                Four pieces work together on top of <strong>x402</strong> and
-                <strong>ERC-8004</strong>: Commons verbs, Commercial verbs, Agent Cards, and the
+                Learn the stack in the right order on top of <strong>x402</strong> and
+                <strong>ERC-8004</strong>: Commons verbs first, then Commercial verbs, Agent Cards, and finally the
                 Runtime execution layer. This page shows how to call a verb, validate payloads,
                 describe your own agent, and see how everything lines up.
               </p>
 
               <ul class="hero__list">
-                <li>Use Commons verbs as your baseline machine-intent grammar.</li>
+                <li>Use Commons verbs as your baseline machine-intent grammar and minimum receipt contract.</li>
                 <li>Layer in Commercial verbs for economic flows over x402.</li>
                 <li>Bind agents to ENS and entrypoints with Agent Cards.</li>
-                <li>Rely on Runtime for execution, guarantees, and economics — while schemas stay free.</li>
+                <li>Treat Runtime as the execution layer that may add optional metadata while schemas stay free.</li>
               </ul>
 
               <div class="hero__cta-row">
@@ -698,7 +698,7 @@
                 <span class="hero__meta-pill">Commons v1.1.0 · MIT · authoritative now</span>
                 <span class="hero__meta-pill">Commercial v1.0.0 · Apache-2.0 · intentionally current</span>
                 <span class="hero__meta-pill">Agent Cards v1.0.0 · Apache-2.0 · intentionally current</span>
-                <span class="hero__meta-pill">Runtime receipts verify execution across versions</span>
+<span class="hero__meta-pill">Runtime can enrich receipts without redefining them</span>
               </div>
             </div>
 
@@ -708,7 +708,7 @@
                 At minimum, you only need two things to integrate: a <strong>verb</strong> and its
                 <strong>schemas</strong>. If you also want others to discover and route to your
                 agent, you publish an <strong>Agent Card</strong>. Runtime is the proving surface:
-                it executes those contracts and returns signed receipts without changing semantics.
+                it executes those contracts and may add optional proof or trace metadata without changing semantics.
               </p>
 
               <ol class="hero__card-list">
@@ -721,7 +721,7 @@
                   so it can be discovered and routed to.
                 </li>
                 <li>
-                  Runtime can change routing, policy, and guarantees, but the semantic contract stays stable.
+                  Runtime can change routing, policy, and guarantees, but the semantic contract stays stable and Commons remains the public truth.
                 </li>
               </ol>
 
@@ -737,8 +737,8 @@
                 <div class="mini-example__column">
                   <div class="mini-example__label">// summarize.receipt</div>
                   <pre>{
-  "result": "Semantic verb layer describing agent behavior on x402.",
-  "trace": "bafybeieoynknza..."
+  "status": "ok",
+  "result": "Semantic verb layer describing agent behavior on x402."
 }</pre>
                 </div>
                 <div class="mini-example__note">
@@ -757,8 +757,8 @@
               <h2>How the pieces fit together</h2>
               <p>
                 CommandLayer doesn’t compete with x402 or ERC-8004 — it completes the stack by
-                defining machine intent. Commons and Commercial verbs give you the vocabulary,
-                Agent Cards bind that vocabulary to agents, and Runtime turns it into execution and
+                defining machine intent. Commons and Commercial verbs give you the vocabulary and canonical receipt contract,
+                Agent Cards bind that vocabulary to agents, and Runtime turns it into execution with optional metadata and
                 guarantees.
               </p>
             </div>
@@ -828,7 +828,7 @@
                   x402 / ERC-8004-aware registries.
                 </li>
                 <li>
-                  Runtime can change routing, policy, and guarantees, but the semantic contract stays stable.
+                  Runtime can change routing, policy, and guarantees, but the semantic contract stays stable and Commons remains the public truth.
                 </li>
               </ul>
             </div>
