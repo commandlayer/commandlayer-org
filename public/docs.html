@@ -539,6 +539,33 @@
       }
 
       .site-footer__inner {
+  display: grid;
+  gap: 1.1rem;
+}
+.site-footer__row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+.site-footer__col {
+  border-radius: 18px;
+  padding: 1rem;
+  background: rgba(10, 12, 20, 0.88);
+  border: 1px solid var(--border-soft);
+}
+.site-footer__col-title {
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-muted, var(--text-muted));
+  margin-bottom: 0.45rem;
+}
+.site-footer__cid {
+  color: var(--text-muted);
+  line-height: 1.6;
+  font-size: 0.84rem;
+}
+.site-footer__inner {
         padding: 1.4rem 1.5rem 1.8rem;
         font-size: 0.78rem;
         color: var(--text-soft);
@@ -644,6 +671,8 @@
                 <a href="/FAQ.html">FAQ</a>
                 <a href="/roadmap.html">Roadmap</a>
                 <a href="/licensing.html">Licensing</a>
+                <a href="/FAQ.html">FAQ</a>
+                <a href="/roadmap.html">Roadmap</a>
                 <a href="/about.html">About</a>
               </div>
             </div>
@@ -929,7 +958,7 @@ const receipt = await res.json();
               <h3 class="card-block__title">Commons agent template</h3>
               <p class="card-block__subtitle">
                 For Commons agents, cards live under:
-                <code>/agent-cards/v1.0.0/commons/&lt;ens&gt;.json</code>
+                <code>/agent-cards/agents/v1.0.0/commons/&lt;ens&gt;.json</code>
               </p>
               <pre>{
   "ens": "summarizeagent.eth",
@@ -951,7 +980,7 @@ const receipt = await res.json();
 }</pre>
               <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.6rem;">
                 Commercial agents follow the same pattern under
-                <code>/agent-cards/v1.0.0/commercial/&lt;ens&gt;.json</code>, with verbs such as
+                <code>/agent-cards/agents/v1.0.0/commercial/&lt;ens&gt;.json</code>, with verbs such as
                 <code>authorize</code>, <code>checkout</code>, <code>purchase</code>,
                 <code>ship</code>, and <code>verify</code>.
               </p>
@@ -992,13 +1021,23 @@ const receipt = await res.json();
 
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <div>© CommandLayer — trust layer for agent execution</div>
-          <div>
-            Version policy: Commons v1.1.0 now · Commercial v1.0.0 · Agent Cards v1.0.0 · Runtime proves execution · Schemas always free
+          <div class="site-footer__row">
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">CommandLayer</div>
+              <div class="site-footer__cid">Agents can act. CommandLayer proves they acted.</div>
+              <div class="site-footer__cid">Protocol v1.1.0 &middot; ERC-8004 registered</div>
+            </div>
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Stack status</div>
+              <div class="site-footer__cid">Commons is the canonical free, signed-receipt layer. Commercial extends that foundation for commerce-oriented flows.</div>
+              <div class="site-footer__cid">security@commandlayer.org</div>
+            </div>
           </div>
           <div class="site-footer__links">
             <a href="/docs.html">Docs</a>
             <a href="/FAQ.html">FAQ</a>
+            <a href="/roadmap.html">Roadmap</a>
+            <a href="/repositories.html">Repositories</a>
             <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
           <div style="color: var(--text-soft); font-size: 0.78rem;">Protocol v1.1.0 &middot; ERC-8004 registered</div>
