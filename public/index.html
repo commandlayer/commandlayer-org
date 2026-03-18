@@ -2,35 +2,37 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CommandLayer — The Trust Layer for Agent Execution</title>
+<title>CommandLayer — Agents can act. CommandLayer proves they acted.</title>
 <meta
   name="viewport"
   content="width=device-width, initial-scale=1, viewport-fit=cover"
 />
 <meta
   name="description"
-  content="CommandLayer teaches the Commons-first protocol boundary: Commons defines the minimum verifiable receipt, and Runtime executes actions with optional metadata for orchestration, chaining, and proof."
+  content="CommandLayer is the trust layer for autonomous agents. Every action produces a signed, verifiable receipt."
 />
 
 <style>
 :root {
   --bg: #05060a;
-  --bg-elevated: #0a0c14;
-  --bg-panel: rgba(10, 12, 20, 0.82);
-  --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
-  --border-soft: rgba(255, 255, 255, 0.06);
-  --border-strong: rgba(255, 255, 255, 0.16);
-  --accent: #c5cbe0;
-  --accent-strong: #eef2ff;
-  --accent-muted: #8f96b5;
-  --text-main: #f7f8ff;
-  --text-muted: #a3abca;
-  --text-soft: #6b7280;
-  --success: #86efac;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --shadow-soft: 0 24px 80px rgba(0, 0, 0, 0.55);
-  --max-width: 1120px;
+  --bg-elevated: rgba(10, 14, 26, 0.9);
+  --bg-panel: rgba(10, 14, 26, 0.82);
+  --bg-panel-strong: rgba(8, 12, 24, 0.96);
+  --bg-header: radial-gradient(circle at 0% 0%, #4f5c86 0, #1a2238 42%, #05060a 100%);
+  --border-soft: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(76, 201, 240, 0.24);
+  --text-main: #f8faff;
+  --text-muted: #a6b1cc;
+  --text-soft: #78829d;
+  --accent-blue: #4cc9f0;
+  --accent-blue-strong: #2f7cf6;
+  --accent-green: #22c55e;
+  --accent-green-soft: rgba(34, 197, 94, 0.16);
+  --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.45);
+  --shadow-blue: 0 0 0 1px rgba(76, 201, 240, 0.16), 0 28px 70px rgba(22, 78, 168, 0.22);
+  --radius-lg: 18px;
+  --radius-xl: 28px;
+  --max-width: 1140px;
 }
 
 * {
@@ -42,7 +44,10 @@ body {
   margin: 0;
   padding: 0;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
-  background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+  background:
+    radial-gradient(circle at top left, rgba(47, 124, 246, 0.14), transparent 28%),
+    radial-gradient(circle at top right, rgba(76, 201, 240, 0.08), transparent 22%),
+    linear-gradient(180deg, #06070d 0%, #03050a 100%);
   color: var(--text-main);
 }
 
@@ -133,14 +138,14 @@ body {
 }
 
 .site-header__link:hover {
-  color: var(--accent-strong);
+  color: var(--text-main);
   border-color: rgba(255, 255, 255, 0.18);
   background: rgba(15, 23, 42, 0.7);
 }
 
 .site-header__link--active {
-  color: #020617;
-  background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
+  color: #08101e;
+  background: linear-gradient(135deg, #ecf3ff, #bfe9f6);
   border-color: rgba(255, 255, 255, 0.25);
 }
 
@@ -162,7 +167,7 @@ body {
 }
 
 .site-header__dropdown-btn:hover {
-  color: var(--accent-strong);
+  color: var(--text-main);
   border-color: rgba(255, 255, 255, 0.18);
   background: rgba(15, 23, 42, 0.7);
 }
@@ -190,7 +195,7 @@ body {
 }
 
 .site-header__dropdown-menu a:hover {
-  color: var(--accent-strong);
+  color: var(--text-main);
   background: rgba(31, 41, 55, 0.95);
 }
 
@@ -209,67 +214,58 @@ body {
   cursor: pointer;
 }
 
-.site-header__toggle:hover {
-  background: rgba(15, 23, 42, 1);
-}
-
 .hero {
-  padding: 4rem 0 1.4rem;
-  background:
-    radial-gradient(circle at 0 0, rgba(99, 102, 241, 0.15), transparent 35%),
-    radial-gradient(circle at 100% 0, rgba(148, 163, 184, 0.12), transparent 30%),
-    linear-gradient(180deg, #05060a 0%, #020308 100%);
-  border-bottom: 1px solid var(--border-soft);
+  padding: 3.6rem 0 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .hero__layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
-  gap: 2rem;
+  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+  gap: 1.6rem;
   align-items: center;
 }
 
-.hero__eyebrow,
-.section__eyebrow,
-.card__eyebrow {
-  margin: 0 0 0.55rem;
-  text-transform: uppercase;
+.eyebrow {
+  margin: 0 0 0.7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.32rem 0.68rem;
+  border-radius: 999px;
+  border: 1px solid rgba(76, 201, 240, 0.22);
+  background: rgba(10, 18, 30, 0.72);
+  color: #b7dfff;
+  font-size: 0.74rem;
   letter-spacing: 0.12em;
-  font-size: 0.75rem;
-  color: var(--accent-muted);
+  text-transform: uppercase;
 }
 
 .hero__title {
   margin: 0;
-  font-size: clamp(2.9rem, 5.4vw, 4.8rem);
-  line-height: 1.02;
-  letter-spacing: -0.05em;
-  max-width: 11ch;
+  max-width: 10ch;
+  font-size: clamp(3rem, 6vw, 5.1rem);
+  line-height: 0.96;
+  letter-spacing: -0.06em;
 }
 
-.hero__title span {
-  color: #4cc9f0;
+.hero__title-accent {
+  color: var(--accent-blue);
 }
 
 .hero__subtitle {
-  margin: 0.8rem 0 0;
-  color: #9aa4b2;
-  font-size: 1.05rem;
-  line-height: 1.65;
-  max-width: 32rem;
+  margin: 1rem 0 0;
+  max-width: 34rem;
+  color: var(--text-muted);
+  font-size: 1.04rem;
+  line-height: 1.62;
 }
 
-.hero__cta-row {
+.hero__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.8rem;
+  gap: 0.75rem;
   margin-top: 1.4rem;
-}
-
-.hero__support {
-  margin-top: 0.8rem;
-  color: var(--text-soft);
-  font-size: 0.9rem;
 }
 
 .btn {
@@ -277,12 +273,12 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.72rem 1.15rem;
-  border-radius: 10px;
-  font-size: 0.92rem;
+  padding: 0.82rem 1.18rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
   text-decoration: none;
   border: 1px solid transparent;
-  cursor: pointer;
   white-space: nowrap;
   transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
@@ -292,520 +288,360 @@ body {
 }
 
 .btn--primary {
-  background: #2563eb;
-  color: #ffffff;
-  border-color: rgba(37, 99, 235, 0.75);
-  box-shadow: 0 18px 40px rgba(37, 99, 235, 0.24);
-}
-
-.btn--primary:hover {
-  filter: brightness(1.05);
-  box-shadow: 0 20px 44px rgba(37, 99, 235, 0.3);
+  color: #f8fcff;
+  background: linear-gradient(135deg, #2f7cf6, #4cc9f0);
+  border-color: rgba(76, 201, 240, 0.35);
+  box-shadow: 0 18px 40px rgba(47, 124, 246, 0.26);
 }
 
 .btn--ghost {
-  background: rgba(15, 23, 42, 0.72);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(10, 14, 26, 0.84);
+  color: var(--text-main);
+  border-color: rgba(255, 255, 255, 0.14);
 }
 
 .btn--ghost:hover {
-  background: rgba(15, 23, 42, 0.92);
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color: rgba(76, 201, 240, 0.4);
+  background: rgba(10, 18, 30, 0.96);
 }
 
-.hero-proof {
-  position: relative;
-  background: rgba(15, 18, 28, 0.9);
+.hero__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 1.15rem;
+}
+
+.trust-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.62rem 0.82rem;
+  border-radius: 999px;
+  background: rgba(10, 14, 26, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
-  padding: 1.35rem 1.4rem 1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(76, 201, 240, 0.08);
-  backdrop-filter: blur(6px);
-  overflow: hidden;
+  color: #d5deef;
+  font-size: 0.82rem;
 }
 
-.hero-proof::before {
+.trust-pill__dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  box-shadow: 0 0 12px rgba(76, 201, 240, 0.65);
+}
+
+.receipt-card {
+  position: relative;
+  overflow: hidden;
+  padding: 1.35rem;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border-strong);
+  background:
+    radial-gradient(circle at top right, rgba(76, 201, 240, 0.14), transparent 28%),
+    linear-gradient(180deg, rgba(9, 14, 26, 0.96), rgba(7, 11, 21, 0.98));
+  box-shadow: var(--shadow-blue);
+}
+
+.receipt-card::after {
   content: "";
   position: absolute;
-  inset: -30% auto auto 12%;
-  width: 240px;
-  height: 240px;
+  inset: auto -18% -28% auto;
+  width: 220px;
+  height: 220px;
   border-radius: 999px;
-  background: radial-gradient(circle, rgba(76, 201, 240, 0.16), rgba(76, 201, 240, 0));
+  background: radial-gradient(circle, rgba(47, 124, 246, 0.2), rgba(47, 124, 246, 0));
   pointer-events: none;
 }
 
-.hero-proof__top {
+.receipt-card__header {
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
-  padding-bottom: 0.9rem;
+  margin-bottom: 1rem;
 }
 
-.hero-proof__dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #22c55e;
-  box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
-  flex: none;
-}
-
-.hero-proof__title {
-  font-size: 0.98rem;
+.receipt-card__title {
+  font-size: 1rem;
   font-weight: 600;
-  color: #e6edf3;
 }
 
-.hero-proof__grid {
+.receipt-card__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.36rem 0.64rem;
+  border-radius: 999px;
+  background: var(--accent-green-soft);
+  color: #d8ffe6;
+  border: 1px solid rgba(34, 197, 94, 0.28);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.receipt-card__badge-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
+}
+
+.receipt-card__rows {
   position: relative;
   display: grid;
   gap: 0;
 }
 
-.hero-proof__row {
+.receipt-card__row {
   display: grid;
-  grid-template-columns: 88px 1fr;
+  grid-template-columns: 92px 1fr;
   gap: 0.75rem;
-  font-size: 0.84rem;
-  padding: 0.8rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.hero-proof__row:last-child {
+.receipt-card__row:last-child {
   border-bottom: none;
 }
 
-.hero-proof__label {
-  color: #6b7280;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  text-transform: lowercase;
-}
-
-.hero-proof__value {
-  color: #e6edf3;
-  line-height: 1.6;
-  word-break: break-word;
-  text-align: right;
-}
-
-.hero-proof__value--green {
-  color: #22c55e;
-  font-weight: 600;
-}
-
-.hero-proof__value--blue {
-  color: #4cc9f0;
-  font-size: 0.8rem;
-}
-
-.hero-proof__subline {
-  display: block;
-  color: #6b7280;
-  font-size: 0.74rem;
-}
-
-.hero-proof__footer {
-  position: relative;
-  margin-top: 0.9rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  color: #8da0b3;
-  font-size: 0.78rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.hero-proof__value code,
-.receipt-code code,
+.receipt-card__label,
+.receipt-card__footer,
+.footer-links a,
+.site-footer__cid,
+.site-footer__meta,
+code,
 .mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
-.trust-strip {
-  padding: 0.85rem 0 0;
+.receipt-card__label {
+  color: var(--text-soft);
+  font-size: 0.77rem;
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
 }
 
-.trust-strip__row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem;
-  align-items: center;
-}
-
-.trust-pill,
-.trust-proof {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(15, 23, 42, 0.64);
-  border: 1px solid var(--border-soft);
-  border-radius: 999px;
-  padding: 0.68rem 0.92rem;
-  font-size: 0.82rem;
-  line-height: 1.25;
-  text-align: center;
-}
-
-.trust-pill {
-  color: var(--accent);
-}
-
-.trust-proof {
-  gap: 0.4rem;
-  color: var(--accent-strong);
-  text-decoration: none;
-}
-
-.trust-proof:hover {
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(30, 41, 59, 0.88);
-}
-
-.trust-proof__hash {
-  color: var(--text-muted);
-}
-
-.positioning-callout {
-  display: grid;
-  gap: 1rem;
-}
-
-.positioning-callout__body {
-  background: var(--bg-panel);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-xl);
-  padding: 1rem;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-.positioning-callout__body p {
-  margin: 0.6rem 0 0;
-  color: var(--text-muted);
-  line-height: 1.6;
-}
-
-.positioning-callout__body p:first-of-type {
-  margin-top: 0;
-}
-
-.positioning-callout__body h2 {
-  margin: 0;
-  letter-spacing: -0.03em;
-}
-
-.receipt-bridge {
-  margin-top: 0.85rem;
-  padding: 0.95rem 1rem;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(15, 23, 42, 0.62);
-  color: var(--text-muted);
+.receipt-card__value {
+  color: var(--text-main);
+  text-align: right;
+  font-size: 0.84rem;
   line-height: 1.55;
+  word-break: break-word;
+}
+
+.receipt-card__value--ok {
+  color: #7ef0a7;
+  font-weight: 700;
+}
+
+.receipt-card__value--muted {
+  color: #9fdcf4;
+}
+
+.receipt-card__footer {
+  position: relative;
+  margin-top: 0.9rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  color: #8b99b8;
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .section {
-  padding: 3rem 0;
+  padding: 1.5rem 0;
 }
 
 .section--muted {
-  background: rgb(6, 9, 18);
+  background: rgba(7, 10, 18, 0.78);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.section__header {
-  max-width: 44rem;
-  margin-bottom: 1.2rem;
-}
-
-.section__header h2 {
-  margin: 0 0 0.45rem;
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
-  letter-spacing: -0.03em;
-}
-
-.section__header p {
-  margin: 0;
-  font-size: 1rem;
-  color: var(--text-muted);
-  line-height: 1.6;
-}
-
-.two-up {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-
-.panel {
-  background: var(--bg-panel);
-  border: 1px solid var(--border-soft);
+.section-card {
+  padding: 1.2rem;
   border-radius: var(--radius-xl);
-  padding: 1.15rem;
+  border: 1px solid var(--border-soft);
+  background: var(--bg-panel);
   box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
 }
 
-.panel h3 {
-  margin: 0 0 0.5rem;
-  font-size: 1.05rem;
+.section__eyebrow {
+  margin: 0 0 0.45rem;
+  color: #94c9ff;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
 }
 
-.panel p {
+.section__title {
   margin: 0;
-  color: var(--text-muted);
-  font-size: 0.95rem;
-  line-height: 1.7;
+  font-size: clamp(1.65rem, 3vw, 2.4rem);
+  letter-spacing: -0.04em;
 }
 
-.panel ul {
+.section__body {
   margin: 0.65rem 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.panel li {
   color: var(--text-muted);
-  font-size: 0.93rem;
-  line-height: 1.65;
-  padding: 0.45rem 0;
-  border-bottom: 1px solid var(--border-soft);
+  font-size: 0.98rem;
+  line-height: 1.62;
 }
 
-.panel li:last-child {
-  border-bottom: none;
-  padding-bottom: 0;
-}
-
-.steps-grid,
-.themes-grid {
+.value-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 1rem;
+  gap: 0.9rem;
 }
 
-.step-card,
-.theme-card,
-.identity-grid .panel,
-.positioning-card,
-.cta-card {
-  background: var(--bg-panel);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius-xl);
-  padding: 1.25rem;
+.value-card {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(9, 14, 26, 0.86);
 }
 
-.step-card__num {
-  display: inline-flex;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 999px;
-  align-items: center;
-  justify-content: center;
-  background: rgba(229, 231, 235, 0.1);
-  border: 1px solid var(--border-soft);
-  font-size: 0.82rem;
-  color: var(--accent-strong);
-  margin-bottom: 0.7rem;
-}
-
-.step-card h3,
-.theme-card h3,
-.positioning-card h3,
-.cta-card h3 {
+.value-card__title {
   margin: 0 0 0.35rem;
-  font-size: 1rem;
+  font-size: 0.96rem;
 }
 
-.step-card p,
-.theme-card p,
-.positioning-card p,
-.cta-card p {
+.value-card__text {
   margin: 0;
   color: var(--text-muted);
-  font-size: 0.93rem;
-  line-height: 1.7;
+  font-size: 0.88rem;
+  line-height: 1.55;
 }
 
-.receipt-showcase {
+.why-card {
   display: grid;
-  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
   gap: 1rem;
   align-items: start;
 }
 
-.receipt-callout {
-  padding-right: 0.3rem;
+.example-box {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(76, 201, 240, 0.16);
+  background: rgba(8, 15, 30, 0.88);
 }
 
-.receipt-callout p {
-  color: var(--text-muted);
-  line-height: 1.75;
-  font-size: 0.98rem;
+.example-box__label {
+  display: inline-flex;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(76, 201, 240, 0.12);
+  color: #c9edff;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
-.receipt-highlights {
-  margin-top: 0.9rem;
-  display: grid;
-  gap: 0.75rem;
-}
-
-.receipt-highlight {
-  border-left: 2px solid rgba(229, 231, 235, 0.26);
-  padding-left: 0.8rem;
+.example-box p {
+  margin: 0.7rem 0 0;
   color: var(--text-muted);
   font-size: 0.92rem;
-  line-height: 1.65;
+  line-height: 1.58;
 }
 
-.receipt-code {
-  background: rgba(15, 23, 42, 0.95);
-  border: 1px solid var(--border-strong);
+.example-list {
+  list-style: none;
+  padding: 0;
+  margin: 0.9rem 0 0;
+  display: grid;
+  gap: 0.6rem;
+}
+
+.example-list li {
+  display: flex;
+  gap: 0.65rem;
+  align-items: flex-start;
+  color: #dce6f8;
+  font-size: 0.9rem;
+}
+
+.example-list li::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-top: 0.35rem;
+  background: var(--accent-green);
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
+  flex: none;
+}
+
+.cta-band {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  padding: 1.25rem 1.3rem;
   border-radius: var(--radius-xl);
-  overflow: hidden;
+  border: 1px solid rgba(76, 201, 240, 0.18);
+  background:
+    radial-gradient(circle at left center, rgba(47, 124, 246, 0.18), transparent 28%),
+    linear-gradient(180deg, rgba(9, 14, 26, 0.96), rgba(6, 10, 20, 0.98));
   box-shadow: var(--shadow-soft);
 }
 
-.receipt-code__bar {
+.cta-band__actions,
+.footer-links {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1rem;
-  padding: 0.85rem 1rem;
-  border-bottom: 1px solid var(--border-soft);
-  color: var(--text-soft);
-  font-size: 0.8rem;
-}
-
-.receipt-code pre {
-  margin: 0;
-  padding: 1.1rem 1rem 1.2rem;
-  overflow-x: auto;
-  font-size: 0.82rem;
-  line-height: 1.65;
-  color: var(--text-main);
-}
-
-.identity-grid {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 1.3rem;
-}
-
-.identity-points {
-  display: grid;
-  gap: 0.7rem;
-}
-
-.identity-point {
-  padding: 0.8rem 0.95rem;
-  border-radius: 14px;
-  border: 1px solid var(--border-soft);
-  background: rgba(15, 23, 42, 0.52);
-}
-
-.identity-point strong {
-  display: block;
-  margin-bottom: 0.2rem;
-  font-size: 0.9rem;
-}
-
-.identity-point span {
-  color: var(--text-muted);
-  font-size: 0.9rem;
-  line-height: 1.6;
-}
-
-.cta-card,
-.positioning-card {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.cta-card__actions {
-  display: flex;
-  gap: 0.8rem;
   flex-wrap: wrap;
+  gap: 0.75rem;
 }
 
 .site-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
   background: #020308;
 }
 
 .site-footer__inner {
-  padding: 1.8rem 1.5rem 2rem;
-  font-size: 0.78rem;
-  color: var(--text-soft);
-  display: flex;
-  flex-direction: column;
-  gap: 0.6rem;
-}
-
-.site-footer__row {
+  padding: 1.2rem 1.5rem 1.5rem;
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 2rem;
+  gap: 1rem;
+  align-items: flex-end;
 }
 
-.site-footer__col {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.site-footer__col-title {
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+.site-footer__meta {
   color: var(--text-soft);
-  margin-bottom: 0.2rem;
+  font-size: 0.78rem;
 }
 
 .site-footer__cid {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.72rem;
-  color: var(--accent-muted);
-  word-break: break-all;
+  color: #88a2c6;
+  font-size: 0.74rem;
+  margin-top: 0.35rem;
 }
 
-.site-footer__links {
-  display: flex;
-  gap: 0.8rem;
-  margin-top: 0.8rem;
-  padding-top: 0.8rem;
-  border-top: 1px solid var(--border-soft);
-  flex-wrap: wrap;
-}
-
-.site-footer__links a {
-  color: var(--accent);
+.footer-links a {
+  color: #cae8ff;
   text-decoration: none;
+  font-size: 0.84rem;
 }
 
-.site-footer__links a:hover {
+.footer-links a:hover {
   text-decoration: underline;
 }
 
 @media (max-width: 980px) {
   .hero__layout,
-  .receipt-showcase,
-  .identity-grid,
-  .two-up,
-  .cta-card,
-  .positioning-card {
+  .why-card,
+  .cta-band,
+  .site-footer__inner {
     grid-template-columns: 1fr;
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .steps-grid,
-  .themes-grid {
+  .value-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -832,15 +668,6 @@ body {
   .site-header.site-header--open .site-header__nav {
     display: flex;
   }
-
-  .site-footer__row {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .site-footer__inner {
-    padding-inline: 1rem;
-  }
 }
 
 @media (max-width: 640px) {
@@ -849,21 +676,35 @@ body {
   }
 
   .hero {
-    padding-top: 3.25rem;
+    padding: 3rem 0 1.5rem;
   }
 
   .hero__title {
-    max-width: 12ch;
+    max-width: 100%;
+    font-size: clamp(2.5rem, 12vw, 3.5rem);
   }
 
-  .steps-grid,
-  .themes-grid {
+  .hero__actions,
+  .cta-band__actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .value-grid {
     grid-template-columns: 1fr;
   }
 
-  .hero-proof__row {
+  .receipt-card__row {
     grid-template-columns: 1fr;
-    gap: 0.25rem;
+    gap: 0.28rem;
+  }
+
+  .receipt-card__value {
+    text-align: left;
   }
 }
 </style>
@@ -877,7 +718,7 @@ body {
         <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
         <div class="site-header__text">
           <span class="site-header__title">CommandLayer</span>
-          <span class="site-header__subtitle">Commons first. Runtime second.</span>
+          <span class="site-header__subtitle">Trust infrastructure for agents</span>
         </div>
       </a>
 
@@ -923,231 +764,78 @@ body {
       <div class="container">
         <div class="hero__layout">
           <div>
-            <p class="hero__eyebrow">Commons-first protocol truth</p>
-            <h1 class="hero__title">Commons defines the receipt. <span>Runtime executes it.</span></h1>
+            <p class="eyebrow">Signed proof for agent execution</p>
+            <h1 class="hero__title">Agents can act. <span class="hero__title-accent">CommandLayer proves they acted.</span></h1>
             <p class="hero__subtitle">
-              CommandLayer Commons is the canonical base contract: the minimum verifiable receipt every judge, builder, and verifier should learn first. Runtime sits above that contract and may attach optional metadata for chaining, orchestration, timing, or proof.
+              A trust layer for autonomous agents. Every action produces a signed, verifiable receipt.
             </p>
-            <p class="hero__support">
-              Observability shows what happened inside your system.<br />
-              CommandLayer proves what an autonomous agent actually did.
-            </p>
-            <div class="hero__cta-row">
-              <a href="#receipts" class="btn btn--primary">See Canonical Receipt</a>
-              <a href="/demo.html" class="btn btn--ghost">See Runtime Demo</a>
+            <div class="hero__actions">
+              <a href="/demo.html" class="btn btn--primary">Run Verified Flow</a>
+              <a href="#trust-strip" class="btn btn--ghost">View Receipts</a>
             </div>
-            <div class="hero__support">Teach the flat Commons receipt first; treat runtime metadata as an optional execution-layer add-on.</div>
+            <div class="hero__pills" aria-label="Trust pillars">
+              <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>ENS Identity</span>
+              <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Signed Receipts</span>
+              <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Verifiable Execution</span>
+              <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Multi-Step Flows</span>
+            </div>
           </div>
 
-          <aside class="hero-proof" aria-label="Verified execution receipt preview">
-            <div class="hero-proof__top">
-              <span class="hero-proof__dot" aria-hidden="true"></span>
-              <div class="hero-proof__title">Canonical Commons Receipt</div>
+          <aside class="receipt-card" aria-label="Verified Flow Receipt preview">
+            <div class="receipt-card__header">
+              <div class="receipt-card__title">Verified Flow Receipt</div>
+              <div class="receipt-card__badge"><span class="receipt-card__badge-dot" aria-hidden="true"></span>verified</div>
             </div>
-            <div class="hero-proof__grid">
-              <div class="hero-proof__row">
-                <div class="hero-proof__label">status</div>
-                <div class="hero-proof__value hero-proof__value--green">ok</div>
+            <div class="receipt-card__rows">
+              <div class="receipt-card__row">
+                <div class="receipt-card__label">verified</div>
+                <div class="receipt-card__value receipt-card__value--ok">true</div>
               </div>
-              <div class="hero-proof__row">
-                <div class="hero-proof__label">verb</div>
-                <div class="hero-proof__value mono">verify<span class="hero-proof__subline">/ Commons receipt meaning</span></div>
+              <div class="receipt-card__row">
+                <div class="receipt-card__label">agent</div>
+                <div class="receipt-card__value mono">checkoutagent.eth</div>
               </div>
-              <div class="hero-proof__row">
-                <div class="hero-proof__label">x402</div>
-                <div class="hero-proof__value mono">verb: verify · version: v1.1.0</div>
+              <div class="receipt-card__row">
+                <div class="receipt-card__label">flow</div>
+                <div class="receipt-card__value mono">authorize → checkout → verify</div>
               </div>
-              <div class="hero-proof__row">
-                <div class="hero-proof__label">result</div>
-                <div class="hero-proof__value">Receipt validated against the canonical contract</div>
+              <div class="receipt-card__row">
+                <div class="receipt-card__label">action</div>
+                <div class="receipt-card__value">settled payment request and emitted receipt</div>
               </div>
-              <div class="hero-proof__row">
-                <div class="hero-proof__label">runtime extras</div>
-                <div class="hero-proof__value hero-proof__value--blue mono">optional trace / proof / metadata</div>
+              <div class="receipt-card__row">
+                <div class="receipt-card__label">proof</div>
+                <div class="receipt-card__value mono">sha256: 9fa31c4d7b2a...e18f72</div>
+              </div>
+              <div class="receipt-card__row">
+                <div class="receipt-card__label">signature</div>
+                <div class="receipt-card__value mono">ed25519 • ENS / ERC-8004 resolved</div>
               </div>
             </div>
-            <div class="hero-proof__footer">Flat base receipt first • Runtime additions optional</div>
+            <div class="receipt-card__footer">Inspectable receipt • signed execution proof • portable identity</div>
           </aside>
         </div>
-
-        <div class="trust-strip" aria-label="Trust points">
-          <div class="trust-strip__row">
-            <div class="trust-pill">Agent Identity (ERC-8004)</div>
-            <div class="trust-pill">Signed Receipts</div>
-            <div class="trust-pill">Verifiable Execution</div>
-            <div class="trust-pill">Multi-Step Flows</div>
-            <a
-              href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d"
-              class="trust-proof trust-pill--onchain"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="ERC-8004 registration proof on Base — View on Basescan"
-            >
-              <span class="trust-proof__label">ERC-8004 on Base · View on Basescan</span>
-              <span class="trust-proof__hash mono">(0xb511…899d ↗)</span>
-            </a>
-          </div>
-        </div>
       </div>
     </section>
 
-    <section class="section section--muted">
+    <section class="section" id="trust-strip">
       <div class="container">
-        <div class="positioning-callout">
-          <div class="positioning-callout__body">
-            <p class="section__eyebrow">Why this is not logging</p>
-            <h2>Observability shows what happened inside your system. CommandLayer proves what an autonomous agent actually did.</h2>
-            <p>When agents can spend money, sign transactions, or act on your behalf, logs are not enough.</p>
-            <p><strong>Example:</strong><br />An agent spends 125 USDC on your behalf.</p>
-            <p>CommandLayer produces a receipt that proves:</p>
-            <p>• which agent acted<br />• what executed<br />• what amount settled<br />• which identity signed it</p>
-            <p><strong>No guesswork. Verifiable proof.</strong></p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="section__header">
-          <p class="section__eyebrow">Problem</p>
-          <h2>Where it breaks</h2>
-        </div>
-
-        <div class="two-up">
-          <div class="panel">
-            <p>Agents trigger workflows across APIs, wallets, and services.<br />Outputs are visible. Execution is not.</p>
-            <p>There is no durable proof of:</p>
-            <p>• which agent acted<br />• what actually executed<br />• what value moved</p>
-          </div>
-          <div class="panel">
-            <p>Logs hide side effects.</p>
-            <p>Systems claim outcomes.</p>
-            <p>No one can verify them.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section--muted">
-      <div class="container">
-        <div class="section__header">
-          <p class="section__eyebrow">Solution</p>
-          <h2>CommandLayer makes the contract boundary explicit.</h2>
-          <p>Commons defines the minimum verifiable receipt. Runtime executes the action and can optionally add signatures, trace, timing, and orchestration metadata on top.</p>
-        </div>
-
-        <div class="two-up">
-          <div class="panel">
-            <ul>
-              <li>Commons receipts (the minimum canonical contract)</li>
-              <li>Runtime metadata (optional execution/chaining context)</li>
-              <li>Independent verification when a runtime attaches proof</li>
-            </ul>
-          </div>
-          <div class="panel">
-            <p>Trust becomes verifiable, not assumed.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="section__header">
-          <p class="section__eyebrow">How it works</p>
-          <h2>From intent to proof.</h2>
-          <p>CommandLayer is trust infrastructure for coordinated agent services — not just single-agent outputs.</p>
-        </div>
-
-        <div class="steps-grid">
-          <article class="step-card">
-            <div class="step-card__num">01</div>
-            <h3>Define the flow</h3>
+        <div class="value-grid">
+          <article class="value-card">
+            <h2 class="value-card__title">Signed receipts</h2>
+            <p class="value-card__text">Every completed action emits a receipt you can inspect, store, and verify later.</p>
           </article>
-          <article class="step-card">
-            <div class="step-card__num">02</div>
-            <h3>Execute with explicit semantics</h3>
+          <article class="value-card">
+            <h2 class="value-card__title">Verifiable execution</h2>
+            <p class="value-card__text">Proof lives with the outcome so execution can be checked instead of trusted blindly.</p>
           </article>
-          <article class="step-card">
-            <div class="step-card__num">03</div>
-            <h3>Emit signed receipts</h3>
+          <article class="value-card">
+            <h2 class="value-card__title">ENS identity</h2>
+            <p class="value-card__text">Human-readable agent identity gives each receipt a clear signer and accountability anchor.</p>
           </article>
-          <article class="step-card">
-            <div class="step-card__num">04</div>
-            <h3>Verify independently</h3>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section--muted" id="receipts">
-      <div class="container">
-        <div class="section__header">
-          <p class="section__eyebrow">Receipts</p>
-          <h2>Not output. Evidence.</h2>
-          <p>Start with the flat Commons receipt as the canonical protocol truth. Only after that should viewers read any runtime metadata for proof, chaining, or execution context.</p>
-        </div>
-
-        <div class="receipt-showcase">
-          <div class="receipt-callout">
-            <p>
-              CommandLayer receipts are designed for the agent economy: machine-readable, legible to humans, and anchored to a stable contract. The point is not to hide semantics inside executor-specific payloads.
-            </p>
-            <div class="receipt-highlights">
-              <div class="receipt-highlight"><strong>Canonical first.</strong> Start with the minimum Commons receipt contract before reading runtime extras.</div>
-              <div class="receipt-highlight"><strong>Runtime-aware.</strong> Trace and chaining data belong to the execution layer, not the base protocol story.</div>
-              <div class="receipt-highlight"><strong>Verifier-friendly.</strong> Hashes and signatures are useful when a runtime chooses to attach a proof layer.</div>
-            </div>
-          </div>
-
-          <div class="receipt-code">
-            <div class="receipt-code__bar">
-              <span class="mono">receipt.verify.json</span>
-              <span>signed / inspectable / reproducible</span>
-            </div>
-<pre><code>{
-  "status": "ok",
-  "x402": {
-    "verb": "verify",
-    "version": "v1.1.0"
-  },
-  "result": {
-    "verified": true,
-    "summary": "Receipt matches the Commons contract"
-  }
-}</code></pre>
-          </div>
-        </div>
-        <div class="receipt-bridge">
-          The live demo uses simple Commons verbs like <code>fetch</code>, <code>analyze</code>, and <code>summarize</code>. Runtime may layer trace, proof, and policy metadata on top, but those fields are execution-layer additions rather than the canonical receipt a website should teach first.
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="section__header">
-          <p class="section__eyebrow">Built for the agent economy</p>
-          <h2>Built for the agent economy</h2>
-        </div>
-
-        <div class="themes-grid">
-          <article class="theme-card">
-            <h3>Agents that act</h3>
-            <p>Structured execution beyond raw outputs</p>
-          </article>
-          <article class="theme-card">
-            <h3>Agents that pay</h3>
-            <p>Receipts make value movement inspectable</p>
-          </article>
-          <article class="theme-card">
-            <h3>Agents that trust</h3>
-            <p>Verification replaces assumptions</p>
-          </article>
-          <article class="theme-card">
-            <h3>Agents that cooperate</h3>
-            <p>Shared receipts coordinate multi-agent systems</p>
+          <article class="value-card">
+            <h2 class="value-card__title">Multi-step flows</h2>
+            <p class="value-card__text">Receipts make chained agent actions legible across services, wallets, and APIs.</p>
           </article>
         </div>
       </div>
@@ -1155,52 +843,37 @@ body {
 
     <section class="section section--muted">
       <div class="container">
-        <div class="section__header">
-          <p class="section__eyebrow">Identity</p>
-          <h2>Identity is the anchor of trust</h2>
-          <p>ENS makes agents human-readable. ERC-8004 makes them discoverable. CommandLayer makes their actions verifiable.</p>
-        </div>
-
-        <div class="identity-grid">
-          <div class="panel">
-            <h3>Why identity matters here</h3>
-            <p>
-              A receipt without identity is just telemetry. CommandLayer binds execution proofs to
-              recognizable agent identities so users, integrators, and other agents can discover,
-              verify, and hold actors accountable across environments.
-            </p>
-          </div>
-          <div class="identity-points">
-            <div class="identity-point">
-              <strong>ENS</strong>
-              <span>Human-readable naming for the signer behind execution and receipt verification.</span>
-            </div>
-            <div class="identity-point">
-              <strong>ERC-8004</strong>
-              <span>Discovery rails for agent services that need portable identity and explicit capabilities.</span>
-            </div>
-            <div class="identity-point">
-              <strong>Accountability</strong>
-              <span>Receipts tied to identity make claims inspectable, replayable, and easier to dispute when needed.</span>
-            </div>
-            <div class="identity-point">
-              <strong>Verification</strong>
-              <span>Identity resolution gives third parties the anchor they need to check signatures and trust the evidence.</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="cta-card">
+        <div class="section-card why-card">
           <div>
-            <p class="card__eyebrow">Live demo</p>
-            <h3>See it in action</h3>
-            <p>Run a real agent flow, inspect each step, and verify every receipt.</p>
+            <p class="section__eyebrow">Why this matters</p>
+            <h2 class="section__title">Autonomous agents can do real work. You need proof of what they actually did.</h2>
+            <p class="section__body">
+              Agents can trigger workflows across APIs, wallets, and services. Logs show activity. They do not prove what an autonomous agent actually did. CommandLayer turns actions into signed, inspectable, verifiable receipts.
+            </p>
           </div>
-          <div class="cta-card__actions">
+          <aside class="example-box">
+            <span class="example-box__label">Concrete example</span>
+            <p>An agent spends <strong>125 USDC</strong> on your behalf. You should be able to verify:</p>
+            <ul class="example-list">
+              <li>which agent acted</li>
+              <li>what executed</li>
+              <li>what amount settled</li>
+              <li>which identity signed it</li>
+            </ul>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="cta-band">
+          <div>
+            <p class="section__eyebrow">Demo / proof</p>
+            <h2 class="section__title">See it in action</h2>
+            <p class="section__body">Run a real agent flow, inspect each step, and verify every receipt.</p>
+          </div>
+          <div class="cta-band__actions">
             <a href="/demo.html" class="btn btn--primary">Launch Demo</a>
             <a href="/quickstart.html" class="btn btn--ghost">Read Quickstart</a>
           </div>
@@ -1210,17 +883,17 @@ body {
 
     <section class="section">
       <div class="container">
-        <div class="positioning-card">
-          <div>
-            <p class="card__eyebrow">Positioning</p>
-            <h3>The trust layer for agent execution</h3>
-            <p>
-              As agents move from tools to autonomous actors, trust becomes infrastructure.
-              CommandLayer ensures that every action can be verified — not assumed.
-            </p>
-          </div>
-          <div class="cta-card__actions">
-            <a href="/repositories.html" class="btn btn--ghost">Explore Repositories</a>
+        <div class="section-card">
+          <p class="section__eyebrow">Positioning</p>
+          <h2 class="section__title">The trust layer for agent execution</h2>
+          <p class="section__body">
+            As agents move from tools to autonomous actors, trust becomes infrastructure. CommandLayer makes every action inspectable, verifiable, and easier to dispute when needed.
+          </p>
+          <div class="footer-links" style="margin-top: 1rem;">
+            <a href="/commons.html">Schemas</a>
+            <a href="/quickstart.html">Quickstart</a>
+            <a href="/repositories.html">Repositories</a>
+            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
       </div>
@@ -1229,23 +902,11 @@ body {
 
   <footer class="site-footer">
     <div class="container site-footer__inner">
-      <div class="site-footer__row">
-        <div class="site-footer__col">
-          <div class="site-footer__col-title">Canonical CIDs</div>
-          <div class="site-footer__cid">protocol-commons v1.1.0 — current Commons release, pinned to IPFS with published checksums</div>
-          <div class="site-footer__cid">agent-cards v1.0.0 — identity layer pinned to IPFS</div>
-        </div>
-        <div class="site-footer__col">
-          <div class="site-footer__col-title">Security</div>
-          <div>security@commandlayer.org</div>
-        </div>
+      <div>
+        <div class="site-footer__meta">CommandLayer — proof, trust, and verification for autonomous agents.</div>
+        <div class="site-footer__cid">Receipt surface: signed execution records with portable identity and verifiable flow state.</div>
       </div>
-      <div class="site-footer__links">
-        <a href="/commons.html">Schemas</a>
-        <a href="/quickstart.html">Quickstart</a>
-        <a href="/repositories.html">Repositories</a>
-        <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
-      </div>
+      <div class="site-footer__meta">security@commandlayer.org</div>
     </div>
   </footer>
 </div>
