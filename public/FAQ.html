@@ -521,95 +521,71 @@
             </div>
           </a>
 
-          <!-- Mobile toggle -->
-          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
-            ☰
-          </button>
+          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
 
           <nav class="site-header__nav">
             <a href="/" class="site-header__link">Overview</a>
-            <a href="/quickstart.html">Quickstart</a>
-
+            <a href="/quickstart.html" class="site-header__link">Quickstart</a>
             <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
+              <button class="site-header__dropdown-btn" type="button" aria-haspopup="menu" aria-expanded="false">Docs &#9662;</button>
               <div class="site-header__dropdown-menu">
                 <a href="/commons.html">Commons</a>
                 <a href="/commercial.html">Commercial</a>
                 <a href="/agent-cards.html">Agent Cards</a>
                 <a href="/runtime.html">Runtime</a>
                 <a href="/manifest.html">Manifest</a>
-                <a href="/roadmap.html">Roadmap</a>
                 <a href="/licensing.html">Licensing</a>
-                <a href="/about.html">About CommandLayer</a>
-                <a href="/FAQ.html">FAQ</a>
+                <a href="/about.html">About</a>
               </div>
             </div>
-
+            <a href="/repositories.html" class="site-header__link">Repositories</a>
             <a href="/demo.html" class="site-header__link">Live Demo</a>
-            <a
-              href="https://github.com/commandlayer"
-              class="site-header__link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
-            </a>
+            <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
           </nav>
         </div>
       </header>
 
       <main class="page-main">
-        <!-- HERO -->
         <section class="hero">
           <div class="container hero__inner">
             <div>
               <div class="hero__eyebrow">FAQ</div>
               <h1 class="hero__title">
-                Questions people will ask.<br />
-                <span class="hero__title-em">Answers that don’t wiggle.</span>
+                Objections handled fast.<br />
+                <span class="hero__title-em">Protocol truth, no drift.</span>
               </h1>
               <p class="hero__subtitle">
-                If someone is confused about CommandLayer, it’s usually one of these. This page bashes the
-                misunderstandings fast: what’s free, what’s taxed, what ENS actually anchors, and how receipts
-                become verifiable evidence across runtimes.
+                CommandLayer is a protocol stack, not a pile of pages. <strong>Commons and Commercial define the contract.</strong>
+                <strong>Agent Cards define discovery.</strong> <strong>Runtime defines execution.</strong> This FAQ exists to remove the
+                common misunderstandings in one pass.
               </p>
               <div class="hero__pill-row">
-                <span class="hero__pill">Schemas are free</span>
-                <span class="hero__pill">Meaning never taxed</span>
+                <span class="hero__pill">Canonical receipt first</span>
+                <span class="hero__pill">Runtime metadata second</span>
+                <span class="hero__pill">Schemas stay public and portable</span>
                 <span class="hero__pill">Execution can be metered</span>
-                <span class="hero__pill">Receipts are evidence</span>
               </div>
             </div>
 
-            <aside class="card" aria-label="Economic legend">
-              <h2>Economic rule (memorize this)</h2>
-              <p><strong>Commons executes free. Commercial is taxed.</strong></p>
+            <aside class="card" aria-label="Stack summary">
+              <h2>CommandLayer in one minute</h2>
               <div class="legend">
-                <div class="legend__row">
-                  <span class="legend__tag">FREE</span>
-                  <span>schemas, identity, discovery, Commons execution</span>
-                </div>
-                <div class="legend__row">
-                  <span class="legend__tag">TAXED</span>
-                  <span>commercial execution, throughput, guarantees</span>
-                </div>
-                <div class="legend__row">
-                  <span class="legend__tag">NEVER TAXED</span>
-                  <span>meaning, validation, interoperability</span>
-                </div>
+                <div class="legend__row"><span class="legend__tag">CONTRACT</span><span>Commons and Commercial define the contract.</span></div>
+                <div class="legend__row"><span class="legend__tag">DISCOVERY</span><span>Agent Cards define discovery and routing.</span></div>
+                <div class="legend__row"><span class="legend__tag">EXECUTION</span><span>Runtime defines execution, proof, guarantees, and metering.</span></div>
+                <div class="legend__row"><span class="legend__tag">RULE</span><span>The contract stays public. Execution becomes infrastructure.</span></div>
               </div>
             </aside>
           </div>
         </section>
 
-        <!-- FAQ -->
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
               <h2>FAQ</h2>
               <p>
-                Click a question. Deep answers, but still clean. If you want to add more later, just duplicate a
-                <code>&lt;details class="faq"&gt;</code> block.
+                Start here if you need the clean version: what CommandLayer is, what is free, what is monetized,
+                how ENS and Agent Cards fit, what a receipt actually is, and how to start building without guessing.
               </p>
             </div>
 
@@ -618,9 +594,8 @@
                 <h3>Jump to</h3>
                 <a href="#q-what-is">What is CommandLayer?</a>
                 <a href="#q-why-exists">Why does it exist?</a>
-                <a href="#q-free-vs-tax">What’s free vs taxed?</a>
-                <a href="#q-tax-where">Where does the tax live?</a>
-                <a href="#q-ens-anchor">What does ENS anchor?</a>
+                <a href="#q-free-vs-tax">What is free vs monetized?</a>
+                <a href="#q-ens-anchor">How do ENS, Agent Cards, Runtime, and receipts fit?</a>
                 <a href="#q-agent-cards">What are Agent Cards?</a>
                 <a href="#q-receipts">What is a receipt?</a>
                 <a href="#q-validate">How do I validate?</a>
@@ -629,340 +604,264 @@
                 <a href="#q-versioning">How does versioning work?</a>
                 <a href="#q-commercial-verbs">What are Commercial verbs?</a>
                 <a href="#q-not-compete">Does this compete with x402 / ERC-8004?</a>
-                <a href="#q-open-core">Is this “open core”?</a>
-                <a href="#q-get-started">How do I start?</a>
+                <a href="#q-open-core">Is this open core?</a>
+                <a href="#q-get-started">How should builders start?</a>
               </aside>
 
               <div class="faq-list">
-                <details class="faq" id="q-what-is">
-                  <summary>
-                    What is CommandLayer?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                <details class="faq" id="q-what-is" open>
+                  <summary>What is CommandLayer?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      CommandLayer is a <strong>semantic contract</strong> for autonomous agents:
-                      canonical verbs + strict JSON schemas + verifiable identity + receipts.
+                      CommandLayer is the trust layer for agent execution: canonical verbs, strict JSON Schemas,
+                      machine-readable discovery, and verifiable receipts.
                     </p>
                     <p>
-                      It standardizes the part everyone keeps reinventing: <em>what the call means</em>,
-                      what the request shape is, what the receipt looks like, and how an agent claims it implements a verb.
+                      <strong>Commons and Commercial define the contract. Agent Cards define discovery. Runtime defines execution.</strong>
+                      That split is the architecture.
                     </p>
-                    <div class="note">
-                      <strong>One line:</strong> It makes meaning portable so execution can be swapped without breaking integrations.
-                    </div>
+                    <div class="note"><strong>One line:</strong> The contract stays public. Execution becomes infrastructure.</div>
                   </div>
                 </details>
 
                 <details class="faq" id="q-why-exists">
-                  <summary>
-                    Why does CommandLayer exist?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>Why does it exist?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      Because most “agent systems” are private prompt formats and one-off APIs. That doesn’t scale.
-                      The moment you change a vendor or runtime, everything breaks.
+                      Because most agent integrations still depend on private prompt formats, undocumented payloads,
+                      and vendor-specific runtime assumptions. That is not interoperability.
                     </p>
                     <p>
-                      CommandLayer locks down the semantics (verbs + schemas) so the ecosystem can compete on execution
-                      without fragmenting meaning.
+                      CommandLayer gives builders a public contract surface so they can swap runtimes, vendors,
+                      and payment rails without losing meaning or breaking validation.
                     </p>
                     <ul>
-                      <li>No guessing request formats.</li>
-                      <li>No brittle “prompt contracts.”</li>
-                      <li>Receipts you can verify across runtimes.</li>
+                      <li>Canonical schemas instead of prompt folklore.</li>
+                      <li>Published versions instead of implicit breaking changes.</li>
+                      <li>Receipts you can validate across runtimes.</li>
                     </ul>
                   </div>
                 </details>
 
                 <details class="faq" id="q-free-vs-tax">
-                  <summary>
-                    What’s free vs what’s taxed?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>What is free vs what is monetized?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
-                    <p><strong>Commons executes free. Commercial is taxed.</strong></p>
+                    <p>
+                      CommandLayer never charges for semantics, schemas, or validation. <strong>Schemas stay public and portable.</strong>
+                    </p>
                     <ul>
-                      <li><strong>FREE:</strong> schemas, identity, discovery, Commons execution (best-effort reference grade)</li>
-                      <li><strong>TAXED:</strong> commercial execution, throughput/volume, guarantees, priority/certified execution</li>
-                      <li><strong>NEVER TAXED:</strong> meaning, validation, interoperability</li>
+                      <li><strong>Open:</strong> Commons schemas, Commercial schemas, Agent Cards, validation, interoperability.</li>
+                      <li><strong>Metered:</strong> runtime execution, routing, throughput, guarantees, policy enforcement, commercial service surfaces.</li>
+                      <li><strong>Protocol rule:</strong> meaning, validation, and interoperability are never paywalled.</li>
                     </ul>
-                    <div class="note">
-                      The protocol stays standards-clean because meaning is never paywalled.
-                    </div>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-tax-where">
-                  <summary>
-                    Where does the tax live (and where does it NOT live)?
-                    <span class="faq__chev">▾</span>
-                  </summary>
-                  <div class="faq__body">
-                    <p>
-                      The tax is <strong>not</strong> in the schema, not in the Agent Card, not in ENS, and not in discovery.
-                      That stuff stays neutral.
-                    </p>
-                    <p>
-                      The tax lives at <strong>execution time</strong> inside runtimes (metering, guarantees, priority,
-                      certified delivery, throughput control).
-                    </p>
-                    <div class="note">
-                      <strong>Translation:</strong> access to meaning is free; use of meaning in commerce can be metered.
-                    </div>
+                    <div class="note">CommandLayer does not charge for semantics. Monetization lives in execution, guarantees, and commercial service surfaces.</div>
                   </div>
                 </details>
 
                 <details class="faq" id="q-ens-anchor">
-                  <summary>
-                    What does an ENS name actually anchor in CommandLayer?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>How do ENS, Agent Cards, Runtime, and receipts fit together?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      An ENS name is the <strong>interface anchor</strong>: a single verifiable reference point
-                      that binds schemas, validation, versioning, trust continuity, and receipts. ENS provides continuity and coordination — not trust. Trust comes from schema hashes and validation.
+                      ENS is the human-readable anchor. Agent Cards are the machine-readable identity and routing document.
+                      Runtime executes requests against published schemas. Receipts are the standardized result contract returned after execution.
                     </p>
                     <ul>
-                      <li>Human-readable entrypoint</li>
-                      <li>Schema authority via ENS TXT → CID/IPNS</li>
-                      <li>Validation pointer (“did this conform?”)</li>
-                      <li>Version boundary (pin or float)</li>
-                      <li>Receipt namespace (evidence tied to name + schema hash)</li>
-                      <li>Governance handle (ownership → updates)</li>
+                      <li><strong>ENS:</strong> naming and continuity.</li>
+                      <li><strong>Agent Cards:</strong> discovery, declared capabilities, routing targets, schema versions.</li>
+                      <li><strong>Runtime:</strong> execution, policy, proof, metering, guarantees.</li>
+                      <li><strong>Receipts:</strong> canonical result surface for independent verification.</li>
                     </ul>
+                    <div class="note">Canonical receipt first, runtime metadata second.</div>
                   </div>
                 </details>
 
                 <details class="faq" id="q-agent-cards">
-                  <summary>
-                    What are Agent Cards?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>What are Agent Cards?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      Agent Cards are JSON descriptors that bind an agent’s identity to what it implements:
-                      ENS name, verbs, schema versions, and entrypoints.
+                      Agent Cards are open JSON descriptors that tell clients what an agent is, what verbs it supports,
+                      which schema versions it speaks, and where requests should be routed.
                     </p>
                     <p>
-                      They exist so clients can discover and route agents without guessing or scraping random docs.
+                      They are the discovery layer. They do not replace schemas and they do not redefine receipts.
                     </p>
-                    <div class="note">
-                      Think: “capabilities + wiring diagram” in a strict, machine-readable format.
-                    </div>
+                    <div class="note">Agent Cards define discovery and routing. They keep capability lookup public and machine-readable.</div>
                   </div>
                 </details>
 
                 <details class="faq" id="q-receipts">
-                  <summary>
-                    What is a receipt, and why is it important?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>What is a receipt, and why is it important?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      A receipt is the standardized output evidence of an execution. It binds:
-                      verb, version, schema hash, trace info, and (optionally) execution class.
+                      A receipt is the standardized result contract for an execution.
+                      It is the canonical surface a client validates after a request completes.
                     </p>
                     <p>
-                      Receipts let anyone verify after the fact that an execution conformed to the claimed schema —
-                      across runtimes.
+                      Runtimes may attach trace, proof, or orchestration metadata on top of that canonical receipt,
+                      but those execution-layer additions do not redefine the receipt contract itself.
                     </p>
                     <ul>
-                      <li>verb + version</li>
-                      <li>schema hash</li>
-                      <li>execution result</li>
-                      <li>trace metadata</li>
-                      <li>execution class / authorization reference (if commercial)</li>
+                      <li>Canonical receipt first.</li>
+                      <li>Runtime metadata, proof, or execution class second.</li>
+                      <li>Independent validation remains possible across runtimes.</li>
                     </ul>
-                    <div class="note">
-                      Receipts allow independent verification across runtimes.
-                      Receipts are evidence, not logs.                   
-                    </div>
+                    <div class="note">Receipts are evidence of contract-conforming execution, not a dumping ground for runtime internals.</div>
                   </div>
                 </details>
 
                 <details class="faq" id="q-validate">
-                  <summary>
-                    How do I validate requests and receipts?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>How do I validate requests and receipts?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      You validate against the published JSON Schemas (draft 2020-12). That’s the whole point:
-                      independent verification.
+                      Validate both sides against the published JSON Schemas. That is the point of a protocol-grade contract.
                     </p>
                     <ul>
-                      <li>Validate the request before sending.</li>
+                      <li>Validate the request before execution.</li>
                       <li>Validate the receipt after execution.</li>
-                      <li>Compare schema hashes / CIDs when you care about immutability.</li>
-                      <li>If schema validation fails, execution MUST NOT occur and no receipt MUST be emitted.</li>
+                      <li>Pin to published versions and CIDs when you need immutability.</li>
+                      <li>If validation fails, interoperability fails.</li>
                     </ul>
-                    <div class="note">
-                      If you can’t validate, you don’t have interoperability — you have vibes.
-                    </div>
+                    <div class="note">If you cannot validate independently, you do not have a standard. You have a private integration.</div>
                   </div>
                 </details>
 
                 <details class="faq" id="q-runtime">
-                  <summary>
-                    What is Runtime in CommandLayer?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>What is Runtime in CommandLayer?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      Runtime is the execution layer: routing, policy, guarantees, and economics.
-                      It consumes the same free schemas and emits standard receipts.
+                      Runtime is the execution layer. It takes published Commons and Commercial contracts,
+                      enforces policy, routes execution, meters usage, and can emit proof and trace data alongside the canonical receipt.
                     </p>
                     <p>
-                      Runtime is where “commercial is taxed” is enforced cleanly (metering, SLA, priority, certified execution).
+                      Runtime is live today as a reference proving surface. The roadmap expands hardening, guarantees,
+                      multi-runtime support, and commercial operations around that live base.
                     </p>
                   </div>
                 </details>
 
                 <details class="faq" id="q-others-run">
-                  <summary>
-                    Can other people run runtimes, or is it centralized?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>Can other people run runtimes, or is it centralized?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      Others can run runtimes. The semantics are neutral; execution is competitive.
-                      A third-party runtime can still honor the same schemas and receipts.
+                      Others can run runtimes because the contract surface is public. That is the point.
                     </p>
                     <p>
-                      The key is that meaning stays portable — the ecosystem can compete on reliability, cost,
-                      latency, guarantees, and certification.
+                      Competition should happen in execution quality: reliability, routing, latency, guarantees,
+                      certification, policy, and cost. The meaning layer stays shared.
                     </p>
+                    <div class="note">Open semantics, competitive execution.</div>
                   </div>
                 </details>
 
                 <details class="faq" id="q-versioning">
-                  <summary>
-                    How does versioning work? Will v1 break?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>How does versioning work?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      Versions are explicit. v1 schemas live under versioned paths and can be pinned.
-                      New behavior ships under v2 (or v1.1) without silently breaking existing integrations.
+                      Versions are explicit and published. Commons v1.1.0, Commercial v1.0.0, and Agent Cards v1.0.0 are concrete contract surfaces,
+                      not hand-wavy references.
                     </p>
-                    <div class="note">
-                      If it’s not versioned, it’s not a protocol.
-                    </div>
+                    <p>
+                      Builders target versioned schemas and can pin to canonical artifacts. New behavior should arrive in new versions,
+                      not as silent drift.
+                    </p>
                   </div>
                 </details>
 
                 <details class="faq" id="q-commercial-verbs">
-                  <summary>
-                    What are “Commercial verbs”?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>What are Commercial verbs?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      Commercial verbs are the economic flow verbs (e.g. <code>authorize</code>, <code>checkout</code>,
-                      <code>purchase</code>, <code>ship</code>, <code>verify</code>) where money moves or guarantees matter.
+                      Commercial verbs are the economic contract layer for payments, checkout, fulfillment, shipping,
+                      verification, and adjacent business flows.
                     </p>
                     <p>
-                      Schemas remain free. The execution can be metered and receipts can reflect commercial execution.
+                      They use the same protocol discipline as Commons: public schemas, strict validation, portable receipts.
+                      Monetization does not live in the meaning of those verbs. It lives in how runtimes execute them.
                     </p>
                   </div>
                 </details>
 
                 <details class="faq" id="q-not-compete">
-                  <summary>
-                    Does CommandLayer compete with x402 or ERC-8004?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>Does this compete with x402 or ERC-8004?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      No. x402 is a payment/transport rail. ERC-8004 is discovery/agent standards territory.
-                      CommandLayer defines <strong>machine intent</strong>: what the call means and how it’s validated.
+                      No. x402 handles payment and transport patterns. ERC-8004 handles discovery and agent registry patterns.
+                      CommandLayer defines the contract those systems move and discover.
                     </p>
-                    <div class="note">
-                      x402 moves money. ERC-8004 helps you find agents. CommandLayer defines what they do.
-                    </div>
+                    <div class="note">x402 moves money. ERC-8004 helps find agents. CommandLayer defines what the request and receipt mean.</div>
                   </div>
                 </details>
 
                 <details class="faq" id="q-open-core">
-                  <summary>
-                    Is this “open core”?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>Is this “open core”?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      No. “Open core” usually paywalls features or access to the standard itself.
-                      CommandLayer keeps standards open: meaning, schemas, identity, discovery, interoperability.
+                      No. Open core usually paywalls capabilities inside the standard itself. CommandLayer does the opposite.
                     </p>
                     <p>
-                      Monetization is where it belongs: execution outcomes (throughput, guarantees, certified delivery).
+                      The contract layer stays open: semantics, schemas, validation, and interoperability. Monetization lives in execution,
+                      guarantees, routing, and commercial service surfaces.
                     </p>
                   </div>
                 </details>
 
                 <details class="faq" id="q-get-started">
-                  <summary>
-                    How do I start using CommandLayer today?
-                    <span class="faq__chev">▾</span>
-                  </summary>
+                  <summary>How should builders start?<span class="faq__chev">▾</span></summary>
                   <div class="faq__body">
                     <p>
-                      Start with a single Commons verb and do the boring thing correctly:
-                      validate request → execute → validate receipt.
+                      Start with one published schema, not the whole universe. Build against Commons or Commercial today — not against reserved Manifest verbs.
                     </p>
                     <ul>
-                      <li>Pick a verb (e.g. <code>summarize</code>).</li>
-                      <li>Use the published schema to validate your payload.</li>
-                      <li>Generate/consume a receipt and validate it.</li>
-                      <li>If you’re publishing an agent, add an Agent Card.</li>
+                      <li>Pick one live verb.</li>
+                      <li>Validate a <code>*.request</code> payload against the published schema.</li>
+                      <li>Execute through your runtime of choice.</li>
+                      <li>Validate the canonical <code>*.receipt</code>.</li>
+                      <li>Add an Agent Card when you want discovery and routing.</li>
                     </ul>
-                    <div class="note">
-                      The fastest on-ramp is “one verb, one receipt.” Everything else layers after.
-                    </div>
+                    <div class="note">The fastest path is still one verb, one request schema, one receipt schema, one Agent Card.</div>
                   </div>
                 </details>
-
               </div>
             </div>
           </div>
         </section>
 
-        <!-- CTA -->
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>Still have a question?</h2>
-              <p>
-                If you add one more FAQ, make it one of these: “what does a receipt contain?”,
-                “how do I resolve ENS TXT to schemas?”, or “how do I know an agent actually implements a verb?”
-              </p>
-            </div>
-
-            <div class="card">
               <h2>Next stop</h2>
               <p>
-                Open the docs for the exact schema paths and a full request/receipt walkthrough, or jump into the live demo
-                to see receipts in motion.
+                Read Commons and Commercial for the actual contract surface, Agent Cards for discovery,
+                and Runtime for execution policy, proof, and guarantees.
               </p>
-              <div style="margin-top:1.05rem; display:flex; gap:0.8rem; flex-wrap:wrap;">
-                <a href="/docs.html" class="btn btn--primary"><span class="btn__icon">📚</span><span>Read the docs</span></a>
-                <a href="/demo.html" class="btn btn--ghost"><span class="btn__icon">▶️</span><span>See receipts live</span></a>
-              </div>
+            </div>
+            <div class="cta-grid">
+              <a class="cta-card" href="/commons.html"><strong>Commons</strong><span>Canonical public contract surface.</span></a>
+              <a class="cta-card" href="/commercial.html"><strong>Commercial</strong><span>Economic contracts on the same schema discipline.</span></a>
+              <a class="cta-card" href="/runtime.html"><strong>Runtime</strong><span>Execution, metering, policy, and proof.</span></a>
             </div>
           </div>
         </section>
       </main>
 
+
       <footer class="site-footer">
         <div class="container site-footer__inner">
-          <div>© CommandLayer — trust layer for agent execution</div>
-          <div>
-            Version policy: Commons v1.1.0 now · Commercial v1.0.0 · Agent Cards v1.0.0 · Runtime proves execution · Meaning never taxed
+          <div class="site-footer__row">
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Canonical CIDs</div>
+              <div class="site-footer__cid">protocol-commons v1.1.0 &mdash; schemas pinned to IPFS with published checksums</div>
+              <div class="site-footer__cid">agent-cards v1.0.0 &mdash; identity layer pinned to IPFS</div>
+            </div>
+            <div class="site-footer__col">
+              <div class="site-footer__col-title">Security</div>
+              <div>security@commandlayer.org</div>
+            </div>
           </div>
           <div class="site-footer__links">
-            <a href="/docs.html">Docs</a>
-            <a href="/FAQ.html">FAQ</a>
+            <a href="/commons.html">Schemas</a>
+            <a href="/quickstart.html">Quickstart</a>
+            <a href="/repositories.html">Repositories</a>
             <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
@@ -974,17 +873,26 @@
         const header = document.querySelector(".site-header");
         const toggle = document.querySelector(".site-header__toggle");
         const docsBtn = document.querySelector(".site-header__dropdown-btn");
-        const docsMenu = document.querySelector(".site-header__dropdown-menu");
+        const dropdown = document.querySelector(".site-header__dropdown");
+        const nav = document.querySelector(".site-header__nav");
 
-        function closeDocs() {
-          if (!header) return;
-          header.classList.remove("site-header--docs-open");
+        function setDocsOpen(open) {
+          if (!header || !docsBtn) return;
+          header.classList.toggle("site-header--docs-open", !!open);
+          docsBtn.setAttribute("aria-expanded", open ? "true" : "false");
+        }
+
+        function setNavOpen(open) {
+          if (!header || !toggle) return;
+          header.classList.toggle("site-header--open", !!open);
+          toggle.setAttribute("aria-expanded", open ? "true" : "false");
         }
 
         if (toggle && header) {
           toggle.addEventListener("click", () => {
             const isOpen = header.classList.toggle("site-header--open");
             toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            if (isOpen) setDocsOpen(false);
           });
         }
 
@@ -992,36 +900,39 @@
           docsBtn.addEventListener("click", (e) => {
             e.preventDefault();
             e.stopPropagation();
-            header.classList.toggle("site-header--docs-open");
-          });
-        }
-
-        if (docsMenu) {
-          docsMenu.addEventListener("click", (e) => {
-            const a = e.target.closest("a");
-            if (a) closeDocs();
+            const willOpen = !header.classList.contains("site-header--docs-open");
+            setDocsOpen(willOpen);
           });
         }
 
         document.addEventListener("click", (e) => {
-          if (!header || !header.classList.contains("site-header--docs-open")) return;
-          const dropdown = document.querySelector(".site-header__dropdown");
+          const isOpen = header?.classList.contains("site-header--docs-open");
+          if (!isOpen) return;
           if (dropdown && dropdown.contains(e.target)) return;
-          closeDocs();
+          setDocsOpen(false);
         });
 
         document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") closeDocs();
+          if (e.key !== "Escape") return;
+          setDocsOpen(false);
+          setNavOpen(false);
         });
 
-        // Optional: open question from URL hash, e.g. /faq.html#q-runtime
+        if (nav) {
+          nav.addEventListener("click", (e) => {
+            const a = e.target?.closest?.("a");
+            if (!a) return;
+            setDocsOpen(false);
+            setNavOpen(false);
+          });
+        }
+
         function openFromHash() {
           const id = (location.hash || "").replace("#", "");
           if (!id) return;
           const el = document.getElementById(id);
           if (!el) return;
           if (el.tagName.toLowerCase() === "details") el.open = true;
-          el.scrollIntoView({ behavior: "smooth", block: "start" });
         }
         window.addEventListener("hashchange", openFromHash);
         openFromHash();
