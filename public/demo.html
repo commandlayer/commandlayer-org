@@ -500,13 +500,11 @@
             <div>
               <div class="hero__eyebrow">Demo #1 — Commerce Flow</div>
               <h1 class="hero__title">
-                <span>Run Commercial verbs</span>
+                <span>Run a Verified Agent Flow</span>
                 <span class="hero__title-em">authorize → checkout → purchase → ship → verify.</span>
               </h1>
               <p class="hero__subtitle">
-                This demo runs a commercial flow against your <b>commercial runtime</b> and returns real, verifiable
-                receipts (schema + hash + signature). No mocks. Each step maps to CommandLayer verb semantics —
-                not one-off endpoints.
+                Execute a live multi-step flow and inspect signed receipts for every step.
               </p>
 
               <div class="hero__cta-row">
@@ -529,12 +527,12 @@
 
             <aside class="hero__card">
               <h2>What this demo shows</h2>
-              <p>A concrete, inspectable execution of the commercial layer:</p>
+              <p>A concrete, inspectable proof surface for a verified agent flow:</p>
               <ul>
                 <li>Each step returns a typed JSON receipt.</li>
-                <li>Flow trace threads the steps end-to-end.</li>
+                <li>Agent flow trace threads the steps end-to-end.</li>
                 <li>Inline verification proves cryptographic integrity.</li>
-                <li>Demo orchestration lives on the website; execution lives in the runtime.</li>
+                <li>The site displays the flow while execution happens against the live runtime.</li>
               </ul>
             </aside>
           </div>
@@ -544,10 +542,10 @@
         <section class="section section--demo" id="demo-frame">
           <div class="container">
             <div class="section__header">
-              <h2>Interactive CommandLayer commerce demo</h2>
+              <h2>Interactive verified agent flow</h2>
               <p>
-                The iframe below loads the Commerce Flow UI. It calls <code>/api/commercial-flow</code> (Vercel),
-                which forwards each step to your <b>commercial runtime</b>. You get back real per-step receipts, then
+                The iframe below runs a live agent flow. It calls <code>/api/commercial-flow</code> (Vercel),
+                which forwards each step to your <b>commercial runtime</b>. You get back signed per-step receipts, then
                 verify them inline and copy matching curl for reproduction.
               </p>
             </div>
@@ -570,7 +568,7 @@
               This page no longer depends on fake demo endpoints like <code>/api/authorize</code> or <code>/api/purchase</code>.
               The only backend needed is <code>/api/commercial-flow</code>, which forwards to the commercial runtime.
               If the iframe fails, check Vercel env var <code>COMMERCIAL_RUNTIME_BASE_URL</code> and confirm your commercial runtime
-              responds to <code>/{verb}/v1.0.0</code>.
+              responds to <code>/{verb}/v1.0.0</code> so the signed receipts can be returned.
             </p>
           </div>
         </section>

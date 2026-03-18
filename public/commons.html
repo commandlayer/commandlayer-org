@@ -562,10 +562,13 @@
               <div class="subhero__eyebrow">Commons</div>
               <h1 class="subhero__title">Commons Verbs (v1.0.0)</h1>
               <p class="subhero__subtitle">
-                The canonical <strong>verb + schema public goods layer</strong> for autonomous agents.
+                A shared set of verified agent verbs for execution you can inspect and trust.
                 10 universal verbs, each with a strict <code>*.request</code> and <code>*.receipt</code>
                 JSON Schema, aligned with x402 and compatible with ERC-8004.
                 <strong>Schemas are permanently free</strong> — the economics live in execution, not in the verb language.
+              </p>
+              <p class="subhero__subtitle" style="margin-top: 0.75rem; font-size: 0.92rem;">
+                Every verb execution produces a signed, verifiable receipt. Free.
               </p>
             </div>
             <div class="subhero__meta">
@@ -586,9 +589,9 @@
             <div class="section__header">
               <h2>What the Commons layer is</h2>
               <p>
-                Commons is CommandLayer’s small, stable core: a shared language for what agents do
-                when they analyze, summarize, clean, convert, and fetch. Each verb is pinned to a pair
-                of JSON Schemas so clients and agents can agree on shapes, traceability, and receipts —
+                Commons is CommandLayer’s small, stable core: a shared language for verified agent execution
+                when agents analyze, summarize, clean, convert, and fetch. Each verb is pinned to a pair
+                of JSON Schemas so clients and agents can agree on shapes, traceability, and signed receipts —
                 without reinventing request formats on every integration.
               </p>
             </div>
@@ -598,7 +601,7 @@
                 <h3>Canonical verbs</h3>
                 <p>
                   10 verbs that cover core agent behaviors like analysis, summarization, formatting,
-                  description, and retrieval — without dictating how any particular runtime is implemented.
+                  description, and retrieval — without dictating how any particular execution engine is implemented.
                 </p>
               </article>
 
@@ -606,7 +609,7 @@
                 <h3>Request / receipt pairs</h3>
                 <p>
                   Every verb has a <code>*.request</code> and <code>*.receipt</code> schema so calls are
-                  traceable, idempotent, and easy to validate. The same patterns repeat across verbs and runtimes.
+                  traceable, idempotent, and easy to validate. The same signed receipt patterns repeat across verbs and runtimes.
                 </p>
               </article>
 
@@ -630,7 +633,7 @@
               <p>
                 Each row is a universal verb with its purpose and direct links to the
                 <strong>request</strong> and <strong>receipt</strong> JSON Schemas under
-                <code>https://commandlayer.org</code>. These schemas are pinned and free to use.
+                <code>https://commandlayer.org</code>. These schemas are pinned, verifiable, and free to use.
               </p>
             </div>
 
