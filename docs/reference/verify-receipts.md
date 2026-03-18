@@ -1,49 +1,55 @@
-# How to Verify Agent Output
+# How to verify receipts
 
-1
+Receipt verification should be boring.
 
-## Copy This (Verify a Receipt)
+The goal is not to trust a runtime because it says something happened. The goal is to check whether a published contract result is well-formed and whether any attached proof material matches it.
 
-1
+## Verification flow
 
-## What Verification Checks
+### 1. Validate the receipt against its published schema
 
-1
+Use the versioned `*.receipt.schema.json` artifact for the verb you received.
 
-## Step 1 — Validate Against the Receipt Schema
+This checks contract shape first:
 
-1
+- required fields exist
+- field types are correct
+- enumerations and constraints match the published contract
 
-## Step 2 — Recompute the Deterministic Hash
+### 2. Recompute the canonical hash
 
-1
+If the receipt includes hash-based proof material, recompute the hash from the canonicalized receipt bytes using the documented hashing rules.
 
-## Step 3 — Verify Signature (If Present)
+This checks that the signed or referenced payload matches the visible receipt.
 
-1
+### 3. Verify signatures when present
 
-## Verification Output Shape (Example)
+If the runtime or signer attaches a signature, verify it against the claimed public key or identity binding.
 
-1
+That proves attribution of the receipt to the signer. It does **not** prove the output is universally true; it proves the signer produced this contract-shaped result.
 
-## Verification Over Standard Envelopes
+## What verification does and does not prove
 
-1
+Verification proves:
 
-### ERC-8004 Receipts
+- the receipt conforms to the published contract
+- the hashed payload matches the visible receipt
+- the signer produced the signed payload, when signatures are present
 
-1
+Verification does not prove:
 
-### x402 Receipts
+- the agent's answer is philosophically correct
+- the downstream world state is desirable
+- every runtime must expose the same optional metadata
 
-1
+## Layering rule
 
-## Common Failure Modes
+Start with the canonical receipt.
 
-1
+Only after validating the contract should you inspect runtime-added fields such as trace IDs, proof blocks, or orchestration metadata.
 
-## Related Reference Pages
+## Related references
 
-- [What is an Agent Receipt](./what-is-a-receipt.md)
-- [Agent Receipt Hashing](./receipt-hashing.md)
-- [Runtime-Agnostic Agents](./runtime-portability.md)
+- [What is an agent receipt](./what-is-a-receipt.md)
+- [Receipt hashing](./receipt-hashing.md)
+- [Runtime portability](./runtime-portability.md)

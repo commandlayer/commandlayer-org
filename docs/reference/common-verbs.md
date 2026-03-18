@@ -1,28 +1,49 @@
-# Common Agent Verbs
+# Common verbs
 
-1
+Commons is the canonical open contract layer in CommandLayer.
 
-## Canonical Agent Schemas
+It defines a small set of general-purpose verbs that give agents a shared language before runtime-specific behavior enters the picture.
 
-1
+## What Commons is for
 
-## Common Verbs (v1.0.0)
+Commons covers actions that appear across many agent systems, such as:
 
-1
+- fetching
+- analyzing
+- summarizing
+- parsing
+- formatting
+- describing
+- converting
 
-## Example Requests
+The exact live set is published on the website and under versioned schema paths.
 
-1
+## Contract discipline
 
-## Example Receipts
+Each Commons verb ships with:
 
-1
+- a `*.request` schema
+- a `*.receipt` schema
 
-## Compatibility Promise (Versioning)
+Those schemas are the canonical contract surface.
 
-1
+## Builder rule
 
-## Related Reference Pages
+If you are trying to understand CommandLayer, start with Commons first.
 
-- [What is an Agent Receipt](./what-is-a-receipt.md)
-- [How to Verify Agent Output](./verify-receipts.md)
+Why:
+
+- it is the cleanest expression of the receipt model
+- it defines the minimum verifiable receipt
+- it avoids confusing execution metadata with contract truth
+
+## Relationship to Commercial
+
+Commercial does not replace Commons.
+
+Commercial extends the same contract-first discipline for commerce-oriented flows. Commons remains the canonical baseline model the rest of the stack should be explained from.
+
+## Related references
+
+- [What is an agent receipt](./what-is-a-receipt.md)
+- [How to verify receipts](./verify-receipts.md)

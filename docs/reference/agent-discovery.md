@@ -1,24 +1,45 @@
-# Agent Discovery and Identity
+# Agent discovery and identity
 
-1
+CommandLayer separates discovery from contract definition.
 
-## ENS Agent Discovery
+That is why Agent Cards exist.
 
-1
+## What Agent Cards do
 
-## Required TXT Records (Minimum)
+Agent Cards tell clients:
 
-1
+- who the agent is
+- which verbs it supports
+- which schema versions it speaks
+- where requests should be routed
+- which identity claims are associated with it
 
-## Agent Cards (Discovery Metadata)
+## What Agent Cards do not do
 
-1
+Agent Cards do **not** redefine request or receipt semantics.
 
-## Resolver Flow (Lookup → Validate → Link)
+The contract still lives in Commons or Commercial schemas. Agent Cards sit above that layer and help clients find compatible agents.
 
-1
+## Identity role
 
-## Related Reference Pages
+Human-readable identity matters because receipts are stronger when attribution is legible.
 
-- [Common Agent Verbs](./common-verbs.md)
-- [How to Verify Agent Output](./verify-receipts.md)
+In practice, CommandLayer uses identity bindings so a verifier can connect:
+
+- a contract result
+- a signer or proving surface
+- a discovery record
+- a routable agent endpoint
+
+## Stack placement
+
+- **Commons / Commercial:** contract truth
+- **Agent Cards:** discovery and routing
+- **Runtime:** execution and optional proof metadata
+
+Keeping those roles separate makes the system easier to audit.
+
+## Related references
+
+- [Common verbs](./common-verbs.md)
+- [How to verify receipts](./verify-receipts.md)

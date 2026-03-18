@@ -1,32 +1,52 @@
-# Agent Receipt Hashing
+# Receipt hashing
 
-1
+Hashing turns a visible receipt into a deterministic byte-level fingerprint.
 
-## Copy This (Recompute Hash)
+That matters because signatures and proofs are only trustworthy if different verifiers can recompute the same digest from the same receipt.
 
-1
+## Deterministic rules
 
-## Deterministic Hashing Rules
+A useful receipt hash depends on three things staying stable:
 
-1
+- the exact receipt content being hashed
+- the canonical serialization rule
+- the hash algorithm identifier
 
-## Canonicalization (What Exactly Gets Hashed)
+If any of those change silently, verification becomes ambiguous.
 
-1
+## What should affect the hash
 
-## Exclusions (What Must NOT Affect the Hash)
+The canonical receipt content should affect the digest.
 
-1
+For example:
 
-## Hash Algorithm + Encoding
+- verb identity
+- schema version
+- status
+- verb-specific output fields
 
-1
+## What should not affect the hash
 
-## Example: Input → Canonical Form → Hash
+Presentation-only or transport-only differences should not change the digest.
 
-1
+For example:
 
-## Related Reference Pages
+- pretty-print whitespace
+- field order when canonical serialization already defines one
+- wrapper metadata that sits outside the canonical receipt contract
 
-- [What is an Agent Receipt](./what-is-a-receipt.md)
-- [How to Verify Agent Output](./verify-receipts.md)
+## Why this matters for CommandLayer
+
+CommandLayer separates contract truth from execution context.
+
+That means a runtime may expose trace IDs, timing, or proof metadata around a receipt, while the canonical receipt hash remains focused on the contract-level result being proven.
+
+## Practical guidance
+
+When documenting or implementing receipt hashing, always publish:
+
+- the canonicalization rule name
+- the hash algorithm
+- the exact payload scope being hashed
+
+Without those three pieces, a verifier cannot reproduce the proof reliably.
