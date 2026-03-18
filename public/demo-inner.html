@@ -2,690 +2,409 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>CommandLayer Commerce Demo — Inner</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CommandLayer Commercial Demo — Runtime-backed flow</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="description" content="Run the Commercial flow, inspect result, canonical receipt, runtime metadata, verification, and raw JSON without blurring runtime wrappers into protocol receipt semantics." />
     <style>
       :root {
-        --bg: #020617;
-        --card: #020617;
-        --border: rgba(148, 163, 184, 0.5);
-        --border-soft: rgba(148, 163, 184, 0.28);
-        --accent: #e5e7eb;
-        --accent-soft: #9ca3c7;
-        --text: #f9fafb;
-        --muted: #9ca3af;
-        --good: rgba(52, 211, 153, 0.8);
-        --bad: rgba(248, 113, 113, 0.85);
-        --warn: rgba(250, 204, 21, 0.85);
-        --radius: 14px;
-        --shadow: 0 18px 55px rgba(0, 0, 0, 0.55);
+        --bg: #05060a; --bg-elevated: #0a0c14; --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
+        --border-soft: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.18); --accent: #c5cbe0; --accent-strong: #eef2ff; --accent-muted: #97a0c5;
+        --success: #86efac; --danger: #fca5a5; --warning: #93c5fd; --text-main: #f7f8ff; --text-muted: #9ca3c7; --text-soft: #6b7280; --radius-lg: 18px; --radius-xl: 24px; --shadow-soft: 0 22px 60px rgba(0,0,0,0.55); --max-width: 1180px;
         --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       }
-
       * { box-sizing: border-box; }
-      html, body {
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
-        background: radial-gradient(circle at 0 0, #020617, #000000);
-        color: var(--text);
+      html, body { margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; background: radial-gradient(circle at 0 0, #121826 0, #020308 65%); color: var(--text-main); }
+      body { min-height: 100vh; }
+      code, pre { font-family: var(--mono); }
+      .page-shell { min-height: 100vh; display: flex; flex-direction: column; }
+      .page-main { flex: 1; }
+      .container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
+      .site-header { background: var(--bg-header); border-bottom: 1px solid rgba(255,255,255,0.06); position: sticky; top: 0; z-index: 20; backdrop-filter: blur(18px); }
+      .site-header__inner { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.5rem; }
+      .site-header__brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; }
+      .site-header__logo-img { width: 28px; height: 28px; object-fit: contain; display: block; border-radius: 6px; box-shadow: 0 0 0 1px rgba(255,255,255,0.35), 0 14px 40px rgba(0,0,0,0.9); }
+      .site-header__text { display: flex; flex-direction: column; }
+      .site-header__title { font-size: 0.98rem; font-weight: 600; letter-spacing: 0.03em; }
+      .site-header__subtitle { font-size: 0.78rem; color: var(--text-muted); }
+      .site-header__nav { display: flex; gap: 1rem; align-items: center; }
+      .site-header__link { font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; text-decoration: none; color: var(--text-muted); border: 1px solid transparent; white-space: nowrap; }
+      .site-header__link:hover { color: var(--accent-strong); border-color: rgba(255,255,255,0.18); background: rgba(15,23,42,0.7); }
+      .site-header__link--active { color: #020617; background: linear-gradient(135deg, #e5e7eb, #cdd3e7); border-color: rgba(255,255,255,0.25); }
+      .site-header__dropdown { position: relative; }
+      .site-header__dropdown-btn { font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; }
+      .site-header__dropdown-btn:hover { color: var(--accent-strong); border-color: rgba(255,255,255,0.18); background: rgba(15,23,42,0.7); }
+      .site-header__dropdown-menu { position: absolute; top: 2.3rem; right: 0; background: rgba(15,23,42,0.98); border-radius: 14px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); padding: 0.5rem 0.4rem; min-width: 210px; display: none; }
+      .site-header__dropdown-menu a { display: block; padding: 0.35rem 0.7rem; font-size: 0.82rem; text-decoration: none; color: var(--text-muted); border-radius: 999px; }
+      .site-header__dropdown-menu a:hover { color: var(--accent-strong); background: rgba(31,41,55,0.95); }
+      .site-header--docs-open .site-header__dropdown-menu { display: block; }
+      .site-header__toggle { display: none; border-radius: 999px; border: 1px solid rgba(148,163,184,0.7); background: rgba(15,23,42,0.9); color: var(--text-main); padding: 0.25rem 0.6rem; font-size: 0.9rem; cursor: pointer; }
+      .hero { padding: 3.6rem 0 2rem; border-bottom: 1px solid var(--border-soft); background: radial-gradient(circle at 15% 10%, rgba(99,102,241,0.18), transparent 25%), radial-gradient(circle at 0 0, #111827, #020308); }
+      .hero__wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.95fr); gap: 2rem; align-items: start; }
+      .hero__eyebrow, .section__eyebrow { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-muted); margin-bottom: 0.9rem; }
+      .hero__title { margin: 0; font-size: clamp(2rem, 4vw, 3.6rem); line-height: 1.06; letter-spacing: -0.04em; max-width: 13ch; }
+      .hero__subtitle { margin: 1rem 0 0; color: var(--text-muted); font-size: 1.02rem; line-height: 1.7; max-width: 42rem; }
+      .hero__proofs { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
+      .pill, .hero__proof-pill, .meta-pill { border-radius: 999px; border: 1px solid rgba(148,163,184,0.32); padding: 0.24rem 0.7rem; font-size: 0.8rem; background: rgba(15,23,42,0.55); color: var(--accent-strong); }
+      .hero__aside, .panel, .output-panel, .site-footer__col { background: rgba(10,12,20,0.88); border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); }
+      .hero__aside, .panel, .output-panel { border-radius: var(--radius-xl); padding: 1.2rem; }
+      .hero__aside p, .hero__aside li, .section__header p, .helper, .panel p, .field label, .tab-note { color: var(--text-muted); line-height: 1.65; }
+      .section { padding: 1.4rem 0 2.6rem; }
+      .section__header { max-width: 48rem; margin-bottom: 1rem; }
+      .grid { display: grid; grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.35fr); gap: 1rem; }
+      .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 0.7rem; margin-bottom: 0.8rem; }
+      .field label { display: block; font-size: 0.78rem; margin-bottom: 0.24rem; }
+      .field input { width: 100%; border-radius: 12px; border: 1px solid rgba(55,65,81,0.9); background: rgba(2,6,23,0.55); color: var(--accent-strong); font-size: 0.85rem; padding: 0.55rem 0.65rem; }
+      .field input:focus { outline: none; border-color: rgba(229,231,235,0.95); box-shadow: 0 0 0 3px rgba(165,180,252,0.18); }
+      .button-row, .tab-row, .verification-pills, .step-pills { display: flex; flex-wrap: wrap; gap: 0.55rem; }
+      button, .btn { border-radius: 999px; border: 1px solid rgba(148,163,184,0.65); background: rgba(2,6,23,0.55); color: var(--accent-strong); font-size: 0.84rem; padding: 0.5rem 0.9rem; cursor: pointer; text-decoration:none; }
+      button:hover, .btn:hover { background: rgba(2,6,23,0.75); border-color: var(--accent-strong); }
+      button.primary, .btn--primary { background: linear-gradient(135deg, #e5e7eb, #cdd3e7); color: #020617; border-color: rgba(255,255,255,0.3); }
+      .status-line { display:flex; flex-wrap:wrap; gap:0.55rem; margin-top:0.8rem; }
+      .status-pill { display:inline-flex; align-items:center; gap:0.4rem; border-radius:999px; padding:0.22rem 0.6rem; font-size:0.74rem; border:1px solid rgba(148,163,184,0.3); background:rgba(2,6,23,0.35); color:var(--accent-muted); }
+      .status-pill.good { border-color: rgba(34,197,94,0.42); color: var(--success); background: rgba(34,197,94,0.08); }
+      .status-pill.bad { border-color: rgba(239,68,68,0.42); color: var(--danger); background: rgba(239,68,68,0.08); }
+      .status-pill.warn { border-color: rgba(59,130,246,0.42); color: var(--warning); background: rgba(59,130,246,0.08); }
+      .dot { width: 7px; height: 7px; border-radius: 999px; background: currentColor; }
+      .step-strip { display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:0.65rem; margin-top:1rem; }
+      .step-card { border-radius:16px; padding:0.9rem; background: rgba(2,6,23,0.72); border:1px solid rgba(148,163,184,0.14); }
+      .step-card strong { display:block; margin-bottom:0.35rem; }
+      .output-tabs { display:flex; flex-wrap:wrap; gap:0.45rem; margin-bottom:0.8rem; }
+      .tab { border-radius:999px; border:1px solid rgba(148,163,184,0.55); background: rgba(2,6,23,0.25); color: var(--accent-muted); font-size:0.78rem; padding:0.3rem 0.7rem; cursor:pointer; }
+      .tab.active { background: rgba(2,6,23,0.75); border-color: rgba(229,231,235,0.65); color: var(--accent); }
+      pre { margin:0; background:#020617; border-radius:14px; border:1px solid rgba(55,65,81,0.9); padding:0.85rem; font-size:0.78rem; color:#dbe4ff; max-height:430px; overflow:auto; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
+      .panel-heading { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:0.75rem; }
+      .panel-heading h2, .section__header h2, .hero__aside h2 { margin:0 0 0.4rem; }
+      .meta-grid { display:grid; gap:0.7rem; }
+      .meta-box { border-radius:16px; padding:0.95rem; background: rgba(2,6,23,0.72); border:1px solid rgba(148,163,184,0.14); }
+      .meta-box strong { display:block; margin-bottom:0.35rem; color: var(--accent-strong); }
+      .kv { display:grid; grid-template-columns: 140px minmax(0,1fr); gap:0.4rem 0.75rem; font-size:0.82rem; }
+      .kv div:nth-child(odd) { color: var(--text-muted); }
+      .verification-card { border-radius:16px; padding:0.95rem; background: rgba(2,6,23,0.72); border:1px solid rgba(148,163,184,0.14); }
+      .site-footer { border-top: 1px solid rgba(255,255,255,0.1); background: #020308; margin-top: auto; }
+      .site-footer__inner { padding: 1.6rem 1.5rem 2rem; display:grid; gap:1.2rem; }
+      .site-footer__top { display:flex; flex-wrap:wrap; justify-content:space-between; gap:1rem; }
+      .site-footer__cols { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+      .site-footer__col { border-radius:18px; padding:1rem; }
+      .site-footer__col-title { font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent-muted); margin-bottom:0.45rem; }
+      .site-footer__col p { margin:0; color:var(--text-muted); line-height:1.6; font-size:0.84rem; }
+      .site-footer__links { display:flex; flex-wrap:wrap; gap:1rem; }
+      .site-footer__links a { color:var(--accent); text-decoration:none; }
+      .site-footer__links a:hover { text-decoration:underline; }
+      @media (max-width: 980px) {
+        .site-header__inner { padding-inline: 1rem; }
+        .site-header__toggle { display:inline-flex; align-items:center; justify-content:center; }
+        .site-header__nav { display:none; flex-direction:column; align-items:flex-start; gap:0.5rem; margin-top:0.8rem; }
+        .site-header.site-header--open .site-header__nav { display:flex; }
+        .hero__wrap, .grid, .site-footer__cols { grid-template-columns:minmax(0,1fr); }
+        .form-grid { grid-template-columns:minmax(0,1fr); }
+        .step-strip { grid-template-columns: repeat(2, minmax(0,1fr)); }
       }
-      body { min-height: 100vh; padding: 1rem; }
-      .shell { max-width: 980px; margin: 0 auto; }
-
-      .header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 0.75rem;
-        margin-bottom: 0.75rem;
-      }
-      .header-left h1 { margin: 0; font-size: 1rem; letter-spacing: 0.01em; }
-      .header-left p { margin: 0.25rem 0 0; font-size: 0.78rem; color: var(--muted); line-height: 1.55; }
-      .header-right { display: flex; gap: 0.4rem; flex-wrap: wrap; justify-content: flex-end; }
-
-      .chip {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        border-radius: 999px;
-        border: 1px solid var(--border-soft);
-        padding: 0.22rem 0.55rem;
-        font-size: 0.72rem;
-        color: var(--accent-soft);
-        background: rgba(2, 6, 23, 0.35);
-        user-select: none;
-        white-space: nowrap;
-      }
-      .chip strong { color: var(--accent); font-weight: 600; font-family: var(--mono); }
-
-      .grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-        gap: 0.9rem;
-      }
-
-      .card {
-        background: radial-gradient(circle at 0 0, #020617, #020617);
-        border-radius: var(--radius);
-        border: 1px solid var(--border);
-        padding: 0.85rem 0.95rem;
-        box-shadow: var(--shadow);
-      }
-
-      .card h2 { margin: 0 0 0.45rem; font-size: 0.92rem; }
-      .card p { margin: 0 0 0.6rem; font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
-      code.mono { font-family: var(--mono); font-size: 0.92em; color: #cbd5e1; }
-
-      .btn-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.35rem;
-        margin-bottom: 0.55rem;
-      }
-
-      button {
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.7);
-        background: rgba(2, 6, 23, 0.55);
-        color: var(--accent);
-        font-size: 0.78rem;
-        padding: 0.38rem 0.72rem;
-        cursor: pointer;
-        transition: transform 120ms ease, filter 120ms ease, border-color 120ms ease, background 120ms ease;
-      }
-      button:hover {
-        background: rgba(2, 6, 23, 0.75);
-        border-color: var(--accent);
-        transform: translateY(-1px);
-      }
-      button:active { transform: translateY(0px); filter: brightness(0.98); }
-
-      button.primary {
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        color: #020617;
-        border-color: rgba(255, 255, 255, 0.3);
-      }
-      button.primary:hover { filter: brightness(1.03); border-color: rgba(255,255,255,0.55); }
-      button.ghost { background: rgba(15, 23, 42, 0.25); }
-      button.danger { border-color: rgba(248, 113, 113, 0.65); color: #fecaca; }
-      button:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
-
-      .field-row {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.45rem;
-        margin-bottom: 0.55rem;
-      }
-      label {
-        display: block;
-        font-size: 0.75rem;
-        color: var(--muted);
-        margin-bottom: 0.12rem;
-      }
-      input, select {
-        width: 100%;
-        border-radius: 10px;
-        border: 1px solid rgba(55, 65, 81, 0.9);
-        background: rgba(2, 6, 23, 0.55);
-        color: var(--accent);
-        font-size: 0.78rem;
-        padding: 0.3rem 0.45rem;
-      }
-      input:focus, select:focus {
-        outline: none;
-        border-color: rgba(229, 231, 235, 0.95);
-        box-shadow: 0 0 0 3px rgba(165, 180, 252, 0.18);
-      }
-
-      .status-line {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.6rem;
-        margin-top: 0.6rem;
-        flex-wrap: wrap;
-      }
-
-      .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.4rem;
-        border-radius: 999px;
-        padding: 0.22rem 0.6rem;
-        font-size: 0.72rem;
-        border: 1px solid var(--border-soft);
-        background: rgba(2, 6, 23, 0.35);
-        color: var(--accent-soft);
-        max-width: 100%;
-      }
-      .status-pill.good { border-color: var(--good); color: #a7f3d0; background: rgba(6, 95, 70, 0.22); }
-      .status-pill.bad  { border-color: var(--bad);  color: #fecaca; background: rgba(127, 29, 29, 0.22); }
-      .status-pill.warn { border-color: var(--warn); color: #fde68a; background: rgba(113, 63, 18, 0.22); }
-
-      .dot { width: 7px; height: 7px; border-radius: 999px; background: currentColor; opacity: 0.95; }
-
-      pre {
-        margin: 0;
-        font-family: var(--mono);
-        font-size: 0.75rem;
-        color: var(--accent-soft);
-        background: rgba(2, 6, 23, 0.55);
-        border-radius: 10px;
-        border: 1px solid rgba(55, 65, 81, 0.9);
-        padding: 0.65rem;
-        max-height: 330px;
-        overflow: auto;
-        line-height: 1.45;
-      }
-
-      .tabs {
-        display: flex;
-        gap: 0.35rem;
-        margin-bottom: 0.55rem;
-        flex-wrap: wrap;
-      }
-      .tab {
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.55);
-        background: rgba(2, 6, 23, 0.25);
-        color: var(--accent-soft);
-        font-size: 0.74rem;
-        padding: 0.22rem 0.55rem;
-        cursor: pointer;
-        user-select: none;
-      }
-      .tab.active {
-        background: rgba(2, 6, 23, 0.75);
-        border-color: rgba(229, 231, 235, 0.65);
-        color: var(--accent);
-      }
-
-      .receipt-meta {
-        margin-top: 0.6rem;
-        padding-top: 0.6rem;
-        border-top: 1px solid rgba(148, 163, 184, 0.18);
-        display: grid;
-        gap: 0.35rem;
-        font-size: 0.76rem;
-        color: var(--muted);
-      }
-      .kv { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: baseline; }
-      .kv b { color: var(--accent); font-weight: 600; }
-      .kv code { color: #cbd5e1; font-size: 0.74rem; font-family: var(--mono); word-break: break-all; }
-
-      .hint {
-        margin-top: 0.45rem;
-        font-size: 0.74rem;
-        color: var(--muted);
-        line-height: 1.5;
-      }
-
-      @media (max-width: 860px) {
-        .grid { grid-template-columns: minmax(0, 1fr); }
-        .header { flex-direction: column; align-items: flex-start; }
-        .header-right { justify-content: flex-start; }
-        .field-row { grid-template-columns: minmax(0,1fr); }
-      }
+      @media (max-width: 640px) { .step-strip { grid-template-columns:minmax(0,1fr); } }
     </style>
   </head>
-
   <body>
-    <div class="shell">
-      <div class="header">
-        <div class="header-left">
-          <h1>CommandLayer Commerce Demo (Internal)</h1>
-          <p>
-            Runs <code class="mono mono">authorize</code> → <code class="mono">checkout</code> → <code class="mono">purchase</code> →
-            <code class="mono">ship</code> → <code class="mono">verify</code> as a multi-step flow.
-            This UI targets a single backend: <code class="mono">/api/commercial-flow</code> (no per-verb endpoints). Commercial remains intentionally on v1.0.0 today.
-          </p>
+    <div class="page-shell">
+      <header class="site-header">
+        <div class="site-header__inner container">
+          <a href="/" class="site-header__brand">
+            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
+            <div class="site-header__text">
+              <span class="site-header__title">CommandLayer</span>
+              <span class="site-header__subtitle">Commons first. Runtime second.</span>
+            </div>
+          </a>
+          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+          <nav class="site-header__nav">
+            <a href="/" class="site-header__link">Overview</a>
+            <a href="/quickstart.html" class="site-header__link">Quickstart</a>
+            <div class="site-header__dropdown">
+              <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
+              <div class="site-header__dropdown-menu">
+                <a href="/commons.html">Commons</a><a href="/commercial.html">Commercial</a><a href="/agent-cards.html">Agent Cards</a><a href="/runtime.html">Runtime</a><a href="/manifest.html">Manifest</a><a href="/licensing.html">Licensing</a><a href="/about.html">About</a>
+              </div>
+            </div>
+            <a href="/repositories.html" class="site-header__link">Repositories</a>
+            <a href="/demo.html" class="site-header__link site-header__link--active">Live Demo</a>
+            <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </nav>
         </div>
-        <div class="header-right">
-          <span class="chip">Backend: <strong>/api/commercial-flow</strong></span>
-          <span class="chip">Version: <strong>Commercial v1.0.0</strong></span>
+      </header>
+
+      <main class="page-main">
+        <section class="hero">
+          <div class="container hero__wrap">
+            <div>
+              <div class="hero__eyebrow">Commercial demo</div>
+              <h1 class="hero__title">Run the flow. Inspect the receipt. Then inspect runtime evidence.</h1>
+              <p class="hero__subtitle">The runtime executes this multi-step Commercial flow. Each step returns the canonical receipt contract. The runtime may also attach trace, proof, or orchestration metadata around that receipt.</p>
+              <div class="hero__proofs">
+                <span class="hero__proof-pill">authorize → checkout → purchase → ship → verify</span>
+                <span class="hero__proof-pill">Canonical receipt first</span>
+                <span class="hero__proof-pill">Runtime metadata second</span>
+              </div>
+            </div>
+            <aside class="hero__aside">
+              <h2>What this surface teaches</h2>
+              <p>Commercial defines economic contract semantics. Runtime executes the flow and may wrap each step response in a structure like <code>{ "receipt": ..., "runtime_metadata": ... }</code>. The wrapper is execution context, not the canonical protocol receipt itself.</p>
+              <ul>
+                <li>Result / action stays visible for the latest step.</li>
+                <li>Canonical receipt is shown independently of runtime-added metadata.</li>
+                <li>Verification and raw JSON remain inspectable for judges and technical reviewers.</li>
+              </ul>
+            </aside>
+          </div>
+        </section>
+
+        <section class="section">
+          <div class="container">
+            <div class="section__header">
+              <div class="section__eyebrow">Runtime-backed flow</div>
+              <h2>Commercial flow controls</h2>
+              <p>Run one step or the full flow against <code>/api/commercial-flow</code>. This page assumes a single backend surface and avoids old per-verb demo endpoint language.</p>
+            </div>
+            <div class="grid">
+              <article class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <h2>Trigger execution</h2>
+                    <p>Set the commercial input once, then run a single step or the full orchestration path.</p>
+                  </div>
+                  <div class="step-pills">
+                    <span class="meta-pill">Backend: /api/commercial-flow</span>
+                    <span class="meta-pill">Commercial v1.0.0</span>
+                  </div>
+                </div>
+                <div class="form-grid">
+                  <div class="field"><label>Buyer</label><input id="buyer" value="0xBEEF" /></div>
+                  <div class="field"><label>Chain ID</label><input id="chain_id" value="eip155:84532" /></div>
+                  <div class="field"><label>Order ID</label><input id="order_id" value="order_demo_1" /></div>
+                </div>
+                <div class="form-grid">
+                  <div class="field"><label>Item SKU</label><input id="sku" value="demo-sticker-pack" /></div>
+                  <div class="field"><label>Qty</label><input id="qty" value="1" /></div>
+                  <div class="field"><label>Total (ETH)</label><input id="total_amount" value="0.0001" /></div>
+                </div>
+                <div class="form-grid">
+                  <div class="field"><label>Currency</label><input id="currency" value="ETH" /></div>
+                  <div class="field"><label>Ship To</label><input id="address" value="123 Demo Street" /></div>
+                  <div class="field"><label>Trace ID (optional)</label><input id="trace_id" placeholder="auto if blank" /></div>
+                </div>
+                <div class="button-row">
+                  <button id="b_authorize" onclick="runStep('authorize')">Authorize</button>
+                  <button id="b_checkout" onclick="runStep('checkout')">Checkout</button>
+                  <button id="b_purchase" onclick="runStep('purchase')">Purchase</button>
+                  <button id="b_ship" onclick="runStep('ship')">Ship</button>
+                  <button id="b_verify" onclick="runStep('verify')">Verify</button>
+                </div>
+                <div class="button-row" style="margin-top:0.6rem;">
+                  <button class="primary" id="b_flow" onclick="runFlow()">Run full flow</button>
+                  <button onclick="copyCurl()">Copy curl</button>
+                  <button onclick="resetState()">Reset</button>
+                </div>
+                <div class="status-line">
+                  <span class="status-pill" id="status_pill" style="display:none;"><span class="dot"></span><span id="status_text">Idle</span></span>
+                  <span class="status-pill" id="net_pill" style="display:none;"><span class="dot"></span><span id="net_text">Ready</span></span>
+                </div>
+                <p class="helper">Commercial flow language stays contract-first: the runtime executes the flow, receipts remain the contract layer, and trace / proof / orchestration fields are runtime-added execution metadata.</p>
+                <div class="step-strip">
+                  <div class="step-card"><strong>1. Authorize</strong><span>Economic permission step returns a canonical receipt.</span></div>
+                  <div class="step-card"><strong>2. Checkout</strong><span>Order context remains tied to the commercial contract.</span></div>
+                  <div class="step-card"><strong>3. Purchase</strong><span>Execution moves forward while receipts remain inspectable.</span></div>
+                  <div class="step-card"><strong>4. Ship</strong><span>Fulfillment step can attach runtime trace context.</span></div>
+                  <div class="step-card"><strong>5. Verify</strong><span>Verification checks evidence around the receipt.</span></div>
+                </div>
+              </article>
+
+              <article class="output-panel">
+                <div class="panel-heading">
+                  <div>
+                    <h2>Inspection surface</h2>
+                    <p>See the latest action, then move across canonical receipt, runtime metadata, verification, raw JSON, and curl.</p>
+                  </div>
+                </div>
+                <div class="output-tabs">
+                  <button class="tab active" data-tab="latest" onclick="setTab('latest')">Latest step</button>
+                  <button class="tab" data-tab="receipt" onclick="setTab('receipt')">Canonical receipt</button>
+                  <button class="tab" data-tab="runtime" onclick="setTab('runtime')">Runtime metadata</button>
+                  <button class="tab" data-tab="verification" onclick="setTab('verification')">Verification</button>
+                  <button class="tab" data-tab="raw" onclick="setTab('raw')">Raw JSON</button>
+                  <button class="tab" data-tab="curl" onclick="setTab('curl')">Curl</button>
+                </div>
+                <p class="tab-note" id="tab_note">Latest step action and response summary.</p>
+                <pre id="output">{}</pre>
+                <div class="meta-grid" style="margin-top:0.85rem;">
+                  <div class="meta-box">
+                    <strong>Latest step summary</strong>
+                    <div class="kv">
+                      <div>verb</div><div><code id="m_verb">-</code></div>
+                      <div>runtime_url</div><div><code id="m_url">-</code></div>
+                      <div>trace_id</div><div><code id="m_trace">-</code></div>
+                      <div>receipt_id</div><div><code id="m_receipt">-</code></div>
+                      <div>signer</div><div><code id="m_signer">-</code></div>
+                    </div>
+                  </div>
+                  <div class="verification-card">
+                    <strong>Boundary reminder</strong>
+                    <p style="margin:0;">If a response returns <code>receipt</code> plus <code>runtime_metadata</code>, the canonical contract lives in <code>receipt</code>. Runtime metadata is proof and orchestration context around that contract.</p>
+                  </div>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <div class="container site-footer__inner">
+          <div class="site-footer__top">
+            <div>© CommandLayer — trust layer for agent execution</div>
+            <div>Commercial flow demo · Runtime executes · Receipts stay canonical</div>
+          </div>
+          <div class="site-footer__cols">
+            <div class="site-footer__col"><div class="site-footer__col-title">Canonical CIDs</div><p>Commercial receipts remain contract-grade payloads that can be inspected independently of runtime-added wrappers and metadata.</p></div>
+            <div class="site-footer__col"><div class="site-footer__col-title">Security</div><p>Proof, trace, and orchestration data help verify execution evidence while preserving a clean receipt boundary for protocol semantics.</p></div>
+          </div>
+          <div class="site-footer__links">
+            <a href="/commons.html">Schemas</a><a href="/quickstart.html">Quickstart</a><a href="/repositories.html">Repositories</a><a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+          </div>
         </div>
-      </div>
-
-      <div class="grid">
-        <!-- LEFT -->
-        <div class="card">
-          <h2>Controls</h2>
-          <p>
-            Edit fields, then run a single step or the full flow. Receipts come back per-step with a shared
-            <code class="mono">trace_id</code>. Copy curl to reproduce.
-          </p>
-
-          <div class="field-row">
-            <div>
-              <label>Buyer</label>
-              <input id="buyer" value="0xBEEF" />
-            </div>
-            <div>
-              <label>Chain ID</label>
-              <input id="chain_id" value="eip155:84532" />
-            </div>
-            <div>
-              <label>Order ID</label>
-              <input id="order_id" value="order_demo_1" />
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div>
-              <label>Item SKU</label>
-              <input id="sku" value="demo-sticker-pack" />
-            </div>
-            <div>
-              <label>Qty</label>
-              <input id="qty" value="1" />
-            </div>
-            <div>
-              <label>Total (ETH)</label>
-              <input id="total_amount" value="0.0001" />
-            </div>
-          </div>
-
-          <div class="field-row">
-            <div>
-              <label>Currency</label>
-              <input id="currency" value="ETH" />
-            </div>
-            <div>
-              <label>Ship To</label>
-              <input id="address" value="123 Demo Street" />
-            </div>
-            <div>
-              <label>Trace ID (optional)</label>
-              <input id="trace_id" placeholder="auto if blank" />
-            </div>
-          </div>
-
-          <div class="btn-row">
-            <button id="b_authorize" onclick="runStep('authorize')">Authorize</button>
-            <button id="b_checkout" onclick="runStep('checkout')">Checkout</button>
-            <button id="b_purchase" onclick="runStep('purchase')">Purchase</button>
-            <button id="b_ship" onclick="runStep('ship')">Ship</button>
-            <button id="b_verify" onclick="runStep('verify')">Verify</button>
-          </div>
-
-          <div class="btn-row">
-            <button class="primary" id="b_flow" onclick="runFlow()">Run full flow</button>
-            <button class="ghost" onclick="copyCurl()">Copy curl</button>
-            <button class="danger" onclick="resetState()">Reset</button>
-          </div>
-
-          <div class="status-line">
-            <span class="status-pill" id="status_pill" style="display:none;">
-              <span class="dot"></span>
-              <span id="status_text">Idle</span>
-            </span>
-
-            <span class="status-pill" id="net_pill" style="display:none;">
-              <span class="dot"></span>
-              <span id="net_text">Ready</span>
-            </span>
-          </div>
-
-          <div class="hint">
-            Tip: the demo is only as real as your backend. If <code class="mono">/api/commercial-flow</code> is forwarding to a
-            commercial runtime, your receipts are real runtime receipts (signed).
-          </div>
-        </div>
-
-        <!-- RIGHT -->
-        <div class="card">
-          <h2>Output</h2>
-          <p>Switch between the latest step, full raw response, and the curl block.</p>
-
-          <div class="tabs">
-            <div class="tab active" data-tab="latest" onclick="setTab('latest')">Latest step</div>
-            <div class="tab" data-tab="raw" onclick="setTab('raw')">Raw JSON</div>
-            <div class="tab" data-tab="curl" onclick="setTab('curl')">Curl</div>
-          </div>
-
-          <pre id="output">{}</pre>
-
-          <div class="receipt-meta" id="receipt_meta" style="display:none;">
-            <div class="kv"><b>verb:</b> <code id="m_verb">-</code></div>
-            <div class="kv"><b>runtime_url:</b> <code id="m_url">-</code></div>
-            <div class="kv"><b>trace_id:</b> <code id="m_trace">-</code></div>
-            <div class="kv"><b>receipt_id:</b> <code id="m_receipt">-</code></div>
-            <div class="kv"><b>signer:</b> <code id="m_signer">-</code></div>
-          </div>
-        </div>
-      </div>
+      </footer>
     </div>
 
     <script>
+      (function () {
+        const header = document.querySelector('.site-header');
+        const toggle = document.querySelector('.site-header__toggle');
+        const docsBtn = document.querySelector('.site-header__dropdown-btn');
+        if (toggle && header) {
+          toggle.addEventListener('click', () => {
+            const isOpen = header.classList.toggle('site-header--open');
+            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+          });
+        }
+        if (docsBtn && header) docsBtn.addEventListener('click', () => header.classList.toggle('site-header--docs-open'));
+        document.addEventListener('click', (e) => {
+          const dropdown = header?.querySelector('.site-header__dropdown');
+          if (dropdown && !dropdown.contains(e.target)) header.classList.remove('site-header--docs-open');
+        });
+      })();
+
       let last = null;
-
-      let state = {
-        trace_id: null,
-        last_order_id: null,
-        last_shipment_id: null,
-      };
-
-      const VERBS = ["authorize", "checkout", "purchase", "ship", "verify"];
+      let state = { trace_id: null, last_order_id: null, last_shipment_id: null };
+      const VERBS = ['authorize', 'checkout', 'purchase', 'ship', 'verify'];
       const ALLOWED = new Set(VERBS);
-      let activeTab = "latest"; // latest | raw | curl
-
+      let activeTab = 'latest';
+      const TAB_NOTES = {
+        latest: 'Latest step action and response summary.',
+        receipt: 'Canonical Commercial receipt only. This is the contract layer.',
+        runtime: 'Runtime metadata only. This is trace / proof / orchestration context around the receipt.',
+        verification: 'Verification-focused fields extracted from the latest step.',
+        raw: 'Raw wrapped response returned by the backend.',
+        curl: 'Reproduce the latest request with curl.'
+      };
       function $(id) { return document.getElementById(id); }
-
-      function setTab(name) {
-        activeTab = name;
-        document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
-        const el = document.querySelector(`.tab[data-tab="${name}"]`);
-        if (el) el.classList.add("active");
-        renderOutput();
+      function safeGet(obj, path, fallback = null) { try { const v = path.split('.').reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), obj); return v == null ? fallback : v; } catch { return fallback; } }
+      function prettify(obj) { return JSON.stringify(obj ?? {}, null, 2); }
+      function currentSteps() { return Array.isArray(last?.steps) ? last.steps : []; }
+      function latestStep() { const steps = currentSteps(); return steps.length ? steps[steps.length - 1] : null; }
+      function currentReceipt(step = latestStep()) { return step?.receipt || safeGet(step, 'response.receipt') || null; }
+      function currentRuntimeMetadata(step = latestStep()) {
+        return step?.runtime_metadata || safeGet(step, 'response.runtime_metadata') || safeGet(step, 'metadata') || safeGet(last, 'runtime_metadata') || null;
       }
-
-      function setPill(pillEl, textEl, mode, text) {
-        pillEl.classList.remove("good", "bad", "warn");
-        pillEl.classList.add(mode);
-        pillEl.style.display = "inline-flex";
-        textEl.textContent = text;
-      }
-
-      function getBasePayload() {
+      function verificationView(step = latestStep()) {
+        const receipt = currentReceipt(step) || {};
+        const runtimeMetadata = currentRuntimeMetadata(step) || {};
         return {
-          buyer: $("buyer").value,
-          chain_id: $("chain_id").value,
-          order_id: $("order_id").value,
-          sku: $("sku").value,
-          qty: Number($("qty").value || 1),
-          total_amount: $("total_amount").value,
-          currency: $("currency").value,
-          address: $("address").value,
+          receipt_id: safeGet(receipt, 'metadata.receipt_id') || safeGet(receipt, 'receipt_id') || null,
+          signer_id: safeGet(receipt, 'metadata.proof.signer_id') || safeGet(receipt, 'metadata.signer_id') || safeGet(runtimeMetadata, 'proof.signer_id') || null,
+          proof_hash: safeGet(receipt, 'metadata.proof.hash_sha256') || safeGet(runtimeMetadata, 'proof.hash_sha256') || null,
+          trace_id: safeGet(receipt, 'trace.trace_id') || safeGet(receipt, 'trace_id') || safeGet(runtimeMetadata, 'trace_id') || null,
+          verify_result: safeGet(step, 'verify') || safeGet(runtimeMetadata, 'verify') || safeGet(runtimeMetadata, 'verification') || null
         };
       }
-
-      function effectiveTraceId() {
-        const explicit = ($("trace_id").value || "").trim();
-        return explicit || state.trace_id || null;
+      function setTab(name) {
+        activeTab = name;
+        document.querySelectorAll('.tab').forEach((t) => t.classList.remove('active'));
+        const el = document.querySelector(`.tab[data-tab="${name}"]`); if (el) el.classList.add('active');
+        $('tab_note').textContent = TAB_NOTES[name] || '';
+        renderOutput();
       }
-
-      function updateTrace(traceId) {
-        if (!traceId) return;
-        state.trace_id = traceId;
-        if (!$("trace_id").value) $("trace_id").value = traceId;
-        setPill($("status_pill"), $("status_text"), "good", `Trace active: ${traceId}`);
+      function setPill(pillEl, textEl, mode, text) { pillEl.className = `status-pill ${mode}`; pillEl.style.display = 'inline-flex'; textEl.textContent = text; }
+      function getBasePayload() { return { buyer: $('buyer').value, chain_id: $('chain_id').value, order_id: $('order_id').value, sku: $('sku').value, qty: Number($('qty').value || 1), total_amount: $('total_amount').value, currency: $('currency').value, address: $('address').value }; }
+      function effectiveTraceId() { const explicit = ($('trace_id').value || '').trim(); return explicit || state.trace_id || null; }
+      function updateTrace(traceId) { if (!traceId) return; state.trace_id = traceId; if (!$('trace_id').value) $('trace_id').value = traceId; setPill($('status_pill'), $('status_text'), 'good', `Trace active: ${traceId}`); }
+      function renderMetaFromStep(step) {
+        const receipt = currentReceipt(step);
+        const runtimeMeta = currentRuntimeMetadata(step);
+        const traceId = safeGet(receipt, 'trace.trace_id') || safeGet(receipt, 'trace_id') || safeGet(runtimeMeta, 'trace_id') || '-';
+        const receiptId = safeGet(receipt, 'metadata.receipt_id') || safeGet(receipt, 'metadata.proof.hash_sha256') || safeGet(receipt, 'receipt_id') || '-';
+        const signer = safeGet(receipt, 'metadata.proof.signer_id') || safeGet(receipt, 'metadata.signer_id') || safeGet(runtimeMeta, 'proof.signer_id') || '-';
+        $('m_verb').textContent = step?.verb || '-'; $('m_url').textContent = step?.runtime_url || safeGet(runtimeMeta, 'runtime_url') || '-'; $('m_trace').textContent = String(traceId); $('m_receipt').textContent = String(receiptId); $('m_signer').textContent = String(signer);
       }
-
-      function safeGet(obj, path, fallback = null) {
-        try {
-          const v = path.split(".").reduce((acc, k) => (acc && acc[k] != null ? acc[k] : null), obj);
-          return v == null ? fallback : v;
-        } catch {
-          return fallback;
-        }
-      }
-
-      function renderMetaFromReceipt(step) {
-        const receipt = step?.receipt || null;
-        if (!receipt) {
-          $("receipt_meta").style.display = "none";
-          return;
-        }
-
-        const traceId = safeGet(receipt, "trace.trace_id") || safeGet(receipt, "trace_id") || "-";
-        const receiptId =
-          safeGet(receipt, "metadata.receipt_id") ||
-          safeGet(receipt, "metadata.proof.hash_sha256") ||
-          safeGet(receipt, "receipt_id") ||
-          "-";
-        const signer =
-          safeGet(receipt, "metadata.proof.signer_id") ||
-          safeGet(receipt, "metadata.signer_id") ||
-          "-";
-
-        $("m_verb").textContent = step?.verb || "-";
-        $("m_url").textContent = step?.runtime_url || "-";
-        $("m_trace").textContent = String(traceId);
-        $("m_receipt").textContent = String(receiptId);
-        $("m_signer").textContent = String(signer);
-
-        $("receipt_meta").style.display = "grid";
-      }
-
-      function resetState() {
-        last = null;
-        state = { trace_id: null, last_order_id: null, last_shipment_id: null };
-        $("trace_id").value = "";
-        $("output").textContent = "{}";
-        $("receipt_meta").style.display = "none";
-        $("status_pill").style.display = "none";
-        $("net_pill").style.display = "none";
-        setTab("latest");
-      }
-
-      function disableButtons(disabled) {
-        ["b_authorize", "b_checkout", "b_purchase", "b_ship", "b_verify", "b_flow"].forEach((id) => {
-          const el = $(id);
-          if (el) el.disabled = disabled;
-        });
-      }
-
-      function prettify(obj) {
-        return JSON.stringify(obj, null, 2);
-      }
-
+      function resetState() { last = null; state = { trace_id: null, last_order_id: null, last_shipment_id: null }; $('trace_id').value = ''; $('output').textContent = '{}'; $('status_pill').style.display = 'none'; $('net_pill').style.display = 'none'; renderMetaFromStep(null); setTab('latest'); }
+      function disableButtons(disabled) { ['b_authorize','b_checkout','b_purchase','b_ship','b_verify','b_flow'].forEach((id) => { const el = $(id); if (el) el.disabled = disabled; }); }
       function renderOutput() {
-        const out = $("output");
-        if (!last) {
-          out.textContent = "{}";
-          return;
-        }
-
-        if (activeTab === "raw") {
-          out.textContent = prettify(last);
-          return;
-        }
-
-        if (activeTab === "curl") {
-          const curl = last?.meta?.curl || "";
-          out.textContent = curl ? curl : "# (no curl yet — run a step or full flow)";
-          return;
-        }
-
-        // latest
-        const steps = Array.isArray(last?.steps) ? last.steps : [];
-        const latest = steps.length ? steps[steps.length - 1] : null;
-        out.textContent = latest ? prettify(latest) : prettify(last);
+        const out = $('output');
+        if (!last) { out.textContent = '{}'; return; }
+        const step = latestStep();
+        if (activeTab === 'raw') out.textContent = prettify(last);
+        else if (activeTab === 'curl') out.textContent = last?.meta?.curl || '# (no curl yet — run a step or full flow)';
+        else if (activeTab === 'receipt') out.textContent = prettify(currentReceipt(step) || { note: 'No canonical receipt returned yet.' });
+        else if (activeTab === 'runtime') out.textContent = prettify(currentRuntimeMetadata(step) || { note: 'No runtime metadata attached to the latest step.' });
+        else if (activeTab === 'verification') out.textContent = prettify(verificationView(step));
+        else out.textContent = prettify(step || last);
       }
-
       async function callCommercialFlow(steps, trace_id) {
-        const res = await fetch("/api/commercial-flow", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ steps, trace_id: trace_id || undefined }),
-        });
-
-        const text = await res.text();
-        let json;
-        try { json = JSON.parse(text); }
-        catch { json = { ok: false, error: "Non-JSON response", raw: String(text || "").slice(0, 2000) }; }
-
-        if (!res.ok) {
-          const msg = json?.error || `HTTP ${res.status}`;
-          const detail = json?.detail ? (typeof json.detail === "string" ? json.detail : JSON.stringify(json.detail)) : "";
-          throw new Error(detail ? `${msg}: ${detail}` : msg);
-        }
+        const res = await fetch('/api/commercial-flow', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ steps, trace_id: trace_id || undefined }) });
+        const text = await res.text(); let json;
+        try { json = JSON.parse(text); } catch { json = { ok: false, error: 'Non-JSON response', raw: String(text || '').slice(0, 2000) }; }
+        if (!res.ok) { const msg = json?.error || `HTTP ${res.status}`; const detail = json?.detail ? (typeof json.detail === 'string' ? json.detail : JSON.stringify(json.detail)) : ''; throw new Error(detail ? `${msg}: ${detail}` : msg); }
         return json;
       }
-
       function buildStepInput(verb, base) {
         const trace_id = effectiveTraceId() || undefined;
-
-        // Adjust these shapes to match your commercial request schemas.
-        if (verb === "authorize") {
-          return {
-            trace_id,
-            buyer: base.buyer,
-            chain_id: base.chain_id,
-            amount: { value: base.total_amount, currency: base.currency },
-            payment_method: "demo",
-          };
-        }
-
-        if (verb === "checkout") {
-          return {
-            trace_id,
-            items: [{ sku: base.sku, qty: base.qty }],
-            total_amount: base.total_amount,
-            currency: base.currency,
-          };
-        }
-
-        if (verb === "purchase") {
-          return {
-            trace_id,
-            order_id: state.last_order_id || base.order_id,
-            total_amount: base.total_amount,
-            currency: base.currency,
-          };
-        }
-
-        if (verb === "ship") {
-          return {
-            trace_id,
-            order_id: state.last_order_id || base.order_id,
-            address: base.address,
-          };
-        }
-
-        if (verb === "verify") {
-          return {
-            trace_id,
-            order_id: state.last_order_id || base.order_id,
-            shipment_id: state.last_shipment_id || "demo-shipment",
-          };
-        }
-
+        if (verb === 'authorize') return { trace_id, buyer: base.buyer, chain_id: base.chain_id, amount: { value: base.total_amount, currency: base.currency }, payment_method: 'demo' };
+        if (verb === 'checkout') return { trace_id, items: [{ sku: base.sku, qty: base.qty }], total_amount: base.total_amount, currency: base.currency };
+        if (verb === 'purchase') return { trace_id, order_id: state.last_order_id || base.order_id, total_amount: base.total_amount, currency: base.currency };
+        if (verb === 'ship') return { trace_id, order_id: state.last_order_id || base.order_id, address: base.address };
+        if (verb === 'verify') return { trace_id, order_id: state.last_order_id || base.order_id, shipment_id: state.last_shipment_id || 'demo-shipment' };
         return { trace_id, ...base };
       }
-
       function captureIdsFromReceipt(receipt) {
-        if (!receipt || typeof receipt !== "object") return;
-
-        // best-effort: if your commercial receipts include these
-        const maybeOrder =
-          safeGet(receipt, "result.order_id") ||
-          safeGet(receipt, "result.checkout_id") ||
-          safeGet(receipt, "result.purchase_id") ||
-          null;
-
-        const maybeShipment =
-          safeGet(receipt, "result.shipment_id") ||
-          safeGet(receipt, "result.tracking_id") ||
-          null;
-
+        if (!receipt || typeof receipt !== 'object') return;
+        const maybeOrder = safeGet(receipt, 'result.order_id') || safeGet(receipt, 'result.checkout_id') || safeGet(receipt, 'result.purchase_id') || null;
+        const maybeShipment = safeGet(receipt, 'result.shipment_id') || safeGet(receipt, 'result.tracking_id') || null;
         if (maybeOrder && !state.last_order_id) state.last_order_id = String(maybeOrder);
         if (maybeShipment) state.last_shipment_id = String(maybeShipment);
       }
-
       async function runStep(verb) {
         if (!ALLOWED.has(verb)) return;
-
         try {
-          disableButtons(true);
-          setPill($("net_pill"), $("net_text"), "warn", `Running ${verb}…`);
-
-          const base = getBasePayload();
-          const step = { verb, input: buildStepInput(verb, base) };
-          const trace_id = effectiveTraceId();
-
-          const data = await callCommercialFlow([step], trace_id);
-
-          last = data;
-          renderOutput();
-
-          const step0 = Array.isArray(data?.steps) ? data.steps[0] : null;
-          const receipt = step0?.receipt;
-
-          if (receipt) {
-            const t = safeGet(receipt, "trace.trace_id") || safeGet(receipt, "trace_id") || null;
-            updateTrace(t);
-            captureIdsFromReceipt(receipt);
-            renderMetaFromReceipt(step0);
-          } else {
-            $("receipt_meta").style.display = "none";
-          }
-
-          setPill($("net_pill"), $("net_text"), "good", `OK — ${verb} receipt returned.`);
-        } catch (err) {
-          last = { ok: false, error: err?.message || String(err) };
-          renderOutput();
-          $("receipt_meta").style.display = "none";
-          setPill($("net_pill"), $("net_text"), "bad", `Error — ${err?.message || String(err)}`);
-        } finally {
-          disableButtons(false);
-        }
+          disableButtons(true); setPill($('net_pill'), $('net_text'), 'warn', `Running ${verb}…`);
+          const base = getBasePayload(); const step = { verb, input: buildStepInput(verb, base) }; const trace_id = effectiveTraceId();
+          const data = await callCommercialFlow([step], trace_id); last = data; const step0 = Array.isArray(data?.steps) ? data.steps[0] : null; const receipt = currentReceipt(step0);
+          if (receipt) { const t = safeGet(receipt, 'trace.trace_id') || safeGet(receipt, 'trace_id') || safeGet(currentRuntimeMetadata(step0), 'trace_id') || null; updateTrace(t); captureIdsFromReceipt(receipt); }
+          renderMetaFromStep(step0); renderOutput(); setPill($('net_pill'), $('net_text'), 'good', `OK — ${verb} step returned.`);
+        } catch (err) { last = { ok: false, error: err?.message || String(err) }; renderOutput(); renderMetaFromStep(null); setPill($('net_pill'), $('net_text'), 'bad', `Error — ${err?.message || String(err)}`); }
+        finally { disableButtons(false); }
       }
-
       async function runFlow() {
         try {
-          disableButtons(true);
-          setPill($("net_pill"), $("net_text"), "warn", "Running full flow…");
-
-          // keep trace if user supplied one; otherwise clear trace
-          const keepTrace = ($("trace_id").value || "").trim();
-          state.last_order_id = null;
-          state.last_shipment_id = null;
-          if (!keepTrace) state.trace_id = null;
-
-          const base = getBasePayload();
-          const steps = VERBS.map((v) => ({ verb: v, input: buildStepInput(v, base) }));
-          const trace_id = effectiveTraceId();
-
-          const data = await callCommercialFlow(steps, trace_id);
-
-          last = data;
-          renderOutput();
-
-          const stepsArr = Array.isArray(data?.steps) ? data.steps : [];
-          const firstReceipt = stepsArr[0]?.receipt || null;
-
-          if (firstReceipt) {
-            const t = safeGet(firstReceipt, "trace.trace_id") || safeGet(firstReceipt, "trace_id") || null;
-            updateTrace(t);
-          }
-
-          for (const s of stepsArr) captureIdsFromReceipt(s?.receipt);
-
-          const lastStep = stepsArr.length ? stepsArr[stepsArr.length - 1] : null;
-          if (lastStep) renderMetaFromReceipt(lastStep);
-          else $("receipt_meta").style.display = "none";
-
-          setPill($("net_pill"), $("net_text"), "good", "OK — flow receipts returned.");
-        } catch (err) {
-          last = { ok: false, error: err?.message || String(err) };
-          renderOutput();
-          $("receipt_meta").style.display = "none";
-          setPill($("net_pill"), $("net_text"), "bad", `Error — ${err?.message || String(err)}`);
-        } finally {
-          disableButtons(false);
-        }
+          disableButtons(true); setPill($('net_pill'), $('net_text'), 'warn', 'Running full flow…');
+          const keepTrace = ($('trace_id').value || '').trim(); state.last_order_id = null; state.last_shipment_id = null; if (!keepTrace) state.trace_id = null;
+          const base = getBasePayload(); const steps = VERBS.map((v) => ({ verb: v, input: buildStepInput(v, base) })); const trace_id = effectiveTraceId();
+          const data = await callCommercialFlow(steps, trace_id); last = data; const stepsArr = currentSteps(); const firstReceipt = currentReceipt(stepsArr[0]);
+          if (firstReceipt) { const t = safeGet(firstReceipt, 'trace.trace_id') || safeGet(firstReceipt, 'trace_id') || safeGet(currentRuntimeMetadata(stepsArr[0]), 'trace_id') || null; updateTrace(t); }
+          for (const s of stepsArr) captureIdsFromReceipt(currentReceipt(s));
+          renderMetaFromStep(latestStep()); renderOutput(); setPill($('net_pill'), $('net_text'), 'good', 'OK — full flow returned receipts.');
+        } catch (err) { last = { ok: false, error: err?.message || String(err) }; renderOutput(); renderMetaFromStep(null); setPill($('net_pill'), $('net_text'), 'bad', `Error — ${err?.message || String(err)}`); }
+        finally { disableButtons(false); }
       }
-
       async function copyCurl() {
-        try {
-          const curl = last?.meta?.curl;
-          if (!curl) throw new Error("No curl block available yet. Run a step or full flow first.");
-          await navigator.clipboard.writeText(curl);
-          setPill($("net_pill"), $("net_text"), "good", "Copied curl block.");
-          setTab("curl");
-          renderOutput();
-        } catch (err) {
-          setPill($("net_pill"), $("net_text"), "bad", err?.message || String(err));
-        }
+        try { const curl = last?.meta?.curl; if (!curl) throw new Error('No curl block available yet. Run a step or full flow first.'); await navigator.clipboard.writeText(curl); setPill($('net_pill'), $('net_text'), 'good', 'Copied curl block.'); setTab('curl'); }
+        catch (err) { setPill($('net_pill'), $('net_text'), 'bad', err?.message || String(err)); }
       }
-
-      // Init
-      (function init() {
-        setPill($("net_pill"), $("net_text"), "warn", "Ready.");
-        setTab("latest");
-      })();
+      (function init() { setPill($('net_pill'), $('net_text'), 'warn', 'Ready.'); renderMetaFromStep(null); setTab('latest'); })();
     </script>
   </body>
 </html>
