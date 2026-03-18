@@ -1,0 +1,68 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "clean.receipt",
+  "description": "Receipt for a clean request, including cleaned content and applied operations.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "clean"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "status": {
+      "description": "Outcome status for this verb invocation.",
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "delegated"
+      ]
+    },
+    "cleaned_content": {
+      "description": "The cleaned/normalized content.",
+      "type": "string",
+      "minLength": 1
+    },
+    "operations_applied": {
+      "description": "List of operations actually applied in order.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "maxItems": 32
+    },
+    "issues_detected": {
+      "description": "Optional list of issues found (e.g., PII, malformed HTML).",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "maxItems": 128
+    },
+    "original_length": {
+      "description": "Length of the original content (characters or tokens).",
+      "type": "integer",
+      "minimum": 0
+    },
+    "cleaned_length": {
+      "description": "Length of the cleaned content.",
+      "type": "integer",
+      "minimum": 0
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "status",
+    "cleaned_content"
+  ]
+}

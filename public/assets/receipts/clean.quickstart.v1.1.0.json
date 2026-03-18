@@ -1,12 +1,7 @@
 {
+  "verb": "clean",
+  "schema_version": "1.1.0",
   "status": "success",
-  "x402": {
-    "verb": "clean",
-    "version": "1.1.0",
-    "entry": "x402://cleanagent.eth/clean/v1.1.0"
-  },
-  "result": {
-    "cleaned_content": "hello world",
-    "operations_applied": ["collapse_whitespace", "trim"]
-  }
+  "cleaned_content": "hello world",
+  "operations_applied": ["collapse_whitespace", "trim"]
 }

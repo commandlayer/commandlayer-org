@@ -669,15 +669,14 @@
               <div class="hero__eyebrow">Docs</div>
               <h1 class="hero__title">Getting started with CommandLayer</h1>
               <p class="hero__subtitle">
-                Learn the stack in the right order on top of <strong>x402</strong> and
-                <strong>ERC-8004</strong>: Commons verbs first, then Commercial verbs, Agent Cards, and finally the
-                Runtime execution layer. This page shows how to call a verb, validate payloads,
-                describe your own agent, and see how everything lines up.
+                Learn the stack in the right order: Commons verbs first, then Commercial verbs, Agent Cards, and finally the
+                Runtime execution layer. This page shows how to call a verb, validate flat payloads,
+                describe your own agent, and see how the canonical contract stays separate from runtime metadata.
               </p>
 
               <ul class="hero__list">
                 <li>Use Commons verbs as your baseline machine-intent grammar and minimum receipt contract.</li>
-                <li>Layer in Commercial verbs for economic flows over x402.</li>
+                <li>Layer in Commercial verbs for economic flows once the Commons contract is clear.</li>
                 <li>Bind agents to ENS and entrypoints with Agent Cards.</li>
                 <li>Treat Runtime as the execution layer that may add optional metadata while schemas stay free.</li>
               </ul>
@@ -731,14 +730,14 @@
                   <div class="mini-example__label">// summarize.request</div>
                   <pre>{
   "verb": "summarize",
-  "content": "CommandLayer defines what agents do on x402."
+  "text": "CommandLayer defines what agents do."
 }</pre>
                 </div>
                 <div class="mini-example__column">
                   <div class="mini-example__label">// summarize.receipt</div>
                   <pre>{
   "status": "ok",
-  "result": "Semantic verb layer describing agent behavior on x402."
+  "summary": "Semantic verb layer describing agent behavior."
 }</pre>
                 </div>
                 <div class="mini-example__note">
@@ -756,10 +755,7 @@
             <div class="section__header">
               <h2>How the pieces fit together</h2>
               <p>
-                CommandLayer doesn’t compete with x402 or ERC-8004 — it completes the stack by
-                defining machine intent. Commons and Commercial verbs give you the vocabulary and canonical receipt contract,
-                Agent Cards bind that vocabulary to agents, and Runtime turns it into execution with optional metadata and
-                guarantees.
+                CommandLayer defines machine intent and canonical receipts. Commons and Commercial verbs give you the vocabulary and contract, Agent Cards bind that vocabulary to agents, and Runtime turns it into execution with optional metadata and guarantees.
               </p>
             </div>
 
@@ -778,15 +774,14 @@
                 <h3>Commercial verbs</h3>
                 <p>
                   Economic flows — <code>authorize</code>, <code>checkout</code>,
-                  <code>purchase</code>, <code>ship</code>, <code>verify</code> — designed to sit
-                  on x402 rails and tie into payments, fulfillment, and risk.
+                  <code>purchase</code>, <code>ship</code>, <code>verify</code> — designed to tie into payments, fulfillment, and risk without changing the canonical contract model.
                 </p>
               </article>
 
               <article class="info-card">
                 <h3>Agent Cards & Runtime</h3>
                 <p>
-                  Agent Cards bind ENS names to verbs, schema versions, and x402 entrypoints.
+                  Agent Cards bind ENS names to verbs, schema versions, and routing details.
                   Runtime endpoints execute those verbs with receipts and guarantees, while the
                   verb language and schemas stay free and stable.
                 </p>
@@ -802,8 +797,7 @@
               <h2>What you can do right now</h2>
               <p>
                 Use CommandLayer as the <strong>language contract</strong> between clients and
-                agents — the piece that standardizes exit names, request shapes, and receipts on top
-                of x402 and ERC-8004.
+                agents — the piece that standardizes names, flat request shapes, and canonical receipts.
               </p>
             </div>
 
@@ -825,7 +819,7 @@
                 </li>
                 <li>
                   Describe your agent with an Agent Card so it can be discovered and routed to by
-                  x402 / ERC-8004-aware registries.
+                  registries and routing layers.
                 </li>
                 <li>
                   Runtime can change routing, policy, and guarantees, but the semantic contract stays stable and Commons remains the public truth.
@@ -850,13 +844,13 @@
             <div class="card-block">
               <h3 class="card-block__title">1. Inspect the schemas</h3>
               <p class="card-block__subtitle">
-                Both schemas are public and versioned under
-                <code>https://commandlayer.org/schemas/v1.1.0/commons/summarize/</code>:
+                Both schemas are public and versioned under the self-contained v1.1.0 path:
+                <code>https://commandlayer.org/schemas/v1.1.0/commons/summarize/</code>
               </p>
               <ul>
                 <li>
                   <a
-                    href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/requests/summarize.request.schema.json"
+                    href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json"
                     target="_blank"
                     class="cl-blue-link"
                     >summarize.request.schema.json</a
@@ -864,7 +858,7 @@
                 </li>
                 <li>
                   <a
-                    href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/receipts/summarize.receipt.schema.json"
+                    href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json"
                     target="_blank"
                     class="cl-blue-link"
                     >summarize.receipt.schema.json</a
@@ -873,9 +867,9 @@
               </ul>
               <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.5rem;">
                 All Commons schemas follow the same pattern:
-                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/requests/&lt;verb&gt;.request.schema.json</code>
+                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/&lt;verb&gt;.request.schema.json</code>
                 and
-                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/receipts/&lt;verb&gt;.receipt.schema.json</code>.
+                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/&lt;verb&gt;.receipt.schema.json</code>. Each schema is self-contained; there are no <code>/_shared/</code> references in the canonical v1.1.0 set.
               </p>
             </div>
 
@@ -889,7 +883,7 @@
 const ajv = new Ajv({ strict: true });
 
 const schema = await fetch(
-  "https://commandlayer.org/schemas/v1.1.0/commons/summarize/requests/summarize.request.schema.json"
+  "https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json"
 ).then(r =&gt; r.json());
 
 const validate = ajv.compile(schema);
@@ -903,7 +897,7 @@ if (!validate(payload)) {
               <h3 class="card-block__title">3. Send &amp; receive a receipt</h3>
               <p class="card-block__subtitle">
                 Where you send the request depends on the agent. In practice, you either call a runtime endpoint directly
-                or resolve an Agent Card and use its advertised x402 entrypoint.
+                or resolve an Agent Card and use its advertised endpoint.
               </p>
               <pre>const res = await fetch("https://&lt;agent-endpoint&gt;/summarize", {
   method: "POST",
@@ -947,10 +941,10 @@ const receipt = await res.json();
       "tier": "commons"
     }
   ],
-  "x402": [
+  "routing": [
     {
       "network": "eip155:1",
-      "entry": "x402://summarizeagent.eth/summarize/v1.1.0"
+      "entry": "https://runtime.commandlayer.org/summarize/v1.1.0"
     }
   ]
 }</pre>
@@ -970,9 +964,7 @@ const receipt = await res.json();
             <div class="card-block">
               <h3 class="card-block__title">Where to go next</h3>
               <p class="card-block__subtitle">
-                You don’t need the whole stack to start. One verb + its schemas is enough. As x402
-                and ERC-8004 roll out, the same vocabulary scales across more agents, networks, and
-                payment rails.
+                You don’t need the whole stack to start. One verb + its schemas is enough. The same vocabulary then scales across more agents, runtimes, and applications.
               </p>
               <ul>
                 <li>

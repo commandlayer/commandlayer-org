@@ -587,8 +587,9 @@
               <div>MIT licensed · ERC-8004 registered · Schemas always free</div>
               <div style="margin-top: 0.3rem">
                 Path pattern:<br />
-                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/requests/&lt;verb&gt;.request.schema.json</code><br />
-                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/receipts/&lt;verb&gt;.receipt.schema.json</code>
+                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/&lt;verb&gt;.request.schema.json</code><br />
+                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/&lt;verb&gt;.receipt.schema.json</code><br />
+                <span style="color: var(--text-muted);">Self-contained schemas. No <code>/_shared/</code> references.</span>
               </div>
             </div>
           </div>
@@ -615,18 +616,16 @@
               </article>
 
               <article class="info-card">
-                <h3>Request / receipt pairs</h3>
+                <h3>Flat canonical contracts</h3>
                 <p>
-                  Every verb has a <code>*.request</code> and <code>*.receipt</code> schema so calls are
-                  portable, easy to validate, and anchored to one canonical receipt contract. Runtime-specific proof or trace fields can be layered on later without changing that base meaning.
+                  Every verb ships a self-contained <code>*.request</code> and <code>*.receipt</code> schema with no shared-schema dependency chain. Requests stay flat, signed receipts stay flat, and runtime proof or trace fields can layer on later without redefining the canonical contract.
                 </p>
               </article>
 
               <article class="info-card">
-                <h3>Aligned with x402 / ERC-8004</h3>
+                <h3>Transport-agnostic by default</h3>
                 <p>
-                  Schemas are designed to sit cleanly inside x402 envelopes and work with ERC-8004-style
-                  discovery and routing — Commons defines the semantics and minimum receipt; x402 and ERC-8004 help move requests and find agents.
+                  Commons defines the request and receipt semantics directly. Discovery and transport layers can point at these schemas, but the canonical v1.1.0 contracts no longer depend on shared x402 envelope fields or nested wrapper folders.
                 </p>
               </article>
             </div>
@@ -672,14 +671,14 @@
                       <td>Inspect content for patterns, signals, or properties.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/analyze/requests/analyze.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/analyze/receipts/analyze.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -691,14 +690,14 @@
                       <td>Assign labels or categories from a taxonomy.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/classify/requests/classify.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/classify/classify.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/classify/receipts/classify.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/classify/classify.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -710,14 +709,14 @@
                       <td>Retrieve external data, documents, or resources.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/fetch/requests/fetch.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/fetch/receipts/fetch.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -729,14 +728,14 @@
                       <td>Reformat content without changing the meaning.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/format/requests/format.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/format/format.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/format/receipts/format.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/format/format.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -748,14 +747,14 @@
                       <td>Turn unstructured content into structured output.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/parse/requests/parse.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/parse/parse.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/parse/receipts/parse.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/parse/parse.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -767,14 +766,14 @@
                       <td>Compress content while preserving key information.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/requests/summarize.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/receipts/summarize.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -786,14 +785,14 @@
                       <td>Remove noise, normalize, and sanitize content.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/clean/requests/clean.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/clean/receipts/clean.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -805,14 +804,14 @@
                       <td>Change representation or format (with rules).</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/convert/requests/convert.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/convert/receipts/convert.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -824,14 +823,14 @@
                       <td>Produce neutral, human-readable descriptions.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/describe/requests/describe.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/describe/describe.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/describe/receipts/describe.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/describe/describe.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
@@ -843,14 +842,14 @@
                       <td>Provide reasoning, rationale, or clarification.</td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/explain/requests/explain.request.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/explain/explain.request.schema.json"
                           target="_blank"
                           >request</a
                         >
                       </td>
                       <td>
                         <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/explain/receipts/explain.receipt.schema.json"
+                          href="https://commandlayer.org/schemas/v1.1.0/commons/explain/explain.receipt.schema.json"
                           target="_blank"
                           >receipt</a
                         >
