@@ -229,11 +229,22 @@ function respondNoStore(res) {
   res.setHeader("Content-Type", "application/json; charset=utf-8");
 }
 
+function applyCors(res) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
+}
+
 module.exports = async function handler(req, res) {
   respondNoStore(res);
+  applyCors(res);
+
+  if (req.method === "OPTIONS") {
+    return res.status(204).end();
+  }
 
   if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
+    res.setHeader("Allow", "POST,OPTIONS");
     return res.status(405).json({ error: "Method not allowed" });
   }
 

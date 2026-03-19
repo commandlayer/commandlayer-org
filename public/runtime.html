@@ -546,11 +546,11 @@
               </h1>
 
               <p class="hero__subtitle">
-                Commons and Commercial define the contract. Runtime defines execution. Runtime is the <strong>execution surface</strong>: it runs pinned Commons and Commercial contracts and may attach <strong>optional</strong> runtime_metadata such as trace, proof, timing, and orchestration details without changing the base receipt semantics.
+                Runtime executes CommandLayer flows on top of pinned Commons and Commercial schemas, then returns the signed receipt and any optional proof, trace, timing, or orchestration details needed to inspect what happened.
               </p>
 
               <p class="hero__subtitle" style="margin-top:0.85rem;">
-                Today, Runtime is live as the reference proving surface for CommandLayer flows. Broader runtime policy, metering, guarantees, and multi-runtime expansion are still in flight, but the execution layer already proves pinned contracts can run without redefining canonical receipt semantics.
+                Today, Runtime is live as a public proving surface for CommandLayer flows, showing that stable contracts can run and produce inspectable evidence without changing the receipt itself.
               </p>
 
               <div class="hero__cta-row">
@@ -565,9 +565,9 @@
               </div>
 
               <div class="hero__meta">
-                <span class="hero__meta-pill">Schemas are public and pinned</span>
-                <span class="hero__meta-pill">Runtime may attach optional execution metadata</span>
-                <span class="hero__meta-pill">Commons contract stays minimal and portable</span>
+                <span class="hero__meta-pill">Pinned schemas</span>
+                <span class="hero__meta-pill">Signed receipts + runtime proof</span>
+                <span class="hero__meta-pill">Portable receipt contract</span>
               </div>
             </div>
 
@@ -594,7 +594,10 @@
             <div class="section__header">
               <h2>Where Runtime sits in the stack</h2>
               <p>
-                Runtime sits above schemas and below applications. Commons defines the minimum verifiable receipt contract, Commercial extends the same contract model for economic flows, and Runtime consumes those pinned contracts to execute them with optional metadata where orchestration, tracing, and proof are needed. Receipts are signed with Ed25519 and can be verified against ENS-anchored public keys.
+                Runtime sits above schemas and below applications. Commons defines the minimum verifiable receipt contract, Commercial extends the same model for economic flows, and Runtime executes those pinned contracts with optional metadata when orchestration, tracing, or proof are needed. Receipts are signed with Ed25519 and can be verified against ENS-anchored public keys.
+              </p>
+              <p>
+                That proving surface is also linked to CommandLayer’s <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">public ERC-8004 registration on Base</a>, giving Runtime an on-chain credibility and discoverability anchor.
               </p>
             </div>
 
