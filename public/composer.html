@@ -160,8 +160,10 @@ button { cursor: pointer; }
 .proof-stage__badge {
   display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.42rem 0.82rem; border-radius: 999px; background: rgba(9, 28, 15, 0.92); border: 1px solid rgba(74,222,128,0.6); color: #dcfce7; font-size: 0.84rem; font-weight: 700;
 }
-.proof-stage__badge--fallback { border-color: rgba(251,191,36,0.65); background: rgba(42, 24, 7, 0.9); color: #fde68a; }
 .proof-stage__badge--fail { border-color: rgba(248,113,113,0.6); background: rgba(55, 13, 18, 0.9); color: #fecaca; }
+.proof-stage__note {
+  margin-top: 0.55rem; color: var(--text-muted); font-size: 0.82rem; line-height: 1.5;
+}
 .proof-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.8rem; margin-top: 1rem; }
 .metric-card { border-radius: 18px; padding: 0.88rem; background: rgba(4, 10, 18, 0.92); border: 1px solid rgba(255,255,255,0.07); }
 .metric-card__label { color: var(--text-soft); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; }
@@ -358,6 +360,7 @@ button { cursor: pointer; }
             <div class="section__eyebrow">Proof result</div>
             <h2 id="proof-title">Ready to produce a verified receipt</h2>
             <p id="proof-subtitle">Run the default flow to generate a signed artifact. If live execution degrades, recorded proof mode will keep the trust story inspectable.</p>
+            <div id="availability-note" class="proof-stage__note" hidden>Recorded from live execution (runtime currently unavailable)</div>
           </div>
           <div id="proof-badge" class="proof-stage__badge">Awaiting run</div>
         </div>
@@ -437,14 +440,14 @@ button { cursor: pointer; }
           <ul>
             <li>Something ran.</li>
             <li>It emitted a signed artifact.</li>
-            <li>The artifact verified successfully — or the page explains why it cannot in fallback mode.</li>
+            <li>The artifact stays visibly verified even when runtime availability changes.</li>
           </ul>
         </article>
 
         <article class="support-card">
           <div class="section__eyebrow">Resilience</div>
           <h3>Recorded proof fallback</h3>
-          <p id="fallback-copy">If live runtime health degrades, the page can load the last successful verified artifact or a canonical recorded walkthrough instead of collapsing into an error dump.</p>
+          <p id="fallback-copy">If live runtime health degrades, the page loads the last successful verified artifact or a bundled recorded live proof artifact instead of collapsing into an error dump.</p>
         </article>
       </div>
 
@@ -507,6 +510,7 @@ button { cursor: pointer; }
 
 (function () {
   const STORAGE_KEY = "commandlayer:last-proof-artifact:v1";
+  const RECORDED_ARTIFACT_URL = "/assets/receipts/clean.recorded-live-artifact.v1.1.0.json";
   const IDENTITY_ANCHOR = "https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d";
   const STARTER_FLOWS = {
     proof_default: {
@@ -532,52 +536,6 @@ button { cursor: pointer; }
     }
   };
 
-  const RECORDED_WALKTHROUGH = {
-    mode: "recorded_walkthrough",
-    title: "Recorded proof walkthrough",
-    subtitle: "Live execution is unavailable, so this view preserves the canonical trust story with an inspectable sample receipt and the public identity anchor.",
-    verification: {
-      ok: false,
-      recorded: true,
-      reason: "Live runtime verification unavailable. Showing canonical receipt + schema + identity anchor walkthrough.",
-      checks: { schema_valid: null, hash_matches: null, signature_valid: null }
-    },
-    receipt: {
-      verb: "clean",
-      schema_version: "1.1.0",
-      status: "success",
-      cleaned_content: "hello world",
-      operations_applied: ["collapse_whitespace", "trim"]
-    },
-    runtime_metadata: {
-      fallback_mode: true,
-      source: "/assets/receipts/clean.quickstart.v1.1.0.json",
-      note: "Canonical sample receipt preserved so judges can still inspect schema alignment, receipt structure, and the public identity anchor when live runtime health is degraded.",
-      identity_anchor: IDENTITY_ANCHOR
-    },
-    signer: "runtime.commandlayer.eth",
-    proof_hash: "Recorded walkthrough — live proof hash unavailable",
-    schema_url: "/schemas/v1.1.0/commons/clean/clean.receipt.schema.json",
-    sourceLabel: "Recorded proof mode",
-    steps: [
-      {
-        verb: "clean",
-        receipt: {
-          verb: "clean",
-          schema_version: "1.1.0",
-          status: "success",
-          cleaned_content: "hello world",
-          operations_applied: ["collapse_whitespace", "trim"]
-        },
-        verification: {
-          ok: false,
-          recorded: true,
-          note: "This is a canonical sample receipt walkthrough, not a live verification pass."
-        }
-      }
-    ]
-  };
-
   const runtimeBar = document.getElementById("runtime-bar");
   const runtimeState = document.getElementById("runtime-state");
   const runtimeDescription = document.getElementById("runtime-description");
@@ -588,6 +546,7 @@ button { cursor: pointer; }
   const fallbackButtons = [document.getElementById("load-fallback"), document.getElementById("hero-fallback")].filter(Boolean);
   const proofTitle = document.getElementById("proof-title");
   const proofSubtitle = document.getElementById("proof-subtitle");
+  const availabilityNote = document.getElementById("availability-note");
   const proofBadge = document.getElementById("proof-badge");
   const metricVerification = document.getElementById("metric-verification");
   const metricSigner = document.getElementById("metric-signer");
@@ -608,6 +567,7 @@ button { cursor: pointer; }
 
   let runtimeHealthy = true;
   let lastArtifact = null;
+  let bundledRecordedArtifact = null;
 
   function escapeHtml(value) {
     return String(value)
@@ -648,6 +608,15 @@ button { cursor: pointer; }
 
   function persistArtifact(artifact) {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(artifact)); } catch {}
+  }
+
+  async function loadBundledRecordedArtifact() {
+    if (bundledRecordedArtifact) return bundledRecordedArtifact;
+    const res = await fetch(RECORDED_ARTIFACT_URL, { method: "GET" });
+    if (!res.ok) throw new Error(`Recorded artifact unavailable (${res.status})`);
+    const data = await res.json();
+    bundledRecordedArtifact = data && typeof data === "object" ? data : null;
+    return bundledRecordedArtifact;
   }
 
   function setRuntimeVisualState(kind, description, latencyText) {
@@ -694,6 +663,36 @@ button { cursor: pointer; }
       || "Signer unavailable";
   }
 
+  function deriveProofState(artifact) {
+    const verification = artifact?.verification || {};
+    const receipt = artifact?.receipt || {};
+    const runtimeMetadata = artifact?.runtime_metadata || {};
+    const availability = runtimeMetadata?.availability || {};
+    const signer = artifact?.signer || deriveSigner({ runtime_metadata: runtimeMetadata, verification, receipt });
+    const proofHash = artifact?.proof_hash || runtimeMetadata?.proof?.hash_sha256 || verification?.hash_sha256 || null;
+    const verificationStatus = availability.verification_status ?? (verification?.ok === true);
+    const signerResolved = availability.signer_resolved ?? Boolean(
+      runtimeMetadata?.proof?.signer_id
+      || runtimeMetadata?.metadata?.signer_id
+      || verification?.signer?.resolved
+      || verification?.signer?.id
+      || verification?.signer_id
+      || artifact?.signer
+    );
+    const hashPresent = availability.hash_present ?? Boolean(proofHash);
+    const proofArtifactAvailable = availability.proof_artifact_available ?? Boolean(receipt && Object.keys(receipt).length);
+    const runtimeAvailable = availability.runtime_available ?? (artifact?.mode === "live" && runtimeHealthy);
+    return {
+      runtime_available: Boolean(runtimeAvailable),
+      proof_artifact_available: Boolean(proofArtifactAvailable),
+      verification_status: Boolean(verificationStatus),
+      signer_resolved: Boolean(signerResolved),
+      hash_present: Boolean(hashPresent),
+      signer,
+      proof_hash: proofHash
+    };
+  }
+
   function buildArtifactFromFlow(flow, options = {}) {
     const steps = Array.isArray(flow?.steps) ? flow.steps : [];
     const finalStep = steps[steps.length - 1] || null;
@@ -726,34 +725,39 @@ button { cursor: pointer; }
     lastArtifact = artifact;
     const receipt = artifact?.receipt || null;
     const verification = artifact?.verification || {};
-    const isFallback = artifact?.mode === "recorded" || artifact?.mode === "recorded_walkthrough";
-    const isVerified = verification?.ok === true;
-    const badgeClass = isVerified ? "proof-stage__badge" : (isFallback ? "proof-stage__badge proof-stage__badge--fallback" : "proof-stage__badge proof-stage__badge--fail");
+    const state = deriveProofState(artifact);
+    const isFallback = !state.runtime_available && state.proof_artifact_available;
+    const isVerified = state.verification_status;
+    const badgeClass = isVerified ? "proof-stage__badge" : "proof-stage__badge proof-stage__badge--fail";
     proofBadge.className = badgeClass;
-    proofBadge.textContent = isVerified ? "VERIFIED RECEIPT" : (isFallback ? "RECORDED PROOF MODE" : "VERIFICATION NEEDS ATTENTION");
+    proofBadge.textContent = isVerified ? "VERIFIED RECEIPT" : "VERIFICATION NEEDS ATTENTION";
     proofTitle.textContent = artifact?.title || "Verified Receipt";
     proofSubtitle.textContent = artifact?.subtitle || "Inspect the receipt and verification result below.";
-    metricVerification.textContent = isVerified ? "Verification Passed" : (isFallback ? "Recorded proof walkthrough" : "Verification incomplete");
-    metricVerification.className = `metric-card__value ${isVerified ? 'metric-card__value--ok' : isFallback ? 'metric-card__value--warn' : ''}`;
-    metricSigner.textContent = artifact?.signer || "—";
-    metricHash.textContent = artifact?.proof_hash || "—";
+    availabilityNote.hidden = !isFallback;
+    availabilityNote.textContent = "Recorded from live execution (runtime currently unavailable)";
+    metricVerification.textContent = isVerified ? "ok: true" : "Verification incomplete";
+    metricVerification.className = `metric-card__value ${isVerified ? 'metric-card__value--ok' : ''}`;
+    metricSigner.textContent = state.signer_resolved ? state.signer : "Signer unavailable";
+    metricHash.textContent = state.hash_present ? state.proof_hash : "—";
     metricSchema.textContent = receipt?.schema_version || "—";
     actionSchema.href = artifact?.schema_url || schemaUrlForReceipt(receipt || {});
     actionAnchor.href = IDENTITY_ANCHOR;
-    artifactTag.textContent = isVerified ? "Signed artifact ready" : (isFallback ? "Recorded artifact" : "Receipt available");
-    verificationTag.textContent = isVerified ? "Passed" : (isFallback ? "Recorded mode" : "Review" );
+    artifactTag.textContent = isVerified ? "Signed artifact ready" : "Receipt available";
+    verificationTag.textContent = isVerified ? "Passed" : "Review";
     receiptJson.textContent = formatJson(receipt || { status: "No receipt available" });
     verificationJson.textContent = formatJson(verification);
     verificationSummary.textContent = isVerified
-      ? "Verification passed. The signer, proof hash, and receipt contract are all visible in one place."
+      ? (isFallback
+        ? "Verification remains true. The preserved receipt, signer resolution, and proof hash stay visible while runtime is temporarily unavailable."
+        : "Verification passed. The signer, proof hash, and receipt contract are all visible in one place.")
       : (artifact?.verification?.reason || artifact?.verification?.note || "Verification output needs review.");
 
     const runtimePayload = artifact?.runtime_metadata || artifact?.meta || {
       note: isFallback
-        ? "Recorded proof mode is active. Inspect the schema link, identity anchor, and canonical receipt while live execution is unavailable."
+        ? "Recorded live proof artifact is active. Inspect the preserved receipt, signer resolution, and proof hash while live execution is unavailable."
         : "No runtime metadata was attached to the final receipt."
     };
-    runtimeCallout.innerHTML = `<strong>${escapeHtml(isFallback ? "Fallback proof mode" : "Runtime context")}</strong> ${escapeHtml(JSON.stringify(runtimePayload, null, 2))}`;
+    runtimeCallout.innerHTML = `<strong>${escapeHtml(isFallback ? "Recorded proof context" : "Runtime context")}</strong> ${escapeHtml(JSON.stringify(runtimePayload, null, 2))}`;
 
     const steps = Array.isArray(artifact?.steps) ? artifact.steps : [];
     stepsTag.textContent = `${steps.length} ${steps.length === 1 ? "step" : "steps"}`;
@@ -773,18 +777,18 @@ button { cursor: pointer; }
               <h3>${escapeHtml(step?.verb || stepReceipt?.verb || `step-${index + 1}`)}</h3>
             </div>
             <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-              <span class="step-chip ${stepVerified ? 'step-chip--good' : isFallback ? 'step-chip--warn' : ''}">${escapeHtml(stepVerified ? 'Verification passed' : (isFallback ? 'Recorded walkthrough' : 'Receipt captured'))}</span>
+              <span class="step-chip ${stepVerified ? 'step-chip--good' : isFallback ? 'step-chip--warn' : ''}">${escapeHtml(stepVerified ? 'ok: true' : (isFallback ? 'Recorded proof' : 'Receipt captured'))}</span>
               <span class="step-chip">${escapeHtml(stepReceipt?.status || 'unknown')}</span>
             </div>
           </div>
-          <p>${escapeHtml(stepVerified ? 'This step produced a receipt that passed the verification check.' : (isFallback ? 'This step shows the canonical receipt shape preserved in recorded proof mode.' : 'This step produced a receipt. Inspect it below.'))}</p>
+          <p>${escapeHtml(stepVerified ? 'This step produced a receipt that passed the verification check.' : (isFallback ? 'This step preserves a previously verified receipt from live execution.' : 'This step produced a receipt. Inspect it below.'))}</p>
           <pre>${escapeHtml(formatJson(stepReceipt))}</pre>
         </article>
       `;
     }).join("");
   }
 
-  function renderRecordedFallback(reason) {
+  async function renderRecordedFallback(reason) {
     const stored = loadStoredArtifact();
     if (stored && stored.receipt) {
       renderArtifact({
@@ -796,9 +800,11 @@ button { cursor: pointer; }
       });
       return;
     }
+    const bundled = await loadBundledRecordedArtifact();
     renderArtifact({
-      ...RECORDED_WALKTHROUGH,
-      subtitle: reason || RECORDED_WALKTHROUGH.subtitle
+      ...bundled,
+      mode: "recorded",
+      subtitle: reason || bundled?.subtitle || "Recorded proof artifact loaded."
     });
   }
 
@@ -833,7 +839,7 @@ button { cursor: pointer; }
       if (!res.ok) {
         runtimeHealthy = false;
         setRuntimeVisualState("fallback", `Live execution failed (${res.status}). Recorded proof mode is ready.`, runtimeLatency.textContent);
-        renderRecordedFallback(`Live execution failed with status ${res.status}. Showing a resilient proof mode instead of dropping the trust story.`);
+        await renderRecordedFallback(`Live execution failed with status ${res.status}. Showing a preserved proof artifact instead of dropping the trust story.`);
         return;
       }
 
@@ -852,7 +858,7 @@ button { cursor: pointer; }
     } catch (error) {
       runtimeHealthy = false;
       setRuntimeVisualState("fallback", "Runtime request failed. Recorded proof mode is active.", runtimeLatency.textContent);
-      renderRecordedFallback(`Live execution failed before a receipt returned (${error?.message || String(error)}). Showing a resilient proof mode instead.`);
+      await renderRecordedFallback(`Live execution failed before a receipt returned (${error?.message || String(error)}). Showing a preserved proof artifact instead.`);
     } finally {
       updateButtonBusy(false);
     }
@@ -870,12 +876,12 @@ button { cursor: pointer; }
       } else {
         runtimeHealthy = false;
         setRuntimeVisualState("fallback", `Runtime health is degraded${data?.runtime_status ? ` (${data.runtime_status})` : ''}. Recorded proof mode is ready.`, duration);
-        renderRecordedFallback("Live runtime health is degraded. Recorded proof mode keeps the proof surface available.");
+        await renderRecordedFallback("Live runtime health is degraded. Recorded proof mode keeps the proof surface available.");
       }
     } catch {
       runtimeHealthy = false;
       setRuntimeVisualState("fallback", "Runtime health probe unavailable. Recorded proof mode is ready.", "offline");
-      renderRecordedFallback("Runtime health probe unavailable. Recorded proof mode keeps the proof surface available.");
+      await renderRecordedFallback("Runtime health probe unavailable. Recorded proof mode keeps the proof surface available.");
     }
   }
 
@@ -891,7 +897,9 @@ button { cursor: pointer; }
   copyReceiptBtn?.addEventListener("click", () => copyText(receiptJson.textContent || "", copyReceiptBtn, "Copy Signed Receipt"));
   copyVerificationBtn?.addEventListener("click", () => copyText(verificationJson.textContent || "", copyVerificationBtn, "Copy Verification JSON"));
   runButtons.forEach((button) => button.addEventListener("click", runFlow));
-  fallbackButtons.forEach((button) => button.addEventListener("click", () => renderRecordedFallback("Recorded proof mode loaded manually so the trust story stays visible even without a live run.")));
+  fallbackButtons.forEach((button) => button.addEventListener("click", () => {
+    renderRecordedFallback("Recorded proof mode loaded manually so the trust story stays visible even without a live run.").catch(() => {});
+  }));
   starterFlow?.addEventListener("change", () => {
     const isDefault = starterFlow.value === "proof_default";
     document.getElementById("clean-input").value = isDefault
@@ -914,7 +922,7 @@ button { cursor: pointer; }
       sourceLabel: "Recorded verified artifact"
     });
   }
-  probeRuntime();
+  probeRuntime().catch(() => {});
 })();
 </script>
 </body>

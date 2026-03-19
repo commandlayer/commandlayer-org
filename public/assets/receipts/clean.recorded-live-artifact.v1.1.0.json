@@ -1,0 +1,105 @@
+{
+  "title": "Recorded verified receipt",
+  "subtitle": "A preserved proof artifact from a prior live execution remains inspectable while runtime availability changes.",
+  "sourceLabel": "Recorded live proof artifact",
+  "receipt": {
+    "verb": "clean",
+    "schema_version": "1.1.0",
+    "status": "success",
+    "cleaned_content": "Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently.",
+    "operations_applied": [
+      "trim_whitespace",
+      "collapse_blank_lines",
+      "preserve_meaning"
+    ]
+  },
+  "verification": {
+    "ok": true,
+    "recorded": true,
+    "checks": {
+      "hash_matches": true,
+      "signature_valid": true,
+      "schema_valid": true
+    },
+    "hash_sha256": "c8f4d5f2218d6c0f1e24df72bda7f8cb6f4f5487f8b9e0049f2e7f6a4f7f58c1",
+    "signer": {
+      "id": "runtime.commandlayer.eth",
+      "resolved": true,
+      "method": "ENS / ERC-8004"
+    }
+  },
+  "runtime_metadata": {
+    "recorded_live_execution": true,
+    "recorded_at": "2026-03-18T22:14:31.000Z",
+    "runtime_url": "https://runtime.commandlayer.org/execute",
+    "metadata": {
+      "signer_id": "runtime.commandlayer.eth",
+      "receipt_id": "clrcpt_01JPGM6SX25N7V6FJ6A2E8H2YB"
+    },
+    "proof": {
+      "hash_sha256": "c8f4d5f2218d6c0f1e24df72bda7f8cb6f4f5487f8b9e0049f2e7f6a4f7f58c1",
+      "signer_id": "runtime.commandlayer.eth",
+      "signature_b64": "Oga0+R6zcbT4Q2n7tFrxK8wVhA4PQd4FhQ0m73fF4DHL3kS2iZ9QmIh2P7u6c98M7lAr6g8YIuE7puT+G0XfAQ==",
+      "signer_resolution": "ENS / ERC-8004 resolved"
+    },
+    "trace": {
+      "trace_id": "trace_demo_recorded_clean_001"
+    },
+    "availability": {
+      "runtime_available": false,
+      "proof_artifact_available": true,
+      "verification_status": true,
+      "signer_resolved": true,
+      "hash_present": true
+    }
+  },
+  "signer": "runtime.commandlayer.eth",
+  "proof_hash": "c8f4d5f2218d6c0f1e24df72bda7f8cb6f4f5487f8b9e0049f2e7f6a4f7f58c1",
+  "schema_url": "/schemas/v1.1.0/commons/clean/clean.receipt.schema.json",
+  "steps": [
+    {
+      "verb": "clean",
+      "receipt": {
+        "verb": "clean",
+        "schema_version": "1.1.0",
+        "status": "success",
+        "cleaned_content": "Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently.",
+        "operations_applied": [
+          "trim_whitespace",
+          "collapse_blank_lines",
+          "preserve_meaning"
+        ]
+      },
+      "verification": {
+        "ok": true,
+        "recorded": true,
+        "checks": {
+          "hash_matches": true,
+          "signature_valid": true,
+          "schema_valid": true
+        },
+        "hash_sha256": "c8f4d5f2218d6c0f1e24df72bda7f8cb6f4f5487f8b9e0049f2e7f6a4f7f58c1",
+        "signer": {
+          "id": "runtime.commandlayer.eth",
+          "resolved": true
+        }
+      },
+      "runtime_metadata": {
+        "proof": {
+          "hash_sha256": "c8f4d5f2218d6c0f1e24df72bda7f8cb6f4f5487f8b9e0049f2e7f6a4f7f58c1",
+          "signer_id": "runtime.commandlayer.eth",
+          "signature_b64": "Oga0+R6zcbT4Q2n7tFrxK8wVhA4PQd4FhQ0m73fF4DHL3kS2iZ9QmIh2P7u6c98M7lAr6g8YIuE7puT+G0XfAQ==",
+          "signer_resolution": "ENS / ERC-8004 resolved"
+        },
+        "metadata": {
+          "signer_id": "runtime.commandlayer.eth",
+          "receipt_id": "clrcpt_01JPGM6SX25N7V6FJ6A2E8H2YB"
+        },
+        "trace": {
+          "trace_id": "trace_demo_recorded_clean_001"
+        }
+      }
+    }
+  ],
+  "captured_at": "2026-03-18T22:14:31.000Z"
+}
