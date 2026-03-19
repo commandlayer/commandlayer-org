@@ -36,7 +36,7 @@ Typical fields include:
 - `status`
 - verb-specific output fields
 
-Runtime-specific trace or proof metadata may be attached around that receipt, but those additions should not redefine the canonical contract.
+Runtime-specific metadata may be attached as <code>runtime_metadata</code> around that receipt, but those additions should not redefine the canonical contract.
 
 ## Where receipts sit in the stack
 

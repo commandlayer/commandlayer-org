@@ -33,13 +33,13 @@ For example:
 
 - pretty-print whitespace
 - field order when canonical serialization already defines one
-- wrapper metadata that sits outside the canonical receipt contract
+- wrapper metadata in <code>runtime_metadata</code> that sits outside the canonical receipt contract
 
 ## Why this matters for CommandLayer
 
 CommandLayer separates contract truth from execution context.
 
-That means a runtime may expose trace IDs, timing, or proof metadata around a receipt, while the canonical receipt hash remains focused on the contract-level result being proven.
+That means a runtime may expose trace IDs, timing, or proof metadata under runtime_metadata around a receipt, while the canonical receipt hash remains focused on the contract-level result being proven.
 
 ## Practical guidance
 

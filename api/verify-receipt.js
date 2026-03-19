@@ -126,10 +126,12 @@ module.exports = async function handler(req, res) {
     );
   }
 
-  const receipt = req.body;
-  if (!receipt || typeof receipt !== "object" || Array.isArray(receipt)) {
+  const envelope = req.body;
+  if (!envelope || typeof envelope !== "object" || Array.isArray(envelope)) {
     return res.status(400).end(JSON.stringify({ ok: false, error: "Invalid JSON receipt body" }, null, 2));
   }
+
+  const receipt = envelope && typeof envelope.receipt === "object" ? envelope.receipt : envelope;
 
   const ens = qflag(req.query?.ens, "0");
   const refresh = qflag(req.query?.refresh, "0");
