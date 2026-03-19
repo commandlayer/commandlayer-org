@@ -262,17 +262,25 @@ body {
 }
 
 .hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
   margin-top: 1.4rem;
-  align-items: center;
 }
 
-.hero__actions-secondary {
-  display: inline-flex;
-  flex-wrap: nowrap;
+.hero__cta-row,
+.hero__proof-row {
+  display: flex;
+  align-items: center;
   gap: 0.75rem;
+  width: 100%;
+  max-width: 100%;
+  flex-wrap: nowrap;
+}
+
+.hero__cta-row > *,
+.hero__proof-row > * {
+  flex: 0 0 auto;
+  width: auto;
+  max-width: 100%;
+  white-space: nowrap;
 }
 
 .btn {
@@ -280,13 +288,15 @@ body {
   align-items: center;
   justify-content: center;
   gap: 0.45rem;
-  padding: 0.82rem 1.18rem;
+  padding: 0.8rem 1.05rem;
   border-radius: 12px;
   font-size: 0.95rem;
   font-weight: 600;
   text-decoration: none;
   border: 1px solid transparent;
   white-space: nowrap;
+  width: auto;
+  flex: 0 0 auto;
   transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
 
@@ -313,16 +323,7 @@ body {
 }
 
 .hero__pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.7rem;
   margin-top: 1.15rem;
-}
-
-.hero__pills-group {
-  display: inline-flex;
-  flex-wrap: nowrap;
-  gap: 0.7rem;
 }
 
 .trust-pill {
@@ -335,6 +336,9 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #d5deef;
   font-size: 0.82rem;
+  width: auto;
+  flex: 0 0 auto;
+  white-space: nowrap;
 }
 
 .trust-pill__dot {
@@ -687,6 +691,13 @@ code,
   }
 }
 
+@media (max-width: 900px) {
+  .hero__cta-row,
+  .hero__proof-row {
+    flex-wrap: wrap;
+  }
+}
+
 @media (max-width: 880px) {
   .site-header__inner {
     padding-inline: 1rem;
@@ -729,16 +740,11 @@ code,
     font-size: clamp(2.5rem, 12vw, 3.5rem);
   }
 
-  .hero__actions,
-  .hero__actions-secondary,
-  .cta-band__actions,
-  .hero__pills-group {
+  .hero__cta-row,
+  .hero__proof-row,
+  .cta-band__actions {
     width: 100%;
-    flex-direction: column;
-  }
-
-  .btn {
-    width: 100%;
+    flex-wrap: wrap;
   }
 
   .value-grid {
@@ -820,8 +826,8 @@ code,
               CommandLayer is the trust layer for agent execution: Commons defines the canonical free verb layer, every action emits a signed receipt, and proof can be checked through identity, verification, and ERC-8004-linked surfaces.
             </p>
             <div class="hero__actions">
-              <a href="/demo.html" class="btn btn--primary">See proof in a live flow</a>
-              <div class="hero__actions-secondary">
+              <div class="hero__cta-row">
+                <a href="/demo.html" class="btn btn--primary">See proof in a live flow</a>
                 <a href="#trust-strip" class="btn btn--ghost">How proof works</a>
                 <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" class="btn btn--ghost" target="_blank" rel="noopener noreferrer">View ERC-8004 registration</a>
               </div>
@@ -829,9 +835,9 @@ code,
             <p class="hero__meta"><strong>Start with Commons:</strong> it is the canonical free signed-receipt layer for CommandLayer verbs and receipt semantics.</p>
             <p class="hero__meta">Commercial is a contained commerce-oriented extension for paid flows; it inherits the same proof model without replacing the Commons-first story.</p>
             <div class="hero__pills" aria-label="Trust pillars">
-              <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Trust layer</span>
-              <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Signed Receipts</span>
-              <div class="hero__pills-group">
+              <div class="hero__proof-row">
+                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Trust layer</span>
+                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Signed receipts</span>
                 <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>On-chain / identity proof · ERC-8004</span>
                 <a class="trust-pill" href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer"><span class="trust-pill__dot" aria-hidden="true"></span>View on Base</a>
               </div>
