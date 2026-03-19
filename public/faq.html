@@ -450,6 +450,45 @@
 
       .note strong { color: var(--accent-strong); }
 
+      .cta-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .cta-card {
+        display: grid;
+        gap: 0.45rem;
+        padding: 1.15rem 1.2rem;
+        border-radius: 20px;
+        border: 1px solid var(--border-soft);
+        background: rgba(15, 23, 42, 0.95);
+        box-shadow: var(--shadow-soft);
+        text-decoration: none;
+        color: inherit;
+        transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+      }
+
+      .cta-card strong {
+        color: var(--accent-strong);
+        font-size: 1rem;
+      }
+
+      .cta-card span {
+        color: var(--text-muted);
+        line-height: 1.6;
+        font-size: 0.92rem;
+      }
+
+      .cta-card:hover,
+      .cta-card:focus-visible {
+        transform: translateY(-1px);
+        border-color: rgba(148, 163, 184, 0.34);
+        background: rgba(19, 28, 48, 0.95);
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+        outline: none;
+      }
+
       /* Footer */
       .site-footer {
         border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -531,6 +570,7 @@
 
         .hero__inner { grid-template-columns: minmax(0, 1fr); }
         .card { margin-top: 1.2rem; }
+        .cta-grid { grid-template-columns: minmax(0, 1fr); }
         .site-footer__inner { padding-inline: 1rem; }
       }
     </style>
