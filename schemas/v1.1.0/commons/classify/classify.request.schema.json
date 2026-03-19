@@ -1,0 +1,38 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/classify/classify.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "classify.request",
+  "description": "Request to classify content against a taxonomy using ML/rules/keywords. Non-deterministic by default; providers must disclose provenance in receipts.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "classify"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "content": {
+      "description": "Raw text or serialized content to classify.",
+      "type": "string",
+      "minLength": 1
+    },
+    "taxonomy": {
+      "description": "Optional list of candidate labels or a taxonomy path.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "maxItems": 128
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "content"
+  ]
+}

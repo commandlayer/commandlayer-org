@@ -1,0 +1,65 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "convert.receipt",
+  "description": "Receipt for a convert request, including converted content and provenance details.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "convert"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "status": {
+      "description": "Outcome status for this verb invocation.",
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "delegated"
+      ]
+    },
+    "converted_content": {
+      "description": "The converted content.",
+      "type": "string",
+      "minLength": 1
+    },
+    "source_format": {
+      "description": "Source format actually used by the provider.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "target_format": {
+      "description": "Target format actually produced.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "lossy": {
+      "description": "Whether the conversion was lossy.",
+      "type": "boolean"
+    },
+    "warnings": {
+      "description": "Optional warnings produced during conversion.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "maxItems": 128
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "status",
+    "converted_content",
+    "target_format"
+  ]
+}

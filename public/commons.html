@@ -560,12 +560,9 @@
           <div class="container subhero__inner">
             <div>
               <div class="subhero__eyebrow">Commons</div>
-              <h1 class="subhero__title">Commons defines the canonical receipt (v1.1.0)</h1>
+              <h1 class="subhero__title">Commons is the shared contract behind every signed receipt.</h1>
               <p class="subhero__subtitle">
-                Commons is the canonical public-goods contract layer: 10 universal verbs, each with a strict <code>*.request</code> and <code>*.receipt</code>
-                JSON Schema. It is the minimum verifiable receipt surface and the default builder target for understanding CommandLayer.
-                Commons and Commercial share the same contract-first philosophy, and <strong>Runtime may enrich execution</strong>
-                without replacing the canonical Commons contract.
+                Commons answers one question: what contract does CommandLayer follow? It defines the shared action and receipt model that every runtime executes and every verifier checks. Runtime can add execution evidence around that receipt, but Commons defines the canonical shape.
               </p>
               <p style="margin:0.9rem 0 0;font-size:0.94rem;font-weight:500;color:var(--accent-strong);letter-spacing:0.01em;">
                 Agents can act. CommandLayer proves they acted.
@@ -574,9 +571,7 @@
                 Every verb execution produces a signed, verifiable receipt. Free.
               </p>
               <p class="subhero__subtitle" style="margin-top: 0.75rem; font-size: 0.92rem;">
-                <strong>What changed in v1.1.0:</strong> Commons is now the canonical builder target across the site,
-                schema paths are promoted to <code>/schemas/v1.1.0/commons/...</code>, and the live Commons flow defaults to v1.1.0 receipts.
-                Commons is the clean model the rest of the stack builds around.
+                <strong>Why it matters:</strong> learn Commons first, because it is the smallest truthful explanation of CommandLayer: agents execute actions, Commons shapes the receipt, and verification stays portable across runtimes.
               </p>
             </div>
             <div class="subhero__meta">
@@ -648,9 +643,8 @@
             <div class="card-block">
               <h3 class="card-block__title">Commons schema index</h3>
               <p class="card-block__subtitle">
-                These links are stable for v1.1.0. Older v1.0.0 paths remain published for compatibility. Future major versions will ship under
-                <code>/schemas/vX.Y.Z/...</code> without breaking v1.0.0 — early builders can rely
-                on v1.1.0 long-term while still verifying older receipts.
+                These links are stable for v1.1.0. Older published paths remain available for compatibility and verification. Future major versions will ship under
+                <code>/schemas/vX.Y.Z/...</code> without breaking v1.1.0 for current builders.
               </p>
 
               <div class="table-wrapper">

@@ -1,0 +1,22 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "fetch.request",
+  "description": "Request to fetch or retrieve items from a specified source using a query or filter.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "fetch"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version"
+  ]
+}

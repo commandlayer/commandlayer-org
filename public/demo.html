@@ -192,34 +192,32 @@
           <div class="container hero__wrap">
             <div>
               <div class="hero__eyebrow">Live Demo</div>
-              <h1 class="hero__title">Proof paths for signed agent execution.</h1>
-              <p class="hero__subtitle">The primary path now goes straight to the strongest proof moment: run a verified flow, receive a signed receipt, verify it, and inspect the artifact. Secondary demos stay available, but they no longer sit in front of proof.</p>
-              <p class="hero__stack">CommandLayer demos show the stack in motion: Commons defines the canonical contract, Commercial extends it for paid flows, Agent Cards define routing, and Runtime executes around the receipt.</p>
+              <h1 class="hero__title">Run an agent flow and watch proof appear.</h1>
+              <p class="hero__subtitle">This page answers one question: can CommandLayer actually run? Yes—execute a flow, inspect the signed receipt, then verify the proof.</p>
+              <p class="hero__stack">Start with the Commons demo for the clearest path. Use the commerce extension only after the execute → receipt → verify model is obvious.</p>
               <div class="hero__cta">
                 <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-                <a href="/demo-inner.html" class="btn btn--ghost">Open commerce extension demo</a>
+                <a href="/demo-inner.html" class="btn btn--ghost">Run the Commerce Extension Demo</a>
               </div>
               <div class="hero__proofs">
-                <span class="hero__proof-pill">Canonical contract</span>
-                <span class="hero__proof-pill">Runtime-backed orchestration</span>
-                <span class="hero__proof-pill">Canonical receipt</span>
-                <span class="hero__proof-pill">Runtime details</span>
+                <span class="hero__proof-pill">Execute</span>
+                <span class="hero__proof-pill">Emit signed receipt</span>
+                <span class="hero__proof-pill">Verify proof</span>
               </div>
               <div class="proof-surface-cluster">
                 <span class="proof-pill">Trigger execution</span>
                 <span class="proof-pill">See result</span>
                 <span class="proof-pill">Inspect receipt</span>
-                <span class="proof-pill">Inspect metadata</span>
                 <span class="proof-pill">Verify receipt</span>
               </div>
             </div>
             <aside class="hero__aside">
-              <h2>What these demos prove</h2>
-              <p>Both paths teach the same model. Commons is the canonical contract layer. Commercial is the commerce-oriented extension. Agent Cards define routing and identity. Runtime executes the flow and may attach proof, trace, and orchestration metadata around the receipt.</p>
+              <h2>What the demo should prove</h2>
+              <p>CommandLayer is not just a schema story. The live surface lets you watch a real flow run, shows the receipt that was emitted, and exposes the verification boundary clearly.</p>
               <ul class="list">
-                <li>Commons demo proves canonical contract execution and verification.</li>
-                <li>Commerce extension demo proves multi-step paid execution with runtime-backed orchestration.</li>
-                <li>Neither path blurs wrapper fields into the canonical receipt itself.</li>
+                <li>Commons demo = fastest path from action to signed receipt.</li>
+                <li>Commerce extension = same proof model, with paid multi-step execution layered on top.</li>
+                <li>Runtime metadata stays separate from the canonical receipt.</li>
               </ul>
             </aside>
           </div>
@@ -228,48 +226,48 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <div class="section__eyebrow">Primary proof path first</div>
-              <h2>Start with the fastest route to proof.</h2>
-              <p>Judges should start on the proof engine first. The verified flow is the default path; the commerce extension remains secondary for deeper runtime storytelling.</p>
+              <div class="section__eyebrow">Choose a proof path</div>
+              <h2>Start simple, then expand.</h2>
+              <p>Judges should see the cleanest possible proof path first. That is why the Commons flow leads, and the commerce extension follows as a role inside the same system.</p>
             </div>
             <div class="paths">
               <article class="path-card">
                 <div class="path-card__top">
                   <div>
-                    <div class="path-card__label">Commons demo</div>
-                    <h3>Run the judge-ready verified flow.</h3>
+                    <div class="path-card__label">Recommended first run</div>
+                    <h3>Commons: execute → receipt → verify.</h3>
                   </div>
-                  <span class="path-card__badge">Canonical contract</span>
+                  <span class="path-card__badge">Canonical proof path</span>
                 </div>
-                <p>Open the proof engine already seeded with the strongest story, run it immediately, and land on a result view dominated by verified receipt signals.</p>
+                <p>Run the default flow, inspect the output, open the receipt, and verify the signature without learning extra system concepts first.</p>
                 <ul>
-                  <li>Immediate one-click run with a visible default flow.</li>
-                  <li>Receipt cards teach canonical Commons receipt semantics first.</li>
-                  <li>Runtime-backed verification checks evidence around the receipt.</li>
+                  <li>Shows the core CommandLayer thesis in its cleanest form.</li>
+                  <li>Keeps the canonical receipt front and center.</li>
+                  <li>Maps directly to Quickstart and Commons docs.</li>
                 </ul>
                 <div class="path-card__foot">
                   <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-                  <a href="/commons.html" class="btn btn--ghost">Read Commons contract</a>
+                  <a href="/commons.html" class="btn btn--ghost">Explore the Commons Contract</a>
                 </div>
               </article>
 
               <article class="path-card">
                 <div class="path-card__top">
                   <div>
-                    <div class="path-card__label">Commerce extension demo</div>
-                    <h3>Run authorize → checkout → purchase → ship → verify.</h3>
+                    <div class="path-card__label">Second run</div>
+                    <h3>Commercial: paid execution on the same proof model.</h3>
                   </div>
-                  <span class="path-card__badge">Runtime-backed orchestration</span>
+                  <span class="path-card__badge">Extended flow</span>
                 </div>
-                <p>Watch a real multi-step economic flow, inspect the latest action, inspect the canonical receipt contract, then inspect any runtime metadata and verification output separately.</p>
+                <p>Watch a longer paid flow run while keeping the receipt boundary intact. Commercial extends the system; it does not replace the core trust model.</p>
                 <ul>
-                  <li>Per-step receipts remain the contract layer.</li>
-                  <li>Trace, proof, and orchestration fields are runtime-added execution metadata.</li>
-                  <li>Raw JSON and curl stay available for technical inspection.</li>
+                  <li>Per-step receipts remain the proof surface.</li>
+                  <li>Runtime orchestration stays visible but secondary.</li>
+                  <li>Useful once the Commons path already makes sense.</li>
                 </ul>
                 <div class="path-card__foot">
-                  <a href="/demo-inner.html" class="btn btn--primary">Launch commerce extension demo</a>
-                  <a href="/commercial.html" class="btn btn--ghost">Read Commercial extension</a>
+                  <a href="/demo-inner.html" class="btn btn--primary">Run the Commerce Extension Demo</a>
+                  <a href="/commercial.html" class="btn btn--ghost">Read the Commercial Extension</a>
                 </div>
               </article>
             </div>
@@ -280,31 +278,30 @@
           <div class="container">
             <div class="note-grid">
               <article class="note-card">
-                <div class="section__eyebrow">Contract vs runtime</div>
-                <h3>Keep the boundary clean.</h3>
+                <div class="section__eyebrow">Read the boundary correctly</div>
+                <h3>Receipt first. Runtime details second.</h3>
                 <div class="note-card__split">
                   <div class="split-box">
                     <span class="split-box__tag">Canonical receipt</span>
-                    <strong>Canonical receipt</strong>
-                    <p>The protocol truth lives in Commons or Commercial receipt semantics. This is the contract layer judges should inspect first.</p>
+                    <strong>What happened</strong>
+                    <p>The signed receipt is the contract-shaped record of the action. It is the first thing a judge should inspect.</p>
                   </div>
                   <div class="split-box">
                     <span class="split-box__tag">Runtime details</span>
-                    <strong>Runtime details</strong>
-                    <p>Trace IDs, proof payloads, and orchestration details are useful execution evidence, but they are attached around the receipt by Runtime.</p>
+                    <strong>How it was executed</strong>
+                    <p>Trace IDs, timing, and orchestration details add evidence around the receipt without redefining it.</p>
                   </div>
                 </div>
               </article>
               <article class="note-card">
                 <div class="section__eyebrow">Judge flow</div>
-                <h3>What a 10-second scan should reveal.</h3>
-                <p>CommandLayer has real demos, a Commons path and a contained commerce extension, schema-defined contracts, Runtime execution, separate receipts and verification, and inspectable proof.</p>
+                <h3>What a fast scan should reveal.</h3>
+                <p>CommandLayer can run a real flow, emit a signed receipt, and expose verification in a public interface. The rest of the system supports that story.</p>
                 <div class="proof-pills">
-                  <span class="proof-pill">Trigger execution</span>
-                  <span class="proof-pill">See result</span>
+                  <span class="proof-pill">Run flow</span>
                   <span class="proof-pill">Inspect receipt</span>
-                  <span class="proof-pill">Inspect metadata</span>
-                  <span class="proof-pill">Verify receipt</span>
+                  <span class="proof-pill">Verify proof</span>
+                  <span class="proof-pill">Check signer identity</span>
                 </div>
               </article>
             </div>
@@ -314,13 +311,13 @@
         <section class="section">
           <div class="container panel cta-band">
             <div>
-              <div class="section__eyebrow">Live interactive surfaces</div>
-              <h2 style="margin:0 0 0.45rem;">Start where you want proof to land.</h2>
-              <p style="margin:0; color: var(--text-muted); line-height:1.65; max-width:42rem;">Go straight to the verified flow for the canonical proof moment, or open the commerce extension secondarily to show paid orchestration without sacrificing the canonical receipt boundary.</p>
+              <div class="section__eyebrow">Next step</div>
+              <h2 style="margin:0 0 0.45rem;">Start with the clearest proof path.</h2>
+              <p style="margin:0; color: var(--text-muted); line-height:1.65; max-width:42rem;">Use the Commons demo if you want the shortest route from execution to verification, then open the commerce extension if you want to show paid execution built on the same receipt model.</p>
             </div>
             <div class="hero__cta" style="margin-top:0;">
               <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-              <a href="/demo-inner.html" class="btn btn--ghost">Open commerce extension demo</a>
+              <a href="/quickstart.html" class="btn btn--ghost">Verify Proof in Quickstart</a>
             </div>
           </div>
         </section>

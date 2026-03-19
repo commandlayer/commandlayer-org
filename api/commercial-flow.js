@@ -6,7 +6,7 @@ const crypto = require("crypto");
 const { normalizeCanonicalReceipt, validateCanonicalReceipt, validateRuntimeMetadata } = require("./_receipt-model");
 
 const COMMERCIAL_VERBS = ["authorize", "checkout", "purchase", "ship", "verify"];
-const VERSION = "1.0.0";
+const VERSION = "1.1.0";
 
 function nowIso() {
   return new Date().toISOString();

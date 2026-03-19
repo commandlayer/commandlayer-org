@@ -1,0 +1,63 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "analyze.receipt",
+  "description": "Receipt for an analyze request, including derived insights and optional labels.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "analyze"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "status": {
+      "description": "Outcome status for this verb invocation.",
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "delegated"
+      ]
+    },
+    "summary": {
+      "description": "High-level natural language summary of the analysis.",
+      "type": "string",
+      "minLength": 1
+    },
+    "insights": {
+      "description": "Key findings, observations, or flagged items.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "maxItems": 128
+    },
+    "labels": {
+      "description": "Optional labels or categories assigned to the input.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128
+      },
+      "maxItems": 64
+    },
+    "score": {
+      "description": "Optional normalized score (e.g., risk, quality) between 0 and 1.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "status",
+    "summary"
+  ]
+}

@@ -555,22 +555,17 @@
           <div class="container subhero__inner">
             <div>
               <div class="subhero__eyebrow">Agent Cards</div>
-              <h1 class="subhero__title">Agent Cards Registry (v1.0.0, current)</h1>
+              <h1 class="subhero__title">Agent Cards Registry (v1.1.0, current)</h1>
               <p class="subhero__subtitle">
-                Canonical <strong>agent descriptors</strong> for CommandLayer verbs. Each Agent Card
-                is a JSON document that binds an <strong>ENS name</strong>, supported verbs,
-                <strong>schema versions</strong>, and <strong>x402 entrypoints</strong> so
-                registries and clients can discover, rank, and route to your agent — without
-                guessing how it’s wired. Cards are published under Apache-2.0; semantics are
-                <strong>free to read and integrate</strong>.
+                Agent Cards answer one question: how are agents identified and discovered? Each card binds an <strong>ENS identity</strong> to supported verbs, schema versions, and entrypoints so clients can route work to the right agent and know who should have signed the receipt.
               </p>
             </div>
             <div class="subhero__meta">
-              <div>Agent Cards v1.0.0 · current release</div>
+              <div>Agent Cards v1.1.0 · current release</div>
               <div>Apache-2.0 · descriptors free to use</div>
               <div style="margin-top: 0.3rem">
                 Path pattern:<br />
-                <code>/agent-cards/agents/v1.0.0/&lt;tier&gt;/&lt;ens&gt;.json</code><br />
+                <code>/agent-cards/agents/v1.1.0/&lt;tier&gt;/&lt;ens&gt;.json</code><br />
                 <span style="font-size:0.8rem;">where <code>tier</code> is <code>commons</code> or <code>commercial</code>.</span>
               </div>
             </div>
@@ -581,11 +576,9 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>What an Agent Card describes</h2>
+              <h2>What Agent Cards do in the system</h2>
               <p>
-                Agent Cards don’t execute anything. They describe <strong>who</strong> an agent is,
-                <strong>what verbs</strong> it offers, and <strong>how to reach it</strong> — in a
-                format any A2A client or ERC-8004-style registry can consume.
+                Agent Cards do not compete with Commons or Runtime. They provide the identity and discovery layer around the same execute → receipt → verify model: who the agent is, what contracts it speaks, and where to send work.
               </p>
             </div>
 
@@ -623,9 +616,9 @@
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
-              <h2>Commons Agents — v1.0.0</h2>
+              <h2>Commons Agents — v1.1.0</h2>
               <p>
-                These agents implement the CommandLayer <strong>Commons verbs</strong>. The cards remain at v1.0.0 intentionally while pointing at published verb/schema versions. Each link
+                These agents implement the CommandLayer <strong>Commons verbs</strong>. These cards now align directly with the single published v1.1.0 Commons, Commercial, and Agent Cards story. Each link
                 opens the live Agent Card JSON for that ENS name under
                 <code>https://commandlayer.org</code>.
               </p>
@@ -654,7 +647,7 @@
           <td><code>summarizeagent.eth</code></td>
           <td>
             <a
-              href="https://commandlayer.org/agent-cards/agents/v1.0.0/commons/summarizeagent.eth.json"
+              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/summarizeagent.eth.json"
               target="_blank"
             >
               view JSON
@@ -666,7 +659,7 @@
           <td><code>analyzeagent.eth</code></td>
           <td>
             <a
-              href="https://commandlayer.org/agent-cards/agents/v1.0.0/commons/analyzeagent.eth.json"
+              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/analyzeagent.eth.json"
               target="_blank"
             >
               view JSON
@@ -678,7 +671,7 @@
           <td><code>fetchagent.eth</code></td>
           <td>
             <a
-              href="https://commandlayer.org/agent-cards/agents/v1.0.0/commons/fetchagent.eth.json"
+              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/fetchagent.eth.json"
               target="_blank"
             >
               view JSON
@@ -690,7 +683,7 @@
           <td><code>classifyagent.eth</code></td>
           <td>
             <a
-              href="https://commandlayer.org/agent-cards/agents/v1.0.0/commons/classifyagent.eth.json"
+              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/classifyagent.eth.json"
               target="_blank"
             >
               view JSON
@@ -702,7 +695,7 @@
           <td><code>cleanagent.eth</code></td>
           <td>
             <a
-              href="https://commandlayer.org/agent-cards/agents/v1.0.0/commons/cleanagent.eth.json"
+              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/cleanagent.eth.json"
               target="_blank"
             >
               view JSON
@@ -714,7 +707,7 @@
           <td><code>convertagent.eth</code></td>
           <td>
             <a
-              href="https://commandlayer.org/agent-cards/agents/v1.0.0/commons/convertagent.eth.json"
+              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/convertagent.eth.json"
               target="_blank"
             >
               view JSON
@@ -726,7 +719,7 @@
           <td><code>describeagent.eth</code></td>
           <td>
             <a
-              href="https://commandlayer.org/agent-cards/agents/v1.0.0/commons/describeagent.eth.json"
+              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/describeagent.eth.json"
               target="_blank"
             >
               view JSON
@@ -738,7 +731,7 @@
           <td><code>explainagent.eth</code></td>
           <td>
             <a
-              href="https://commandlayer.org/agent-cards/agents/v1.0.0/commons/explainagent.eth.json"
+              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/explainagent.eth.json"
               target="_blank"
             >
               view JSON
@@ -750,7 +743,7 @@
           <td><code>formatagent.eth</code></td>
           <td>
             <a
-              href="https://commandlayer.org/agent-cards/agents/v1.0.0/commons/formatagent.eth.json"
+              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/formatagent.eth.json"
               target="_blank"
             >
               view JSON
@@ -762,7 +755,7 @@
           <td><code>parseagent.eth</code></td>
           <td>
             <a
-              href="https://commandlayer.org/agent-cards/agents/v1.0.0/commons/parseagent.eth.json"
+              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/parseagent.eth.json"
               target="_blank"
             >
               view JSON
@@ -780,7 +773,7 @@
 <section class="section">
 <div class="container">
   <div class="section__header">
-    <h2>Commercial Agents — v1.0.0</h2>
+    <h2>Commercial Agents — v1.1.0</h2>
     <p>
       These agents implement the first <strong>Commercial verbs</strong> for economic
       flows: authorization, checkout, purchase, shipping, and verification. Cards align
@@ -811,7 +804,7 @@
             <td><code>authorizeagent.eth</code></td>
             <td>
               <a
-                href="https://commandlayer.org/agent-cards/agents/v1.0.0/commercial/authorizeagent.eth.json"
+                href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/authorizeagent.eth.json"
                 target="_blank"
               >
                 view JSON
@@ -823,7 +816,7 @@
             <td><code>checkoutagent.eth</code></td>
             <td>
               <a
-                href="https://commandlayer.org/agent-cards/agents/v1.0.0/commercial/checkoutagent.eth.json"
+                href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/checkoutagent.eth.json"
                 target="_blank"
               >
                 view JSON
@@ -835,7 +828,7 @@
             <td><code>purchaseagent.eth</code></td>
             <td>
               <a
-                href="https://commandlayer.org/agent-cards/agents/v1.0.0/commercial/purchaseagent.eth.json"
+                href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/purchaseagent.eth.json"
                 target="_blank"
               >
                 view JSON
@@ -847,7 +840,7 @@
             <td><code>shipagent.eth</code></td>
             <td>
               <a
-                href="https://commandlayer.org/agent-cards/agents/v1.0.0/commercial/shipagent.eth.json"
+                href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/shipagent.eth.json"
                 target="_blank"
               >
                 view JSON
@@ -859,7 +852,7 @@
             <td><code>verifyagent.eth</code></td>
             <td>
               <a
-                href="https://commandlayer.org/agent-cards/agents/v1.0.0/commercial/verifyagent.eth.json"
+                href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/verifyagent.eth.json"
                 target="_blank"
               >
                 view JSON
@@ -878,7 +871,7 @@
         <section class="section">
           <div class="container">
             <div class="card-block">
-              <h3 class="card-block__title">How builders use Agent Cards</h3>
+              <h3 class="card-block__title">How Agent Cards support verification</h3>
               <p class="card-block__subtitle">
                 Agent Cards turn ENS names and verbs into <strong>discoverable, routable</strong> units
                 of capability.
@@ -907,7 +900,7 @@
             <div class="card-block">
               <h3 class="card-block__title">Stability, licensing &amp; governance</h3>
               <p class="card-block__subtitle">
-                Agent Cards v1.0.0 remain the current release and follow the same stability guarantees as Commons and Commercial:
+                Agent Cards v1.1.0 are the current release and follow the same stability guarantees as Commons and Commercial:
                 names and schema bindings are stable for this version; breaking changes move to new
                 versions.
               </p>
@@ -917,7 +910,7 @@
                 records and IPFS CIDs can mirror card content to make resolution more robust.
               </p>
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">
-                In the current v1.0.0 Agent Cards cycle, updates follow a clear process: open an issue, propose a
+                In the current v1.1.0 Agent Cards cycle, updates follow a clear process: open an issue, propose a
                 new or updated card, run validation, update checksums and manifests, then set ENS TXT
                 fields. This keeps <strong>identity, semantics, and routing</strong> aligned while
                 the ecosystem grows.
