@@ -233,7 +233,7 @@ button { cursor: pointer; }
     <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
     <nav class="site-header__nav">
       <a href="/" class="site-header__link">Home</a>
-      <a href="/demo.html" class="site-header__link">Demo</a>
+      <a href="/composer.html?autorun=1" class="site-header__link">Demo</a>
       <a href="/composer.html" class="site-header__link site-header__link--active">Run Flow</a>
       <a href="/quickstart.html" class="site-header__link">Quickstart</a>
       <div class="site-header__dropdown">
@@ -255,7 +255,7 @@ button { cursor: pointer; }
     <div class="container">
       <div class="hero__wrap">
         <div>
-          <p class="eyebrow">Judge-ready proof path</p>
+          <p class="eyebrow">Verified proof path</p>
           <h1>Run once. Get a receipt. Verify the proof.</h1>
           <p>
             This page is the canonical CommandLayer demo journey. It opens on the strongest default flow,
@@ -297,7 +297,7 @@ button { cursor: pointer; }
           <h2>Clean → Summarize</h2>
           <p>
             The first run is intentionally stable and understandable. It cleans a short agent action statement,
-            then summarizes the normalized result into a judge-readable proof brief.
+            then summarizes the normalized result into a proof brief you can verify immediately.
           </p>
           <ul class="hero-card__list">
             <li>No demo chooser or concept picking before value appears.</li>
@@ -318,26 +318,31 @@ button { cursor: pointer; }
     <aside class="panel">
       <div class="panel__eyebrow">Proof setup</div>
       <h2>Best default story, pre-loaded</h2>
-      <p>Judges should be able to run this immediately. The advanced composer path is intentionally secondary.</p>
+      <p>The strongest proof path is already loaded. Run it immediately, or open advanced options only if you want to customize the flow.</p>
 
-      <div class="form-row">
-        <label for="starter-flow">Starter flow</label>
-        <select id="starter-flow">
-          <option value="proof_default">Clean → Summarize (Recommended)</option>
-          <option value="analysis">Describe → Explain</option>
-          <option value="parse">Parse → Summarize</option>
-        </select>
-      </div>
+      <details class="advanced-panel">
+        <summary>Advanced flow options</summary>
+        <p class="advanced-panel__copy">The strongest verified flow is already loaded. Only open this if you want to swap the default steps or edit the prompts before running.</p>
 
-      <div class="form-row">
-        <label for="clean-input">Step 1 — Source content</label>
-        <textarea id="clean-input">Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently.</textarea>
-      </div>
+        <div class="form-row">
+          <label for="starter-flow">Starter flow</label>
+          <select id="starter-flow">
+            <option value="proof_default">Clean → Summarize (Recommended)</option>
+            <option value="analysis">Describe → Explain</option>
+            <option value="parse">Parse → Summarize</option>
+          </select>
+        </div>
 
-      <div class="form-row">
-        <label for="summary-instructions">Step 2 — Final brief instructions</label>
-        <textarea id="summary-instructions">Summarize the cleaned result into a short proof brief for a skeptical hackathon judge. Focus on what ran, what artifact was emitted, and why the receipt is verifiable.</textarea>
-      </div>
+        <div class="form-row">
+          <label for="clean-input">Step 1 — Source content</label>
+          <textarea id="clean-input">Agent action: normalize a proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently.</textarea>
+        </div>
+
+        <div class="form-row">
+          <label for="summary-instructions">Step 2 — Final brief instructions</label>
+          <textarea id="summary-instructions">Summarize the cleaned result into a short proof brief. Focus on what ran, what artifact was emitted, and why the receipt is verifiable.</textarea>
+        </div>
+      </details>
 
       <div class="kv-grid">
         <div class="kv"><strong>Expected ending</strong><span>Verified receipt + proof artifact</span></div>
@@ -419,11 +424,44 @@ button { cursor: pointer; }
         </article>
       </div>
 
+      <article class="proof-stage">
+        <div class="proof-stage__top">
+          <div>
+            <div class="section__eyebrow">Verification path</div>
+            <h2 style="margin-top:0.2rem;">Hash → signature → signer → public key source</h2>
+          </div>
+          <span class="tag" id="verification-path-tag">Awaiting run</span>
+        </div>
+        <p style="margin:0; color:var(--text-muted); line-height:1.7;">Verification checks the canonical receipt hash, the detached Ed25519 signature, the resolved signer identity, and the public key source published through ENS TXT records and the identity anchor.</p>
+        <div class="proof-metrics" style="margin-top:1rem;">
+          <div class="metric-card">
+            <div class="metric-card__label">Signer identity</div>
+            <div class="metric-card__value mono" id="metric-signer-identity">runtime.commandlayer.eth</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card__label">Signature algorithm</div>
+            <div class="metric-card__value mono" id="metric-signature-algorithm">Ed25519 detached signature</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card__label">Public key source</div>
+            <div class="metric-card__value mono" id="metric-key-source">ENS TXT: cl.receipt.pubkey_b64</div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-card__label">Verification route</div>
+            <div class="metric-card__value mono" id="metric-verification-route">Receipt → hash → signature → ENS key lookup</div>
+          </div>
+        </div>
+        <div class="proof-actions">
+          <a id="action-key-source" class="btn btn--ghost" href="/quickstart.html#verify">View verification steps</a>
+          <a id="action-ens-source" class="btn btn--ghost" href="/quickstart.html#verify-material">View public key source</a>
+        </div>
+      </article>
+
       <div class="support-grid">
         <article class="support-card">
           <div class="section__eyebrow">Inspection</div>
           <h3>Inspect JSON</h3>
-          <p>Judges can inspect the raw receipt and the verification response without losing the high-level proof narrative.</p>
+          <p>Inspect the raw receipt and the verification response without losing the high-level proof narrative.</p>
           <ul>
             <li>Canonical receipt shown independently.</li>
             <li>Verification response shown independently.</li>
@@ -519,7 +557,7 @@ button { cursor: pointer; }
     analysis: {
       name: "Describe → Explain",
       steps: [
-        { verb: "describe", inputBuilder: () => ({ subject: "CommandLayer proof receipt", context: "A signed artifact that proves what an agent executed.", detail_level: "medium", audience: "judge" }) },
+        { verb: "describe", inputBuilder: () => ({ subject: "CommandLayer proof receipt", context: "A signed artifact that proves what an agent executed.", detail_level: "medium", audience: "operator" }) },
         { verb: "explain", use_previous_result: true, inputBuilder: () => null }
       ]
     },
@@ -552,7 +590,7 @@ button { cursor: pointer; }
     runtime_metadata: {
       fallback_mode: true,
       source: "/assets/receipts/clean.quickstart.v1.1.0.json",
-      note: "Canonical sample receipt preserved so judges can still inspect schema alignment, receipt structure, and the public identity anchor when live runtime health is degraded.",
+      note: "Canonical sample receipt preserved so visitors can still inspect schema alignment, receipt structure, and the public identity anchor when live runtime health is degraded.",
       identity_anchor: IDENTITY_ANCHOR
     },
     signer: "runtime.commandlayer.eth",
@@ -593,8 +631,15 @@ button { cursor: pointer; }
   const metricSigner = document.getElementById("metric-signer");
   const metricHash = document.getElementById("metric-hash");
   const metricSchema = document.getElementById("metric-schema");
+  const metricSignerIdentity = document.getElementById("metric-signer-identity");
+  const metricSignatureAlgorithm = document.getElementById("metric-signature-algorithm");
+  const metricKeySource = document.getElementById("metric-key-source");
+  const metricVerificationRoute = document.getElementById("metric-verification-route");
+  const verificationPathTag = document.getElementById("verification-path-tag");
   const actionSchema = document.getElementById("action-schema");
   const actionAnchor = document.getElementById("action-anchor");
+  const actionKeySource = document.getElementById("action-key-source");
+  const actionEnsSource = document.getElementById("action-ens-source");
   const artifactTag = document.getElementById("artifact-tag");
   const verificationTag = document.getElementById("verification-tag");
   const receiptJson = document.getElementById("receipt-json");
@@ -694,6 +739,20 @@ button { cursor: pointer; }
       || "Signer unavailable";
   }
 
+  function deriveSignatureAlgorithm(step) {
+    return step?.runtime_metadata?.proof?.alg
+      || step?.verification?.alg
+      || step?.verification?.signature?.alg
+      || "Ed25519 detached signature";
+  }
+
+  function deriveKeySource(step) {
+    const signer = deriveSigner(step);
+    return signer && signer !== "Signer unavailable"
+      ? `${signer} via ENS TXT (cl.receipt.pubkey_b64)`
+      : "ENS TXT (cl.receipt.pubkey_b64)";
+  }
+
   function buildArtifactFromFlow(flow, options = {}) {
     const steps = Array.isArray(flow?.steps) ? flow.steps : [];
     const finalStep = steps[steps.length - 1] || null;
@@ -713,6 +772,8 @@ button { cursor: pointer; }
       verification,
       runtime_metadata: runtimeMetadata,
       signer: deriveSigner(finalStep),
+      signature_algorithm: deriveSignatureAlgorithm(finalStep),
+      key_source: deriveKeySource(finalStep),
       proof_hash: deriveProofHash(finalStep) || "Proof hash unavailable",
       schema_url: schemaUrlForReceipt(receipt),
       steps,
@@ -738,8 +799,17 @@ button { cursor: pointer; }
     metricSigner.textContent = artifact?.signer || "—";
     metricHash.textContent = artifact?.proof_hash || "—";
     metricSchema.textContent = receipt?.schema_version || "—";
+    metricSignerIdentity.textContent = artifact?.signer || "runtime.commandlayer.eth";
+    metricSignatureAlgorithm.textContent = artifact?.signature_algorithm || "Ed25519 detached signature";
+    metricKeySource.textContent = artifact?.key_source || "ENS TXT: cl.receipt.pubkey_b64";
+    metricVerificationRoute.textContent = isVerified
+      ? "Receipt → hash matched → signature valid → signer resolved"
+      : (isFallback ? "Receipt → signer → ENS key source walkthrough" : "Receipt → hash → signature → ENS key lookup");
+    verificationPathTag.textContent = isVerified ? "Verification path visible" : (isFallback ? "Verification path explained" : "Verification path ready");
     actionSchema.href = artifact?.schema_url || schemaUrlForReceipt(receipt || {});
     actionAnchor.href = IDENTITY_ANCHOR;
+    actionKeySource.href = "/quickstart.html#verify";
+    actionEnsSource.href = "/quickstart.html#verify-material";
     artifactTag.textContent = isVerified ? "Signed artifact ready" : (isFallback ? "Recorded artifact" : "Receipt available");
     verificationTag.textContent = isVerified ? "Passed" : (isFallback ? "Recorded mode" : "Review" );
     receiptJson.textContent = formatJson(receipt || { status: "No receipt available" });
@@ -892,16 +962,21 @@ button { cursor: pointer; }
   copyVerificationBtn?.addEventListener("click", () => copyText(verificationJson.textContent || "", copyVerificationBtn, "Copy Verification JSON"));
   runButtons.forEach((button) => button.addEventListener("click", runFlow));
   fallbackButtons.forEach((button) => button.addEventListener("click", () => renderRecordedFallback("Recorded proof mode loaded manually so the trust story stays visible even without a live run.")));
+
+  const autoRun = new URLSearchParams(window.location.search).get("autorun");
+  if (autoRun === "1") {
+    setTimeout(() => { runFlow(); }, 120);
+  }
   starterFlow?.addEventListener("change", () => {
     const isDefault = starterFlow.value === "proof_default";
     document.getElementById("clean-input").value = isDefault
-      ? "Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently."
+      ? "Agent action: normalize a proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently."
       : document.getElementById("clean-input").value;
     document.getElementById("summary-instructions").value = starterFlow.value === "analysis"
-      ? "Explain why the described proof receipt matters for a skeptical judge."
+      ? "Explain why the described proof receipt matters for a skeptical operator."
       : starterFlow.value === "parse"
-        ? "Summarize the parsed proof facts into a short judge-facing brief."
-        : "Summarize the cleaned result into a short proof brief for a skeptical hackathon judge. Focus on what ran, what artifact was emitted, and why the receipt is verifiable.";
+        ? "Summarize the parsed proof facts into a short proof brief."
+        : "Summarize the cleaned result into a short proof brief. Focus on what ran, what artifact was emitted, and why the receipt is verifiable.";
   });
 
   const stored = loadStoredArtifact();

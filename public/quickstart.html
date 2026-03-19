@@ -629,7 +629,7 @@
 
         <nav class="site-header__nav">
           <a href="/" class="site-header__link">Home</a>
-          <a href="/demo.html" class="site-header__link">Demo</a>
+          <a href="/composer.html?autorun=1" class="site-header__link">Demo</a>
           <a href="/quickstart.html" class="site-header__link site-header__link--active">Quickstart</a>
 
           <div class="site-header__dropdown">
@@ -672,7 +672,7 @@
             <span class="badge__dot"></span>
             <span id="healthText">Runtime: checking…</span>
           </span>
-          <a class="btn btn--ghost btn--mini" href="/demo.html"><span class="btn__icon">🧩</span><span>Flow demo</span></a>
+          <a class="btn btn--ghost btn--mini" href="/composer.html?autorun=1"><span class="btn__icon">🧩</span><span>Run flow</span></a>
         </div>
       </div>
     </div>
@@ -738,7 +738,7 @@
               </div>
               <pre>curl -sS https://runtime.commandlayer.org/health</pre>
               <div class="mini-example__note">
-                Want to see the flow composer? <a class="cl-blue-link" href="/demo.html">Live demo →</a>
+                Want to see the flow composer? <a class="cl-blue-link" href="/composer.html?autorun=1">Run the verified flow →</a>
               </div>
             </div>
 
@@ -888,7 +888,7 @@
             </p>
           </div>
 
-          <article class="info-card">
+          <article class="info-card" id="verify-material">
             <h3>Example ENS TXT records (typical)</h3>
             <div class="mini-example">
               <div class="mini-example__row">
@@ -951,7 +951,7 @@ cl.receipt.pubkey_b64      ...</pre>
           <div class="section__header">
             <h2>Step 4 — Verify a receipt (Node.js)</h2>
             <p>
-              If your runtime includes a proof block, verification should be boring and deterministic: <strong>hash → signature</strong>. Full verification adds: <strong>schema validation</strong> + <strong>key resolution</strong>.
+              If your runtime includes a proof block, verification should be boring and deterministic: <strong>hash → signature</strong>. Full verification adds: <strong>schema validation</strong> + <strong>key resolution</strong>. The visible path should stay concrete: <strong>receipt → hash → signature → signer_id → ENS TXT public key</strong>.
             </p>
           </div>
 
@@ -1045,7 +1045,7 @@ export function verifyReceiptMinimal(envelope, publicKeyBytes) {
               <h3>Try a flow</h3>
               <p>
                 Compose multiple verbs and inspect receipts per-step.
-                <a class="cl-blue-link" href="/demo.html">Live Demo →</a>
+                <a class="cl-blue-link" href="/composer.html?autorun=1">Run the verified flow →</a>
               </p>
             </article>
 

@@ -781,7 +781,7 @@ code,
 
       <nav class="site-header__nav">
         <a href="/" class="site-header__link site-header__link--active">Home</a>
-        <a href="/demo.html" class="site-header__link">Demo</a>
+        <a href="/composer.html?autorun=1" class="site-header__link">Demo</a>
         <a href="/quickstart.html" class="site-header__link">Quickstart</a>
 
         <div class="site-header__dropdown">
@@ -820,7 +820,7 @@ code,
             </p>
             <div class="hero__actions">
               <div class="hero__cta-row">
-                <a href="/demo.html" class="btn btn--primary">Run a Verified Agent Flow</a>
+                <a href="/composer.html?autorun=1" class="btn btn--primary">Run a Verified Agent Flow</a>
                 <a href="#trust-strip" class="btn btn--ghost">See the 3-step model</a>
                 <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" class="btn btn--ghost" target="_blank" rel="noopener noreferrer">View ERC-8004 registration</a>
               </div>
@@ -864,10 +864,10 @@ code,
               </div>
               <div class="receipt-card__row">
                 <div class="receipt-card__label">signature</div>
-                <div class="receipt-card__value mono">ed25519 • ENS / ERC-8004 resolved</div>
+                <div class="receipt-card__value mono">ed25519 detached • signer resolved via ENS TXT</div>
               </div>
             </div>
-            <div class="receipt-card__footer">Signed receipt first • verification visible • identity anchored onchain</div>
+            <div class="receipt-card__footer">Receipt → hash → signature → signer → ENS key source</div>
           </aside>
         </div>
       </div>
@@ -903,12 +903,12 @@ code,
             <p class="section__eyebrow">Why it matters</p>
             <h2 class="section__title">If agents can spend money, call APIs, or move state, their actions need receipts.</h2>
             <p class="section__body">
-              Logs say something happened. A signed receipt says what executed, who signed it, and what contract shaped the result. That is the trust layer a skeptical operator, judge, or integration partner can inspect.
+              Logs say something happened. A signed receipt says what executed, who signed it, and what contract shaped the result. That is the trust layer a skeptical operator or integration partner can inspect.
             </p>
           </div>
           <aside class="example-box">
-            <span class="example-box__label">What a judge should understand fast</span>
-            <p>After a 20-second scan, the model should be simple:</p>
+            <span class="example-box__label">What this proves quickly</span>
+            <p>After a 20-second scan, the proof model should be simple:</p>
             <ul class="example-list">
               <li>agents execute actions</li>
               <li>CommandLayer emits signed receipts</li>
@@ -929,7 +929,7 @@ code,
             <p class="section__body">The demo keeps the entire proof journey visible instead of asking you to trust architecture claims.</p>
           </div>
           <div class="cta-band__actions">
-            <a href="/demo.html" class="btn btn--primary">Run a Verified Agent Flow</a>
+            <a href="/composer.html?autorun=1" class="btn btn--primary">Run a Verified Agent Flow</a>
             <a href="/quickstart.html" class="btn btn--ghost">Verify Proof in Quickstart</a>
           </div>
         </div>
