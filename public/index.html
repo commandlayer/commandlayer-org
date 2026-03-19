@@ -813,25 +813,25 @@ code,
       <div class="container">
         <div class="hero__layout">
           <div>
-            <p class="eyebrow">Signed proof for agent execution</p>
+            <p class="eyebrow">Proof layer for agent execution</p>
             <h1 class="hero__title">Agents Can Act. <span class="hero__title-accent">CommandLayer Proves They Acted.</span></h1>
             <p class="hero__subtitle">
-              CommandLayer turns agent actions into signed receipts, verifiable proof, and a public on-chain record you can inspect after the work is done.
+              CommandLayer is the proof layer for agent execution: an agent runs an action, CommandLayer emits a signed receipt, and anyone can verify what happened.
             </p>
             <div class="hero__actions">
               <div class="hero__cta-row">
                 <a href="/demo.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-                <a href="#trust-strip" class="btn btn--ghost">How proof works</a>
+                <a href="#trust-strip" class="btn btn--ghost">See the 3-step model</a>
                 <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" class="btn btn--ghost" target="_blank" rel="noopener noreferrer">View ERC-8004 registration</a>
               </div>
             </div>
-            <p class="hero__meta">Inspect the receipt, verify the signer, and check the ERC-8004 registration on Base without leaving the public proof trail.</p>
+            <p class="hero__meta">Start with the public model: execute, emit receipt, verify. The supporting layers exist to keep that proof portable and inspectable.</p>
             <div class="hero__pills" aria-label="Trust signals">
               <div class="hero__proof-row">
+                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Execute</span>
+                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Emit signed receipt</span>
+                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Verify proof</span>
                 <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>ERC-8004 registered</span>
-                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Ed25519 signed receipts</span>
-                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Verifiable proof</span>
-                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>MIT-licensed Commons</span>
               </div>
             </div>
           </div>
@@ -843,20 +843,20 @@ code,
             </div>
             <div class="receipt-card__rows">
               <div class="receipt-card__row">
-                <div class="receipt-card__label">verified</div>
-                <div class="receipt-card__value receipt-card__value--ok">true</div>
+                <div class="receipt-card__label">step 1</div>
+                <div class="receipt-card__value">execute</div>
+              </div>
+              <div class="receipt-card__row">
+                <div class="receipt-card__label">step 2</div>
+                <div class="receipt-card__value">emit signed receipt</div>
+              </div>
+              <div class="receipt-card__row">
+                <div class="receipt-card__label">step 3</div>
+                <div class="receipt-card__value receipt-card__value--ok">verify</div>
               </div>
               <div class="receipt-card__row">
                 <div class="receipt-card__label">agent</div>
                 <div class="receipt-card__value mono">checkoutagent.eth</div>
-              </div>
-              <div class="receipt-card__row">
-                <div class="receipt-card__label">flow</div>
-                <div class="receipt-card__value mono">authorize → checkout → verify</div>
-              </div>
-              <div class="receipt-card__row">
-                <div class="receipt-card__label">action</div>
-                <div class="receipt-card__value">settled the action and emitted a signed receipt</div>
               </div>
               <div class="receipt-card__row">
                 <div class="receipt-card__label">proof</div>
@@ -867,7 +867,7 @@ code,
                 <div class="receipt-card__value mono">ed25519 • ENS / ERC-8004 resolved</div>
               </div>
             </div>
-            <div class="receipt-card__footer">Commons receipt semantics • signed execution proof • portable identity</div>
+            <div class="receipt-card__footer">Signed receipt first • verification visible • identity anchored onchain</div>
           </aside>
         </div>
       </div>
@@ -877,20 +877,20 @@ code,
       <div class="container">
         <div class="value-grid">
           <article class="value-card">
-            <h2 class="value-card__title">Signed receipts</h2>
-            <p class="value-card__text">Every completed action emits a canonical receipt you can inspect, store, and verify later.</p>
+            <h2 class="value-card__title">1. Execute</h2>
+            <p class="value-card__text">An agent runs a real action or flow against a pinned contract.</p>
           </article>
           <article class="value-card">
-            <h2 class="value-card__title">Verifiable execution</h2>
-            <p class="value-card__text">Proof stays attached to the outcome so anyone can verify what ran and trace it back to the public <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">ERC-8004 registration on Base</a>.</p>
+            <h2 class="value-card__title">2. Emit receipt</h2>
+            <p class="value-card__text">CommandLayer returns a canonical signed receipt you can inspect, store, and compare later.</p>
           </article>
           <article class="value-card">
-            <h2 class="value-card__title">Identity-backed proof</h2>
-            <p class="value-card__text">Human-readable agent identity gives each receipt a clear signer and accountability anchor across runtime and wallet contexts.</p>
+            <h2 class="value-card__title">3. Verify</h2>
+            <p class="value-card__text">Anyone can check the hash, signature, signer identity, and <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">ERC-8004 registration on Base</a>.</p>
           </article>
           <article class="value-card">
-            <h2 class="value-card__title">Commons first</h2>
-            <p class="value-card__text">Commons is the canonical free signed-receipt layer; Commercial stays downstream as a commerce-oriented extension.</p>
+            <h2 class="value-card__title">One system, clear roles</h2>
+            <p class="value-card__text">Commons defines the contract, Runtime produces proof, Agent Cards identify agents, and Commercial extends the same model for paid flows.</p>
           </article>
         </div>
       </div>
@@ -900,20 +900,20 @@ code,
       <div class="container">
         <div class="section-card why-card">
           <div>
-            <p class="section__eyebrow">Why this matters</p>
-            <h2 class="section__title">Autonomous agents can do real work. You need proof of what actually executed.</h2>
+            <p class="section__eyebrow">Why it matters</p>
+            <h2 class="section__title">If agents can spend money, call APIs, or move state, their actions need receipts.</h2>
             <p class="section__body">
-              Agents can trigger workflows across APIs, wallets, and services. Logs show activity. They do not prove what an autonomous agent actually executed, who signed it, or which contract semantics governed it. CommandLayer turns actions into signed, inspectable receipts with a clearer proof boundary.
+              Logs say something happened. A signed receipt says what executed, who signed it, and what contract shaped the result. That is the trust layer a skeptical operator, judge, or integration partner can inspect.
             </p>
           </div>
           <aside class="example-box">
-            <span class="example-box__label">Concrete example</span>
-            <p>An agent spends <strong>125 USDC</strong> on your behalf. You should be able to verify:</p>
+            <span class="example-box__label">What a judge should understand fast</span>
+            <p>After a 20-second scan, the model should be simple:</p>
             <ul class="example-list">
-              <li>which agent acted</li>
-              <li>what executed</li>
-              <li>what amount settled</li>
-              <li>which identity signed it</li>
+              <li>agents execute actions</li>
+              <li>CommandLayer emits signed receipts</li>
+              <li>receipts can be verified independently</li>
+              <li>supporting layers keep that proof portable</li>
             </ul>
           </aside>
         </div>
@@ -925,12 +925,12 @@ code,
         <div class="cta-band">
           <div>
             <p class="section__eyebrow">Demo / proof</p>
-            <h2 class="section__title">See it in action</h2>
-            <p class="section__body">Run a real Commons-first flow, inspect each step, and verify every receipt.</p>
+            <h2 class="section__title">Run the flow. Inspect the receipt. Verify the proof.</h2>
+            <p class="section__body">The demo keeps the entire proof journey visible instead of asking you to trust architecture claims.</p>
           </div>
           <div class="cta-band__actions">
             <a href="/demo.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-            <a href="/quickstart.html" class="btn btn--ghost">Read Quickstart</a>
+            <a href="/quickstart.html" class="btn btn--ghost">Verify Proof in Quickstart</a>
           </div>
         </div>
       </div>
@@ -939,15 +939,15 @@ code,
     <section class="section">
       <div class="container">
         <div class="section-card">
-          <p class="section__eyebrow">Positioning</p>
-          <h2 class="section__title">Proof comes first, product surfaces follow</h2>
+          <p class="section__eyebrow">Supporting layers</p>
+          <h2 class="section__title">The rest of CommandLayer exists to support execute → receipt → verify</h2>
           <p class="section__body">
-            Commons keeps the receipt format open and inspectable. Each action can be checked through signed proof, identity-backed verification, and a public ERC-8004 registration, while Commercial builds on the same foundation for paid flows.
+            Commons is the shared contract. Runtime is the proof-producing execution layer. Agent Cards handle identity and discovery. Commercial extends the same receipt model for paid execution without changing the core story.
           </p>
           <div class="footer-links" style="margin-top: 1rem;">
-            <a href="/commons.html">Schemas</a>
-            <a href="/quickstart.html">Quickstart</a>
-            <a href="/repositories.html">Repositories</a>
+            <a href="/commons.html">Explore the Commons Contract</a>
+            <a href="/runtime.html">See How Runtime Produces Proof</a>
+            <a href="/agent-cards.html">See Agent Identity</a>
             <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
           </div>
         </div>
