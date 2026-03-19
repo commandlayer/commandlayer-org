@@ -827,16 +827,24 @@ button { cursor: pointer; }
     { verb: "classify", description: "Assign labels, routing signals, or policy categories.", mode: "routing" },
     { verb: "clean", description: "Normalize noisy text before downstream execution.", mode: "sanitize" },
     { verb: "convert", description: "Transform content shape or target format.", mode: "markdown" },
-    { verb: "fetch", description: "Retrieve source material from a remote endpoint or runtime input.", mode: "text" }
+    { verb: "fetch", description: "Retrieve source material from a remote endpoint or runtime input.", mode: "text" },
+    { verb: "format", description: "Restyle prior output into a presentation-ready layout.", mode: "bullet-list" },
+    { verb: "parse", description: "Extract structured fields from messy or semi-structured content.", mode: "best_effort" },
+    { verb: "describe", description: "Produce a neutral description of a subject, artifact, or system.", mode: "medium" },
+    { verb: "explain", description: "Clarify reasoning, mechanics, or decisions for the next operator.", mode: "step-by-step" }
   ];
   const EXAMPLE_CHAIN = ["fetch", "analyze", "summarize"];
   const DEFAULT_INPUTS = {
     fetch: "https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.request.schema.json",
     analyze: "Inspect the fetched contract for key fields and execution semantics.",
     summarize: "Summarize the previous result into an operator-ready brief.",
-    classify: "Label the prior output by intent and confidence.",
-    clean: "Normalize whitespace, remove noise, and keep semantic structure.",
-    convert: "Convert the prior output to markdown for downstream display."
+    classify: '{"content":"Label the prior output by intent and confidence.","taxonomy":["intent","priority","confidence_band"]}',
+    clean: '{"content":"Normalize whitespace, remove noise, and keep semantic structure.","operations":["trim_whitespace","collapse_blank_lines","preserve_headings"]}',
+    convert: '{"content":"Convert the prior output to markdown for downstream display.","source_format":"text","target_format":"markdown"}',
+    format: '{"content":"Format the prior output into an operator handoff with concise bullets.","target_style":"bullet-list","source_style":"plain"}',
+    parse: '{"content":"service=runtime level=info latency_ms=182 trace_id=abc123 status=ok","content_type":"log","mode":"best_effort"}',
+    describe: '{"subject":"CommandLayer Commons v1.1.0","context":"Canonical public-goods receipt layer for agent execution.","detail_level":"medium","audience":"builder"}',
+    explain: '{"subject":"Why the previous result matters for execution","context":"Ground the explanation in the prior step output.","audience":"operator","style":"step-by-step","detail_level":"medium"}'
   };
 
   const runtimeLatencyEl = document.getElementById("runtime-latency");
@@ -899,6 +907,10 @@ button { cursor: pointer; }
       case "classify": return ["routing", "policy", "priority"];
       case "clean": return ["sanitize", "normalize", "strict"];
       case "convert": return ["markdown", "json", "plain"];
+      case "format": return ["bullet-list", "markdown", "json-block"];
+      case "parse": return ["best_effort", "strict"];
+      case "describe": return ["short", "medium", "long"];
+      case "explain": return ["step-by-step", "formal", "analogy"];
       default: return ["default"];
     }
   }
@@ -921,11 +933,14 @@ button { cursor: pointer; }
       result.summary,
       result.analysis,
       result.cleaned_content,
+      result.formatted_content,
       result.converted_content,
       result.description,
+      result.explanation,
       result.content,
       result.body_preview,
-      result.message
+      result.message,
+      result.parsed ? JSON.stringify(result.parsed) : null
     ].filter(Boolean).map(String);
     if (candidates.length) return candidates[0];
     try { return JSON.stringify(result); }
