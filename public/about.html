@@ -620,10 +620,10 @@
                 <span class="hero__title-em">CommandLayer proves they acted.</span>
               </h1>
               <p class="hero__subtitle">
-                CommandLayer exists because agent execution needs evidence, not just logs. The system stays intentionally small: canonical contracts, signed receipts, verifiable identity, and execution surfaces that can be inspected instead of merely trusted.
+                CommandLayer exists because agent systems need evidence, not vibes. If an agent can trigger actions in the real world, there should be a signed receipt that another party can inspect and verify later.
               </p>
               <p class="hero__subtitle" style="margin-top:0.85rem;">
-                That provenance is public too: CommandLayer’s <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">ERC-8004 registration is visible on BaseScan</a> as an on-chain proof anchor.
+                That trust model is public too: CommandLayer’s <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">ERC-8004 registration is visible on BaseScan</a> as an on-chain proof anchor.
               </p>
 
               <div class="hero__cta-row">
@@ -639,9 +639,9 @@
             </div>
 
             <aside class="hero__card">
-              <h2>What CommandLayer actually is</h2>
+              <h2>Why trust the system</h2>
               <p>
-                A trust layer for autonomous agent execution. The system is split on purpose so meaning stays portable and proof stays inspectable.
+                CommandLayer is a trust layer for agent execution. The system stays split into clear roles so the proof model remains inspectable instead of turning into one opaque product.
               </p>
               <ul>
                 <li><strong>Commons:</strong> the canonical open contract layer and minimum verifiable receipt.</li>
@@ -657,9 +657,9 @@
         <section class="section section--muted" id="economic-rule">
           <div class="container">
             <div class="section__header">
-              <h2>Open contracts, paid execution</h2>
+              <h2>Why CommandLayer is structured this way</h2>
               <p>
-                CommandLayer keeps the contract layer open and puts monetization at execution. That is the business boundary and the trust boundary.
+                The goal is simple: keep the shared contract and verification layer open, and keep paid execution on top of that same proof model. That makes the public story easier to trust and the business model easier to understand.
               </p>
             </div>
 
@@ -735,7 +735,7 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>Where monetization lives</h2>
+              <h2>What makes the trust model credible</h2>
               <p>
                 Monetization is not embedded in standards. It lives at execution time inside
                 runtimes, where routing, guarantees, and operational responsibility already live.
@@ -794,7 +794,7 @@ Runtime enforces:
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
-              <h2>Why this architecture works</h2>
+              <h2>Why this should be believable</h2>
               <p>
                 The architecture works because it keeps the contract layer portable while letting execution quality become the competitive surface.
               </p>
@@ -824,9 +824,7 @@ Runtime enforces:
                 <div>
                   <h3>Greg Soucy</h3>
                   <p>
-                    Founder / Architect of CommandLayer. The emphasis is protocol discipline: strict schemas,
-                    identity + discovery bindings, and receipts that make agent execution attributable and inspectable.
-                    CommandLayer is being built to scale as infrastructure without rewriting the core trust model.
+                    Founder / Architect of CommandLayer. The focus is keeping the system honest: strict contracts, visible identity, signed receipts, and verification that does not depend on trusting internal dashboards or vendor-only logs.
                   </p>
                 </div>
               </div>

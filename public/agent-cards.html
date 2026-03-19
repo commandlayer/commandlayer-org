@@ -557,12 +557,7 @@
               <div class="subhero__eyebrow">Agent Cards</div>
               <h1 class="subhero__title">Agent Cards Registry (v1.1.0, current)</h1>
               <p class="subhero__subtitle">
-                Canonical <strong>agent descriptors</strong> for CommandLayer verbs. Each Agent Card
-                is a JSON document that binds an <strong>ENS name</strong>, supported verbs,
-                <strong>schema versions</strong>, and <strong>x402 entrypoints</strong> so
-                registries and clients can discover, rank, and route to your agent — without
-                guessing how it’s wired. Cards are published under Apache-2.0; semantics are
-                <strong>free to read and integrate</strong>.
+                Agent Cards answer one question: how are agents identified and discovered? Each card binds an <strong>ENS identity</strong> to supported verbs, schema versions, and entrypoints so clients can route work to the right agent and know who should have signed the receipt.
               </p>
             </div>
             <div class="subhero__meta">
@@ -581,11 +576,9 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>What an Agent Card describes</h2>
+              <h2>What Agent Cards do in the system</h2>
               <p>
-                Agent Cards don’t execute anything. They describe <strong>who</strong> an agent is,
-                <strong>what verbs</strong> it offers, and <strong>how to reach it</strong> — in a
-                format any A2A client or ERC-8004-style registry can consume.
+                Agent Cards do not compete with Commons or Runtime. They provide the identity and discovery layer around the same execute → receipt → verify model: who the agent is, what contracts it speaks, and where to send work.
               </p>
             </div>
 
@@ -878,7 +871,7 @@
         <section class="section">
           <div class="container">
             <div class="card-block">
-              <h3 class="card-block__title">How builders use Agent Cards</h3>
+              <h3 class="card-block__title">How Agent Cards support verification</h3>
               <p class="card-block__subtitle">
                 Agent Cards turn ENS names and verbs into <strong>discoverable, routable</strong> units
                 of capability.

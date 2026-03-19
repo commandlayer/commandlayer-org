@@ -541,16 +541,16 @@
             <div>
               <div class="hero__eyebrow">Runtime</div>
               <h1 class="hero__title">
-                Execution on top of stable schemas —
-                <span class="hero__title-em">trust layer for agent execution, live today.</span>
+                Runtime produces the proof boundary —
+                <span class="hero__title-em">it runs the action, emits the receipt, and makes verification possible.</span>
               </h1>
 
               <p class="hero__subtitle">
-                Runtime executes CommandLayer flows on top of pinned Commons and Commercial schemas, then returns the signed receipt and any optional proof, trace, timing, or orchestration details needed to inspect what happened.
+                Runtime answers one question: how is proof produced and checked? It executes pinned CommandLayer contracts, emits the signed receipt, and can attach verification material around that receipt so anyone can inspect what happened.
               </p>
 
               <p class="hero__subtitle" style="margin-top:0.85rem;">
-                Today, Runtime is live as a public proving surface for CommandLayer flows, showing that stable contracts can run and produce inspectable evidence without changing the receipt itself.
+                Today, Runtime is a live proving surface. It shows that agent execution can be reproducible, inspectable, and verifiable without changing the canonical receipt contract.
               </p>
 
               <div class="hero__cta-row">
@@ -572,7 +572,7 @@
             </div>
 
             <aside class="hero__card">
-              <h2>What Runtime is (and isn’t)</h2>
+              <h2>What Runtime does</h2>
               <p>
                 Runtime is not “the schema layer.” It is the <strong>execution boundary</strong> that consumes pinned
                 schemas and produces evidence.
@@ -592,7 +592,7 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>Where Runtime sits in the stack</h2>
+              <h2>How Runtime produces proof</h2>
               <p>
                 Runtime sits above schemas and below applications. Commons defines the minimum verifiable receipt contract, Commercial extends the same model for economic flows, and Runtime executes those pinned contracts with optional metadata when orchestration, tracing, or proof are needed. Receipts are signed with Ed25519 and can be verified against ENS-anchored public keys.
               </p>
@@ -619,7 +619,7 @@
               <article class="info-card">
                 <h3>Outputs</h3>
                 <p>
-                  Commons receipt first, runtime metadata second. Clients should not confuse execution-layer fields like <code>trace</code> and <code>metadata.proof</code> with the core contract.
+                  Keep the receipt separate from runtime metadata. Clients should not confuse execution-layer fields like <code>trace</code> and <code>metadata.proof</code> with the core contract.
                 </p>
               </article>
             </div>
@@ -632,8 +632,7 @@
             <div class="section__header">
               <h2>What Runtime provides today</h2>
               <p>
-                This is the minimum surface required for agents to behave like infrastructure: schema enforcement,
-                reproducibility, and independently verifiable evidence.
+                This is the minimum Runtime surface needed to make agent execution trustworthy in public: deterministic contracts, visible receipts, and independently checkable verification.
               </p>
             </div>
 
@@ -660,7 +659,7 @@
         <section class="section">
           <div class="container">
             <div class="card-block">
-              <h3 class="card-block__title">What Runtime is designed to add</h3>
+              <h3 class="card-block__title">What Runtime adds around the receipt</h3>
               <p class="card-block__subtitle">
                 These are planned capabilities. They are deliberately layered on top of stable schemas — never baked into them.
               </p>
@@ -685,7 +684,7 @@
         <section class="section section--muted">
           <div class="container">
             <div class="section__header">
-              <h2>Why value accrues at execution</h2>
+              <h2>Why trust lives at execution</h2>
               <p>
                 CommandLayer does not monetize meaning. Value accrues where execution absorbs operational cost and produces
                 audit-grade proof.
@@ -716,7 +715,7 @@
         <section class="section">
           <div class="container">
             <div class="section__header">
-              <h2>Commons receipt first, runtime metadata second</h2>
+              <h2>Keep the receipt separate from runtime metadata</h2>
               <p>
                 Commons defines the minimum verifiable receipt contract. Runtimes may then attach execution metadata for tracing, chaining, timing, and proof. The snippets below separate those layers.
               </p>
