@@ -1,0 +1,67 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commercial/purchase/receipts/purchase.receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "purchase.receipt",
+  "description": "Receipt schema for a purchase operation.",
+  "allOf": [
+    {
+      "$ref": "https://commandlayer.org/schemas/v1.1.0/_shared/receipt.base.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "result": {
+          "description": "Purchase outcome payload.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["purchase_id", "status"],
+          "properties": {
+            "purchase_id": {
+              "description": "Canonical purchase identifier.",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "status": {
+              "description": "Purchase status.",
+              "type": "string",
+              "enum": ["success", "pending", "failed", "canceled"]
+            },
+            "amount": {
+              "description": "Final canonical amount.",
+              "allOf": [
+                {
+                  "$ref": "https://commandlayer.org/schemas/v1.1.0/commercial/_shared/payment.amount.schema.json"
+                }
+              ]
+            },
+            "settlement": {
+              "description": "Final canonical settlement target.",
+              "allOf": [
+                {
+                  "$ref": "https://commandlayer.org/schemas/v1.1.0/commercial/_shared/payment.settlement.schema.json"
+                }
+              ]
+            },
+            "reason": {
+              "description": "Optional reason for failure or cancellation.",
+              "type": "string",
+              "maxLength": 1024
+            },
+            "metadata": {
+              "description": "Provider-specific non-normative metadata.",
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "usage": {
+          "description": "Optional resource usage metrics (tokens, compute units, etc.).",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["result"]
+    }
+  ]
+}

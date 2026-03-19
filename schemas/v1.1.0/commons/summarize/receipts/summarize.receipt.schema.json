@@ -1,0 +1,60 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "summarize.receipt",
+  "description": "Receipt for a summarize request, including the produced summary and provenance.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "summarize"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "status": {
+      "description": "Outcome status for this verb invocation.",
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "delegated"
+      ]
+    },
+    "summary": {
+      "description": "The generated summary.",
+      "type": "string",
+      "minLength": 1
+    },
+    "format": {
+      "description": "Format of the summary.",
+      "type": "string",
+      "enum": [
+        "text",
+        "markdown",
+        "html",
+        "json",
+        "other"
+      ]
+    },
+    "compression_ratio": {
+      "description": "Approximate compression ratio (input_length / output_length).",
+      "type": "number",
+      "minimum": 0
+    },
+    "source_hash": {
+      "description": "Optional hash of the input content (e.g., sha256 hex).",
+      "type": "string",
+      "minLength": 32,
+      "maxLength": 128
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "status",
+    "summary"
+  ]
+}

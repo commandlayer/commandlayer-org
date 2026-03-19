@@ -1,0 +1,48 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/parse/parse.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "parse.request",
+  "description": "Request to parse unstructured or semi-structured content into a structured representation (e.g., JSON, fields, entities) with explicit limits and channel metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "parse"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "content": {
+      "description": "Raw content to be parsed.",
+      "type": "string",
+      "minLength": 1
+    },
+    "content_type": {
+      "description": "Hint of the input type (e.g., plain, markdown, json, yaml, csv, log).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "target_schema": {
+      "description": "URI or identifier of the target schema for the parsed output (if known).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 512
+    },
+    "mode": {
+      "description": "Parsing mode preference.",
+      "type": "string",
+      "enum": [
+        "strict",
+        "best_effort"
+      ]
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "content"
+  ]
+}

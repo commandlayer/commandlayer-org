@@ -1,0 +1,38 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "summarize.request",
+  "description": "Request to summarize content with explicit limits, channel, auth, and optional delegation/handoff metadata.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "summarize"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "content": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 250000
+    },
+    "format_hint": {
+      "type": "string",
+      "description": "Optional hint: e.g. 'markdown', 'html', 'plain'.",
+      "maxLength": 64
+    },
+    "summary_style": {
+      "type": "string",
+      "description": "High-level style hint such as 'bullet_points', 'narrative', 'exec_brief'.",
+      "maxLength": 64
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "content"
+  ]
+}

@@ -34,8 +34,8 @@ This repo should teach one architectural story consistently:
 ## Version policy
 
 - **Commons:** `v1.1.0` is the current builder target across the site and demo composer.
-- **Commercial:** `v1.0.0` is the current commercial release.
-- **Agent Cards:** `v1.0.0` is the current card format.
+- **Commercial:** `v1.1.0` is the current commercial release across docs, schemas, demos, and runtime flows.
+- **Agent Cards:** `v1.1.0` is the current card format across the registry, manifests, and linked examples.
 - **Runtime:** execution layer, not a schema version line.
 - **Compatibility:** published older paths remain live for verification and pinned integrations.
 

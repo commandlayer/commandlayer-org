@@ -1,0 +1,66 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commercial/authorize/requests/authorize.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "authorize.request",
+  "description": "Request schema for authorizing a payment or mandate without necessarily capturing it.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "x402": {
+      "allOf": [
+        {
+          "$ref": "https://commandlayer.org/schemas/v1.1.0/_shared/x402.schema.json"
+        }
+      ]
+    },
+    "trace": {
+      "allOf": [
+        {
+          "$ref": "https://commandlayer.org/schemas/v1.1.0/_shared/trace.schema.json"
+        }
+      ]
+    },
+    "actor": {
+      "allOf": [
+        {
+          "$ref": "https://commandlayer.org/schemas/v1.1.0/_shared/identity.schema.json"
+        }
+      ]
+    },
+    "payload": {
+      "description": "Authorization parameters describing the amount, settlement, and intent.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "amount": {
+          "description": "Amount to authorize.",
+          "allOf": [
+            {
+              "$ref": "https://commandlayer.org/schemas/v1.1.0/commercial/_shared/payment.amount.schema.json"
+            }
+          ]
+        },
+        "settlement": {
+          "description": "Settlement details for any future capture.",
+          "allOf": [
+            {
+              "$ref": "https://commandlayer.org/schemas/v1.1.0/commercial/_shared/payment.settlement.schema.json"
+            }
+          ]
+        },
+        "purpose": {
+          "description": "Human-readable intent (e.g., hold for booking, card auth, recurring mandate).",
+          "type": "string",
+          "maxLength": 256
+        },
+        "metadata": {
+          "description": "Optional metadata (instrument fingerprint, PSP hints, etc.).",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["amount", "settlement"]
+    }
+  },
+  "required": ["x402", "trace", "actor", "payload"]
+}

@@ -1,0 +1,54 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/explain/explain.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "explain.request",
+  "description": "Request to explain a concept, decision, or output, tailored to a specific audience and detail level.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "explain"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "subject": {
+      "description": "What should be explained (e.g., a concept, decision, or output).",
+      "type": "string",
+      "minLength": 1
+    },
+    "context": {
+      "description": "Optional surrounding context or raw snippet to ground the explanation.",
+      "type": "string",
+      "minLength": 1
+    },
+    "audience": {
+      "description": "Intended audience (e.g., novice, expert, legal, product-manager).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "style": {
+      "description": "Optional style hint (e.g., step-by-step, analogy, formal).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "detail_level": {
+      "description": "Desired level of detail.",
+      "type": "string",
+      "enum": [
+        "short",
+        "medium",
+        "long"
+      ]
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "subject"
+  ]
+}

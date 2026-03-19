@@ -1,0 +1,48 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/describe/describe.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "describe.request",
+  "description": "Request to produce a descriptive explanation of an input object, resource, or concept (e.g., explain what this thing is and how it behaves).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "describe"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "subject": {
+      "description": "The thing to describe (name, identifier, or short text).",
+      "type": "string",
+      "minLength": 1
+    },
+    "context": {
+      "description": "Optional additional context (e.g., where this subject appears).",
+      "type": "string",
+      "minLength": 1
+    },
+    "detail_level": {
+      "description": "Desired level of detail.",
+      "type": "string",
+      "enum": [
+        "short",
+        "medium",
+        "long"
+      ]
+    },
+    "audience": {
+      "description": "Intended audience (e.g., novice, expert, legal, product-manager).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "subject"
+  ]
+}
