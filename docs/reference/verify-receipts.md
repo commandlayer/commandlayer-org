@@ -46,7 +46,7 @@ Verification does not prove:
 
 Start with the canonical receipt.
 
-Only after validating the contract should you inspect runtime-added fields such as trace IDs, proof blocks, or orchestration metadata.
+Only after validating the contract should you inspect <code>runtime_metadata</code> for trace IDs, proof blocks, or orchestration details.
 
 ## Related references
 

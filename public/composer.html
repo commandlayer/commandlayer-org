@@ -943,11 +943,9 @@ button { cursor: pointer; }
   }
 
   function runtimeProof(step) {
-    return {
+    return step?.runtime_metadata || {
       runtime_url: step?.runtime_url || runtimeMeta?.runtime_base || "runtime.commandlayer.org",
-      verification: step?.verification || null,
-      meta: step?.meta || null,
-      trace: step?.trace || null
+      verification: step?.verification || null
     };
   }
 
@@ -1072,7 +1070,7 @@ button { cursor: pointer; }
                 <pre>${escapeHtml(formatJson(receipt))}</pre>
               </div>
               <div class="meta-block">
-                <span class="block-label">Runtime details</span>
+                <span class="block-label">Runtime metadata (optional)</span>
                 <pre>${escapeHtml(formatJson(proof))}</pre>
               </div>
             </div>

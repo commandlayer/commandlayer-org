@@ -3,6 +3,7 @@
 // NOTE: This is orchestration for the demo UI (belongs in website repo).
 
 const crypto = require("crypto");
+const { normalizeCanonicalReceipt, validateCanonicalReceipt, validateRuntimeMetadata } = require("./_receipt-model");
 
 const COMMERCIAL_VERBS = ["authorize", "checkout", "purchase", "ship", "verify"];
 const VERSION = "1.0.0";
@@ -237,13 +238,40 @@ module.exports = async function handler(req, res) {
       );
     }
 
+    const normalized = normalizeCanonicalReceipt(r.data);
+    const receiptValidation = validateCanonicalReceipt(normalized.receipt);
+    const runtimeMetadataValidation = validateRuntimeMetadata(normalized.runtime_metadata);
+
+    if (!receiptValidation.ok) {
+      return res.status(500).end(JSON.stringify({
+        ok: false,
+        error: "Commercial runtime receipt failed canonical validation",
+        verb: step.verb,
+        details: receiptValidation.errors,
+        receipt: normalized.receipt,
+        raw_response: r.data,
+      }, null, 2));
+    }
+
+    if (!runtimeMetadataValidation.ok) {
+      return res.status(500).end(JSON.stringify({
+        ok: false,
+        error: "Commercial runtime metadata failed validation",
+        verb: step.verb,
+        details: runtimeMetadataValidation.errors,
+        runtime_metadata: normalized.runtime_metadata,
+      }, null, 2));
+    }
+
     responseSteps.push({
       index: step.index,
       verb: step.verb,
       runtime_url: runtimeUrl,
       request: runtimeReq,
       curl: [`# ${step.verb.toUpperCase()} (commercial runtime)`, buildCurl(runtimeUrl, runtimeReq)].join("\n"),
-      receipt: r.data,
+      receipt: normalized.receipt,
+      ...(normalized.runtime_metadata ? { runtime_metadata: normalized.runtime_metadata } : {}),
+      validation: { canonical_receipt: receiptValidation, runtime_metadata: runtimeMetadataValidation },
     });
   }
 
@@ -261,6 +289,7 @@ module.exports = async function handler(req, res) {
           runtime_health,
           server_time: nowIso(),
           curl: curlBlock,
+          receipt_model: "canonical-receipt-plus-optional-runtime-metadata",
         },
       },
       null,

@@ -5,9 +5,8 @@
 // Patch: step index sequencing is now ALWAYS 0..N-1 in execution order.
 // This prevents UI "use previous result" from breaking when steps are skipped.
 
-const Ajv = require("ajv");
-const addFormats = require("ajv-formats");
 const crypto = require("crypto");
+const { normalizeCanonicalReceipt, validateCanonicalReceipt, validateRuntimeMetadata } = require("./_receipt-model");
 
 const COMMON_VERBS = [
   "analyze",
@@ -24,50 +23,6 @@ const COMMON_VERBS = [
 
 const DEFAULT_VERSION = "1.1.0";
 const SUPPORTED_VERSIONS = new Set(["1.0.0", "1.1.0"]);
-
-// Minimal receipt.base validator (fast + stable)
-const receiptBaseSchema = {
-  $id: "https://www.commandlayer.org/schemas/v1.1.0/_shared/receipt.base.schema.json",
-  title: "receipt.base (minimal)",
-  type: "object",
-  additionalProperties: true, // runtime adds metadata/proof fields; do not block
-  properties: {
-    status: { type: "string" },
-    x402: {
-      type: "object",
-      additionalProperties: true,
-      properties: {
-        verb: { type: "string" },
-        version: { type: "string" },
-      },
-      required: ["verb", "version"],
-    },
-    trace: {
-      type: "object",
-      additionalProperties: true,
-      properties: {
-        trace_id: { type: "string" },
-      },
-      required: ["trace_id"],
-    },
-    result: { type: ["object", "array", "string", "number", "boolean", "null"] },
-    error: { type: ["object", "null"] },
-    metadata: { type: ["object", "null"] },
-  },
-  required: ["status", "x402", "trace"],
-};
-
-let validateReceiptBase = null;
-let ajvSetupError = null;
-
-try {
-  const ajv = new Ajv({ allErrors: true, strict: false });
-  addFormats(ajv);
-  validateReceiptBase = ajv.compile(receiptBaseSchema);
-} catch (e) {
-  ajvSetupError = e?.message || String(e);
-  validateReceiptBase = null;
-}
 
 function nowIso() {
   return new Date().toISOString();
@@ -334,7 +289,7 @@ module.exports = async function handler(req, res) {
 
     if (step.use_previous_result) {
       const previousReceipt = responseSteps[responseSteps.length - 1]?.receipt;
-      const previousText = pickBestTextFromResult(previousReceipt?.result).trim();
+      const previousText = pickBestTextFromResult(previousReceipt).trim();
       if (!previousText) {
         return res.status(400).json({
           error: "Previous step result unavailable for chained input",
@@ -378,23 +333,19 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const receipt = r.data;
-    let ok = true;
-    let errors = null;
+    const normalized = normalizeCanonicalReceipt(r.data);
+    const receiptValidation = validateCanonicalReceipt(normalized.receipt);
+    const runtimeMetadataValidation = validateRuntimeMetadata(normalized.runtime_metadata);
 
-    if (validateReceiptBase) {
-      ok = !!validateReceiptBase(receipt);
-      if (!ok) errors = validateReceiptBase.errors || null;
-    }
-
-    if (!ok) {
+    if (!receiptValidation.ok) {
       return res.status(500).json({
-        error: "Runtime receipt failed receipt.base validation",
+        error: "Runtime receipt failed canonical validation",
         verb: step.verb,
         runtime_url: runtimeUrl,
         version,
-        details: errors,
-        receipt,
+        details: receiptValidation.errors,
+        receipt: normalized.receipt,
+        raw_response: r.data,
         meta: {
           mode: "runtime-backed",
           runtime_base: RUNTIME_BASE,
@@ -403,10 +354,20 @@ module.exports = async function handler(req, res) {
           resolved_version: version,
           supported_versions: Array.from(SUPPORTED_VERSIONS),
           runtime_health,
-          receipt_base_validated: !!validateReceiptBase,
-          ajv_setup_error: ajvSetupError,
+          receipt_schema_found: receiptValidation.schema_found !== false,
           server_time: nowIso(),
         },
+      });
+    }
+
+    if (!runtimeMetadataValidation.ok) {
+      return res.status(500).json({
+        error: "Runtime metadata failed validation",
+        verb: step.verb,
+        runtime_url: runtimeUrl,
+        version,
+        details: runtimeMetadataValidation.errors,
+        runtime_metadata: normalized.runtime_metadata,
       });
     }
 
@@ -417,8 +378,14 @@ module.exports = async function handler(req, res) {
       version,
       request: runtimeReq,
       curl: [`# ${step.verb.toUpperCase()} (real runtime)`, buildCurl(runtimeUrl, runtimeReq)].join("\n"),
-      validation: { ok: true, errors: null },
-      receipt,
+      validation: {
+        ok: true,
+        errors: null,
+        canonical_receipt: receiptValidation,
+        runtime_metadata: runtimeMetadataValidation,
+      },
+      receipt: normalized.receipt,
+      ...(normalized.runtime_metadata ? { runtime_metadata: normalized.runtime_metadata } : {}),
     });
   }
 
@@ -435,8 +402,7 @@ module.exports = async function handler(req, res) {
       resolved_version: version,
       supported_versions: Array.from(SUPPORTED_VERSIONS),
       runtime_health,
-      receipt_base_validated: !!validateReceiptBase,
-      ajv_setup_error: ajvSetupError,
+      receipt_model: "canonical-receipt-plus-optional-runtime-metadata",
       server_time: nowIso(),
       curl: curlBlock,
     },

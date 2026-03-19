@@ -701,12 +701,12 @@
             </p>
 
             <p class="hero__tldr">
-              TL;DR: call <code>POST /clean/v1.1.0</code> → get the Commons receipt contract first → then inspect any runtime proof fields separately.
+              TL;DR: call <code>POST /clean/v1.1.0</code> → get <code>{ receipt, runtime_metadata? }</code> → treat <code>receipt</code> as the canonical contract and <code>runtime_metadata</code> as optional.
             </p>
 
             <ul class="hero__list">
               <li>Pick a verb (start with deterministic <code>clean</code>), call the runtime endpoint.</li>
-              <li>Receive the canonical Commons receipt first: top-level verb identity, status, and verb-specific output fields. Treat any runtime-added metadata as separate.</li>
+              <li>Receive <code>receipt</code> as the canonical Commons receipt: top-level verb identity, status, and verb-specific output fields. Treat <code>runtime_metadata</code> as optional and separate.</li>
               <li>Verify: hash → signature (full verification adds schema + key resolution).</li>
             </ul>
 
@@ -733,8 +733,8 @@
             </p>
             <ol class="hero__card-list">
               <li>Call <code>POST /clean/v1.1.0</code> with the pinned Commons request shape.</li>
-              <li>Inspect the canonical receipt first: <code>verb</code>, <code>schema_version</code>, <code>status</code>, and the verb-specific output fields.</li>
-              <li>Then inspect runtime fields like <code>trace</code> or <code>metadata.proof</code> only if your executor adds them.</li>
+              <li>Inspect <code>receipt</code> first: <code>verb</code>, <code>schema_version</code>, <code>status</code>, and the verb-specific output fields.</li>
+              <li>Then inspect <code>runtime_metadata</code> only if your executor adds it.</li>
               <li>Resolve: use ENS TXT records to discover schema URLs &amp; entry.</li>
             </ol>
 
@@ -798,7 +798,7 @@
     "operations": ["collapse_whitespace", "trim"]
   }'</pre>
               <div class="mini-example__note">
-                Tip: start with the flat canonical request body above. If your runtime later adds trace metadata for chaining, treat that as execution context rather than part of the Commons request contract.
+                Tip: start with the flat canonical request body above. If your runtime later adds <code>runtime_metadata</code> for tracing or proof, treat that as execution context rather than part of the Commons contract.
               </div>
             </div>
 
@@ -827,7 +827,7 @@
           <div class="section__header">
             <h2>Step 2 — Understand the receipt</h2>
             <p>
-              Commons defines the minimum verifiable receipt contract. Start with the canonical fields the protocol promises, then treat runtime metadata as an optional execution/chaining layer.
+              Commons defines the minimum verifiable receipt contract. Start with <code>receipt</code>, then treat <code>runtime_metadata</code> as an optional execution layer.
             </p>
           </div>
 
@@ -849,7 +849,7 @@
             <article class="info-card">
               <h3>Optional proof layer</h3>
               <p>
-                Some runtimes attach <code>metadata.proof</code> with hashes and signatures. That is useful execution evidence, but it is an optional runtime layer on top of the canonical Commons receipt.
+                Some runtimes attach detached proof material under <code>runtime_metadata.proof</code>. That evidence is useful, but it is optional and does not change the canonical Commons receipt.
               </p>
             </article>
           </div>
@@ -872,7 +872,7 @@
 
             <div class="callouts">
               <div class="callout callout--success">
-                <strong>Layering note:</strong> the JSON above is the minimum receipt model this quickstart should teach first. If your runtime returns <code>trace</code>, <code>usage</code>, or <code>metadata.proof</code>, read those as optional execution-layer additions.
+                <strong>Layering note:</strong> the JSON above is the minimum receipt model this quickstart should teach first. If your runtime returns <code>runtime_metadata</code>, treat it as optional execution-layer context around the receipt.
               </div>
             </div>
 
@@ -987,38 +987,32 @@ cl.receipt.pubkey_b64      ...</pre>
 import { decodeBase64 } from "tweetnacl-util";
 import crypto from "crypto";
 
+function canonicalize(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalize).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalize(value[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
 /**
  * Minimal receipt verification:
- * 1) remove signature from payload
- * 2) canonicalize bytes (matches runtime: "runtime-json-stringify-v1")
- * 3) hash sha256 over canonical bytes (utf8)
- * 4) verify Ed25519 signature over the hash bytes
- *
- * Threat model:
- * This proves the runtime produced this receipt for this request.
- * It does NOT prove the result is "true" — only attributable.
- *
- * NOTE: This does NOT validate schemas or resolve keys. That's the "full verifier".
+ * 1) take the canonical receipt from envelope.receipt
+ * 2) canonicalize receipt bytes deterministically
+ * 3) hash sha256 over those canonical bytes
+ * 4) verify the detached Ed25519 signature from runtime_metadata.proof
  */
-export function verifyReceiptMinimal(receipt, publicKeyBytes) {
-  const proof = receipt?.metadata?.proof;
-  if (!proof?.signature_b64 || !proof?.hash_sha256) return { ok: false, reason: "missing proof" };
+export function verifyReceiptMinimal(envelope, publicKeyBytes) {
+  const receipt = envelope?.receipt || envelope;
+  const proof = envelope?.runtime_metadata?.proof;
+  if (!proof?.signature_b64 || !proof?.hash_sha256) return { ok: false, reason: "missing detached proof" };
 
-  // clone + remove signature before hashing
-  const unsigned = JSON.parse(JSON.stringify(receipt));
-  if (unsigned?.metadata?.proof) delete unsigned.metadata.proof.signature_b64;
-
-  // canonical bytes (v1: runtime-defined stable stringify)
-  const canonical = JSON.stringify(unsigned);
-
-  // hash sha256
+  const canonical = canonicalize(receipt);
   const hashHex = crypto.createHash("sha256").update(canonical, "utf8").digest("hex");
   if (hashHex !== proof.hash_sha256) return { ok: false, reason: "hash mismatch" };
 
-  // verify Ed25519 signature over the hash bytes
   const hashBytes = Buffer.from(proof.hash_sha256, "hex");
   const sigBytes = decodeBase64(proof.signature_b64);
-
   const ok = nacl.sign.detached.verify(hashBytes, sigBytes, publicKeyBytes);
   return ok ? { ok: true } : { ok: false, reason: "signature invalid" };
 }</pre>
@@ -1031,8 +1025,7 @@ export function verifyReceiptMinimal(receipt, publicKeyBytes) {
 
             <div class="callouts">
               <div class="callout callout--success">
-                <strong>Canonicalization note:</strong> <code>runtime-json-stringify-v1</code> is runtime-defined and frozen for Protocol v1.x.
-                If you want cross-language verification without foot-guns, move to RFC 8785 (JCS) and label it explicitly.
+                <strong>Canonicalization note:</strong> the digest is computed from the canonical receipt only. Runtime metadata stays outside the hash so detached proof never changes receipt meaning.
               </div>
               <div class="callout">
                 <strong>Schema validation:</strong> if you want “schema → hash → signature” as a single script,

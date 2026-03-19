@@ -555,7 +555,7 @@
               </h1>
 
               <p class="hero__subtitle">
-                Commons and Commercial define the contract. Runtime defines execution. Runtime is the <strong>execution surface</strong>: it runs pinned Commons and Commercial contracts and may attach <strong>optional</strong> trace, proof, timing, and orchestration metadata without changing the base receipt semantics.
+                Commons and Commercial define the contract. Runtime defines execution. Runtime is the <strong>execution surface</strong>: it runs pinned Commons and Commercial contracts and may attach <strong>optional</strong> runtime_metadata such as trace, proof, timing, and orchestration details without changing the base receipt semantics.
               </p>
 
               <p class="hero__subtitle" style="margin-top:0.85rem;">
@@ -740,7 +740,7 @@
   "converted_content": "..."
 }</pre>
               <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                Runtime may add fields like <code>trace</code>, <code>usage</code>, or <code>metadata.proof</code> as an optional proof layer for execution, orchestration, and verification, but those remain runtime-specific additions around the canonical receipt and should never be mistaken for the canonical Commons receipt itself.
+                Runtime may add fields under <code>runtime_metadata</code> as an optional proof layer for execution, orchestration, and verification, but those remain runtime-specific additions around the canonical receipt and should never be mistaken for the canonical Commons receipt itself.
               </p>
             </div>
           </div>

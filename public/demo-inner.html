@@ -348,8 +348,8 @@
       let activeTab = 'latest';
       const TAB_NOTES = {
         latest: 'Latest step action and response summary.',
-        receipt: 'Canonical Commercial receipt only. This is the contract layer.',
-        runtime: 'Runtime details only. This is trace / proof / orchestration context around the receipt.',
+        receipt: 'Canonical Commercial receipt only. This is the contract truth.',
+        runtime: 'Optional runtime_metadata only. This is trace / proof / orchestration context around the receipt.',
         verification: 'Receipt verification fields extracted from the latest step.',
         raw: 'Raw wrapped response returned by the backend.',
         curl: 'Reproduce the latest request with curl.'
@@ -359,18 +359,18 @@
       function prettify(obj) { return JSON.stringify(obj ?? {}, null, 2); }
       function currentSteps() { return Array.isArray(last?.steps) ? last.steps : []; }
       function latestStep() { const steps = currentSteps(); return steps.length ? steps[steps.length - 1] : null; }
-      function currentReceipt(step = latestStep()) { return step?.receipt || safeGet(step, 'response.receipt') || null; }
+      function currentReceipt(step = latestStep()) { return step?.receipt || null; }
       function currentRuntimeMetadata(step = latestStep()) {
-        return step?.runtime_metadata || safeGet(step, 'response.runtime_metadata') || safeGet(step, 'metadata') || safeGet(last, 'runtime_metadata') || null;
+        return step?.runtime_metadata || safeGet(last, 'runtime_metadata') || null;
       }
       function verificationView(step = latestStep()) {
         const receipt = currentReceipt(step) || {};
         const runtimeMetadata = currentRuntimeMetadata(step) || {};
         return {
-          receipt_id: safeGet(receipt, 'metadata.receipt_id') || safeGet(receipt, 'receipt_id') || null,
-          signer_id: safeGet(receipt, 'metadata.proof.signer_id') || safeGet(receipt, 'metadata.signer_id') || safeGet(runtimeMetadata, 'proof.signer_id') || null,
-          proof_hash: safeGet(receipt, 'metadata.proof.hash_sha256') || safeGet(runtimeMetadata, 'proof.hash_sha256') || null,
-          trace_id: safeGet(receipt, 'trace.trace_id') || safeGet(receipt, 'trace_id') || safeGet(runtimeMetadata, 'trace_id') || null,
+          receipt_id: safeGet(runtimeMetadata, 'metadata.receipt_id') || safeGet(runtimeMetadata, 'proof.hash_sha256') || safeGet(receipt, 'receipt_id') || null,
+          signer_id: safeGet(runtimeMetadata, 'proof.signer_id') || safeGet(runtimeMetadata, 'metadata.signer_id') || null,
+          proof_hash: safeGet(runtimeMetadata, 'proof.hash_sha256') || null,
+          trace_id: safeGet(runtimeMetadata, 'trace.trace_id') || safeGet(runtimeMetadata, 'trace_id') || null,
           verify_result: safeGet(step, 'verify') || safeGet(runtimeMetadata, 'verify') || safeGet(runtimeMetadata, 'verification') || null
         };
       }
@@ -388,9 +388,9 @@
       function renderMetaFromStep(step) {
         const receipt = currentReceipt(step);
         const runtimeMeta = currentRuntimeMetadata(step);
-        const traceId = safeGet(receipt, 'trace.trace_id') || safeGet(receipt, 'trace_id') || safeGet(runtimeMeta, 'trace_id') || '-';
-        const receiptId = safeGet(receipt, 'metadata.receipt_id') || safeGet(receipt, 'metadata.proof.hash_sha256') || safeGet(receipt, 'receipt_id') || '-';
-        const signer = safeGet(receipt, 'metadata.proof.signer_id') || safeGet(receipt, 'metadata.signer_id') || safeGet(runtimeMeta, 'proof.signer_id') || '-';
+        const traceId = safeGet(runtimeMeta, 'trace.trace_id') || safeGet(runtimeMeta, 'trace_id') || '-';
+        const receiptId = safeGet(runtimeMeta, 'metadata.receipt_id') || safeGet(runtimeMeta, 'proof.hash_sha256') || safeGet(receipt, 'receipt_id') || '-';
+        const signer = safeGet(runtimeMeta, 'proof.signer_id') || safeGet(runtimeMeta, 'metadata.signer_id') || '-';
         $('m_verb').textContent = step?.verb || '-'; $('m_url').textContent = step?.runtime_url || safeGet(runtimeMeta, 'runtime_url') || '-'; $('m_trace').textContent = String(traceId); $('m_receipt').textContent = String(receiptId); $('m_signer').textContent = String(signer);
       }
       function resetState() { last = null; state = { trace_id: null, last_order_id: null, last_shipment_id: null }; $('trace_id').value = ''; $('output').textContent = '{}'; $('status_pill').style.display = 'none'; $('net_pill').style.display = 'none'; renderMetaFromStep(null); setTab('latest'); }
@@ -435,7 +435,7 @@
           disableButtons(true); setPill($('net_pill'), $('net_text'), 'warn', `Running ${verb}…`);
           const base = getBaseRequest(); const step = { verb, input: buildStepInput(verb, base) }; const trace_id = effectiveTraceId();
           const data = await callCommercialFlow([step], trace_id); last = data; const step0 = Array.isArray(data?.steps) ? data.steps[0] : null; const receipt = currentReceipt(step0);
-          if (receipt) { const t = safeGet(receipt, 'trace.trace_id') || safeGet(receipt, 'trace_id') || safeGet(currentRuntimeMetadata(step0), 'trace_id') || null; updateTrace(t); captureIdsFromReceipt(receipt); }
+          if (receipt) { const t = safeGet(currentRuntimeMetadata(step0), 'trace.trace_id') || safeGet(currentRuntimeMetadata(step0), 'trace_id') || null; updateTrace(t); captureIdsFromReceipt(receipt); }
           renderMetaFromStep(step0); renderOutput(); setPill($('net_pill'), $('net_text'), 'good', `OK — ${verb} step returned.`);
         } catch (err) { last = { ok: false, error: err?.message || String(err) }; renderOutput(); renderMetaFromStep(null); setPill($('net_pill'), $('net_text'), 'bad', `Error — ${err?.message || String(err)}`); }
         finally { disableButtons(false); }
@@ -446,7 +446,7 @@
           const keepTrace = ($('trace_id').value || '').trim(); state.last_order_id = null; state.last_shipment_id = null; if (!keepTrace) state.trace_id = null;
           const base = getBaseRequest(); const steps = VERBS.map((v) => ({ verb: v, input: buildStepInput(v, base) })); const trace_id = effectiveTraceId();
           const data = await callCommercialFlow(steps, trace_id); last = data; const stepsArr = currentSteps(); const firstReceipt = currentReceipt(stepsArr[0]);
-          if (firstReceipt) { const t = safeGet(firstReceipt, 'trace.trace_id') || safeGet(firstReceipt, 'trace_id') || safeGet(currentRuntimeMetadata(stepsArr[0]), 'trace_id') || null; updateTrace(t); }
+          if (firstReceipt) { const t = safeGet(currentRuntimeMetadata(stepsArr[0]), 'trace.trace_id') || safeGet(currentRuntimeMetadata(stepsArr[0]), 'trace_id') || null; updateTrace(t); }
           for (const s of stepsArr) captureIdsFromReceipt(currentReceipt(s));
           renderMetaFromStep(latestStep()); renderOutput(); setPill($('net_pill'), $('net_text'), 'good', 'OK — full flow returned receipts.');
         } catch (err) { last = { ok: false, error: err?.message || String(err) }; renderOutput(); renderMetaFromStep(null); setPill($('net_pill'), $('net_text'), 'bad', `Error — ${err?.message || String(err)}`); }
