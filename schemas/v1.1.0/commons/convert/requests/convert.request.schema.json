@@ -1,0 +1,47 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "convert.request",
+  "description": "Request to convert content from one format or schema to another (e.g., HTML->Markdown, JSON->CSV).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "convert"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "content": {
+      "description": "Raw content to be converted.",
+      "type": "string",
+      "minLength": 1
+    },
+    "source_format": {
+      "description": "Declared source format (e.g., html, markdown, json, csv).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "target_format": {
+      "description": "Requested target format.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "options": {
+      "description": "Optional conversion options (e.g., preserve_links, pretty_print).",
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "content",
+    "source_format",
+    "target_format"
+  ]
+}

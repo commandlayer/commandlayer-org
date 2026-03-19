@@ -22,7 +22,7 @@ const COMMON_VERBS = [
 ];
 
 const DEFAULT_VERSION = "1.1.0";
-const SUPPORTED_VERSIONS = new Set(["1.0.0", "1.1.0"]);
+const SUPPORTED_VERSIONS = new Set(["1.1.0"]);
 
 function nowIso() {
   return new Date().toISOString();

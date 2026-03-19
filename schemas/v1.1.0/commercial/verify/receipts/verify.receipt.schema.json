@@ -1,0 +1,71 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commercial/verify/receipts/verify.receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "verify.receipt",
+  "description": "Receipt schema for commercial verification of a payment, invoice, or settlement against a provider’s canonical view.",
+  "allOf": [
+    {
+      "$ref": "https://commandlayer.org/schemas/v1.1.0/_shared/receipt.base.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "result": {
+          "description": "Verification outcome payload.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["target", "verified", "status"],
+          "properties": {
+            "target": {
+              "description": "The identifier that was verified (transaction ID, invoice ID, payout ID, etc.).",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 256
+            },
+            "verified": {
+              "description": "Whether the provider’s canonical record matches the caller’s expectations.",
+              "type": "boolean"
+            },
+            "status": {
+              "description": "Provider’s canonical status for this object.",
+              "type": "string",
+              "enum": ["success", "pending", "failed", "not_found"]
+            },
+            "amount": {
+              "description": "Canonical amount/asset as seen by the provider.",
+              "allOf": [
+                {
+                  "$ref": "https://commandlayer.org/schemas/v1.1.0/commercial/_shared/payment.amount.schema.json"
+                }
+              ]
+            },
+            "settlement": {
+              "description": "Canonical settlement destination as seen by the provider.",
+              "allOf": [
+                {
+                  "$ref": "https://commandlayer.org/schemas/v1.1.0/commercial/_shared/payment.settlement.schema.json"
+                }
+              ]
+            },
+            "reason": {
+              "description": "Optional explanation when verified = false or status != 'success'.",
+              "type": "string",
+              "maxLength": 1024
+            },
+            "metadata": {
+              "description": "Optional provider- or runtime-specific additional context.",
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "usage": {
+          "description": "Optional resource usage metrics (tokens, compute units, etc.).",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["result"]
+    }
+  ]
+}

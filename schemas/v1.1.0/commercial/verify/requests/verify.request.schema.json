@@ -1,0 +1,91 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commercial/verify/requests/verify.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "verify.request",
+  "description": "Request schema for verifying a commercial payment, invoice, or settlement record against a provider’s canonical view.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "x402": {
+      "description": "x402 envelope describing the verify verb and version.",
+      "allOf": [
+        {
+          "$ref": "https://commandlayer.org/schemas/v1.1.0/_shared/x402.schema.json"
+        }
+      ]
+    },
+    "trace": {
+      "description": "Trace envelope for correlating this verify request with logs and receipts.",
+      "allOf": [
+        {
+          "$ref": "https://commandlayer.org/schemas/v1.1.0/_shared/trace.schema.json"
+        }
+      ]
+    },
+    "payload": {
+      "description": "Verification parameters describing what should be verified and under which constraints.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "description": "What type of object is being verified.",
+          "type": "string",
+          "enum": ["transaction", "payment", "invoice", "payout"]
+        },
+        "target": {
+          "description": "Primary identifier for the object being verified (e.g., transaction ID, invoice ID, provider reference).",
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "amount": {
+          "description": "Expected amount and asset for this operation.",
+          "allOf": [
+            {
+              "$ref": "https://commandlayer.org/schemas/v1.1.0/commercial/_shared/payment.amount.schema.json"
+            }
+          ]
+        },
+        "settlement": {
+          "description": "Expected settlement destination for this operation.",
+          "allOf": [
+            {
+              "$ref": "https://commandlayer.org/schemas/v1.1.0/commercial/_shared/payment.settlement.schema.json"
+            }
+          ]
+        },
+        "window": {
+          "description": "Optional time window that this verification is expected to fall into.",
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "from": {
+              "description": "RFC 3339 timestamp for the earliest expected time.",
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 64
+            },
+            "to": {
+              "description": "RFC 3339 timestamp for the latest expected time.",
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 64
+            }
+          }
+        },
+        "strict": {
+          "description": "If true, require the provider’s canonical view to match all supplied fields exactly.",
+          "type": "boolean",
+          "default": true
+        },
+        "metadata": {
+          "description": "Optional, non-normative metadata useful for providers and SDKs.",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["kind", "target"]
+    }
+  },
+  "required": ["x402", "trace", "payload"]
+}

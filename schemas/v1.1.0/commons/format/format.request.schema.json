@@ -1,0 +1,46 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/format/format.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "format.request",
+  "description": "Request to reformat or restyle content according to a target style or layout (e.g., markdown, JSON, tables, code style).",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "format"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "content": {
+      "description": "Raw text to be formatted.",
+      "type": "string",
+      "minLength": 1
+    },
+    "source_style": {
+      "description": "Optional hint of the current style (e.g., plain, markdown, json, code).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "target_style": {
+      "description": "Requested target style (e.g., markdown, bullet-list, table, json-block).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "guidelines": {
+      "description": "Optional additional guidelines (e.g., max line width, heading depth).",
+      "type": "object",
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "content",
+    "target_style"
+  ]
+}

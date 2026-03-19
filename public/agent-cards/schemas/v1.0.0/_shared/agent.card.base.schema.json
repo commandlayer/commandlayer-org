@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://commandlayer.org/agent-cards/schemas/v1.0.0/_shared/agent.card.base.schema.json",
+  "title": "CommandLayer Agent Card",
+  "type": "object",
+  "required": ["id", "display_name", "ens", "version", "class", "implements", "entry"],
+  "properties": {
+    "$id": { "type": "string", "format": "uri" },
+    "$schema": { "type": "string", "format": "uri" },
+    "id": { "type": "string" },
+    "slug": { "type": "string" },
+    "display_name": { "type": "string" },
+    "description": { "type": "string" },
+    "owner": { "type": "string" },
+    "ens": { "type": "string" },
+    "version": { "type": "string" },
+    "status": { "type": "string" },
+    "class": { "enum": ["commons", "commercial"] },
+    "implements": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "schemas": {
+      "type": "object",
+      "properties": {
+        "request": { "type": "string" },
+        "receipt": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "schemas_mirror": {
+      "type": "object",
+      "properties": {
+        "request": { "type": "string", "format": "uri" },
+        "receipt": { "type": "string", "format": "uri" }
+      },
+      "additionalProperties": true
+    },
+    "entry": { "type": "string" },
+    "capabilities": { "type": "object" },
+    "meta": { "type": "object" },
+    "networks": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "license": { "type": "string" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "updated_at": { "type": "string", "format": "date-time" }
+  },
+  "additionalProperties": true
+}

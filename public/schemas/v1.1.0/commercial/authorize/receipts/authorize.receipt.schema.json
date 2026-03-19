@@ -1,0 +1,73 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commercial/authorize/receipts/authorize.receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "authorize.receipt",
+  "description": "Receipt schema for authorization operations.",
+  "allOf": [
+    {
+      "$ref": "https://commandlayer.org/schemas/v1.1.0/_shared/receipt.base.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "result": {
+          "description": "Authorization outcome payload.",
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["authorization_id", "status"],
+          "properties": {
+            "authorization_id": {
+              "description": "Canonical authorization identifier.",
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            "status": {
+              "description": "Authorization status.",
+              "type": "string",
+              "enum": ["authorized", "declined", "expired", "canceled"]
+            },
+            "amount": {
+              "description": "Authorized amount.",
+              "allOf": [
+                {
+                  "$ref": "https://commandlayer.org/schemas/v1.1.0/commercial/_shared/payment.amount.schema.json"
+                }
+              ]
+            },
+            "settlement": {
+              "description": "Settlement details for any subsequent capture.",
+              "allOf": [
+                {
+                  "$ref": "https://commandlayer.org/schemas/v1.1.0/commercial/_shared/payment.settlement.schema.json"
+                }
+              ]
+            },
+            "expires_at": {
+              "description": "Optional expiry timestamp for the authorization.",
+              "type": "string",
+              "format": "date-time",
+              "maxLength": 64
+            },
+            "reason": {
+              "description": "Optional reason for decline or cancellation.",
+              "type": "string",
+              "maxLength": 1024
+            },
+            "metadata": {
+              "description": "Optional provider- or runtime-specific additional context.",
+              "type": "object",
+              "additionalProperties": true
+            }
+          }
+        },
+        "usage": {
+          "description": "Optional resource usage metrics (tokens, compute units, etc.).",
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": ["result"]
+    }
+  ]
+}

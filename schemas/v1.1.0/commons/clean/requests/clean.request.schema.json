@@ -1,0 +1,38 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.request.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "clean.request",
+  "description": "Request to clean, normalize, or sanitize content according to specified operations.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "clean"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "content": {
+      "description": "Raw text or serialized content to be cleaned.",
+      "type": "string",
+      "minLength": 1
+    },
+    "operations": {
+      "description": "Operations to apply in order.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 64
+      },
+      "maxItems": 32
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "content"
+  ]
+}
