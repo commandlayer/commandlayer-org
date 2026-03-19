@@ -223,7 +223,7 @@ body {
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
   gap: 1.6rem;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .eyebrow {
@@ -334,6 +334,7 @@ body {
 
 .receipt-card {
   position: relative;
+  margin-top: -0.35rem;
   overflow: hidden;
   padding: 1.35rem;
   border-radius: var(--radius-xl);
@@ -698,6 +699,10 @@ code,
 }
 
 @media (max-width: 640px) {
+  .receipt-card {
+    margin-top: 0;
+  }
+
   .container {
     padding: 0 1rem;
   }
@@ -795,22 +800,22 @@ code,
         <div class="hero__layout">
           <div>
             <p class="eyebrow">Signed proof for agent execution</p>
-            <h1 class="hero__title">Agents can act. <span class="hero__title-accent">CommandLayer proves they acted.</span></h1>
+            <h1 class="hero__title">Agents Can Act. <span class="hero__title-accent">CommandLayer Proves They Acted.</span></h1>
             <p class="hero__subtitle">
               CommandLayer is the trust layer for agent execution: Commons defines the canonical free verb layer, every action emits a signed receipt, and proof can be checked through identity, verification, and ERC-8004-linked surfaces.
             </p>
             <div class="hero__actions">
               <a href="/demo.html" class="btn btn--primary">See proof in a live flow</a>
               <a href="#trust-strip" class="btn btn--ghost">How proof works</a>
-              <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" class="btn btn--ghost" target="_blank" rel="noopener noreferrer">View ERC-8004 registration on Base</a>
+              <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" class="btn btn--ghost" target="_blank" rel="noopener noreferrer">View ERC-8004 registration</a>
             </div>
             <p class="hero__meta"><strong>Start with Commons:</strong> it is the canonical free signed-receipt layer for CommandLayer verbs and receipt semantics.</p>
             <p class="hero__meta">Commercial is a contained commerce-oriented extension for paid flows; it inherits the same proof model without replacing the Commons-first story.</p>
             <div class="hero__pills" aria-label="Trust pillars">
               <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Trust layer</span>
               <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Signed Receipts</span>
-              <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>On-chain / identity proof</span>
-              <a class="trust-pill" href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer"><span class="trust-pill__dot" aria-hidden="true"></span>View Base registration</a>
+              <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>On-chain / identity proof · ERC-8004</span>
+              <a class="trust-pill" href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer"><span class="trust-pill__dot" aria-hidden="true"></span>View on Base</a>
             </div>
           </div>
 
