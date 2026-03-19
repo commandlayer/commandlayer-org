@@ -1,0 +1,47 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "fetch.receipt",
+  "description": "Receipt for a fetch request, including the items retrieved and pagination cursor if applicable.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "fetch"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "status": {
+      "description": "Outcome status for this verb invocation.",
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "delegated"
+      ]
+    },
+    "items": {
+      "description": "Array of items returned by the fetch operation.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "description": "An individual fetched item. Structure is source-specific.",
+        "additionalProperties": true
+      }
+    },
+    "next_cursor": {
+      "description": "Opaque pagination cursor for retrieving additional items, if available.",
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "status",
+    "items"
+  ]
+}

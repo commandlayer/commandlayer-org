@@ -1,0 +1,57 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/describe/describe.receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "describe.receipt",
+  "description": "Receipt for a describe request, including a description text and optional key properties.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "describe"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "status": {
+      "description": "Outcome status for this verb invocation.",
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "delegated"
+      ]
+    },
+    "description": {
+      "description": "Natural language description of the subject.",
+      "type": "string",
+      "minLength": 1
+    },
+    "bullets": {
+      "description": "Optional bullet-point summary of key attributes or behaviors.",
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      },
+      "maxItems": 64
+    },
+    "properties": {
+      "description": "Optional structured key/value properties about the subject.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 256
+      }
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "status",
+    "description"
+  ]
+}

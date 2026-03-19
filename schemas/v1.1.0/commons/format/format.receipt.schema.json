@@ -1,0 +1,59 @@
+{
+  "$id": "https://commandlayer.org/schemas/v1.1.0/commons/format/format.receipt.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "format.receipt",
+  "description": "Receipt for a format request, including formatted content and any applied style details.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "verb": {
+      "type": "string",
+      "const": "format"
+    },
+    "schema_version": {
+      "type": "string",
+      "const": "1.1.0"
+    },
+    "status": {
+      "description": "Outcome status for this verb invocation.",
+      "type": "string",
+      "enum": [
+        "success",
+        "error",
+        "delegated"
+      ]
+    },
+    "formatted_content": {
+      "description": "The formatted output content.",
+      "type": "string",
+      "minLength": 1
+    },
+    "style": {
+      "description": "Style actually applied (e.g., markdown, bullet-list, table).",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "original_length": {
+      "description": "Length of the original content.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "formatted_length": {
+      "description": "Length of the formatted content.",
+      "type": "integer",
+      "minimum": 0
+    },
+    "notes": {
+      "description": "Optional notes about formatting decisions or truncation.",
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "required": [
+    "verb",
+    "schema_version",
+    "status",
+    "formatted_content"
+  ]
+}
