@@ -22,8 +22,8 @@
     "receipt": "https://commandlayer.org/schemas/v1.0.0/commercial/verify/receipts/verify.receipt.schema.json"
   },
   "schemas_mirror": {
-    "request": "https://ipfs.io/ipfs/COMMERCIAL_SCHEMAS_CID/commercial/verify/requests/verify.request.schema.json",
-    "receipt": "https://ipfs.io/ipfs/COMMERCIAL_SCHEMAS_CID/commercial/verify/receipts/verify.receipt.schema.json"
+    "request": "https://ipfs.io/ipfs/bafybeiftjpyw6lwy3zm52sipbbwryssg5hoyu2qhr53j5gaqjvwfgfc344/commercial/verify/requests/verify.request.schema.json",
+    "receipt": "https://ipfs.io/ipfs/bafybeiftjpyw6lwy3zm52sipbbwryssg5hoyu2qhr53j5gaqjvwfgfc344/commercial/verify/receipts/verify.receipt.schema.json"
   },
 
   "entry": "x402://verifyagent.eth/verify/v1.0.0",

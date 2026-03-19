@@ -20,8 +20,8 @@
     "receipt": "https://commandlayer.org/schemas/v1.0.0/commercial/ship/receipts/ship.receipt.schema.json"
   },
   "schemas_mirror": {
-    "request": "https://ipfs.io/ipfs/COMMERCIAL_SCHEMAS_CID/commercial/ship/requests/ship.request.schema.json",
-    "receipt": "https://ipfs.io/ipfs/COMMERCIAL_SCHEMAS_CID/commercial/ship/receipts/ship.receipt.schema.json"
+    "request": "https://ipfs.io/ipfs/bafybeiftjpyw6lwy3zm52sipbbwryssg5hoyu2qhr53j5gaqjvwfgfc344/commercial/ship/requests/ship.request.schema.json",
+    "receipt": "https://ipfs.io/ipfs/bafybeiftjpyw6lwy3zm52sipbbwryssg5hoyu2qhr53j5gaqjvwfgfc344/commercial/ship/receipts/ship.receipt.schema.json"
   },
 
   "entry": "x402://shipagent.eth/ship/v1.0.0",
