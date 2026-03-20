@@ -32,7 +32,6 @@
 * { box-sizing: border-box; }
 html, body {
   margin: 0;
-  padding: 0;
   min-height: 100%;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
   background:
@@ -42,10 +41,10 @@ html, body {
   color: var(--text-main);
 }
 body { min-height: 100vh; }
-code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-a { color: inherit; }
 button, input, textarea, select { font: inherit; }
 button { cursor: pointer; }
+code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+a { color: inherit; }
 .page-shell { min-height: 100vh; display: flex; flex-direction: column; }
 .page-main { flex: 1; }
 .container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
@@ -61,7 +60,11 @@ button { cursor: pointer; }
 .site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.95rem 1.5rem; }
 .site-header__brand { display: flex; align-items: center; gap: 0.78rem; text-decoration: none; }
 .site-header__logo-img {
-  width: 30px; height: 30px; border-radius: 8px; object-fit: contain; display: block;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  object-fit: contain;
+  display: block;
   box-shadow: 0 0 0 1px rgba(255,255,255,0.28), 0 14px 30px rgba(0,0,0,0.55);
 }
 .site-header__text { display: flex; flex-direction: column; }
@@ -69,8 +72,16 @@ button { cursor: pointer; }
 .site-header__subtitle { font-size: 0.78rem; color: var(--text-muted); }
 .site-header__nav { display: flex; align-items: center; gap: 0.9rem; }
 .site-header__link, .site-header__dropdown-btn {
-  display: inline-flex; align-items: center; gap: 0.25rem; text-decoration: none; font-size: 0.85rem;
-  color: var(--text-muted); background: transparent; border: 1px solid transparent; border-radius: 999px; padding: 0.38rem 0.82rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: none;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  padding: 0.38rem 0.82rem;
 }
 .site-header__link:hover, .site-header__dropdown-btn:hover { color: var(--text-main); border-color: rgba(255,255,255,0.14); background: rgba(15, 23, 42, 0.72); }
 .site-header__link--active { color: var(--text-main); background: rgba(15, 23, 42, 0.72); border-color: rgba(255,255,255,0.14); }
@@ -266,7 +277,7 @@ details.disclosure summary::-webkit-details-marker { display: none; }
   .site-header__nav { display: none; flex-direction: column; align-items: flex-start; width: 100%; }
   .site-header.site-header--open .site-header__nav { display: flex; }
 }
-@media (max-width: 640px) {
+@media (max-width: 720px) {
   .container { padding: 0 1rem; }
   .site-header__inner { padding-inline: 1rem; }
   .proof-strip__meta, .status-bar, .receipt-meta-grid { grid-template-columns: minmax(0, 1fr); }
@@ -669,7 +680,7 @@ details.disclosure summary::-webkit-details-marker { display: none; }
       const parsed = JSON.parse(raw);
       return parsed && typeof parsed === 'object' ? parsed : null;
     } catch {
-      return null;
+      return fallback;
     }
   }
 
@@ -1068,6 +1079,22 @@ details.disclosure summary::-webkit-details-marker { display: none; }
       steps: Array.isArray(bundled?.steps) ? bundled.steps : []
     };
     renderArtifact(bundledArtifact);
+  }
+
+  function buildVerifyCurl() {
+    const receipt = lastRun?.receipt || safeJsonParse(receiptJson.textContent, {});
+    const receiptPayload = JSON.stringify(receipt).replace(/'/g, "'\\''");
+    return `curl -X POST \"${VERIFY_URL}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '${receiptPayload}'`;
+  }
+
+  function copyText(text, button, idleLabel) {
+    if (!navigator.clipboard) return;
+    navigator.clipboard.writeText(text).then(() => {
+      button.textContent = "Copied";
+      setTimeout(() => {
+        button.textContent = idleLabel;
+      }, 1200);
+    }).catch(() => {});
   }
 
   async function probeRuntime() {
