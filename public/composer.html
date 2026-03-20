@@ -596,20 +596,53 @@ function normalizeContent(value) {
   }
 }
 
+function getReceiptVerb(receipt) {
+  return receipt?.x402?.verb || receipt?.verb || null;
+}
+
+function getReceiptVersion(receipt) {
+  return receipt?.x402?.version || receipt?.schema_version || null;
+}
+
+function getReceiptResult(receipt) {
+  return receipt && typeof receipt.result === 'object' && !Array.isArray(receipt.result) ? receipt.result : {};
+}
+
+function getReceiptProof(receipt) {
+  return receipt?.metadata?.proof || {};
+}
+
+function getReceiptTrace(receipt) {
+  return receipt?.runtime_metadata?.trace?.trace_id
+    || receipt?.trace?.trace_id
+    || receipt?.metadata?.trace?.trace_id
+    || receipt?.trace_id
+    || null;
+}
+
 function summarizeReceipt(receipt) {
   if (!receipt || typeof receipt !== 'object') return 'No receipt returned.';
   const parts = [
-    `verb=${receipt.verb || 'unknown'}`,
+    `verb=${getReceiptVerb(receipt) || 'unknown'}`,
     `status=${receipt.status || 'unknown'}`,
-    `schema=${receipt.schema_version || RUNTIME_VERSION}`,
-    `trace=${receipt.trace?.trace_id || 'n/a'}`
+    `schema=${getReceiptVersion(receipt) || RUNTIME_VERSION}`,
+    `trace=${getReceiptTrace(receipt) || 'n/a'}`
   ];
   return parts.join(' · ');
 }
 
 function pickFinalOutput(receipt) {
   if (!receipt || typeof receipt !== 'object') return 'No live output available.';
+  const result = getReceiptResult(receipt);
   const candidates = [
+    Array.isArray(result.labels) ? `labels: ${result.labels.join(', ')}` : null,
+    result.cleaned_content,
+    result.summary,
+    result.formatted_content,
+    result.converted_content,
+    result.description,
+    result.explanation,
+    result.analysis,
     receipt.summary,
     receipt.cleaned_content,
     receipt.formatted_content,
@@ -617,7 +650,7 @@ function pickFinalOutput(receipt) {
     receipt.description,
     Array.isArray(receipt.labels) ? `labels: ${receipt.labels.join(', ')}` : null,
     receipt.analysis,
-    receipt.result && normalizeContent(receipt.result)
+    Object.keys(result).length ? normalizeContent(result) : null
   ].filter(Boolean);
   return candidates[0] || normalizeContent(receipt);
 }
@@ -628,14 +661,21 @@ function buildExecutionSteps(steps) {
     return;
   }
   executionSteps.innerHTML = steps.map((step, index) => {
-    const summary = summarizeReceipt(step.receipt);
+    const summary = summarizeReceipt(step.signed_receipt || step.receipt);
     return `<div class="exec-step"><strong>Step ${index + 1} · ${step.verb}</strong><span>${summary}</span></div>`;
   }).join('');
 }
 
 function buildErrorSummary(errorPayload) {
-  const top = errorPayload?.error || 'Runtime returned an error receipt';
-  const detail = errorPayload?.detail?.error || errorPayload?.detail?.message || errorPayload?.detail?.details?.message || errorPayload?.raw || '';
+  const receipt = errorPayload?.detail?.signed_receipt || errorPayload?.detail?.receipt || errorPayload?.receipt || errorPayload;
+  const top = errorPayload?.error || (receipt?.status === 'error' ? 'Runtime returned an error receipt' : 'Runtime request failed');
+  const detail = errorPayload?.detail?.error
+    || errorPayload?.detail?.message
+    || errorPayload?.detail?.details?.message
+    || receipt?.error?.message
+    || errorPayload?.message
+    || errorPayload?.raw
+    || '';
   return detail ? `${top}\nCause: ${detail}` : top;
 }
 
@@ -693,6 +733,10 @@ async function verifySignedReceipt(signedReceipt, { retryOnWarmup = true } = {})
     body: JSON.stringify(signedReceipt)
   });
   const verification = await verifyResponse.json();
+  verification.transport = {
+    ok: verifyResponse.ok,
+    status: verifyResponse.status
+  };
   if (retryOnWarmup && getSchemaWarmupState(verification)) {
     setRowState(verifySchemaRow, 'pending', 'Validator warming; retrying once…');
     setRowState(verifyStatusRow, 'pending', 'Signature verified; schema validator still warming');
@@ -703,24 +747,48 @@ async function verifySignedReceipt(signedReceipt, { retryOnWarmup = true } = {})
 }
 
 function applyVerification(compactReceipt, signedReceipt, verification) {
+  finalReceiptJson.textContent = JSON.stringify(signedReceipt || {}, null, 2);
+  verificationJson.textContent = JSON.stringify(verification || {}, null, 2);
+  artifactSummary.textContent = 'Verification response received; evaluating signed receipt details.';
+  verifyPayloadSummary.textContent = 'Verification completed; summarizing payload and checks.';
+
   const checks = verification?.checks || {};
-  const signerEns = verification?.ens || verification?.signer_ens || verification?.signer_id || verification?.values?.signer_id || 'runtime.commandlayer.eth';
-  const kid = verification?.kid || verification?.values?.kid || verification?.resolved_kid || '—';
-  const hash = verification?.hash_sha256 || verification?.values?.hash_sha256 || verification?.content_hash || '—';
+  const proof = getReceiptProof(signedReceipt);
+  const signerEns = proof.signer_id
+    || verification?.ens
+    || verification?.signer_ens
+    || verification?.signer_id
+    || verification?.values?.signer_id
+    || 'runtime.commandlayer.eth';
+  const kid = proof.kid
+    || verification?.kid
+    || verification?.values?.kid
+    || verification?.resolved_kid
+    || '—';
+  const hash = proof.hash_sha256
+    || verification?.hash_sha256
+    || verification?.values?.hash_sha256
+    || verification?.content_hash
+    || '—';
   const signatureValid = checks.signature_valid === true;
   const hashMatches = checks.hash_matches === true;
   const ensMatch = checks.ens_match === true || verification?.ens_match === true || verification?.values?.ens_match === true;
   const schemaValid = checks.schema_valid === true;
   const validatorWarming = getSchemaWarmupState(verification);
+  const verifyTransportFailed = verification?.transport?.ok === false || verification?.transport_ok === false || verification?.endpoint_ok === false;
+  const verifyEndpointError = verification?.error || verification?.message || verification?.detail?.message || (verification?.transport?.ok === false ? `HTTP ${verification.transport.status}` : null);
+  const receiptPresent = !!(signedReceipt && typeof signedReceipt === 'object' && Object.keys(signedReceipt).length);
   const cryptoValid = signatureValid && hashMatches;
   const authenticityValid = cryptoValid && ensMatch;
-  const overallValid = authenticityValid && (schemaValid || validatorWarming);
+  const overallValid = receiptPresent && authenticityValid && (schemaValid || validatorWarming) && !verifyTransportFailed;
 
   verifyBadge.className = overallValid ? 'badge ok' : 'badge bad';
   verifyBadge.textContent = schemaValid
     ? 'Verified'
     : (validatorWarming && authenticityValid ? 'Verified pending schema' : 'Needs review');
-  setRowState(verifyRuntimeRow, 'ok', 'Full final signed receipt sent to /verify');
+  setRowState(verifyRuntimeRow, receiptPresent ? 'ok' : 'bad', receiptPresent
+    ? 'Full final signed receipt present and sent to /verify'
+    : 'Final signed receipt payload missing');
   setRowState(
     verifySignatureRow,
     cryptoValid ? 'ok' : 'bad',
@@ -734,31 +802,38 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
     schemaValid ? 'ok' : (validatorWarming ? 'pending' : 'bad'),
     schemaValid ? 'Schema valid' : (validatorWarming ? 'Validator still warming; retryable' : 'Schema invalid')
   );
+
+  const verificationMessages = [];
+  if (!receiptPresent) verificationMessages.push('Receipt payload missing');
+  if (verifyTransportFailed) verificationMessages.push(`Verify endpoint failure: ${verifyEndpointError || 'request failed'}`);
+  verificationMessages.push(cryptoValid ? 'Cryptographic verification passed' : 'Cryptographic verification failed');
+  verificationMessages.push(ensMatch ? 'ENS signer verification passed' : 'ENS signer verification failed');
+  verificationMessages.push(
+    schemaValid
+      ? 'Schema validation passed'
+      : (validatorWarming ? 'Schema validator warming' : 'Schema validation failed')
+  );
   setRowState(
     verifyStatusRow,
     overallValid ? (schemaValid ? 'ok' : 'pending') : 'bad',
-    schemaValid
-      ? 'Cryptographic, ENS, and schema verification passed'
-      : (validatorWarming && authenticityValid
-          ? 'Signature verified; schema validator still warming'
-          : (verification?.error || verification?.message || 'Verification failed'))
+    verificationMessages.join(' · ')
   );
 
   artifactSigner.textContent = signerEns;
   artifactKid.textContent = kid;
   artifactHash.textContent = hash;
-  artifactSchema.textContent = compactReceipt?.schema_version || signedReceipt?.schema_version || RUNTIME_VERSION;
+  artifactSchema.textContent = getReceiptVersion(signedReceipt) || getReceiptVersion(compactReceipt) || RUNTIME_VERSION;
   artifactSummary.textContent = schemaValid
-    ? 'Fresh final signed receipt verified after execution. Cryptographic checks, ENS signer resolution, and schema validation all passed.'
+    ? `Fresh final signed receipt verified after execution. ${summarizeReceipt(signedReceipt)}.`
     : (validatorWarming && authenticityValid
-        ? 'Signature, hash, and ENS signer checks passed. Schema validation is retryable because the validator is still warming.'
-        : buildErrorSummary(verification));
-  const proof = signedReceipt?.metadata?.proof || {};
-  verifyPayloadSummary.textContent = proof.signature_b64 && proof.hash_sha256 && proof.signer_id
-    ? `Using the exact full final signed receipt object with metadata.proof.signer_id=${proof.signer_id}, hash=${proof.hash_sha256.slice(0, 18)}…`
-    : 'Verify sends the full final signed receipt object, but metadata.proof fields are missing; inspect the raw receipt JSON.';
-  finalReceiptJson.textContent = JSON.stringify(signedReceipt, null, 2);
-  verificationJson.textContent = JSON.stringify(verification, null, 2);
+        ? `Signature, hash, and ENS signer checks passed for ${summarizeReceipt(signedReceipt)}. Schema validation is retryable because the validator is still warming.`
+        : `${summarizeReceipt(signedReceipt)}. ${verificationMessages.join(' · ')}`);
+  const proofAvailable = !!(proof.signature_b64 || proof.hash_sha256 || proof.signer_id || proof.kid);
+  verifyPayloadSummary.textContent = cryptoValid
+    ? `Using the exact final signed receipt object. metadata.proof signer=${signerEns}, hash=${hash === '—' ? 'n/a' : String(hash).slice(0, 18) + '…'}.`
+    : (proofAvailable
+        ? 'Verify used the exact final signed receipt object and found incomplete or failing proof checks; inspect metadata.proof and the verification response JSON.'
+        : 'Verify used the exact final signed receipt object, but metadata.proof fields are missing; inspect the raw receipt JSON.');
   lastCompactReceipt = compactReceipt;
   lastSignedReceipt = signedReceipt;
   lastVerification = verification;
@@ -784,7 +859,15 @@ function buildFlowRequest(verb, sourceText) {
 
 function extractChainText(receipt) {
   if (!receipt || typeof receipt !== 'object') return '';
+  const result = getReceiptResult(receipt);
   const candidates = [
+    result.cleaned_content,
+    result.summary,
+    result.formatted_content,
+    result.converted_content,
+    result.description,
+    result.explanation,
+    Array.isArray(result.labels) ? result.labels.join(', ') : null,
     receipt.cleaned_content,
     receipt.summary,
     receipt.formatted_content,
@@ -792,7 +875,7 @@ function extractChainText(receipt) {
     receipt.description,
     receipt.explanation,
     Array.isArray(receipt.labels) ? receipt.labels.join(', ') : null,
-    receipt.result && normalizeContent(receipt.result)
+    Object.keys(result).length ? normalizeContent(result) : null
   ].filter(Boolean);
   return String(candidates[0] || '').trim();
 }
@@ -869,16 +952,16 @@ async function runChain() {
         return;
       }
       collectedSteps.push(step);
-      chainInput = extractChainText(finalReceipt);
+      chainInput = extractChainText(finalSignedReceipt || finalReceipt);
     }
 
     executionBadge.className = 'badge ok';
     executionBadge.textContent = 'Executed';
-    executionTrace.textContent = lastTraceId || finalReceipt.trace?.trace_id || '—';
-    executionFinalVerb.textContent = finalReceipt.verb || '—';
+    executionTrace.textContent = lastTraceId || getReceiptTrace(finalSignedReceipt) || getReceiptTrace(finalReceipt) || '—';
+    executionFinalVerb.textContent = getReceiptVerb(finalSignedReceipt) || getReceiptVerb(finalReceipt) || '—';
     buildExecutionSteps(collectedSteps);
-    executionOutput.textContent = pickFinalOutput(finalReceipt);
-    executionReceiptSummary.textContent = summarizeReceipt(finalReceipt);
+    executionOutput.textContent = pickFinalOutput(finalSignedReceipt || finalReceipt);
+    executionReceiptSummary.textContent = summarizeReceipt(finalSignedReceipt || finalReceipt);
     executionJson.textContent = JSON.stringify({ trace_id: lastTraceId, steps: collectedSteps }, null, 2);
     finalReceiptJson.textContent = JSON.stringify(finalSignedReceipt, null, 2);
     verificationJson.textContent = JSON.stringify({ status: 'verifying' }, null, 2);
