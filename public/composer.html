@@ -706,8 +706,8 @@ button { cursor: pointer; }
       const input = typeof step.inputBuilder === "function" ? step.inputBuilder(fieldValue) : null;
       return {
         verb: step.verb,
-        ...(step.use_previous_result ? { use_previous_result: true } : {}),
-        ...(input ? { input } : {})
+        use_previous_result: step.use_previous_result === true,
+        input: input && typeof input === "object" ? input : {}
       };
     });
   }
@@ -722,8 +722,10 @@ button { cursor: pointer; }
 
   function deriveKid(step) {
     return step?.verification?.kid
+      || step?.verification?.values?.kid
       || step?.runtime_metadata?.proof?.kid
       || step?.runtime_metadata?.metadata?.kid
+      || step?.kid
       || null;
   }
 
@@ -822,6 +824,7 @@ button { cursor: pointer; }
 
     const kid =
       artifact?.verification?.kid ||
+      artifact?.verification?.values?.kid ||
       artifact?.runtime_metadata?.proof?.kid ||
       artifact?.kid ||
       "unknown";
@@ -923,6 +926,43 @@ button { cursor: pointer; }
     return { ...data, ok, checks };
   }
 
+  async function runVerb(verb, input) {
+    const res = await fetch(`${RUNTIME_BASE}/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ verb, input })
+    });
+
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      const detail = data?.error || data?.message || data?.detail;
+      throw new Error(`Runtime ${verb} failed (${res.status})${detail ? `: ${detail}` : ""}`);
+    }
+
+    return data;
+  }
+
+  function extractStepReceiptPayload(result) {
+    return result?.receipt || result?.payload || result?.result || result || null;
+  }
+
+  function buildStepRuntimeMetadata(result, verification) {
+    const metadata = result?.runtime_metadata && typeof result.runtime_metadata === "object"
+      ? { ...result.runtime_metadata }
+      : {};
+
+    if (!metadata.proof && verification?.proof && typeof verification.proof === "object") {
+      metadata.proof = verification.proof;
+    }
+
+    if (!metadata.proof && verification?.values?.kid) {
+      metadata.proof = { kid: verification.values.kid };
+    }
+
+    return Object.keys(metadata).length ? metadata : null;
+  }
+
   async function runFlow() {
     updateButtonBusy(true);
     proofBadge.className = "proof-stage__badge";
@@ -932,40 +972,51 @@ button { cursor: pointer; }
 
     try {
       const steps = buildRequestFromSelection();
+      const responseSteps = [];
+      let previousPayload = null;
 
-      const res = await fetch(`${RUNTIME_BASE}/execute`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ steps })
-      });
+      for (const step of steps) {
+        const stepInput = step.use_previous_result
+          ? {
+            ...(step.input || {}),
+            previous_result: previousPayload
+          }
+          : (step.input || {});
 
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        runtimeHealthy = false;
-        setRuntimeVisualState("fallback", `Live execution failed (${res.status}). Recorded proof mode is ready.`, runtimeLatency.textContent);
-        await renderRecordedFallback(`Live execution failed with status ${res.status}. Showing a preserved proof artifact instead of dropping the trust story.`);
-        return;
-      }
-
-      const responseSteps = Array.isArray(data?.steps) ? data.steps : [];
-
-      for (let i = 0; i < responseSteps.length; i += 1) {
-        if (responseSteps[i]?.receipt) {
-          responseSteps[i].verification = await verifyReceipt(responseSteps[i].receipt).catch(() => ({
+        const result = await runVerb(step.verb, stepInput);
+        const receipt = extractStepReceiptPayload(result);
+        const verification = receipt
+          ? await verifyReceipt(receipt).catch(() => ({
             ok: false,
             reason: "Verification request failed."
-          }));
-        }
+          }))
+          : { ok: false, reason: "Runtime did not return a receipt payload." };
+
+        responseSteps.push({
+          verb: step.verb,
+          input: stepInput,
+          receipt,
+          verification,
+          runtime_metadata: buildStepRuntimeMetadata(result, verification),
+          result
+        });
+
+        previousPayload = receipt;
       }
 
-      const artifact = buildArtifactFromFlow({ ...data, steps: responseSteps }, { mode: "live" });
+      const artifact = buildArtifactFromFlow({
+        steps: responseSteps,
+        meta: {
+          runtime_base: RUNTIME_BASE,
+          execution_mode: "frontend-chained"
+        }
+      }, { mode: "live" });
       renderArtifact(artifact);
 
       if (artifact?.verification?.ok) persistArtifact(artifact);
 
       runtimeHealthy = true;
-      setRuntimeVisualState("live", `Connected to ${data?.meta?.runtime_base || RUNTIME_BASE} · live proof generated successfully.`, runtimeLatency.textContent);
+      setRuntimeVisualState("live", `Connected to ${RUNTIME_BASE} · live proof generated successfully.`, runtimeLatency.textContent);
     } catch (error) {
       runtimeHealthy = false;
       setRuntimeVisualState("fallback", "Runtime request failed. Recorded proof mode is active.", runtimeLatency.textContent);
