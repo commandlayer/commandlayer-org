@@ -11,12 +11,15 @@
   --panel:#0b1220;
   --panel-2:#0f1728;
   --line:rgba(255,255,255,.08);
+  --line-strong:rgba(255,255,255,.14);
   --text:#f3f7ff;
   --muted:#94a3b8;
+  --muted-2:#6f7b93;
   --blue:#4db2ff;
   --blue-2:#82d6ff;
   --ok:#63e6a8;
   --warn:#ffcc66;
+  --bad:#ff8d8d;
   --radius:18px;
   --shadow:0 18px 60px rgba(0,0,0,.35);
   --max:1160px;
@@ -98,6 +101,11 @@ h1{
   background:rgba(255,255,255,.03);color:var(--text);
   cursor:pointer;font-size:12px;font-weight:700;
 }
+.btn:hover{border-color:var(--line-strong)}
+.btn:disabled{
+  opacity:.55;
+  cursor:not-allowed;
+}
 .btn-primary{
   border:none;color:#04111d;
   background:linear-gradient(135deg,var(--blue),var(--blue-2));
@@ -116,7 +124,7 @@ h1{
 }
 .mini-label{
   font-size:10px;text-transform:uppercase;letter-spacing:.12em;
-  color:#6f7b93;font-weight:700;
+  color:var(--muted-2);font-weight:700;
 }
 .mini-value{
   margin-top:8px;font-size:13px;font-weight:650;line-height:1.25;
@@ -124,6 +132,10 @@ h1{
 .live-dot{
   display:inline-block;width:8px;height:8px;border-radius:999px;
   background:var(--ok);box-shadow:0 0 0 4px rgba(99,230,168,.12);
+}
+.warn-dot{
+  display:inline-block;width:8px;height:8px;border-radius:999px;
+  background:var(--warn);box-shadow:0 0 0 4px rgba(255,204,102,.12);
 }
 
 .workspace{
@@ -166,7 +178,7 @@ h1{
   border:1px solid var(--line);
   font-size:12px;font-weight:650;
 }
-.arrow{color:#6f7b93;font-size:14px;padding:0 2px}
+.arrow{color:var(--muted-2);font-size:14px;padding:0 2px}
 
 .builder-row{
   display:grid;
@@ -175,24 +187,30 @@ h1{
 }
 .select-wrap{position:relative}
 .select-wrap select{
-  width:100%;height:44px;padding:0 14px;
-  background:rgba(255,255,255,.035);color:var(--text);
-  border:1px solid var(--line);border-radius:14px;outline:none;
-  appearance:none;
+  width:100%;height:44px;padding:0 42px 0 14px;
+  background:#10192b;
+  color:var(--text);
+  border:1px solid var(--line);
+  border-radius:14px;outline:none;
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
   font-size:13px;font-weight:600;
+}
+.select-wrap select option{
+  background:#10192b;
+  color:#f3f7ff;
 }
 .select-wrap::after{
   content:"▾";
   position:absolute;right:14px;top:50%;transform:translateY(-50%);
   color:var(--muted);pointer-events:none;font-size:12px;
 }
-.chain-arrow{color:#6f7b93;font-size:16px;font-weight:700}
+.chain-arrow{color:var(--muted-2);font-size:16px;font-weight:700}
 
 .field{margin-top:14px}
 .field label{
   display:block;margin:0 0 8px;
   font-size:11px;text-transform:uppercase;letter-spacing:.12em;
-  color:#6f7b93;font-weight:700;
+  color:var(--muted-2);font-weight:700;
 }
 .field textarea{
   width:100%;min-height:110px;resize:vertical;
@@ -200,6 +218,7 @@ h1{
   background:rgba(255,255,255,.03);color:var(--text);
   padding:13px 14px;line-height:1.45;font-size:13px;outline:none;
 }
+.field textarea::placeholder{color:var(--muted)}
 
 .rail .card + .card{margin-top:16px}
 .kv-grid{
@@ -212,7 +231,7 @@ h1{
 }
 .kv .k{
   font-size:10px;text-transform:uppercase;letter-spacing:.12em;
-  color:#6f7b93;font-weight:700;
+  color:var(--muted-2);font-weight:700;
 }
 .kv .v{
   margin-top:8px;font-size:12px;font-weight:650;word-break:break-word;
@@ -230,6 +249,10 @@ h1{
   color:#b8f6d7;background:rgba(38,120,82,.22);
   border:1px solid rgba(99,230,168,.24);
 }
+.badge.bad{
+  color:#ffd0d0;background:rgba(120,38,38,.22);
+  border:1px solid rgba(255,141,141,.24);
+}
 .codebox{
   margin-top:12px;border-radius:14px;
   background:#060a12;border:1px solid var(--line);
@@ -240,12 +263,18 @@ h1{
   font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
   font-size:11px;line-height:1.5;color:#dce7ff;
 }
+.helper-line{
+  margin-top:10px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
 .hidden{display:none !important}
 
 .footer{padding:18px 0 28px}
 .footer-row{
   display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
-  color:#6f7b93;font-size:11px;
+  color:var(--muted-2);font-size:11px;
 }
 
 @media (max-width:1100px){
@@ -302,7 +331,10 @@ h1{
           <div class="status-strip">
             <div class="mini">
               <div class="mini-label">Status</div>
-              <div class="mini-value"><span class="live-dot"></span> <span id="runtime-status-text">Checking runtime…</span></div>
+              <div class="mini-value" id="runtime-status-row">
+                <span class="warn-dot"></span>
+                <span id="runtime-status-text">Checking runtime…</span>
+              </div>
             </div>
             <div class="mini">
               <div class="mini-label">Latency</div>
@@ -383,16 +415,16 @@ h1{
             <div class="builder-row">
               <div class="select-wrap">
                 <select id="verb-1">
-                  <option>clean</option>
-                  <option>summarize</option>
-                  <option>analyze</option>
-                  <option>describe</option>
-                  <option>explain</option>
-                  <option>format</option>
-                  <option>parse</option>
-                  <option>convert</option>
-                  <option>fetch</option>
-                  <option>classify</option>
+                  <option value="clean">clean</option>
+                  <option value="summarize">summarize</option>
+                  <option value="analyze">analyze</option>
+                  <option value="describe">describe</option>
+                  <option value="explain">explain</option>
+                  <option value="format">format</option>
+                  <option value="parse">parse</option>
+                  <option value="convert">convert</option>
+                  <option value="fetch">fetch</option>
+                  <option value="classify">classify</option>
                 </select>
               </div>
 
@@ -400,16 +432,16 @@ h1{
 
               <div class="select-wrap">
                 <select id="verb-2">
-                  <option>summarize</option>
-                  <option>clean</option>
-                  <option>analyze</option>
-                  <option>describe</option>
-                  <option>explain</option>
-                  <option>format</option>
-                  <option>parse</option>
-                  <option>convert</option>
-                  <option>fetch</option>
-                  <option>classify</option>
+                  <option value="summarize">summarize</option>
+                  <option value="clean">clean</option>
+                  <option value="analyze">analyze</option>
+                  <option value="describe">describe</option>
+                  <option value="explain">explain</option>
+                  <option value="format">format</option>
+                  <option value="parse">parse</option>
+                  <option value="convert">convert</option>
+                  <option value="fetch">fetch</option>
+                  <option value="classify">classify</option>
                 </select>
               </div>
 
@@ -417,28 +449,28 @@ h1{
 
               <div class="select-wrap">
                 <select id="verb-3">
-                  <option>classify</option>
-                  <option>clean</option>
-                  <option>summarize</option>
-                  <option>analyze</option>
-                  <option>describe</option>
-                  <option>explain</option>
-                  <option>format</option>
-                  <option>parse</option>
-                  <option>convert</option>
-                  <option>fetch</option>
+                  <option value="classify">classify</option>
+                  <option value="clean">clean</option>
+                  <option value="summarize">summarize</option>
+                  <option value="analyze">analyze</option>
+                  <option value="describe">describe</option>
+                  <option value="explain">explain</option>
+                  <option value="format">format</option>
+                  <option value="parse">parse</option>
+                  <option value="convert">convert</option>
+                  <option value="fetch">fetch</option>
                 </select>
               </div>
             </div>
 
             <div class="field">
               <label for="builder-source">Source content</label>
-              <textarea id="builder-source" placeholder="Paste input for step 1."></textarea>
+              <textarea id="builder-source" placeholder="Paste input for step 1.">Agent action: inspect this artifact, refine it, and return a compact judge-facing output.</textarea>
             </div>
 
             <div class="field">
               <label for="builder-instructions">Optional instructions</label>
-              <textarea id="builder-instructions" placeholder="Optional instructions for later steps."></textarea>
+              <textarea id="builder-instructions" placeholder="Optional instructions for later steps.">Keep the output short, protocol-grade, and easy to inspect.</textarea>
             </div>
 
             <div class="actions">
@@ -472,10 +504,20 @@ h1{
 }</pre>
             </div>
 
+            <div class="codebox">
+<pre id="verification-json">{
+  "status": "pending"
+}</pre>
+            </div>
+
             <div class="actions">
               <button class="btn" id="copy-receipt" type="button">Copy Receipt</button>
               <button class="btn" id="copy-verification" type="button">Copy Verification</button>
               <button class="btn" id="copy-curl" type="button" disabled>Copy Verify cURL</button>
+            </div>
+
+            <div class="helper-line" id="artifact-summary">
+              Run a chain to generate a final receipt and verification result.
             </div>
           </div>
         </section>
@@ -504,10 +546,52 @@ h1{
 </footer>
 
 <script>
+const RUNTIME_BASE = 'https://runtime.commandlayer.org';
+const RUNTIME_VERSION = '1.1.0';
+const COMMONS_VERBS = ['fetch','describe','format','clean','parse','summarize','convert','explain','analyze','classify'];
+
 const defaultBtn = document.getElementById('mode-default-btn');
 const builderBtn = document.getElementById('mode-builder-btn');
 const defaultMode = document.getElementById('default-mode');
 const builderMode = document.getElementById('builder-mode');
+
+const heroBuildCustom = document.getElementById('hero-build-custom');
+const heroRunDefault = document.getElementById('hero-run-default');
+const heroCopyCurl = document.getElementById('hero-copy-curl');
+
+const runDefaultBtn = document.getElementById('run-default');
+const runBuilderBtn = document.getElementById('run-builder');
+const resetBuilderBtn = document.getElementById('reset-builder');
+
+const runtimeStatusText = document.getElementById('runtime-status-text');
+const runtimeLatency = document.getElementById('runtime-latency');
+const runtimeStatusRow = document.getElementById('runtime-status-row');
+
+const artifactBadge = document.getElementById('artifact-badge');
+const artifactVerification = document.getElementById('artifact-verification');
+const artifactSigner = document.getElementById('artifact-signer');
+const artifactKid = document.getElementById('artifact-kid');
+const artifactHash = document.getElementById('artifact-hash');
+const artifactSchema = document.getElementById('artifact-schema');
+const finalReceiptJson = document.getElementById('final-receipt-json');
+const verificationJson = document.getElementById('verification-json');
+const artifactSummary = document.getElementById('artifact-summary');
+
+const copyReceiptBtn = document.getElementById('copy-receipt');
+const copyVerificationBtn = document.getElementById('copy-verification');
+const copyCurlBtn = document.getElementById('copy-curl');
+
+const defaultSource = document.getElementById('default-source-content');
+const defaultInstructions = document.getElementById('default-final-instructions');
+
+const builderSource = document.getElementById('builder-source');
+const builderInstructions = document.getElementById('builder-instructions');
+const verb1 = document.getElementById('verb-1');
+const verb2 = document.getElementById('verb-2');
+const verb3 = document.getElementById('verb-3');
+
+let lastReceipt = null;
+let lastVerification = null;
 
 function setMode(mode){
   const isDefault = mode === 'default';
@@ -517,10 +601,401 @@ function setMode(mode){
   builderMode.classList.toggle('hidden', isDefault);
 }
 
+function setBusy(isBusy) {
+  runDefaultBtn.disabled = isBusy;
+  runBuilderBtn.disabled = isBusy;
+  heroRunDefault.disabled = isBusy;
+  heroBuildCustom.disabled = isBusy;
+}
+
+function setRuntimeState(status, latencyText) {
+  if (status === 'ok') {
+    runtimeStatusText.textContent = 'Live runtime reachable';
+    runtimeLatency.textContent = latencyText || '—';
+    runtimeStatusRow.innerHTML = '<span class="live-dot"></span> <span id="runtime-status-text">Live runtime reachable</span>';
+  } else {
+    runtimeStatusText.textContent = 'Runtime unavailable';
+    runtimeLatency.textContent = latencyText || 'offline';
+    runtimeStatusRow.innerHTML = '<span class="warn-dot"></span> <span id="runtime-status-text">Runtime unavailable</span>';
+  }
+}
+
+function setPendingState(message) {
+  artifactBadge.className = 'badge pending';
+  artifactBadge.textContent = 'Running';
+  artifactVerification.textContent = 'Pending';
+  artifactSigner.textContent = '—';
+  artifactKid.textContent = '—';
+  artifactHash.textContent = '—';
+  artifactSchema.textContent = '—';
+  finalReceiptJson.textContent = JSON.stringify({ status: 'running' }, null, 2);
+  verificationJson.textContent = JSON.stringify({ status: 'pending' }, null, 2);
+  artifactSummary.textContent = message || 'Executing chain...';
+  heroCopyCurl.disabled = true;
+  copyCurlBtn.disabled = true;
+}
+
+function shortenHash(value) {
+  if (!value || value === '—') return '—';
+  const str = String(value);
+  if (str.length <= 18) return str;
+  return str.slice(0, 10) + '…' + str.slice(-6);
+}
+
+function formatJson(value) {
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+}
+
+function extractReceipt(result) {
+  if (result && typeof result === 'object') {
+    if (result.receipt && typeof result.receipt === 'object') return result.receipt;
+    return result;
+  }
+  return null;
+}
+
+function extractPreviousResult(result) {
+  if (!result || typeof result !== 'object') return result;
+  if (result.output !== undefined) return result.output;
+  if (result.result !== undefined) return result.result;
+  if (result.artifact !== undefined) return result.artifact;
+  if (result.receipt !== undefined) return result.receipt;
+  return result;
+}
+
+function buildVerifyCurl(receipt) {
+  const payload = JSON.stringify(receipt);
+  return `curl -X POST "${RUNTIME_BASE}/verify?ens=1&strict_kid=1" -H "Content-Type: application/json" -d '${payload.replace(/'/g, "'\\''")}'`;
+}
+
+function extractSigner(verification, receipt) {
+  return verification?.signer_id
+    || verification?.values?.signer_id
+    || receipt?.metadata?.proof?.signer_id
+    || '—';
+}
+
+function extractKid(verification, receipt) {
+  return verification?.kid
+    || verification?.values?.kid
+    || receipt?.metadata?.proof?.kid
+    || '—';
+}
+
+function extractHash(verification, receipt) {
+  return verification?.hash_sha256
+    || verification?.values?.hash_sha256
+    || receipt?.metadata?.proof?.hash_sha256
+    || '—';
+}
+
+async function probeRuntime() {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${RUNTIME_BASE}/health`, { method: 'GET' });
+    const ms = `${Math.round(performance.now() - start)} ms`;
+    if (!res.ok) {
+      setRuntimeState('bad', ms);
+      return;
+    }
+    setRuntimeState('ok', ms);
+  } catch {
+    setRuntimeState('bad', 'offline');
+  }
+}
+
+async function runVerb(verb, payload) {
+  const res = await fetch(`${RUNTIME_BASE}/${verb}/v${RUNTIME_VERSION}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    const detail = data?.error || data?.message || `Runtime ${verb} failed (${res.status})`;
+    throw new Error(detail);
+  }
+
+  return data;
+}
+
+async function verifyReceipt(receipt) {
+  const res = await fetch(`${RUNTIME_BASE}/verify?ens=1&strict_kid=1`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(receipt)
+  });
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    const detail = data?.error || data?.message || `Verify failed (${res.status})`;
+    throw new Error(detail);
+  }
+
+  return data;
+}
+
+function updateArtifact(receipt, verification, summaryText) {
+  lastReceipt = receipt;
+  lastVerification = verification;
+
+  const ok = verification?.ok === true || verification?.valid === true;
+  artifactBadge.className = ok ? 'badge ok' : 'badge bad';
+  artifactBadge.textContent = ok ? 'Verified' : 'Needs review';
+
+  artifactVerification.textContent = ok
+    ? 'Verified via ENS + Ed25519'
+    : (verification?.reason || verification?.message || 'Verification failed');
+
+  artifactSigner.textContent = extractSigner(verification, receipt);
+  artifactKid.textContent = extractKid(verification, receipt);
+  artifactHash.textContent = shortenHash(extractHash(verification, receipt));
+  artifactSchema.textContent = receipt?.schema_version || '1.1.0';
+
+  finalReceiptJson.textContent = formatJson(receipt || { status: 'no_receipt' });
+  verificationJson.textContent = formatJson(verification || { status: 'no_verification' });
+  artifactSummary.textContent = summaryText || 'Chain complete. Final receipt and verification are shown here.';
+
+  heroCopyCurl.disabled = !receipt;
+  copyCurlBtn.disabled = !receipt;
+}
+
+function updateArtifactError(message, details) {
+  lastReceipt = null;
+  lastVerification = null;
+
+  artifactBadge.className = 'badge bad';
+  artifactBadge.textContent = 'Error';
+  artifactVerification.textContent = message || 'Execution failed';
+  artifactSigner.textContent = '—';
+  artifactKid.textContent = '—';
+  artifactHash.textContent = '—';
+  artifactSchema.textContent = '—';
+  finalReceiptJson.textContent = formatJson({ status: 'error', message: message || 'Execution failed' });
+  verificationJson.textContent = formatJson(details || { status: 'not_run' });
+  artifactSummary.textContent = message || 'Execution failed.';
+  heroCopyCurl.disabled = true;
+  copyCurlBtn.disabled = true;
+}
+
+function makeDefaultChain() {
+  const source = defaultSource.value.trim();
+  const instructions = defaultInstructions.value.trim();
+
+  return [
+    {
+      verb: 'clean',
+      payloadBuilder: () => ({
+        content: source,
+        operations: ['trim_whitespace', 'collapse_blank_lines', 'preserve_meaning']
+      })
+    },
+    {
+      verb: 'summarize',
+      payloadBuilder: (previousResult) => ({
+        content: typeof previousResult === 'string' ? previousResult : JSON.stringify(previousResult),
+        instructions
+      })
+    },
+    {
+      verb: 'classify',
+      payloadBuilder: (previousResult) => ({
+        content: typeof previousResult === 'string' ? previousResult : JSON.stringify(previousResult),
+        labels: ['proof', 'artifact', 'receipt', 'verification'],
+        instructions: 'Classify the result for protocol inspection.'
+      })
+    }
+  ];
+}
+
+function makeBuilderChain() {
+  const v1 = verb1.value;
+  const v2 = verb2.value;
+  const v3 = verb3.value;
+  const source = builderSource.value.trim();
+  const instructions = builderInstructions.value.trim();
+
+  return [
+    {
+      verb: v1,
+      payloadBuilder: () => buildCommonsPayload(v1, source, instructions)
+    },
+    {
+      verb: v2,
+      payloadBuilder: (previousResult) => buildCommonsPayload(v2, previousResult, instructions)
+    },
+    {
+      verb: v3,
+      payloadBuilder: (previousResult) => buildCommonsPayload(v3, previousResult, instructions)
+    }
+  ];
+}
+
+function normalizeContent(input) {
+  if (typeof input === 'string') return input;
+  try {
+    return JSON.stringify(input);
+  } catch {
+    return String(input);
+  }
+}
+
+function buildCommonsPayload(verb, input, instructions) {
+  const content = normalizeContent(input);
+
+  switch (verb) {
+    case 'fetch':
+      return {
+        url: content.startsWith('http') ? content : 'https://commandlayer.org',
+        instructions: instructions || 'Fetch the resource.'
+      };
+    case 'summarize':
+      return {
+        content,
+        instructions: instructions || 'Summarize this content.'
+      };
+    case 'clean':
+      return {
+        content,
+        operations: ['trim_whitespace', 'collapse_blank_lines', 'preserve_meaning']
+      };
+    case 'classify':
+      return {
+        content,
+        labels: ['proof', 'artifact', 'receipt', 'verification'],
+        instructions: instructions || 'Classify the content.'
+      };
+    case 'describe':
+      return {
+        content,
+        detail_level: 'medium',
+        instructions: instructions || 'Describe the content.'
+      };
+    case 'explain':
+      return {
+        content,
+        instructions: instructions || 'Explain the content.'
+      };
+    case 'format':
+      return {
+        content,
+        target_format: 'markdown',
+        instructions: instructions || 'Format the content.'
+      };
+    case 'parse':
+      return {
+        content,
+        target_schema: 'generic',
+        instructions: instructions || 'Parse the content.'
+      };
+    case 'convert':
+      return {
+        content,
+        target_format: 'json',
+        instructions: instructions || 'Convert the content.'
+      };
+    case 'analyze':
+      return {
+        content,
+        instructions: instructions || 'Analyze the content.'
+      };
+    default:
+      return {
+        content,
+        instructions: instructions || `Process content with ${verb}.`
+      };
+  }
+}
+
+async function executeChain(steps, label) {
+  setBusy(true);
+  setPendingState(`Executing ${label} through ${RUNTIME_BASE}...`);
+
+  try {
+    let previousResult = null;
+    let finalResult = null;
+    let finalReceipt = null;
+
+    for (const step of steps) {
+      const payload = step.payloadBuilder(previousResult);
+      finalResult = await runVerb(step.verb, payload);
+      finalReceipt = extractReceipt(finalResult);
+      previousResult = extractPreviousResult(finalResult);
+    }
+
+    if (!finalReceipt) {
+      throw new Error('Runtime returned no final receipt.');
+    }
+
+    const verification = await verifyReceipt(finalReceipt);
+    updateArtifact(
+      finalReceipt,
+      verification,
+      `${label} completed. Final receipt returned and verification finished separately.`
+    );
+  } catch (error) {
+    updateArtifactError(error?.message || 'Execution failed', { status: 'error', error: error?.message || 'Unknown error' });
+  } finally {
+    setBusy(false);
+  }
+}
+
+function copyText(text, button, idleLabel) {
+  if (!navigator.clipboard) return;
+  navigator.clipboard.writeText(text).then(() => {
+    const original = idleLabel || button.textContent;
+    button.textContent = 'Copied';
+    setTimeout(() => {
+      button.textContent = original;
+    }, 1200);
+  }).catch(() => {});
+}
+
 defaultBtn.addEventListener('click', () => setMode('default'));
 builderBtn.addEventListener('click', () => setMode('builder'));
-document.getElementById('hero-build-custom').addEventListener('click', () => setMode('builder'));
-document.getElementById('hero-run-default').addEventListener('click', () => setMode('default'));
+heroBuildCustom.addEventListener('click', () => setMode('builder'));
+heroRunDefault.addEventListener('click', () => {
+  setMode('default');
+  executeChain(makeDefaultChain(), 'Default chain');
+});
+
+runDefaultBtn.addEventListener('click', () => executeChain(makeDefaultChain(), 'Default chain'));
+runBuilderBtn.addEventListener('click', () => executeChain(makeBuilderChain(), 'Custom chain'));
+
+resetBuilderBtn.addEventListener('click', () => {
+  verb1.value = 'clean';
+  verb2.value = 'summarize';
+  verb3.value = 'classify';
+  builderSource.value = 'Agent action: inspect this artifact, refine it, and return a compact judge-facing output.';
+  builderInstructions.value = 'Keep the output short, protocol-grade, and easy to inspect.';
+});
+
+copyReceiptBtn.addEventListener('click', () => {
+  copyText(finalReceiptJson.textContent, copyReceiptBtn, 'Copy Receipt');
+});
+
+copyVerificationBtn.addEventListener('click', () => {
+  copyText(verificationJson.textContent, copyVerificationBtn, 'Copy Verification');
+});
+
+heroCopyCurl.addEventListener('click', () => {
+  if (!lastReceipt) return;
+  copyText(buildVerifyCurl(lastReceipt), heroCopyCurl, 'Copy Verify cURL');
+});
+
+copyCurlBtn.addEventListener('click', () => {
+  if (!lastReceipt) return;
+  copyText(buildVerifyCurl(lastReceipt), copyCurlBtn, 'Copy Verify cURL');
+});
+
+probeRuntime();
 </script>
 </body>
 </html>
