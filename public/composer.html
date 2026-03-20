@@ -276,7 +276,7 @@ h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-w
         <div class="card-inner">
           <div class="eyebrow">Box 3 · Verify</div>
           <h2 class="section-title" style="margin-top:12px;">Independent final receipt verification</h2>
-          <p class="section-sub">Verification starts only after execution returns the final live receipt.</p>
+          <p class="section-sub">Verification starts only after execution returns the final live signed receipt. The display keeps the final output/result separate from the signed receipt and the independent verification result.</p>
 
           <div style="margin-top:12px;"><span class="badge pending" id="verify-badge">Pending</span></div>
 
@@ -299,6 +299,11 @@ h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-w
             <p id="artifact-summary">Run a chain to generate a fresh final receipt and verification result.</p>
           </div>
 
+          <div class="summary-card">
+            <h3>Verification payload</h3>
+            <p id="verify-payload-summary">Waiting for a final signed receipt from the live runtime.</p>
+          </div>
+
           <div class="actions">
             <button class="btn" id="copy-receipt" type="button">Copy Receipt</button>
             <button class="btn" id="copy-verification" type="button">Copy Verification</button>
@@ -306,14 +311,14 @@ h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-w
           </div>
 
           <details class="details-block">
-            <summary>Raw receipt JSON</summary>
+            <summary>Final signed receipt JSON</summary>
             <pre id="final-receipt-json">{
   "status": "ready"
 }</pre>
           </details>
 
           <details class="details-block">
-            <summary>Raw verification JSON</summary>
+            <summary>Independent verification result JSON</summary>
             <pre id="verification-json">{
   "status": "pending"
 }</pre>
@@ -435,12 +440,14 @@ const artifactSchema = document.getElementById('artifact-schema');
 const artifactSummary = document.getElementById('artifact-summary');
 const finalReceiptJson = document.getElementById('final-receipt-json');
 const verificationJson = document.getElementById('verification-json');
+const verifyPayloadSummary = document.getElementById('verify-payload-summary');
 const copyReceiptBtn = document.getElementById('copy-receipt');
 const copyVerificationBtn = document.getElementById('copy-verification');
 const copyCurlBtn = document.getElementById('copy-curl');
 
 let currentMode = 'default';
-let lastReceipt = null;
+let lastCompactReceipt = null;
+let lastSignedReceipt = null;
 let lastVerification = null;
 let lastTraceId = null;
 
@@ -559,6 +566,7 @@ function resetVerifySurface() {
   finalReceiptJson.textContent = JSON.stringify({ status: 'ready' }, null, 2);
   verificationJson.textContent = JSON.stringify({ status: 'pending' }, null, 2);
   artifactSummary.textContent = 'Run a chain to generate a fresh final receipt and verification result.';
+  verifyPayloadSummary.textContent = 'Waiting for a final signed receipt from the live runtime.';
   heroCopyCurl.disabled = true;
   copyCurlBtn.disabled = true;
 }
@@ -640,21 +648,24 @@ function setExecutionError(errorPayload) {
   executionJson.textContent = JSON.stringify(errorPayload || { error: 'Unknown runtime error' }, null, 2);
   verifyBadge.className = 'badge bad';
   verifyBadge.textContent = 'Blocked';
-  setRowState(verifyRuntimeRow, 'bad', 'No final receipt to verify');
+  setRowState(verifyRuntimeRow, 'bad', 'No final signed receipt to verify');
   setRowState(verifySignatureRow, 'pending', 'Pending');
   setRowState(verifyHashRow, 'pending', 'Pending');
   setRowState(verifyStatusRow, 'bad', 'Execution failed');
   artifactSummary.textContent = summary;
-  finalReceiptJson.textContent = JSON.stringify(errorPayload?.detail?.receipt || errorPayload || {}, null, 2);
-  verificationJson.textContent = JSON.stringify({ status: 'not-run', reason: 'Execution did not return a final receipt.' }, null, 2);
-  lastReceipt = errorPayload?.detail?.receipt || null;
+  const fallbackReceipt = errorPayload?.detail?.signed_receipt || errorPayload?.detail?.receipt || errorPayload || {};
+  finalReceiptJson.textContent = JSON.stringify(fallbackReceipt, null, 2);
+  verificationJson.textContent = JSON.stringify({ status: 'not-run', reason: 'Execution did not return a final signed receipt.' }, null, 2);
+  verifyPayloadSummary.textContent = 'Verification blocked because the live run did not produce a final signed receipt payload.';
+  lastCompactReceipt = errorPayload?.detail?.receipt || null;
+  lastSignedReceipt = errorPayload?.detail?.signed_receipt || null;
   lastVerification = null;
-  if (!lastReceipt) lastTraceId = null;
-  heroCopyCurl.disabled = !lastReceipt;
-  copyCurlBtn.disabled = !lastReceipt;
+  if (!lastSignedReceipt) lastTraceId = null;
+  heroCopyCurl.disabled = !lastSignedReceipt;
+  copyCurlBtn.disabled = !lastSignedReceipt;
 }
 
-function applyVerification(receipt, verification) {
+function applyVerification(compactReceipt, signedReceipt, verification) {
   const checks = verification?.checks || {};
   const signerEns = verification?.ens || verification?.signer_ens || verification?.signer_id || verification?.values?.signer_id || 'runtime.commandlayer.eth';
   const kid = verification?.kid || verification?.values?.kid || verification?.resolved_kid || '—';
@@ -673,13 +684,18 @@ function applyVerification(receipt, verification) {
   artifactSigner.textContent = signerEns;
   artifactKid.textContent = kid;
   artifactHash.textContent = hash;
-  artifactSchema.textContent = receipt?.schema_version || RUNTIME_VERSION;
+  artifactSchema.textContent = compactReceipt?.schema_version || signedReceipt?.schema_version || RUNTIME_VERSION;
   artifactSummary.textContent = verifyOk
-    ? 'Fresh final receipt verified after execution. Signed by runtime.commandlayer.eth, with signature and hash checks surfaced separately.'
+    ? 'Fresh final signed receipt verified after execution. Signed by runtime.commandlayer.eth, with signature and hash checks surfaced separately.'
     : buildErrorSummary(verification);
-  finalReceiptJson.textContent = JSON.stringify(receipt, null, 2);
+  const proof = signedReceipt?.metadata?.proof || {};
+  verifyPayloadSummary.textContent = proof.signature_b64 && proof.hash_sha256 && proof.signer_id
+    ? `Using exact final signed receipt payload with metadata.proof.signer_id=${proof.signer_id}, hash=${proof.hash_sha256.slice(0, 18)}…`
+    : 'Verification payload is missing metadata.proof fields; inspect the final signed receipt JSON.';
+  finalReceiptJson.textContent = JSON.stringify(signedReceipt, null, 2);
   verificationJson.textContent = JSON.stringify(verification, null, 2);
-  lastReceipt = receipt;
+  lastCompactReceipt = compactReceipt;
+  lastSignedReceipt = signedReceipt;
   lastVerification = verification;
   heroCopyCurl.disabled = false;
   copyCurlBtn.disabled = false;
@@ -764,6 +780,7 @@ async function runChain() {
   try {
     let chainInput = chain.source;
     let finalReceipt = null;
+    let finalSignedReceipt = null;
     const collectedSteps = [];
 
     for (const verb of chain.verbs) {
@@ -781,8 +798,9 @@ async function runChain() {
       lastTraceId = flowData.trace_id || lastTraceId;
       const step = Array.isArray(flowData.steps) ? flowData.steps[0] : null;
       finalReceipt = step?.receipt || null;
-      if (!finalReceipt) {
-        setExecutionError({ error: 'No final receipt returned', detail: flowData });
+      finalSignedReceipt = step?.signed_receipt || flowData.final_signed_receipt || null;
+      if (!finalReceipt || !finalSignedReceipt) {
+        setExecutionError({ error: 'No final signed receipt returned', detail: flowData });
         return;
       }
       collectedSteps.push(step);
@@ -797,9 +815,9 @@ async function runChain() {
     executionOutput.textContent = pickFinalOutput(finalReceipt);
     executionReceiptSummary.textContent = summarizeReceipt(finalReceipt);
     executionJson.textContent = JSON.stringify({ trace_id: lastTraceId, steps: collectedSteps }, null, 2);
-    finalReceiptJson.textContent = JSON.stringify(finalReceipt, null, 2);
+    finalReceiptJson.textContent = JSON.stringify(finalSignedReceipt, null, 2);
     verificationJson.textContent = JSON.stringify({ status: 'verifying' }, null, 2);
-    setRowState(verifyRuntimeRow, 'pending', 'Final receipt returned; verifying now…');
+    setRowState(verifyRuntimeRow, 'pending', 'Final signed receipt returned; verifying now…');
     setRowState(verifySignatureRow, 'pending', 'Checking');
     setRowState(verifyHashRow, 'pending', 'Checking');
     setRowState(verifyStatusRow, 'pending', 'Running verify');
@@ -809,10 +827,10 @@ async function runChain() {
     const verifyResponse = await fetch(VERIFY_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ receipt: finalReceipt })
+      body: JSON.stringify(finalSignedReceipt)
     });
     const verification = await verifyResponse.json();
-    applyVerification(finalReceipt, verification);
+    applyVerification(finalReceipt, finalSignedReceipt, verification);
   } catch (error) {
     setExecutionError({ error: 'Live runtime request failed', detail: { message: error.message } });
   } finally {
@@ -851,8 +869,8 @@ runChainBtn.addEventListener('click', runChain);
 resetBuilderBtn.addEventListener('click', resetBuilder);
 copyReceiptBtn.addEventListener('click', () => copyText(finalReceiptJson.textContent, copyReceiptBtn, 'Copy Receipt'));
 copyVerificationBtn.addEventListener('click', () => copyText(verificationJson.textContent, copyVerificationBtn, 'Copy Verification'));
-heroCopyCurl.addEventListener('click', () => lastReceipt && copyText(buildVerifyCurl(lastReceipt), heroCopyCurl, 'Copy Verify cURL'));
-copyCurlBtn.addEventListener('click', () => lastReceipt && copyText(buildVerifyCurl(lastReceipt), copyCurlBtn, 'Copy Verify cURL'));
+heroCopyCurl.addEventListener('click', () => lastSignedReceipt && copyText(buildVerifyCurl(lastSignedReceipt), heroCopyCurl, 'Copy Verify cURL'));
+copyCurlBtn.addEventListener('click', () => lastSignedReceipt && copyText(buildVerifyCurl(lastSignedReceipt), copyCurlBtn, 'Copy Verify cURL'));
 
 populateQuickDemoChains();
 renderBuilderSelects();
