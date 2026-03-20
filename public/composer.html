@@ -2,1191 +2,622 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CommandLayer — Live Runtime Composer</title>
+<title>CommandLayer — Composer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="description" content="Run a live CommandLayer chain, receive a signed receipt, and verify it yourself against the Commons runtime." />
+<meta name="description" content="Run a live CommandLayer chain, receive a signed receipt, and verify it independently." />
 <style>
-:root {
-  --bg: #050814;
-  --bg-elevated: rgba(10, 14, 27, 0.94);
-  --bg-strong: rgba(7, 10, 21, 0.98);
-  --bg-soft: rgba(255, 255, 255, 0.04);
-  --bg-proof: linear-gradient(180deg, rgba(11, 32, 21, 0.96), rgba(8, 14, 24, 0.98));
-  --border: rgba(255, 255, 255, 0.1);
-  --border-strong: rgba(255, 255, 255, 0.18);
-  --border-proof: rgba(74, 222, 128, 0.35);
-  --text-main: #f8fbff;
-  --text-muted: #9ca7bf;
-  --text-soft: #6f7b94;
-  --blue: #60a5fa;
-  --blue-strong: #2f7cf6;
-  --green: #4ade80;
-  --amber: #fbbf24;
-  --red: #f87171;
-  --radius-lg: 20px;
-  --radius-xl: 28px;
-  --shadow: 0 26px 70px rgba(0, 0, 0, 0.46);
-  --shadow-proof: 0 0 0 1px rgba(74, 222, 128, 0.2), 0 30px 80px rgba(9, 24, 14, 0.48);
-  --max-width: 1360px;
+:root{
+  --bg:#05070c;
+  --bg-2:#09101a;
+  --panel:rgba(10,16,28,.92);
+  --panel-2:rgba(8,13,24,.98);
+  --soft:rgba(255,255,255,.04);
+  --soft-2:rgba(255,255,255,.08);
+  --soft-3:rgba(255,255,255,.14);
+  --text:#f4f7ff;
+  --muted:#93a0bb;
+  --muted-2:#6f7b93;
+  --blue:#4db2ff;
+  --blue-2:#88d5ff;
+  --ok:#63e6a8;
+  --warn:#ffcc66;
+  --radius:18px;
+  --radius-sm:12px;
+  --shadow:0 18px 60px rgba(0,0,0,.35);
+  --max:1180px;
 }
-* { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  min-height: 100%;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(47, 124, 246, 0.18), transparent 20%),
-    radial-gradient(circle at top right, rgba(74, 222, 128, 0.1), transparent 18%),
-    linear-gradient(180deg, #09101d 0%, #040711 50%, #03050c 100%);
-  color: var(--text-main);
-}
-body { min-height: 100vh; }
-button, input, textarea, select { font: inherit; }
-button { cursor: pointer; }
-code, pre, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
-a { color: inherit; }
-.page-shell { min-height: 100vh; display: flex; flex-direction: column; }
-.page-main { flex: 1; }
-.container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
 
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 40;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  background: rgba(4, 7, 14, 0.86);
-  backdrop-filter: blur(18px);
-}
-.site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.95rem 1.5rem; }
-.site-header__brand { display: flex; align-items: center; gap: 0.78rem; text-decoration: none; }
-.site-header__logo-img {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  object-fit: contain;
-  display: block;
-  box-shadow: 0 0 0 1px rgba(255,255,255,0.28), 0 14px 30px rgba(0,0,0,0.55);
-}
-.site-header__text { display: flex; flex-direction: column; }
-.site-header__title { font-size: 0.98rem; font-weight: 600; letter-spacing: 0.03em; }
-.site-header__subtitle { font-size: 0.78rem; color: var(--text-muted); }
-.site-header__nav { display: flex; align-items: center; gap: 0.9rem; }
-.site-header__link, .site-header__dropdown-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  text-decoration: none;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-  background: transparent;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  padding: 0.38rem 0.82rem;
-}
-.site-header__link:hover, .site-header__dropdown-btn:hover { color: var(--text-main); border-color: rgba(255,255,255,0.14); background: rgba(15, 23, 42, 0.72); }
-.site-header__link--active { color: var(--text-main); background: rgba(15, 23, 42, 0.72); border-color: rgba(255,255,255,0.14); }
-.site-header__dropdown { position: relative; }
-.site-header__dropdown-menu {
-  display: none; position: absolute; right: 0; top: 2.25rem; min-width: 220px; border-radius: 14px;
-  background: rgba(10, 14, 22, 0.98); border: 1px solid var(--border); box-shadow: var(--shadow); padding: 0.4rem;
-}
-.site-header__dropdown-menu a { display: block; text-decoration: none; color: var(--text-muted); border-radius: 10px; padding: 0.45rem 0.7rem; font-size: 0.82rem; }
-.site-header__dropdown-menu a:hover { color: var(--text-main); background: rgba(15, 23, 42, 0.72); }
-.site-header--docs-open .site-header__dropdown-menu { display: block; }
-.site-header__toggle { display: none; border-radius: 999px; padding: 0.32rem 0.72rem; background: rgba(15, 23, 42, 0.9); color: var(--text-main); border: 1px solid rgba(148, 163, 184, 0.58); }
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:
+  radial-gradient(circle at top left, rgba(33,80,180,.18), transparent 28%),
+  radial-gradient(circle at top right, rgba(0,180,255,.10), transparent 24%),
+  linear-gradient(180deg, #05070c 0%, #04060a 100%);
+color:var(--text);font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+a{text-decoration:none;color:inherit}
+button,input,select,textarea{font:inherit}
 
-.hero { padding: 1.3rem 0 0.8rem; }
-.hero-shell {
-  border-radius: 32px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: linear-gradient(180deg, rgba(9, 13, 25, 0.96), rgba(7, 10, 18, 0.98));
-  box-shadow: var(--shadow);
-  padding: 1.2rem;
-}
-.hero-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) 360px; gap: 1rem; align-items: stretch; }
-.eyebrow {
-  display: inline-flex; align-items: center; gap: 0.45rem; margin: 0 0 0.7rem; padding: 0.34rem 0.72rem;
-  border-radius: 999px; border: 1px solid rgba(96, 165, 250, 0.28); background: rgba(8, 14, 25, 0.8);
-  color: #dbeafe; font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase;
-}
-.hero h1 { margin: 0; max-width: 12ch; font-size: clamp(2.7rem, 5vw, 4.8rem); line-height: 0.95; letter-spacing: -0.05em; }
-.hero-copy { margin: 0.95rem 0 0; max-width: 52rem; color: var(--text-muted); line-height: 1.68; font-size: 1rem; }
-.hero-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.25rem; }
-.btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 999px; padding: 0.82rem 1.18rem;
-  border: 1px solid transparent; text-decoration: none; white-space: nowrap;
-  transition: transform 140ms ease, filter 140ms ease, border-color 140ms ease;
-}
-.btn:hover, .btn:focus-visible { transform: translateY(-1px); filter: brightness(1.04); outline: none; }
-.btn:disabled { cursor: not-allowed; opacity: 0.58; transform: none; filter: none; }
-.btn--primary { background: linear-gradient(135deg, var(--blue-strong), #4cc9f0); color: #f8fcff; border-color: rgba(76, 201, 240, 0.35); font-weight: 720; box-shadow: 0 18px 40px rgba(47, 124, 246, 0.26); }
-.btn--secondary { background: rgba(15, 23, 42, 0.82); color: var(--text-main); border-color: rgba(255,255,255,0.16); }
-.btn--ghost { background: transparent; color: var(--text-muted); border-color: rgba(255,255,255,0.12); }
-.btn--ghost:hover, .btn--secondary:hover { color: var(--text-main); border-color: rgba(255,255,255,0.22); }
-.hero-meta { display: grid; gap: 0.7rem; }
-.hero-card, .status-bar, .card, .receipt-card, .step-card, .builder-step, details.disclosure {
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
-  background: linear-gradient(180deg, var(--bg-elevated), var(--bg-strong));
-  box-shadow: var(--shadow);
-}
-.hero-card { padding: 1.1rem; display: grid; gap: 0.85rem; }
-.hero-card h2, .card h2, .receipt-card h2 { margin: 0; }
-.hero-card p, .card p, .receipt-card p, .step-card p, .builder-step p { margin: 0; color: var(--text-muted); line-height: 1.58; }
-.hero-card ul { margin: 0; padding-left: 1rem; color: var(--text-muted); display: grid; gap: 0.45rem; }
-.card-eyebrow, .section-eyebrow, .step-eyebrow, .mode-label {
-  color: var(--text-soft); font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase;
-}
-.proof-strip {
-  margin-top: 1rem;
-  padding: 0.9rem;
-  border-radius: 22px;
-  border: 1px solid rgba(74, 222, 128, 0.28);
-  background: var(--bg-proof);
-  box-shadow: var(--shadow-proof);
-  display: none;
-  gap: 0.8rem;
-}
-.proof-strip.is-visible { display: grid; }
-.proof-strip__top { display: flex; justify-content: space-between; gap: 0.75rem; align-items: flex-start; flex-wrap: wrap; }
-.badge {
-  display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.36rem 0.74rem; border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.14); background: rgba(255,255,255,0.04); color: var(--text-main); font-size: 0.78rem; font-weight: 700;
-}
-.badge--verified { color: #dcfce7; border-color: rgba(74, 222, 128, 0.55); background: rgba(7, 20, 12, 0.82); }
-.badge--review { color: #fee2e2; border-color: rgba(248, 113, 113, 0.5); background: rgba(58, 12, 18, 0.44); }
-.badge--recorded { color: #fde68a; border-color: rgba(251, 191, 36, 0.5); background: rgba(45, 29, 7, 0.72); }
-.proof-strip__meta { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.75rem; }
-.proof-metric { padding: 0.72rem 0.78rem; border-radius: 18px; background: rgba(4, 10, 18, 0.92); border: 1px solid rgba(255,255,255,0.07); }
-.proof-metric strong { display: block; color: var(--text-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; }
-.proof-metric span { display: block; margin-top: 0.35rem; color: var(--text-main); line-height: 1.42; word-break: break-word; }
+.wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
+.shell{min-height:100vh}
 
-.status-wrap { padding-bottom: 0.8rem; }
-.status-bar {
-  padding: 0.78rem 1rem;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.75rem;
-  align-items: center;
+/* header */
+.site-header{
+  position:sticky;top:0;z-index:20;
+  backdrop-filter:blur(12px);
+  background:rgba(4,7,12,.82);
+  border-bottom:1px solid rgba(255,255,255,.05);
 }
-.status-item { min-width: 0; }
-.status-item strong { display: block; color: var(--text-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 0.24rem; }
-.status-item span { display: inline-flex; align-items: center; gap: 0.45rem; min-width: 0; color: var(--text-main); }
-.status-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 1px rgba(74,222,128,0.28), 0 0 18px rgba(74,222,128,0.35); }
-.status-live .status-dot { background: var(--green); }
-.status-degraded .status-dot { background: var(--amber); box-shadow: 0 0 0 1px rgba(251,191,36,0.28), 0 0 18px rgba(251,191,36,0.22); }
-.status-fail .status-dot { background: var(--red); box-shadow: 0 0 0 1px rgba(248,113,113,0.28), 0 0 18px rgba(248,113,113,0.22); }
-.runtime-url { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.site-header .wrap{
+  display:flex;align-items:center;justify-content:space-between;
+  min-height:64px;gap:18px;
+}
+.brand{
+  display:flex;align-items:center;gap:12px;min-width:0;
+}
+.brand-mark{
+  width:28px;height:28px;border-radius:8px;
+  background:linear-gradient(135deg,#dfe8ff 0%,#8ec8ff 100%);
+  box-shadow:0 6px 20px rgba(77,178,255,.22);
+  flex:0 0 auto;
+}
+.brand-copy{min-width:0}
+.brand-copy strong{
+  display:block;font-size:13px;line-height:1.05;font-weight:700;letter-spacing:.01em
+}
+.brand-copy span{
+  display:block;font-size:10px;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis
+}
+.nav{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end
+}
+.nav a{
+  font-size:12px;color:var(--muted);
+  padding:8px 10px;border-radius:999px
+}
+.nav a.active{
+  color:var(--text);
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08);
+}
 
-.workspace { display: grid; grid-template-columns: minmax(0, 1fr) 420px; gap: 1rem; padding: 0.2rem 0 2rem; }
-.workspace-left, .workspace-right { display: grid; gap: 1rem; align-self: start; }
-.card { padding: 1rem; }
-.mode-toggle {
-  display: inline-grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0.35rem;
-  padding: 0.3rem;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.08);
+/* main */
+.main{
+  padding:26px 0 32px;
 }
-.mode-toggle button {
-  border: 0; border-radius: 999px; background: transparent; color: var(--text-muted); padding: 0.72rem 0.9rem; font-weight: 600;
+.stack{
+  display:grid;
+  grid-template-columns:minmax(0,1.4fr) minmax(320px,.8fr);
+  gap:18px;
+  align-items:start;
 }
-.mode-toggle button.is-active { background: rgba(47,124,246,0.16); color: var(--text-main); box-shadow: inset 0 0 0 1px rgba(96,165,250,0.24); }
-.form-grid { display: grid; gap: 0.8rem; margin-top: 1rem; }
-.form-row { display: grid; gap: 0.35rem; }
-.form-row label { color: #c8d1e1; font-size: 0.86rem; }
-.form-row input, .form-row textarea, .form-row select {
-  width: 100%; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); background: rgba(2, 6, 13, 0.96); color: var(--text-main); padding: 0.84rem 0.9rem;
+.card{
+  background:linear-gradient(180deg, rgba(12,18,31,.94), rgba(7,12,23,.96));
+  border:1px solid rgba(255,255,255,.07);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
 }
-.form-row textarea { min-height: 110px; resize: vertical; }
-.form-hint { color: var(--text-soft); font-size: 0.8rem; line-height: 1.5; }
-.chain-summary {
-  display: grid; gap: 0.6rem; margin-top: 0.95rem; padding: 0.9rem; border-radius: 20px;
-  border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
+.card-inner{padding:18px}
+.eyebrow{
+  display:inline-flex;align-items:center;gap:6px;
+  height:24px;padding:0 10px;border-radius:999px;
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#cfe4ff;background:rgba(23,54,110,.42);
+  border:1px solid rgba(107,160,255,.18)
 }
-.chain-flow { display: flex; flex-wrap: wrap; gap: 0.55rem; }
-.chain-pill, .mini-pill {
-  display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.34rem 0.7rem; border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.12); background: rgba(8, 14, 24, 0.92); color: #dbe7fb; font-size: 0.8rem;
+.title{
+  margin:12px 0 8px;font-size:34px;line-height:.98;letter-spacing:-.04em;font-weight:750;
+  max-width:760px
 }
-.run-controls { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1rem; }
-.custom-builder { display: none; gap: 0.8rem; margin-top: 1rem; }
-.custom-builder.is-active { display: grid; }
-.builder-step { padding: 0.95rem; display: grid; gap: 0.75rem; }
-.builder-step__header { display: flex; justify-content: space-between; gap: 0.8rem; align-items: flex-start; flex-wrap: wrap; }
-.builder-step__actions { display: flex; flex-wrap: wrap; gap: 0.45rem; }
-.builder-step__actions button {
-  border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: var(--text-main); border-radius: 999px; padding: 0.42rem 0.68rem;
+.lead{
+  margin:0;color:var(--muted);font-size:13px;line-height:1.45;max-width:760px
 }
-.checkbox-row { display: inline-flex; align-items: center; gap: 0.55rem; color: var(--text-muted); font-size: 0.85rem; }
-.checkbox-row input { width: auto; accent-color: var(--blue); }
-textarea.json-editor { min-height: 150px; }
-.secondary-note { color: var(--text-soft); font-size: 0.78rem; }
 
-.receipt-card {
-  padding: 1rem;
-  display: grid;
-  gap: 0.95rem;
-  border-color: rgba(255,255,255,0.1);
+/* top run surface */
+.run-surface .card-inner{padding:20px}
+.modebar{
+  margin-top:18px;display:flex;gap:8px;flex-wrap:wrap
 }
-.receipt-card--verified { border-color: var(--border-proof); background: var(--bg-proof); box-shadow: var(--shadow-proof); }
-.receipt-head { display: flex; justify-content: space-between; gap: 0.8rem; align-items: flex-start; flex-wrap: wrap; }
-.receipt-meta-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.75rem; }
-.mini-card { padding: 0.8rem; border-radius: 18px; background: rgba(4, 10, 18, 0.88); border: 1px solid rgba(255,255,255,0.08); }
-.mini-card strong { display: block; color: var(--text-soft); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; }
-.mini-card span { display: block; margin-top: 0.35rem; color: var(--text-main); line-height: 1.45; word-break: break-word; }
-pre.json-block {
-  margin: 0; padding: 0.92rem; border-radius: 18px; background: rgba(2, 6, 13, 0.98); border: 1px solid rgba(255,255,255,0.08);
-  color: #dbe7fb; font-size: 0.8rem; line-height: 1.56; white-space: pre-wrap; word-break: break-word; max-height: 420px; overflow: auto;
+.modebtn{
+  height:36px;padding:0 14px;border-radius:999px;
+  border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);color:var(--muted);
+  cursor:pointer;font-size:12px;font-weight:600
 }
-.card-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; }
-.copy-grid { display: grid; gap: 0.8rem; }
+.modebtn.active{
+  color:var(--text);
+  background:linear-gradient(180deg, rgba(43,112,220,.32), rgba(20,67,160,.28));
+  border-color:rgba(107,160,255,.28)
+}
 
-.step-card { padding: 0.92rem; display: grid; gap: 0.75rem; }
-.step-card__top { display: flex; justify-content: space-between; gap: 0.8rem; align-items: flex-start; flex-wrap: wrap; }
-.step-card__title { display: grid; gap: 0.18rem; }
-.step-card__title h3 { margin: 0; font-size: 1rem; }
+.surface-grid{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 320px;
+  gap:18px;
+}
 
-details.disclosure { padding: 0.4rem 1rem 1rem; }
-details.disclosure summary {
-  list-style: none; cursor: pointer; display: flex; justify-content: space-between; gap: 0.8rem; align-items: center; padding: 0.7rem 0 0.4rem;
+.panel{
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:16px;
 }
-details.disclosure summary::-webkit-details-marker { display: none; }
-.disclosure__content { display: grid; gap: 0.8rem; padding-top: 0.4rem; }
-.callout {
-  border-radius: 18px; padding: 0.9rem 1rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--text-muted); line-height: 1.58;
+.panel-inner{padding:16px}
+.panel-title{
+  margin:0 0 8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted-2);font-weight:700
 }
-.empty-state, .error-state {
-  border-radius: 20px; padding: 1rem 1.05rem; border: 1px dashed rgba(255,255,255,0.14); background: rgba(255,255,255,0.02); color: var(--text-muted);
+.panel-copy{
+  margin:0;color:var(--muted);font-size:12px;line-height:1.45
 }
-.error-state { border-style: solid; border-color: rgba(248,113,113,0.28); background: rgba(58, 12, 18, 0.26); color: #fee2e2; }
-.site-footer { border-top: 1px solid rgba(255,255,255,0.07); background: #020308; }
-.site-footer__inner { padding: 1.6rem 1.5rem 2rem; display: grid; gap: 1rem; font-size: 0.8rem; color: var(--text-soft); text-align: center; }
-.site-footer__links { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
-.site-footer__links a { color: #c2cad8; text-decoration: none; }
-.site-footer__links a:hover { text-decoration: underline; }
 
-@media (max-width: 1100px) {
-  .hero-grid, .workspace { grid-template-columns: minmax(0, 1fr); }
-  .proof-strip__meta, .status-bar, .receipt-meta-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+/* status strip */
+.status-strip{
+  margin-top:14px;
+  display:grid;grid-template-columns:repeat(4, minmax(0,1fr));
+  gap:10px
 }
-@media (max-width: 920px) {
-  .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
-  .site-header__nav { display: none; flex-direction: column; align-items: flex-start; width: 100%; }
-  .site-header.site-header--open .site-header__nav { display: flex; }
+.mini{
+  min-height:64px;padding:12px 14px;border-radius:14px;
+  background:rgba(255,255,255,.025);
+  border:1px solid rgba(255,255,255,.06)
 }
-@media (max-width: 720px) {
-  .container { padding: 0 1rem; }
-  .site-header__inner { padding-inline: 1rem; }
-  .proof-strip__meta, .status-bar, .receipt-meta-grid { grid-template-columns: minmax(0, 1fr); }
-  .hero-shell { padding: 1rem; }
+.mini-label{
+  font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700
+}
+.mini-value{
+  margin-top:8px;font-size:13px;font-weight:650;line-height:1.25
+}
+.live-dot{
+  display:inline-block;width:8px;height:8px;border-radius:999px;background:var(--ok);
+  box-shadow:0 0 0 4px rgba(99,230,168,.12)
+}
+
+/* chain builder */
+.chain-card{margin-top:16px}
+.chain-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap
+}
+.chain-title{
+  margin:0;font-size:15px;font-weight:700;letter-spacing:-.02em
+}
+.chain-sub{
+  margin:4px 0 0;color:var(--muted);font-size:12px
+}
+
+.chain-pills{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px
+}
+.pill, .arrow{
+  height:34px;display:inline-flex;align-items:center;justify-content:center
+}
+.pill{
+  padding:0 12px;border-radius:999px;background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:650
+}
+.arrow{
+  color:var(--muted-2);font-size:14px;padding:0 2px
+}
+
+.builder-row{
+  display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center;
+  margin-top:16px
+}
+.select-wrap{
+  position:relative
+}
+.select-wrap select{
+  width:100%;height:44px;padding:0 14px;
+  background:rgba(255,255,255,.035);color:var(--text);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:14px;outline:none;
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+  font-size:13px;font-weight:600
+}
+.select-wrap:after{
+  content:"▾";position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  color:var(--muted);pointer-events:none;font-size:12px
+}
+.chain-arrow{
+  text-align:center;color:var(--muted-2);font-size:16px;font-weight:700
+}
+
+.field-grid{
+  display:grid;grid-template-columns:1fr;gap:12px;margin-top:16px
+}
+.field label{
+  display:block;margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--muted-2);font-weight:700
+}
+.field textarea{
+  width:100%;min-height:116px;resize:vertical;
+  border-radius:14px;border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);color:var(--text);
+  padding:13px 14px;line-height:1.45;font-size:13px;outline:none
+}
+.field textarea::placeholder{color:#72809a}
+
+.actions{
+  margin-top:16px;display:flex;gap:10px;flex-wrap:wrap
+}
+.btn{
+  height:40px;padding:0 16px;border-radius:999px;border:1px solid rgba(255,255,255,.08);
+  background:rgba(255,255,255,.03);color:var(--text);cursor:pointer;
+  font-size:12px;font-weight:700;letter-spacing:.01em
+}
+.btn-primary{
+  background:linear-gradient(135deg,#2797ff,#5cc8ff);
+  color:#03101e;border:none;
+  box-shadow:0 10px 28px rgba(39,151,255,.32)
+}
+.btn-quiet{
+  color:var(--muted);background:rgba(255,255,255,.02)
+}
+
+/* right rail */
+.rail{
+  display:grid;gap:16px
+}
+.kv-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px
+}
+.kv{
+  border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.02);
+  border-radius:14px;padding:12px
+}
+.kv .k{
+  font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700
+}
+.kv .v{
+  margin-top:8px;font-size:12px;font-weight:650;word-break:break-word
+}
+
+.badge-ok,.badge-pending{
+  display:inline-flex;align-items:center;gap:8px;
+  height:28px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:700
+}
+.badge-ok{
+  color:#b8f6d7;background:rgba(38,120,82,.22);border:1px solid rgba(99,230,168,.24)
+}
+.badge-pending{
+  color:#ffe2a6;background:rgba(122,91,20,.20);border:1px solid rgba(255,204,102,.20)
+}
+.dot-ok,.dot-pending{
+  width:8px;height:8px;border-radius:999px;display:inline-block
+}
+.dot-ok{background:var(--ok)}
+.dot-pending{background:var(--warn)}
+
+.codebox{
+  margin-top:12px;border-radius:14px;
+  background:#060a12;border:1px solid rgba(255,255,255,.07);
+  padding:12px;overflow:auto
+}
+.codebox pre{
+  margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:11px;line-height:1.5;color:#dce7ff
+}
+.inline-note{
+  margin-top:10px;color:var(--muted);font-size:12px;line-height:1.45
+}
+.token-row{
+  margin-top:12px;display:flex;gap:8px;flex-wrap:wrap
+}
+.token{
+  height:28px;padding:0 10px;border-radius:999px;
+  display:inline-flex;align-items:center;
+  background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+  color:#c9d9f4;font-size:11px;font-weight:650
+}
+
+.footer{
+  padding:18px 0 28px
+}
+.footer-row{
+  display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  color:var(--muted-2);font-size:11px
+}
+
+.hidden{display:none !important}
+
+@media (max-width: 1100px){
+  .stack,
+  .surface-grid{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width: 760px){
+  .title{font-size:28px}
+  .status-strip{grid-template-columns:1fr 1fr}
+  .builder-row{grid-template-columns:1fr;gap:8px}
+  .chain-arrow{display:none}
+  .kv-grid{grid-template-columns:1fr}
+  .site-header .wrap{min-height:60px}
+  .nav{display:none}
 }
 </style>
 </head>
 <body>
-<div class="page-shell">
-<header class="site-header">
-  <div class="site-header__inner container">
-    <a href="/" class="site-header__brand">
-      <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-      <div class="site-header__text">
-        <span class="site-header__title">CommandLayer</span>
-        <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
-      </div>
-    </a>
-    <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-    <nav class="site-header__nav">
-      <a href="/" class="site-header__link">Home</a>
-      <a href="/composer.html" class="site-header__link site-header__link--active">Composer</a>
-      <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-      <div class="site-header__dropdown">
-        <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
-        <div class="site-header__dropdown-menu">
-          <a href="/commons.html">Commons</a>
-          <a href="/commercial.html">Commercial</a>
-          <a href="/agent-cards.html">Agent Cards</a>
-          <a href="/runtime.html">Runtime</a>
-        </div>
-      </div>
-      <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
-    </nav>
-  </div>
-</header>
+<div class="shell">
 
-<main class="page-main">
-  <section class="hero">
-    <div class="container">
-      <div class="hero-shell">
-        <div class="hero-grid">
-          <div>
-            <p class="eyebrow">Live Commons Runtime</p>
-            <h1>Run a live chain. Get a signed receipt. Verify it yourself.</h1>
-            <p class="hero-copy">
-              This surface sends live verb executions to the CommandLayer runtime, returns receipts for the chain,
-              and verifies the final artifact through ENS + Ed25519 so the proof moment is immediate and independently inspectable.
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/">
+        <div class="brand-mark" aria-hidden="true"></div>
+        <div class="brand-copy">
+          <strong>CommandLayer</strong>
+          <span>Signed, verifiable receipts for agent execution</span>
+        </div>
+      </a>
+
+      <nav class="nav" aria-label="Primary">
+        <a href="/">Home</a>
+        <a href="/composer.html" class="active">Composer</a>
+        <a href="/quickstart.html">Quickstart</a>
+        <a href="/docs.html">Docs</a>
+        <a href="https://github.com/commandlayer" target="_blank" rel="noreferrer">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="wrap">
+      <div class="stack">
+
+        <section class="run-surface card">
+          <div class="card-inner">
+            <div class="eyebrow">Live commons runtime</div>
+            <h1 class="title">Chain 3 verbs. Run live. Verify independently.</h1>
+            <p class="lead">
+              Minimal protocol surface for live execution, signed receipts, and immediate verification through ENS + Ed25519.
             </p>
-            <div class="hero-actions">
-              <button id="hero-run-default" class="btn btn--primary" type="button">Run Default Chain</button>
-              <button id="hero-build-custom" class="btn btn--secondary" type="button">Build Custom Chain</button>
-              <button id="hero-copy-curl" class="btn btn--ghost" type="button" disabled>Copy cURL Verify Command</button>
+
+            <div class="modebar" role="tablist" aria-label="Composer mode">
+              <button class="modebtn active" id="mode-default-btn" type="button">Default chain</button>
+              <button class="modebtn" id="mode-builder-btn" type="button">Build chain</button>
             </div>
-            <section id="proof-strip" class="proof-strip" aria-live="polite">
-              <div class="proof-strip__top">
-                <div>
-                  <div class="section-eyebrow">Verified proof</div>
-                  <h2 id="proof-strip-title" style="margin:0.16rem 0 0; font-size:1.28rem;">Verified via ENS + Ed25519</h2>
-                  <p id="proof-strip-copy" style="margin:0.42rem 0 0; color:var(--text-muted);">Run the default chain to surface the live receipt and verification details here.</p>
-                </div>
-                <span id="proof-strip-badge" class="badge badge--verified">VERIFIED</span>
+
+            <div class="status-strip">
+              <div class="mini">
+                <div class="mini-label">Status</div>
+                <div class="mini-value"><span class="live-dot"></span> Live runtime reachable</div>
               </div>
-              <div class="proof-strip__meta">
-                <div class="proof-metric"><strong>Status</strong><span id="proof-strip-status">Awaiting run</span></div>
-                <div class="proof-metric"><strong>Signer ENS</strong><span id="proof-strip-signer">—</span></div>
-                <div class="proof-metric"><strong>kid</strong><span id="proof-strip-kid">—</span></div>
-                <div class="proof-metric"><strong>Hash</strong><span id="proof-strip-hash">—</span></div>
+              <div class="mini">
+                <div class="mini-label">Latency</div>
+                <div class="mini-value">656 ms</div>
               </div>
-            </section>
-          </div>
-          <aside class="hero-card">
-            <div class="card-eyebrow">Protocol surface</div>
-            <h2>Live runtime first. Recorded proof second.</h2>
-            <p>
-              The composer now opens on a proof-first path instead of a blank builder. Live execution is the main story.
-              Recorded artifacts remain available when the runtime degrades, but they stay clearly labeled and visually secondary.
-            </p>
-            <ul>
-              <li>Default chain opens ready to run.</li>
-              <li>Custom chain exposes all 10 live verbs.</li>
-              <li>Final receipt and verification stay visually primary.</li>
-            </ul>
-          </aside>
-        </div>
-      </div>
-    </div>
-  </section>
+              <div class="mini">
+                <div class="mini-label">Mode</div>
+                <div class="mini-value">Live runtime</div>
+              </div>
+              <div class="mini">
+                <div class="mini-label">Runtime URL</div>
+                <div class="mini-value">runtime.commandlayer.org</div>
+              </div>
+            </div>
 
-  <section class="status-wrap">
-    <div class="container">
-      <div id="runtime-status-bar" class="status-bar status-live" aria-live="polite">
-        <div class="status-item"><strong>Status</strong><span><span class="status-dot" aria-hidden="true"></span><span id="runtime-status-text">Checking runtime…</span></span></div>
-        <div class="status-item"><strong>Latency</strong><span id="runtime-latency">—</span></div>
-        <div class="status-item"><strong>Mode</strong><span id="runtime-mode">Live runtime</span></div>
-        <div class="status-item"><strong>Runtime URL</strong><span id="runtime-url" class="runtime-url">https://runtime.commandlayer.org</span></div>
-      </div>
-    </div>
-  </section>
+            <div class="surface-grid">
 
-  <section class="container workspace">
-    <div class="workspace-left">
-      <article class="card">
-        <div class="section-eyebrow">Chain mode</div>
-        <h2 style="margin-top:0.18rem;">Choose the fastest proof path or build a live chain.</h2>
-        <p>Default mode gets to a signed, verified artifact quickly. Custom mode exposes the runtime verbs without turning the surface into a generic workflow builder.</p>
-        <div class="mode-toggle" role="tablist" aria-label="Chain mode toggle" style="margin-top:1rem;">
-          <button id="mode-default" class="is-active" type="button" role="tab" aria-selected="true">Default chain</button>
-          <button id="mode-custom" type="button" role="tab" aria-selected="false">Custom chain</button>
-        </div>
-      </article>
+              <div>
+                <!-- DEFAULT MODE -->
+                <section class="panel chain-card" id="default-mode">
+                  <div class="panel-inner">
+                    <div class="chain-head">
+                      <div>
+                        <h2 class="chain-title">Default chain</h2>
+                        <p class="chain-sub">Fast proof path with a preloaded chain.</p>
+                      </div>
+                    </div>
 
-      <article id="default-card" class="card">
-        <div class="section-eyebrow">Default chain</div>
-        <h2 style="margin-top:0.18rem;">Run the verified default chain.</h2>
-        <p>Locked chain: <span class="mono">clean → summarize</span>. Edit the source content and final instructions, then run the live chain and verify the final receipt.</p>
-        <div class="chain-summary">
-          <div class="mode-label">Chain summary</div>
-          <div class="chain-flow">
-            <span class="chain-pill">1 · clean</span>
-            <span class="chain-pill">2 · summarize</span>
-          </div>
-          <div class="form-hint">Step 2 receives the output of Step 1 automatically so the first proof moment stays fast and deterministic.</div>
-        </div>
-        <div class="form-grid">
-          <div class="form-row">
-            <label for="default-source-content">Source content</label>
-            <textarea id="default-source-content">Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently.</textarea>
-          </div>
-          <div class="form-row">
-            <label for="default-final-instructions">Final instructions</label>
-            <textarea id="default-final-instructions">Summarize the cleaned result into a short proof brief for a skeptical hackathon judge. Focus on what ran, what artifact was emitted, and why the receipt is independently verifiable.</textarea>
-          </div>
-        </div>
-        <div class="run-controls">
-          <button id="run-default" class="btn btn--primary" type="button">Run Default Chain</button>
-        </div>
-      </article>
+                    <div class="chain-pills" aria-label="Default chain steps">
+                      <span class="pill">clean</span>
+                      <span class="arrow">→</span>
+                      <span class="pill">summarize</span>
+                      <span class="arrow">→</span>
+                      <span class="pill">verify</span>
+                    </div>
 
-      <article id="custom-card" class="card" hidden>
-        <div class="section-eyebrow">Custom chain</div>
-        <h2 style="margin-top:0.18rem;">Build a live chain from the runtime verbs.</h2>
-        <p>Compose the chain from the 10 verbs, pass previous step output forward when needed, and run the sequence through the single runtime entrypoint.</p>
-        <div class="run-controls">
-          <button id="add-step" class="btn btn--secondary" type="button">Add Step</button>
-          <span class="form-hint">Available verbs: fetch, describe, format, clean, parse, summarize, convert, explain, analyze, classify.</span>
-        </div>
-        <div id="custom-builder" class="custom-builder"></div>
-        <div class="run-controls">
-          <button id="run-custom" class="btn btn--primary" type="button">Run Custom Chain</button>
-        </div>
-      </article>
-    </div>
+                    <div class="field-grid">
+                      <div class="field">
+                        <label for="default-source-content">Source content</label>
+                        <textarea id="default-source-content">Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently.</textarea>
+                      </div>
+                      <div class="field">
+                        <label for="default-final-instructions">Final instructions</label>
+                        <textarea id="default-final-instructions">Summarize the cleaned result into a short proof brief for a skeptical hackathon judge. Focus on what ran, what artifact was emitted, and why the receipt is independently verifiable.</textarea>
+                      </div>
+                    </div>
 
-    <div class="workspace-right">
-      <article id="final-artifact-card" class="receipt-card" aria-live="polite">
-        <div class="receipt-head">
-          <div>
-            <div class="section-eyebrow">Final artifact</div>
-            <h2 style="margin-top:0.18rem;">Signed receipt and verification summary.</h2>
-          </div>
-          <span id="artifact-badge" class="badge">Awaiting run</span>
-        </div>
-        <p id="artifact-summary">Run the default chain to generate a final receipt and verify it through the live runtime.</p>
-        <div class="receipt-meta-grid">
-          <div class="mini-card"><strong>Verification</strong><span id="artifact-verification">Pending</span></div>
-          <div class="mini-card"><strong>Signer ENS</strong><span id="artifact-signer">—</span></div>
-          <div class="mini-card"><strong>kid</strong><span id="artifact-kid">—</span></div>
-          <div class="mini-card"><strong>Hash</strong><span id="artifact-hash">—</span></div>
-          <div class="mini-card"><strong>Schema version</strong><span id="artifact-schema">—</span></div>
-          <div class="mini-card"><strong>Artifact mode</strong><span id="artifact-mode">Live runtime</span></div>
-        </div>
-        <div class="copy-grid">
-          <div>
-            <div class="section-eyebrow" style="margin-bottom:0.45rem;">Final receipt JSON</div>
-            <pre id="final-receipt-json" class="json-block">{
+                    <div class="actions">
+                      <button class="btn btn-primary" type="button">Run chain</button>
+                      <button class="btn btn-quiet" type="button">Load example</button>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- BUILDER MODE -->
+                <section class="panel chain-card hidden" id="builder-mode">
+                  <div class="panel-inner">
+                    <div class="chain-head">
+                      <div>
+                        <h2 class="chain-title">Build chain</h2>
+                        <p class="chain-sub">Select 3 runtime verbs and execute them in sequence.</p>
+                      </div>
+                    </div>
+
+                    <div class="builder-row" aria-label="3-step chain builder">
+                      <div class="select-wrap">
+                        <select id="verb-1">
+                          <option>clean</option>
+                          <option>summarize</option>
+                          <option>analyze</option>
+                          <option>describe</option>
+                          <option>explain</option>
+                          <option>format</option>
+                          <option>parse</option>
+                          <option>convert</option>
+                          <option>fetch</option>
+                          <option>verify</option>
+                        </select>
+                      </div>
+
+                      <div class="chain-arrow">→</div>
+
+                      <div class="select-wrap">
+                        <select id="verb-2">
+                          <option>summarize</option>
+                          <option>clean</option>
+                          <option>analyze</option>
+                          <option>describe</option>
+                          <option>explain</option>
+                          <option>format</option>
+                          <option>parse</option>
+                          <option>convert</option>
+                          <option>fetch</option>
+                          <option>verify</option>
+                        </select>
+                      </div>
+
+                      <div class="chain-arrow">→</div>
+
+                      <div class="select-wrap">
+                        <select id="verb-3">
+                          <option>verify</option>
+                          <option>clean</option>
+                          <option>summarize</option>
+                          <option>analyze</option>
+                          <option>describe</option>
+                          <option>explain</option>
+                          <option>format</option>
+                          <option>parse</option>
+                          <option>convert</option>
+                          <option>fetch</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="field-grid">
+                      <div class="field">
+                        <label for="builder-source">Source content</label>
+                        <textarea id="builder-source" placeholder="Paste the input artifact or source content for step 1."></textarea>
+                      </div>
+                      <div class="field">
+                        <label for="builder-instructions">Execution instructions</label>
+                        <textarea id="builder-instructions" placeholder="Optional execution hint or final instruction for the chain."></textarea>
+                      </div>
+                    </div>
+
+                    <div class="actions">
+                      <button class="btn btn-primary" type="button">Run chain</button>
+                      <button class="btn btn-quiet" type="button">Reset</button>
+                    </div>
+                  </div>
+                </section>
+              </div>
+
+              <aside class="rail">
+                <section class="panel">
+                  <div class="panel-inner">
+                    <div class="panel-title">Final receipt</div>
+                    <span class="badge-pending">
+                      <span class="dot-pending"></span>
+                      Awaiting run
+                    </span>
+
+                    <div class="kv-grid">
+                      <div class="kv">
+                        <div class="k">Verification</div>
+                        <div class="v">Pending</div>
+                      </div>
+                      <div class="kv">
+                        <div class="k">Artifact mode</div>
+                        <div class="v">Live runtime</div>
+                      </div>
+                      <div class="kv">
+                        <div class="k">Signer ENS</div>
+                        <div class="v">—</div>
+                      </div>
+                      <div class="kv">
+                        <div class="k">kid</div>
+                        <div class="v">—</div>
+                      </div>
+                      <div class="kv">
+                        <div class="k">Hash</div>
+                        <div class="v">—</div>
+                      </div>
+                      <div class="kv">
+                        <div class="k">Schema version</div>
+                        <div class="v">—</div>
+                      </div>
+                    </div>
+
+                    <div class="codebox">
+<pre>{
   "status": "ready"
 }</pre>
+                    </div>
+
+                    <div class="actions">
+                      <button class="btn" type="button">Copy receipt</button>
+                      <button class="btn" type="button">Copy verification</button>
+                      <button class="btn" type="button">Verify via cURL</button>
+                    </div>
+                  </div>
+                </section>
+
+                <section class="panel">
+                  <div class="panel-inner">
+                    <div class="panel-title">Verification surface</div>
+                    <p class="panel-copy">
+                      Final artifact first. Independent verification second. Minimal proof details, no giant explainer block.
+                    </p>
+                    <div class="token-row">
+                      <span class="token">POST /execute</span>
+                      <span class="token">POST /verify</span>
+                      <span class="token">ENS + Ed25519</span>
+                    </div>
+                    <p class="inline-note">
+                      Show full chain receipts only after a run, in a collapsed section below the result.
+                    </p>
+                  </div>
+                </section>
+              </aside>
+
+            </div>
           </div>
-          <div>
-            <div class="section-eyebrow" style="margin-bottom:0.45rem;">Verification JSON</div>
-            <pre id="verification-json" class="json-block">{
-  "status": "pending"
-}</pre>
-          </div>
-        </div>
-        <div class="card-actions">
-          <button id="copy-final-receipt" class="btn btn--secondary" type="button">Copy Final Receipt</button>
-          <button id="copy-verification-json" class="btn btn--secondary" type="button">Copy Verification JSON</button>
-          <button id="copy-curl-command" class="btn btn--secondary" type="button" disabled>Copy cURL Verify Command</button>
-          <a id="view-schema-link" class="btn btn--ghost" href="/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json" target="_blank" rel="noopener noreferrer">View Schema</a>
-        </div>
-      </article>
+        </section>
 
-      <article class="card">
-        <div class="section-eyebrow">Trust details</div>
-        <h2 style="margin-top:0.18rem;">Independent verification at a glance.</h2>
-        <p id="trust-copy">The right rail keeps the final artifact primary: verification status, signer identity, proof hash, and direct copy actions for independent verification.</p>
-        <div class="chain-flow" id="trust-tags" style="margin-top:0.9rem;">
-          <span class="mini-pill">POST /</span>
-          <span class="mini-pill">POST /verify</span>
-          <span class="mini-pill">ENS + Ed25519</span>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <section class="container" style="padding-bottom:2rem; display:grid; gap:1rem;">
-    <details id="step-receipts-disclosure" class="disclosure">
-      <summary>
-        <div>
-          <div class="section-eyebrow">Step receipts</div>
-          <h2 style="margin:0.16rem 0 0; font-size:1.1rem;">Inspect the chain receipts.</h2>
-        </div>
-        <span id="steps-summary-tag" class="badge">0 steps</span>
-      </summary>
-      <div class="disclosure__content" id="step-receipts-content">
-        <div class="empty-state">Run the chain to inspect step receipts here.</div>
       </div>
-    </details>
-
-    <details id="runtime-context-disclosure" class="disclosure">
-      <summary>
-        <div>
-          <div class="section-eyebrow">Runtime context</div>
-          <h2 style="margin:0.16rem 0 0; font-size:1.1rem;">Execution context and fallback state.</h2>
-        </div>
-        <span id="runtime-context-badge" class="badge">Waiting</span>
-      </summary>
-      <div class="disclosure__content">
-        <div id="runtime-context-callout" class="callout"><strong>Waiting for execution.</strong> Runtime metadata and any recorded fallback note will appear here after a run.</div>
-      </div>
-    </details>
-  </section>
-</main>
-
-<footer class="site-footer">
-  <div class="container site-footer__inner">
-    <div>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</div>
-    <div class="site-footer__links">
-      <a href="/docs.html">Docs</a>
-      <a href="/repositories.html">Repositories</a>
-      <a href="/faq.html">FAQ</a>
-      <a href="/about.html">About</a>
-      <a href="/licensing.html">Licensing</a>
     </div>
-  </div>
-</footer>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap">
+      <div class="footer-row">
+        <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
+        <span>Docs · Repositories · FAQ · About · Licensing</span>
+      </div>
+    </div>
+  </footer>
+
 </div>
 
 <script>
-(function () {
-  const header = document.querySelector('.site-header');
-  const toggle = document.querySelector('.site-header__toggle');
-  const docsBtn = document.querySelector('.site-header__dropdown-btn');
-  if (toggle && header) {
-    toggle.addEventListener('click', () => {
-      const isOpen = header.classList.toggle('site-header--open');
-      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
-  }
-  if (docsBtn && header) {
-    docsBtn.addEventListener('click', () => {
-      header.classList.toggle('site-header--docs-open');
-    });
-  }
-})();
-
-(function () {
-  const RUNTIME_BASE = 'https://runtime.commandlayer.org';
-  const STORAGE_KEY = 'commandlayer:last-proof-artifact:v2';
-  const RECORDED_ARTIFACT_URL = '/assets/receipts/clean.recorded-live-artifact.v1.1.0.json';
-  const VERBS = ['fetch', 'describe', 'format', 'clean', 'parse', 'summarize', 'convert', 'explain', 'analyze', 'classify'];
-  const DEFAULT_CHAIN = [
-    {
-      verb: 'clean',
-      inputBuilder: () => ({
-        content: document.getElementById('default-source-content').value,
-        operations: ['trim_whitespace', 'collapse_blank_lines', 'preserve_meaning']
-      })
-    },
-    {
-      verb: 'summarize',
-      usePreviousOutput: true,
-      inputBuilder: () => ({
-        instructions: document.getElementById('default-final-instructions').value
-      })
-    }
-  ];
-
-  const state = {
-    mode: 'default',
-    runtimeHealthy: null,
-    runtimeLatency: '—',
-    bundledRecordedArtifact: null,
-    lastArtifact: null,
-    running: false,
-    customSteps: [
-      { id: crypto.randomUUID(), verb: 'fetch', usePreviousOutput: false, inputText: '{\n  "url": "https://commandlayer.org"\n}' },
-      { id: crypto.randomUUID(), verb: 'describe', usePreviousOutput: true, inputText: '{\n  "detail_level": "medium",\n  "audience": "technical"\n}' }
-    ]
-  };
-
-  const elements = {
-    modeDefault: document.getElementById('mode-default'),
-    modeCustom: document.getElementById('mode-custom'),
-    defaultCard: document.getElementById('default-card'),
-    customCard: document.getElementById('custom-card'),
-    customBuilder: document.getElementById('custom-builder'),
-    addStep: document.getElementById('add-step'),
-    runDefault: document.getElementById('run-default'),
-    runCustom: document.getElementById('run-custom'),
-    heroRunDefault: document.getElementById('hero-run-default'),
-    heroBuildCustom: document.getElementById('hero-build-custom'),
-    heroCopyCurl: document.getElementById('hero-copy-curl'),
-    runtimeStatusBar: document.getElementById('runtime-status-bar'),
-    runtimeStatusText: document.getElementById('runtime-status-text'),
-    runtimeLatency: document.getElementById('runtime-latency'),
-    runtimeMode: document.getElementById('runtime-mode'),
-    runtimeUrl: document.getElementById('runtime-url'),
-    proofStrip: document.getElementById('proof-strip'),
-    proofStripTitle: document.getElementById('proof-strip-title'),
-    proofStripCopy: document.getElementById('proof-strip-copy'),
-    proofStripBadge: document.getElementById('proof-strip-badge'),
-    proofStripStatus: document.getElementById('proof-strip-status'),
-    proofStripSigner: document.getElementById('proof-strip-signer'),
-    proofStripKid: document.getElementById('proof-strip-kid'),
-    proofStripHash: document.getElementById('proof-strip-hash'),
-    finalArtifactCard: document.getElementById('final-artifact-card'),
-    artifactBadge: document.getElementById('artifact-badge'),
-    artifactSummary: document.getElementById('artifact-summary'),
-    artifactVerification: document.getElementById('artifact-verification'),
-    artifactSigner: document.getElementById('artifact-signer'),
-    artifactKid: document.getElementById('artifact-kid'),
-    artifactHash: document.getElementById('artifact-hash'),
-    artifactSchema: document.getElementById('artifact-schema'),
-    artifactMode: document.getElementById('artifact-mode'),
-    finalReceiptJson: document.getElementById('final-receipt-json'),
-    verificationJson: document.getElementById('verification-json'),
-    copyFinalReceipt: document.getElementById('copy-final-receipt'),
-    copyVerificationJson: document.getElementById('copy-verification-json'),
-    copyCurlCommand: document.getElementById('copy-curl-command'),
-    viewSchemaLink: document.getElementById('view-schema-link'),
-    stepReceiptsDisclosure: document.getElementById('step-receipts-disclosure'),
-    stepReceiptsContent: document.getElementById('step-receipts-content'),
-    stepsSummaryTag: document.getElementById('steps-summary-tag'),
-    runtimeContextDisclosure: document.getElementById('runtime-context-disclosure'),
-    runtimeContextBadge: document.getElementById('runtime-context-badge'),
-    runtimeContextCallout: document.getElementById('runtime-context-callout')
-  };
-
-  function escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  function formatJson(value) {
-    try {
-      return JSON.stringify(value, null, 2);
-    } catch {
-      return String(value);
-    }
-  }
-
-  function parseJsonInput(text) {
-    const trimmed = String(text || '').trim();
-    if (!trimmed) return {};
-    return JSON.parse(trimmed);
-  }
-
-  function shortenHash(value) {
-    if (!value) return '—';
-    const stringValue = String(value);
-    return stringValue.length > 18 ? `${stringValue.slice(0, 10)}…${stringValue.slice(-6)}` : stringValue;
-  }
-
-  function schemaUrlForReceipt(receipt) {
-    const version = receipt?.schema_version || '1.1.0';
-    const verb = receipt?.verb || 'summarize';
-    return `/schemas/v${version}/commons/${verb}/${verb}.receipt.schema.json`;
-  }
-
-  function shellEscapeSingleQuotes(text) {
-    return String(text).replace(/'/g, `'"'"'`);
-  }
-
-  function buildCurlCommand(receipt) {
-    const payload = formatJson(receipt || {});
-    return `curl -X POST "${RUNTIME_BASE}/verify?ens=1&strict_kid=1" \\\n  -H "Content-Type: application/json" \\\n  -d '${shellEscapeSingleQuotes(payload)}'`;
-  }
-
-  function loadStoredArtifact() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      return parsed && typeof parsed === 'object' ? parsed : null;
-    } catch {
-      return fallback;
-    }
-  }
-
-  function persistArtifact(artifact) {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(artifact));
-    } catch {}
-  }
-
-  async function loadBundledRecordedArtifact() {
-    if (state.bundledRecordedArtifact) return state.bundledRecordedArtifact;
-    const res = await fetch(RECORDED_ARTIFACT_URL, { method: 'GET' });
-    if (!res.ok) throw new Error(`Recorded artifact unavailable (${res.status})`);
-    const data = await res.json();
-    state.bundledRecordedArtifact = data && typeof data === 'object' ? data : null;
-    return state.bundledRecordedArtifact;
-  }
-
-  function extractKid(source) {
-    return source?.verification?.kid
-      || source?.verification?.values?.kid
-      || source?.runtime_metadata?.proof?.kid
-      || null;
-  }
-
-  function extractSigner(source) {
-    return source?.verification?.signer_id
-      || source?.verification?.values?.signer_id
-      || source?.runtime_metadata?.proof?.signer_id
-      || source?.fallback_signer
-      || null;
-  }
-
-  function extractHash(source) {
-    return source?.verification?.hash_sha256
-      || source?.verification?.values?.hash_sha256
-      || source?.runtime_metadata?.proof?.hash_sha256
-      || null;
-  }
-
-  function normalizeVerification(verification) {
-    const checks = verification?.checks || {};
-    const ok = typeof verification?.ok === 'boolean'
-      ? verification.ok
-      : (checks.hash_matches === true && checks.signature_valid === true && checks.schema_valid !== false);
-    return { ...(verification || {}), checks, ok };
-  }
-
-  function buildArtifact({ steps, mode, fallbackLabel, runtimeMessage }) {
-    const normalizedSteps = Array.isArray(steps) ? steps : [];
-    const finalStep = normalizedSteps[normalizedSteps.length - 1] || {};
-    const finalReceipt = finalStep.receipt || null;
-    const verification = normalizeVerification(finalStep.verification || {});
-    const runtimeMetadata = finalStep.runtime_metadata || null;
-    const signer = extractSigner({ verification, runtime_metadata: runtimeMetadata, fallback_signer: finalStep.fallback_signer }) || 'Signer unavailable';
-    const kid = extractKid({ verification, runtime_metadata: runtimeMetadata }) || 'unknown';
-    const hash = extractHash({ verification, runtime_metadata: runtimeMetadata }) || 'Hash unavailable';
-    return {
-      mode,
-      fallbackLabel: fallbackLabel || null,
-      runtimeMessage: runtimeMessage || '',
-      receipt: finalReceipt,
-      verification,
-      runtime_metadata: runtimeMetadata,
-      signer,
-      kid,
-      hash,
-      schema_version: finalReceipt?.schema_version || '—',
-      schema_url: schemaUrlForReceipt(finalReceipt || {}),
-      steps: normalizedSteps,
-      verified: verification.ok === true
-    };
-  }
-
-  function setMode(nextMode) {
-    state.mode = nextMode;
-    const isDefault = nextMode === 'default';
-    elements.modeDefault.classList.toggle('is-active', isDefault);
-    elements.modeDefault.setAttribute('aria-selected', isDefault ? 'true' : 'false');
-    elements.modeCustom.classList.toggle('is-active', !isDefault);
-    elements.modeCustom.setAttribute('aria-selected', !isDefault ? 'true' : 'false');
-    elements.defaultCard.hidden = !isDefault;
-    elements.customCard.hidden = isDefault;
-  }
-
-  function setRuntimeVisualState(kind, message, latencyText) {
-    elements.runtimeStatusBar.classList.remove('status-live', 'status-degraded', 'status-fail');
-    elements.runtimeStatusBar.classList.add(kind === 'live' ? 'status-live' : kind === 'degraded' ? 'status-degraded' : 'status-fail');
-    elements.runtimeStatusText.textContent = message;
-    elements.runtimeLatency.textContent = latencyText || '—';
-    elements.runtimeMode.textContent = kind === 'live' ? 'Live runtime' : 'Degraded · recorded fallback available';
-    elements.runtimeUrl.textContent = RUNTIME_BASE;
-  }
-
-  function updateBusyState(isBusy, label) {
-    state.running = isBusy;
-    const nextDefaultLabel = label || 'Run Default Chain';
-    const nextCustomLabel = label || 'Run Custom Chain';
-    elements.runDefault.disabled = isBusy;
-    elements.runCustom.disabled = isBusy;
-    elements.heroRunDefault.disabled = isBusy;
-    elements.heroBuildCustom.disabled = isBusy;
-    elements.addStep.disabled = isBusy;
-    elements.runDefault.textContent = isBusy ? 'Running live chain…' : nextDefaultLabel;
-    elements.runCustom.textContent = isBusy ? 'Running live chain…' : nextCustomLabel;
-    elements.heroRunDefault.textContent = isBusy ? 'Running live chain…' : 'Run Default Chain';
-    elements.heroBuildCustom.textContent = isBusy ? 'Running live chain…' : 'Build Custom Chain';
-  }
-
-  function renderCustomBuilder() {
-    if (!state.customSteps.length) {
-      elements.customBuilder.innerHTML = '<div class="empty-state">Add a step to start building a custom chain.</div>';
-      elements.customBuilder.classList.add('is-active');
-      return;
-    }
-
-    elements.customBuilder.classList.add('is-active');
-    elements.customBuilder.innerHTML = state.customSteps.map((step, index) => `
-      <article class="builder-step" data-step-id="${step.id}">
-        <div class="builder-step__header">
-          <div>
-            <div class="step-eyebrow">Step ${index + 1}</div>
-            <h3 style="margin:0.2rem 0 0;">${escapeHtml(step.verb)}</h3>
-            <p>Configure verb input as JSON and optionally pass forward the previous step output.</p>
-          </div>
-          <div class="builder-step__actions">
-            <button type="button" data-action="up">↑</button>
-            <button type="button" data-action="down">↓</button>
-            <button type="button" data-action="remove">Remove</button>
-          </div>
-        </div>
-        <div class="form-grid">
-          <div class="form-row">
-            <label>Verb</label>
-            <select data-field="verb">
-              ${VERBS.map((verb) => `<option value="${verb}" ${verb === step.verb ? 'selected' : ''}>${verb}</option>`).join('')}
-            </select>
-          </div>
-          <label class="checkbox-row">
-            <input type="checkbox" data-field="usePreviousOutput" ${step.usePreviousOutput ? 'checked' : ''} />
-            Use previous output as <span class="mono">previous_result</span>
-          </label>
-          <div class="form-row">
-            <label>JSON input</label>
-            <textarea class="json-editor" data-field="inputText">${escapeHtml(step.inputText)}</textarea>
-            <div class="secondary-note">Use valid JSON. The runtime will receive <span class="mono">{ "verb": "${escapeHtml(step.verb)}", "input": { ... } }</span>.</div>
-          </div>
-        </div>
-      </article>
-    `).join('');
-  }
-
-  function addCustomStep() {
-    state.customSteps.push({ id: crypto.randomUUID(), verb: 'clean', usePreviousOutput: true, inputText: '{\n  "content": "Example input"\n}' });
-    renderCustomBuilder();
-  }
-
-  function moveStep(index, direction) {
-    const target = index + direction;
-    if (target < 0 || target >= state.customSteps.length) return;
-    const next = [...state.customSteps];
-    [next[index], next[target]] = [next[target], next[index]];
-    state.customSteps = next;
-    renderCustomBuilder();
-  }
-
-  function updateCustomStep(id, field, value) {
-    state.customSteps = state.customSteps.map((step) => step.id === id ? { ...step, [field]: value } : step);
-  }
-
-  function removeCustomStep(id) {
-    state.customSteps = state.customSteps.filter((step) => step.id !== id);
-    renderCustomBuilder();
-  }
-
-  async function verifyReceipt(receipt) {
-    const res = await fetch(`${RUNTIME_BASE}/verify?ens=1&strict_kid=1`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(receipt)
-    });
-    const data = await res.json().catch(() => ({}));
-    return normalizeVerification(data);
-  }
-
-  async function runVerb(verb, input) {
-    const res = await fetch(`${RUNTIME_BASE}/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ verb, input })
-    });
-
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      throw new Error(`Runtime ${verb} failed (${res.status})`);
-    }
-
-    return data;
-  }
-
-  function extractReceipt(result) {
-    return result?.receipt || result?.payload || result?.result || result || null;
-  }
-
-  function buildStepRuntimeMetadata(result, verification) {
-    const metadata = result?.runtime_metadata && typeof result.runtime_metadata === 'object'
-      ? { ...result.runtime_metadata }
-      : {};
-
-    if (!metadata.proof && verification?.proof && typeof verification.proof === 'object') {
-      metadata.proof = verification.proof;
-    }
-
-    if (!metadata.proof) {
-      const proof = {};
-      const kid = extractKid({ verification });
-      const signer = extractSigner({ verification });
-      const hash = extractHash({ verification });
-      if (kid) proof.kid = kid;
-      if (signer) proof.signer_id = signer;
-      if (hash) proof.hash_sha256 = hash;
-      if (Object.keys(proof).length) metadata.proof = proof;
-    }
-
-    return Object.keys(metadata).length ? metadata : null;
-  }
-
-  async function executeChain(chainSteps, modeLabel) {
-    updateBusyState(true);
-    elements.artifactBadge.className = 'badge';
-    elements.artifactBadge.textContent = 'Running';
-    elements.artifactSummary.textContent = `Executing ${modeLabel} through ${RUNTIME_BASE}.`;
-    elements.runtimeContextBadge.textContent = 'Running';
-    elements.runtimeContextCallout.innerHTML = '<strong>Running live execution.</strong> The runtime context will update when the chain completes.';
-
-    try {
-      const results = [];
-      let previousOutput = null;
-
-      for (const step of chainSteps) {
-        const baseInput = typeof step.inputBuilder === 'function' ? step.inputBuilder() : parseJsonInput(step.inputText);
-        const input = step.usePreviousOutput
-          ? { ...(baseInput || {}), previous_result: previousOutput }
-          : (baseInput || {});
-
-        const result = await runVerb(step.verb, input);
-        const receipt = extractReceipt(result);
-        const verification = receipt
-          ? await verifyReceipt(receipt).catch(() => ({ ok: false, reason: 'Verification request failed.' }))
-          : { ok: false, reason: 'Runtime did not return a receipt payload.' };
-
-        results.push({
-          verb: step.verb,
-          input,
-          receipt,
-          verification,
-          runtime_metadata: buildStepRuntimeMetadata(result, verification),
-          raw_result: result
-        });
-
-        previousOutput = receipt;
-      }
-
-      const artifact = buildArtifact({
-        steps: results,
-        mode: 'live',
-        runtimeMessage: `Live ${modeLabel} executed against ${RUNTIME_BASE}.`
-      });
-
-      state.runtimeHealthy = true;
-      renderArtifact(artifact);
-      if (artifact.verified) persistArtifact(artifact);
-      setRuntimeVisualState('live', 'Live runtime reachable', state.runtimeLatency);
-      elements.stepReceiptsDisclosure.open = true;
-      elements.runtimeContextDisclosure.open = true;
-    } catch (error) {
-      state.runtimeHealthy = false;
-      setRuntimeVisualState('degraded', 'Runtime degraded', state.runtimeLatency);
-      await renderRecordedFallback(`Live execution failed (${error?.message || String(error)}). Showing a recorded verified artifact instead.`);
-      elements.stepReceiptsDisclosure.open = true;
-      elements.runtimeContextDisclosure.open = true;
-    } finally {
-      updateBusyState(false);
-    }
-  }
-
-  function renderStepReceipts(artifact) {
-    const steps = Array.isArray(artifact?.steps) ? artifact.steps : [];
-    elements.stepsSummaryTag.textContent = `${steps.length} ${steps.length === 1 ? 'step' : 'steps'}`;
-    if (!steps.length) {
-      elements.stepReceiptsContent.innerHTML = '<div class="empty-state">No step receipts were captured.</div>';
-      return;
-    }
-
-    elements.stepReceiptsContent.innerHTML = steps.map((step, index) => {
-      const verified = step?.verification?.ok === true;
-      return `
-        <article class="step-card">
-          <div class="step-card__top">
-            <div class="step-card__title">
-              <div class="step-eyebrow">Step ${index + 1}</div>
-              <h3>${escapeHtml(step.verb || `step-${index + 1}`)}</h3>
-            </div>
-            <span class="badge ${verified ? 'badge--verified' : 'badge--review'}">${escapeHtml(verified ? 'Verified' : 'Needs review')}</span>
-          </div>
-          <p>${escapeHtml(verified ? 'Receipt verified successfully.' : (artifact.mode === 'recorded' ? 'Recorded verified artifact preserved from a prior live run.' : 'Inspect the receipt and verification output for this step.'))}</p>
-          <pre class="json-block">${escapeHtml(formatJson(step.receipt || { status: 'missing' }))}</pre>
-        </article>
-      `;
-    }).join('');
-  }
-
-  function renderRuntimeContext(artifact) {
-    const label = artifact.mode === 'recorded' ? 'Recorded verified artifact' : 'Live runtime context';
-    const context = {
-      mode: artifact.mode,
-      runtime_message: artifact.runtimeMessage,
-      fallback_label: artifact.fallbackLabel,
-      runtime_metadata: artifact.runtime_metadata,
-      verification: artifact.verification
-    };
-    elements.runtimeContextBadge.textContent = artifact.mode === 'recorded' ? 'Recorded artifact' : 'Live context';
-    elements.runtimeContextCallout.innerHTML = `<strong>${escapeHtml(label)}.</strong> <pre class="json-block" style="margin-top:0.7rem; max-height:none;">${escapeHtml(formatJson(context))}</pre>`;
-  }
-
-  function renderArtifact(artifact) {
-    state.lastArtifact = artifact;
-    const verified = artifact?.verified === true;
-    const recorded = artifact?.mode === 'recorded';
-    const badgeClass = verified ? 'badge badge--verified' : 'badge badge--review';
-    elements.finalArtifactCard.classList.toggle('receipt-card--verified', verified);
-    elements.artifactBadge.className = recorded ? `${badgeClass} badge--recorded` : badgeClass;
-    elements.artifactBadge.textContent = verified ? 'VERIFIED' : 'NEEDS REVIEW';
-    elements.artifactSummary.textContent = recorded
-      ? (artifact.fallbackLabel || 'Recorded verified artifact shown because live runtime is degraded.')
-      : 'Live chain execution completed. The final receipt and verification output are shown below.';
-    elements.artifactVerification.textContent = verified ? 'Verified via ENS + Ed25519' : (artifact.verification?.reason || 'Verification needs review');
-    elements.artifactSigner.textContent = artifact.signer || 'Signer unavailable';
-    elements.artifactKid.textContent = artifact.kid || 'unknown';
-    elements.artifactHash.textContent = artifact.hash || 'Hash unavailable';
-    elements.artifactSchema.textContent = artifact.schema_version || '—';
-    elements.artifactMode.textContent = recorded ? 'Recorded verified artifact' : 'Live runtime';
-    elements.finalReceiptJson.textContent = formatJson(artifact.receipt || { status: 'No receipt available' });
-    elements.verificationJson.textContent = formatJson(artifact.verification || { status: 'No verification response' });
-    elements.viewSchemaLink.href = artifact.schema_url || schemaUrlForReceipt(artifact.receipt || {});
-
-    if (verified) {
-      elements.proofStrip.classList.add('is-visible');
-      elements.proofStripBadge.className = recorded ? 'badge badge--verified badge--recorded' : 'badge badge--verified';
-      elements.proofStripBadge.textContent = recorded ? 'RECORDED VERIFIED' : 'VERIFIED';
-      elements.proofStripTitle.textContent = recorded ? 'Recorded verified artifact' : 'Verified via ENS + Ed25519';
-      elements.proofStripCopy.textContent = recorded
-        ? 'The runtime is degraded, so a preserved verified artifact is shown. It remains distinct from a live run.'
-        : 'Live runtime execution completed and the final receipt verified successfully.';
-      elements.proofStripStatus.textContent = recorded ? 'Recorded verified artifact' : 'Live verified receipt';
-      elements.proofStripSigner.textContent = artifact.signer || 'Signer unavailable';
-      elements.proofStripKid.textContent = artifact.kid || 'unknown';
-      elements.proofStripHash.textContent = shortenHash(artifact.hash);
-    } else {
-      elements.proofStrip.classList.remove('is-visible');
-    }
-
-    const curlAvailable = Boolean(artifact.receipt);
-    elements.copyCurlCommand.disabled = !curlAvailable;
-    elements.heroCopyCurl.disabled = !curlAvailable;
-
-    renderStepReceipts(artifact);
-    renderRuntimeContext(artifact);
-  }
-
-  async function renderRecordedFallback(reason) {
-    const stored = loadStoredArtifact();
-    if (stored && stored.receipt) {
-      renderArtifact({
-        ...stored,
-        mode: 'recorded',
-        fallbackLabel: reason || 'Recorded verified artifact',
-        runtimeMessage: 'Loaded from local stored artifact after runtime degradation.'
-      });
-      return;
-    }
-
-    const bundled = await loadBundledRecordedArtifact();
-    const bundledArtifact = {
-      ...bundled,
-      mode: 'recorded',
-      verified: bundled?.verification?.ok === true,
-      fallbackLabel: reason || 'Recorded verified artifact',
-      runtimeMessage: 'Loaded bundled recorded artifact because live execution was unavailable.',
-      signer: bundled?.signer || extractSigner({ verification: bundled?.verification, runtime_metadata: bundled?.runtime_metadata, fallback_signer: bundled?.fallback_signer }) || 'Signer unavailable',
-      kid: bundled?.kid || extractKid({ verification: bundled?.verification, runtime_metadata: bundled?.runtime_metadata }) || 'unknown',
-      hash: bundled?.proof_hash || extractHash({ verification: bundled?.verification, runtime_metadata: bundled?.runtime_metadata }) || 'Hash unavailable',
-      schema_version: bundled?.receipt?.schema_version || '—',
-      schema_url: schemaUrlForReceipt(bundled?.receipt || {}),
-      steps: Array.isArray(bundled?.steps) ? bundled.steps : []
-    };
-    renderArtifact(bundledArtifact);
-  }
-
-  function buildVerifyCurl() {
-    const receipt = lastRun?.receipt || safeJsonParse(receiptJson.textContent, {});
-    const receiptPayload = JSON.stringify(receipt).replace(/'/g, "'\\''");
-    return `curl -X POST \"${VERIFY_URL}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '${receiptPayload}'`;
-  }
-
-  function copyText(text, button, idleLabel) {
-    if (!navigator.clipboard) return;
-    navigator.clipboard.writeText(text).then(() => {
-      button.textContent = "Copied";
-      setTimeout(() => {
-        button.textContent = idleLabel;
-      }, 1200);
-    }).catch(() => {});
-  }
-
-  async function probeRuntime() {
-    const start = performance.now();
-    try {
-      const res = await fetch(`${RUNTIME_BASE}/health`, { method: 'GET' });
-      const duration = `${Math.round(performance.now() - start)} ms`;
-      state.runtimeLatency = duration;
-      if (!res.ok) {
-        state.runtimeHealthy = false;
-        setRuntimeVisualState('degraded', 'Runtime health degraded', duration);
-        return;
-      }
-      state.runtimeHealthy = true;
-      setRuntimeVisualState('live', 'Live runtime reachable', duration);
-    } catch {
-      state.runtimeHealthy = false;
-      state.runtimeLatency = 'offline';
-      setRuntimeVisualState('degraded', 'Runtime health unavailable', 'offline');
-    }
-  }
-
-  function copyText(text, button, idleLabel) {
-    if (!navigator.clipboard) return;
-    navigator.clipboard.writeText(text).then(() => {
-      const previous = idleLabel || button.textContent;
-      button.textContent = 'Copied';
-      setTimeout(() => {
-        button.textContent = previous;
-      }, 1200);
-    }).catch(() => {});
-  }
-
-  function handleCopyCurl(button) {
-    if (!state.lastArtifact?.receipt) return;
-    copyText(buildCurlCommand(state.lastArtifact.receipt), button, button.id === 'hero-copy-curl' ? 'Copy cURL Verify Command' : 'Copy cURL Verify Command');
-  }
-
-  elements.modeDefault.addEventListener('click', () => setMode('default'));
-  elements.modeCustom.addEventListener('click', () => setMode('custom'));
-  elements.heroBuildCustom.addEventListener('click', () => {
-    setMode('custom');
-    window.scrollTo({ top: document.querySelector('.workspace').offsetTop - 80, behavior: 'smooth' });
-  });
-  elements.heroRunDefault.addEventListener('click', () => {
-    setMode('default');
-    executeChain(DEFAULT_CHAIN, 'default chain');
-  });
-  elements.runDefault.addEventListener('click', () => executeChain(DEFAULT_CHAIN, 'default chain'));
-  elements.runCustom.addEventListener('click', () => executeChain(state.customSteps, 'custom chain'));
-  elements.addStep.addEventListener('click', addCustomStep);
-  elements.copyFinalReceipt.addEventListener('click', () => copyText(elements.finalReceiptJson.textContent, elements.copyFinalReceipt, 'Copy Final Receipt'));
-  elements.copyVerificationJson.addEventListener('click', () => copyText(elements.verificationJson.textContent, elements.copyVerificationJson, 'Copy Verification JSON'));
-  elements.copyCurlCommand.addEventListener('click', () => handleCopyCurl(elements.copyCurlCommand));
-  elements.heroCopyCurl.addEventListener('click', () => handleCopyCurl(elements.heroCopyCurl));
-
-  elements.customBuilder.addEventListener('click', (event) => {
-    const button = event.target.closest('button[data-action]');
-    if (!button) return;
-    const stepEl = event.target.closest('[data-step-id]');
-    if (!stepEl) return;
-    const index = state.customSteps.findIndex((step) => step.id === stepEl.dataset.stepId);
-    if (index === -1) return;
-    const action = button.dataset.action;
-    if (action === 'up') moveStep(index, -1);
-    if (action === 'down') moveStep(index, 1);
-    if (action === 'remove') removeCustomStep(stepEl.dataset.stepId);
-  });
-
-  elements.customBuilder.addEventListener('input', (event) => {
-    const field = event.target.dataset.field;
-    if (!field) return;
-    const stepEl = event.target.closest('[data-step-id]');
-    if (!stepEl) return;
-    const value = event.target.type === 'checkbox' ? event.target.checked : event.target.value;
-    updateCustomStep(stepEl.dataset.stepId, field, value);
-  });
-
-  const stored = loadStoredArtifact();
-  if (stored && stored.receipt) {
-    renderArtifact({
-      ...stored,
-      mode: 'recorded',
-      fallbackLabel: 'Recorded verified artifact already available in this browser.',
-      runtimeMessage: 'Loaded cached artifact on page open.'
-    });
-  }
-
-  renderCustomBuilder();
-  setMode('default');
-  probeRuntime().catch(() => {});
-})();
+const defaultBtn = document.getElementById('mode-default-btn');
+const builderBtn = document.getElementById('mode-builder-btn');
+const defaultMode = document.getElementById('default-mode');
+const builderMode = document.getElementById('builder-mode');
+
+function setMode(mode){
+  const isDefault = mode === 'default';
+  defaultBtn.classList.toggle('active', isDefault);
+  builderBtn.classList.toggle('active', !isDefault);
+  defaultMode.classList.toggle('hidden', !isDefault);
+  builderMode.classList.toggle('hidden', isDefault);
+}
+
+defaultBtn.addEventListener('click', () => setMode('default'));
+builderBtn.addEventListener('click', () => setMode('builder'));
 </script>
 </body>
 </html>
