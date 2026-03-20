@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CommandLayer — Agents can act. CommandLayer proves they acted.</title>
+<title>CommandLayer — Verifiable agent execution with signed receipts, ENS identity, and ERC-8004 proof.</title>
 <meta
   name="viewport"
   content="width=device-width, initial-scale=1, viewport-fit=cover"
 />
 <meta
   name="description"
-  content="CommandLayer gives agent execution verifiable proof with ERC-8004 registration, Ed25519-signed receipts, and MIT-licensed Commons."
+  content="Run multi-step agent flows, generate signed receipts, and verify execution through ENS identity and ERC-8004-registered proof."
 />
 
 <style>
@@ -255,10 +255,18 @@ body {
 
 .hero__subtitle {
   margin: 1rem 0 0;
+  max-width: 36rem;
+  color: var(--text-main);
+  font-size: 1.08rem;
+  line-height: 1.58;
+}
+
+.hero__supporting {
+  margin: 0.8rem 0 0;
   max-width: 34rem;
   color: var(--text-muted);
-  font-size: 1.04rem;
-  line-height: 1.62;
+  font-size: 0.94rem;
+  line-height: 1.6;
 }
 
 .hero__actions {
@@ -338,16 +346,30 @@ body {
   margin-top: 1.15rem;
 }
 
+.hero__trust-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-top: 0.95rem;
+  color: #a9dfff;
+  font-size: 0.8rem;
+  text-decoration: none;
+}
+
+.hero__trust-link:hover {
+  color: #d9f2ff;
+}
+
 .trust-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
-  padding: 0.62rem 0.82rem;
+  padding: 0.58rem 0.8rem;
   border-radius: 999px;
   background: rgba(10, 14, 26, 0.78);
   border: 1px solid rgba(255, 255, 255, 0.08);
   color: #d5deef;
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   width: auto;
   flex: 0 0 auto;
   white-space: nowrap;
@@ -586,6 +608,10 @@ code,
   gap: 0.9rem;
 }
 
+.value-grid--two {
+  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
+}
+
 .value-card {
   padding: 1rem;
   border-radius: var(--radius-lg);
@@ -610,6 +636,57 @@ code,
   grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
   gap: 1rem;
   align-items: start;
+}
+
+.flow-card {
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(76, 201, 240, 0.16);
+  background: rgba(8, 15, 30, 0.88);
+}
+
+.flow-card__label {
+  display: inline-flex;
+  padding: 0.3rem 0.55rem;
+  border-radius: 999px;
+  background: rgba(76, 201, 240, 0.12);
+  color: #c9edff;
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.flow-steps {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+}
+
+.flow-step {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.8rem;
+  align-items: center;
+  padding: 0.8rem 0.9rem;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(10, 14, 26, 0.78);
+}
+
+.flow-step__route {
+  color: var(--text-main);
+  font-size: 0.93rem;
+}
+
+.flow-step__meta {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.flow-step__status {
+  color: #7ef0a7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.77rem;
 }
 
 .example-box {
@@ -676,6 +753,41 @@ code,
     radial-gradient(circle at left center, rgba(47, 124, 246, 0.18), transparent 28%),
     linear-gradient(180deg, rgba(9, 14, 26, 0.96), rgba(6, 10, 20, 0.98));
   box-shadow: var(--shadow-soft);
+}
+
+.proof-object {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(76, 201, 240, 0.16);
+  background: linear-gradient(180deg, rgba(8, 14, 25, 0.96), rgba(7, 11, 21, 0.92));
+}
+
+.proof-object__row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 0.85rem;
+  padding: 0.62rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.proof-object__row:last-child {
+  border-bottom: none;
+}
+
+.proof-object__label {
+  color: var(--text-soft);
+  font-size: 0.77rem;
+  text-transform: lowercase;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+.proof-object__value {
+  color: var(--text-main);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  text-align: right;
+  word-break: break-word;
 }
 
 .cta-band__actions,
@@ -758,6 +870,16 @@ code,
 
   .value-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .value-grid--two,
+  .proof-object__row,
+  .flow-step {
+    grid-template-columns: 1fr;
+  }
+
+  .proof-object__value {
+    text-align: left;
   }
 }
 
@@ -888,20 +1010,20 @@ code,
             <p class="hero__subtitle">
               CommandLayer is infrastructure for agents that spend money, call services, and coordinate with other agents. It runs the action, emits the signed receipt, and makes proof visible fast.
             </p>
+            <p class="hero__supporting">Agents call services through ENS-resolved endpoints and leave behind signed, inspectable proof.</p>
             <div class="hero__actions">
               <div class="hero__cta-row">
                 <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-                <a href="/demo-inner.html" class="btn btn--commerce">Run a Commerce Agent</a>
-                <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" class="btn btn--ghost" target="_blank" rel="noopener noreferrer">View ERC-8004 registration</a>
+                <a href="/demo.html" class="btn btn--ghost">See Verified Receipt</a>
               </div>
             </div>
-            <p class="hero__meta">Start with the public model: execute, emit receipt, verify. The supporting layers exist to keep that proof portable and inspectable.</p>
+            <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" class="hero__trust-link" target="_blank" rel="noopener noreferrer">ERC-8004 registration on Base</a>
             <div class="hero__pills" aria-label="Trust signals">
               <div class="hero__proof-row">
-                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Execute</span>
-                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Emit signed receipt</span>
-                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Verify proof</span>
-                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>ERC-8004 registered</span>
+                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>ENS Identity</span>
+                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Signed Receipts</span>
+                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Verifiable Execution</span>
+                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Multi-Step Flows</span>
               </div>
             </div>
           </div>
@@ -946,20 +1068,20 @@ code,
       <div class="container">
         <div class="value-grid">
           <article class="value-card">
-            <h2 class="value-card__title">1. Execute</h2>
-            <p class="value-card__text">An agent runs a real action or flow against a pinned contract.</p>
+            <h2 class="value-card__title">ENS Identity</h2>
+            <p class="value-card__text">Agents present stable ENS names that make signer identity and service routing visible.</p>
           </article>
           <article class="value-card">
-            <h2 class="value-card__title">2. Emit receipt</h2>
-            <p class="value-card__text">CommandLayer returns a canonical signed receipt you can inspect, store, and compare later.</p>
+            <h2 class="value-card__title">Signed Receipts</h2>
+            <p class="value-card__text">Every meaningful action returns a signed artifact you can inspect, store, and compare later.</p>
           </article>
           <article class="value-card">
-            <h2 class="value-card__title">3. Verify</h2>
-            <p class="value-card__text">Anyone can check the hash, signature, signer identity, and <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">ERC-8004 registration on Base</a>.</p>
+            <h2 class="value-card__title">Verifiable Execution</h2>
+            <p class="value-card__text">Hashes, signatures, and <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">ERC-8004 registration on Base</a> make proof portable.</p>
           </article>
           <article class="value-card">
-            <h2 class="value-card__title">One system, clear roles</h2>
-            <p class="value-card__text">Commons defines the contract, Runtime produces proof, Agent Cards identify agents, and Commercial extends the same model for paid flows.</p>
+            <h2 class="value-card__title">Multi-Step Flows</h2>
+            <p class="value-card__text">CommandLayer captures cross-agent execution without hiding the flow behind vague infrastructure language.</p>
           </article>
         </div>
       </div>
@@ -990,11 +1112,11 @@ code,
 
     <section class="section">
       <div class="container">
-        <div class="cta-band">
+        <div class="section-card why-card">
           <div>
-            <p class="section__eyebrow">Demo / proof</p>
-            <h2 class="section__title">Run the flow. Inspect the receipt. Verify the proof.</h2>
-            <p class="section__body">The demo keeps the entire proof journey visible instead of asking you to trust architecture claims.</p>
+            <p class="section__eyebrow">Not output. Evidence.</p>
+            <h2 class="section__title">Execution should end with proof, not a claim.</h2>
+            <p class="section__body">This is the artifact the system leaves behind: agent identity, routed endpoint, signer, proof hash, and verification status in one inspectable object.</p>
           </div>
           <div class="cta-band__actions">
             <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
@@ -1006,17 +1128,16 @@ code,
 
     <section class="section">
       <div class="container">
-        <div class="section-card">
-          <p class="section__eyebrow">Supporting layers</p>
-          <h2 class="section__title">The rest of CommandLayer exists to support execute → receipt → verify</h2>
-          <p class="section__body">
-            Commons is the shared contract. Runtime is the proof-producing execution layer. Agent Cards handle identity and discovery. Commercial extends the same receipt model for paid execution without changing the core story.
-          </p>
-          <div class="footer-links" style="margin-top: 1rem;">
-            <a href="/commons.html">Explore the Commons Contract</a>
-            <a href="/runtime.html">See How Runtime Produces Proof</a>
-            <a href="/agent-cards.html">See Agent Identity</a>
-            <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+        <div class="cta-band">
+          <div>
+            <p class="section__eyebrow">See it in action</p>
+            <h2 class="section__title">See it in action</h2>
+            <p class="section__body">Run a real agent flow, inspect each step, and verify every receipt.</p>
+          </div>
+          <div class="cta-band__actions">
+            <a href="/composer.html" class="btn btn--primary">Launch Demo</a>
+            <a href="/agent-cards.html" class="btn btn--ghost">View Agent Identity</a>
+            <a href="/demo-inner.html" class="btn btn--ghost">Run a Commerce Agent</a>
           </div>
         </div>
       </div>
