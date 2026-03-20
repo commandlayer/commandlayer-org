@@ -119,8 +119,16 @@
         letter-spacing: 0.12em;
         text-transform: uppercase;
       }
-      .hero__title { margin: 0; font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 0.96; letter-spacing: -0.06em; max-width: 9ch; }
-      .hero__title-line { display: block; }
+      .hero__title {
+        margin: 0;
+        display: inline-flex;
+        flex-direction: column;
+        align-items: flex-start;
+        font-size: clamp(2.5rem, 5vw, 4.5rem);
+        line-height: 0.96;
+        letter-spacing: -0.06em;
+      }
+      .hero__title-line { display: block; white-space: nowrap; }
       .hero__subtitle { margin: 0.7rem 0 0; max-width: 38rem; color: var(--text-muted); line-height: 1.48; font-size: 0.95rem; }
       .verb-row, .pill-row, .hero__actions, .button-row, .status-line, .output-tabs, .mini-pills { display: flex; flex-wrap: wrap; gap: 0.6rem; }
       .verb-row { margin-top: 0.85rem; }
@@ -174,7 +182,7 @@
         background: linear-gradient(180deg, var(--bg-panel), rgba(6, 9, 15, 0.98));
         box-shadow: var(--shadow-soft);
       }
-      .hero-card { padding: 0.95rem; display: grid; gap: 0.8rem; }
+      .hero-card { padding: 1rem; display: grid; gap: 0.9rem; align-content: start; }
       .hero-card h2, .panel h2, .output-panel h2, .hero__title, .status-strip h2 { margin: 0; }
       .hero-card p, .panel p, .output-panel p, .helper, .tab-note { margin: 0; color: var(--text-muted); line-height: 1.58; }
       .hero-card__grid { display: grid; gap: 0.55rem; }
@@ -355,6 +363,7 @@
         .site-header__inner { padding-inline: 1rem; }
         .form-grid, .step-strip, .step-button-row, .kv { grid-template-columns: minmax(0, 1fr); }
         .hero { padding-top: 0.8rem; }
+        .hero__title-line { white-space: normal; }
       }
     </style>
   </head>
@@ -412,10 +421,6 @@
                 <div class="hero-card__row"><div class="hero-card__label">Mode</div><div class="hero-card__value">commercial</div></div>
                 <div class="hero-card__row"><div class="hero-card__label">Contract</div><div class="hero-card__value">canonical receipt first</div></div>
                 <div class="hero-card__row"><div class="hero-card__label">Runtime</div><div class="hero-card__value">metadata secondary</div></div>
-              </div>
-              <div class="hero__actions">
-                <a class="btn btn--primary" href="#commercial-controls">Jump to controls</a>
-                <a class="btn btn--ghost" href="#inspection-surface">Proof surface</a>
               </div>
             </aside>
           </div>
