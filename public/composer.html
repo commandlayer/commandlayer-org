@@ -548,7 +548,6 @@ h1{
 <script>
 const RUNTIME_BASE = 'https://runtime.commandlayer.org';
 const RUNTIME_VERSION = '1.1.0';
-const COMMONS_VERBS = ['fetch','describe','format','clean','parse','summarize','convert','explain','analyze','classify'];
 
 const defaultBtn = document.getElementById('mode-default-btn');
 const builderBtn = document.getElementById('mode-builder-btn');
@@ -563,7 +562,6 @@ const runDefaultBtn = document.getElementById('run-default');
 const runBuilderBtn = document.getElementById('run-builder');
 const resetBuilderBtn = document.getElementById('reset-builder');
 
-const runtimeStatusText = document.getElementById('runtime-status-text');
 const runtimeLatency = document.getElementById('runtime-latency');
 const runtimeStatusRow = document.getElementById('runtime-status-row');
 
@@ -591,9 +589,8 @@ const verb2 = document.getElementById('verb-2');
 const verb3 = document.getElementById('verb-3');
 
 let lastReceipt = null;
-let lastVerification = null;
 
-function setMode(mode){
+function setMode(mode) {
   const isDefault = mode === 'default';
   defaultBtn.classList.toggle('active', isDefault);
   builderBtn.classList.toggle('active', !isDefault);
@@ -605,18 +602,14 @@ function setBusy(isBusy) {
   runDefaultBtn.disabled = isBusy;
   runBuilderBtn.disabled = isBusy;
   heroRunDefault.disabled = isBusy;
-  heroBuildCustom.disabled = isBusy;
 }
 
-function setRuntimeState(status, latencyText) {
-  if (status === 'ok') {
-    runtimeStatusText.textContent = 'Live runtime reachable';
-    runtimeLatency.textContent = latencyText || '—';
-    runtimeStatusRow.innerHTML = '<span class="live-dot"></span> <span id="runtime-status-text">Live runtime reachable</span>';
+function setRuntimeState(ok, latencyText) {
+  runtimeLatency.textContent = latencyText || '—';
+  if (ok) {
+    runtimeStatusRow.innerHTML = '<span class="live-dot"></span><span> Live runtime reachable</span>';
   } else {
-    runtimeStatusText.textContent = 'Runtime unavailable';
-    runtimeLatency.textContent = latencyText || 'offline';
-    runtimeStatusRow.innerHTML = '<span class="warn-dot"></span> <span id="runtime-status-text">Runtime unavailable</span>';
+    runtimeStatusRow.innerHTML = '<span class="warn-dot"></span><span> Runtime unavailable</span>';
   }
 }
 
@@ -635,30 +628,77 @@ function setPendingState(message) {
   copyCurlBtn.disabled = true;
 }
 
-function shortenHash(value) {
-  if (!value || value === '—') return '—';
-  const str = String(value);
-  if (str.length <= 18) return str;
-  return str.slice(0, 10) + '…' + str.slice(-6);
+function setErrorState(title, details) {
+  artifactBadge.className = 'badge bad';
+  artifactBadge.textContent = 'Error';
+  artifactVerification.textContent = title || 'Execution failed';
+  artifactSigner.textContent = '—';
+  artifactKid.textContent = '—';
+  artifactHash.textContent = '—';
+  artifactSchema.textContent = '—';
+  finalReceiptJson.textContent = JSON.stringify({
+    status: 'error',
+    message: title || 'Execution failed'
+  }, null, 2);
+  verificationJson.textContent = JSON.stringify(details || {}, null, 2);
+  artifactSummary.textContent = title || 'Execution failed.';
+  heroCopyCurl.disabled = true;
+  copyCurlBtn.disabled = true;
 }
 
-function formatJson(value) {
+function setSuccessState(receipt, verification, summaryText) {
+  const ok = verification?.ok === true || verification?.valid === true;
+
+  artifactBadge.className = ok ? 'badge ok' : 'badge bad';
+  artifactBadge.textContent = ok ? 'Verified' : 'Needs review';
+
+  artifactVerification.textContent = ok
+    ? 'Verified via ENS + Ed25519'
+    : (verification?.reason || verification?.message || 'Verification failed');
+
+  artifactSigner.textContent =
+    verification?.signer_id ||
+    verification?.values?.signer_id ||
+    receipt?.metadata?.proof?.signer_id ||
+    '—';
+
+  artifactKid.textContent =
+    verification?.kid ||
+    verification?.values?.kid ||
+    receipt?.metadata?.proof?.kid ||
+    '—';
+
+  artifactHash.textContent =
+    verification?.hash_sha256 ||
+    verification?.values?.hash_sha256 ||
+    receipt?.metadata?.proof?.hash_sha256 ||
+    '—';
+
+  artifactSchema.textContent = receipt?.schema_version || '1.1.0';
+  finalReceiptJson.textContent = JSON.stringify(receipt, null, 2);
+  verificationJson.textContent = JSON.stringify(verification, null, 2);
+  artifactSummary.textContent = summaryText || 'Chain completed.';
+  heroCopyCurl.disabled = false;
+  copyCurlBtn.disabled = false;
+  lastReceipt = receipt;
+}
+
+function normalizeContent(value) {
+  if (typeof value === 'string') return value;
   try {
-    return JSON.stringify(value, null, 2);
+    return JSON.stringify(value);
   } catch {
     return String(value);
   }
 }
 
 function extractReceipt(result) {
-  if (result && typeof result === 'object') {
-    if (result.receipt && typeof result.receipt === 'object') return result.receipt;
-    return result;
-  }
-  return null;
+  if (!result || typeof result !== 'object') return null;
+  if (result.receipt && typeof result.receipt === 'object') return result.receipt;
+  return result;
 }
 
-function extractPreviousResult(result) {
+function extractChainedValue(result) {
   if (!result || typeof result !== 'object') return result;
   if (result.output !== undefined) return result.output;
   if (result.result !== undefined) return result.result;
@@ -667,295 +707,217 @@ function extractPreviousResult(result) {
   return result;
 }
 
-function buildVerifyCurl(receipt) {
-  const payload = JSON.stringify(receipt);
-  return `curl -X POST "${RUNTIME_BASE}/verify?ens=1&strict_kid=1" -H "Content-Type: application/json" -d '${payload.replace(/'/g, "'\\''")}'`;
-}
+function buildPayload(verb, input, instructions) {
+  const content = normalizeContent(input);
 
-function extractSigner(verification, receipt) {
-  return verification?.signer_id
-    || verification?.values?.signer_id
-    || receipt?.metadata?.proof?.signer_id
-    || '—';
-}
+  switch (verb) {
+    case 'clean':
+      return {
+        content,
+        operations: ['trim_whitespace', 'collapse_blank_lines']
+      };
 
-function extractKid(verification, receipt) {
-  return verification?.kid
-    || verification?.values?.kid
-    || receipt?.metadata?.proof?.kid
-    || '—';
-}
+    case 'summarize':
+      return {
+        content,
+        instructions: instructions || 'Summarize this content.'
+      };
 
-function extractHash(verification, receipt) {
-  return verification?.hash_sha256
-    || verification?.values?.hash_sha256
-    || receipt?.metadata?.proof?.hash_sha256
-    || '—';
+    case 'analyze':
+      return {
+        content,
+        instructions: instructions || 'Analyze this content.'
+      };
+
+    case 'describe':
+      return {
+        content,
+        instructions: instructions || 'Describe this content.'
+      };
+
+    case 'explain':
+      return {
+        content,
+        instructions: instructions || 'Explain this content.'
+      };
+
+    case 'format':
+      return {
+        content,
+        format: 'markdown'
+      };
+
+    case 'parse':
+      return {
+        content
+      };
+
+    case 'convert':
+      return {
+        content,
+        target_format: 'json'
+      };
+
+    case 'classify':
+      return {
+        content,
+        labels: ['proof', 'artifact', 'receipt', 'verification']
+      };
+
+    case 'fetch':
+      return {
+        url: content.startsWith('http') ? content : 'https://commandlayer.org'
+      };
+
+    default:
+      return { content };
+  }
 }
 
 async function probeRuntime() {
-  const start = performance.now();
+  const started = performance.now();
   try {
     const res = await fetch(`${RUNTIME_BASE}/health`, { method: 'GET' });
-    const ms = `${Math.round(performance.now() - start)} ms`;
-    if (!res.ok) {
-      setRuntimeState('bad', ms);
-      return;
-    }
-    setRuntimeState('ok', ms);
-  } catch {
-    setRuntimeState('bad', 'offline');
+    const latency = `${Math.round(performance.now() - started)} ms`;
+    setRuntimeState(res.ok, latency);
+  } catch (err) {
+    setRuntimeState(false, 'offline');
   }
 }
 
 async function runVerb(verb, payload) {
-  const res = await fetch(`${RUNTIME_BASE}/${verb}/v${RUNTIME_VERSION}`, {
+  const url = `${RUNTIME_BASE}/${verb}/v${RUNTIME_VERSION}`;
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
 
-  const data = await res.json().catch(() => ({}));
+  const text = await res.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = { raw: text };
+  }
 
   if (!res.ok) {
-    const detail = data?.error || data?.message || `Runtime ${verb} failed (${res.status})`;
-    throw new Error(detail);
+    throw new Error(`${verb} failed (${res.status}): ${data?.error || data?.message || text || 'Unknown error'}`);
   }
 
   return data;
 }
 
 async function verifyReceipt(receipt) {
-  const res = await fetch(`${RUNTIME_BASE}/verify?ens=1&strict_kid=1`, {
+  const url = `${RUNTIME_BASE}/verify?ens=1&strict_kid=1`;
+  const res = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(receipt)
   });
 
-  const data = await res.json().catch(() => ({}));
+  const text = await res.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = { raw: text };
+  }
 
   if (!res.ok) {
-    const detail = data?.error || data?.message || `Verify failed (${res.status})`;
-    throw new Error(detail);
+    throw new Error(`verify failed (${res.status}): ${data?.error || data?.message || text || 'Unknown error'}`);
   }
 
   return data;
 }
 
-function updateArtifact(receipt, verification, summaryText) {
-  lastReceipt = receipt;
-  lastVerification = verification;
-
-  const ok = verification?.ok === true || verification?.valid === true;
-  artifactBadge.className = ok ? 'badge ok' : 'badge bad';
-  artifactBadge.textContent = ok ? 'Verified' : 'Needs review';
-
-  artifactVerification.textContent = ok
-    ? 'Verified via ENS + Ed25519'
-    : (verification?.reason || verification?.message || 'Verification failed');
-
-  artifactSigner.textContent = extractSigner(verification, receipt);
-  artifactKid.textContent = extractKid(verification, receipt);
-  artifactHash.textContent = shortenHash(extractHash(verification, receipt));
-  artifactSchema.textContent = receipt?.schema_version || '1.1.0';
-
-  finalReceiptJson.textContent = formatJson(receipt || { status: 'no_receipt' });
-  verificationJson.textContent = formatJson(verification || { status: 'no_verification' });
-  artifactSummary.textContent = summaryText || 'Chain complete. Final receipt and verification are shown here.';
-
-  heroCopyCurl.disabled = !receipt;
-  copyCurlBtn.disabled = !receipt;
-}
-
-function updateArtifactError(message, details) {
-  lastReceipt = null;
-  lastVerification = null;
-
-  artifactBadge.className = 'badge bad';
-  artifactBadge.textContent = 'Error';
-  artifactVerification.textContent = message || 'Execution failed';
-  artifactSigner.textContent = '—';
-  artifactKid.textContent = '—';
-  artifactHash.textContent = '—';
-  artifactSchema.textContent = '—';
-  finalReceiptJson.textContent = formatJson({ status: 'error', message: message || 'Execution failed' });
-  verificationJson.textContent = formatJson(details || { status: 'not_run' });
-  artifactSummary.textContent = message || 'Execution failed.';
-  heroCopyCurl.disabled = true;
-  copyCurlBtn.disabled = true;
-}
-
-function makeDefaultChain() {
-  const source = defaultSource.value.trim();
-  const instructions = defaultInstructions.value.trim();
-
-  return [
-    {
-      verb: 'clean',
-      payloadBuilder: () => ({
-        content: source,
-        operations: ['trim_whitespace', 'collapse_blank_lines', 'preserve_meaning']
-      })
-    },
-    {
-      verb: 'summarize',
-      payloadBuilder: (previousResult) => ({
-        content: typeof previousResult === 'string' ? previousResult : JSON.stringify(previousResult),
-        instructions
-      })
-    },
-    {
-      verb: 'classify',
-      payloadBuilder: (previousResult) => ({
-        content: typeof previousResult === 'string' ? previousResult : JSON.stringify(previousResult),
-        labels: ['proof', 'artifact', 'receipt', 'verification'],
-        instructions: 'Classify the result for protocol inspection.'
-      })
-    }
-  ];
-}
-
-function makeBuilderChain() {
-  const v1 = verb1.value;
-  const v2 = verb2.value;
-  const v3 = verb3.value;
-  const source = builderSource.value.trim();
-  const instructions = builderInstructions.value.trim();
-
-  return [
-    {
-      verb: v1,
-      payloadBuilder: () => buildCommonsPayload(v1, source, instructions)
-    },
-    {
-      verb: v2,
-      payloadBuilder: (previousResult) => buildCommonsPayload(v2, previousResult, instructions)
-    },
-    {
-      verb: v3,
-      payloadBuilder: (previousResult) => buildCommonsPayload(v3, previousResult, instructions)
-    }
-  ];
-}
-
-function normalizeContent(input) {
-  if (typeof input === 'string') return input;
-  try {
-    return JSON.stringify(input);
-  } catch {
-    return String(input);
-  }
-}
-
-function buildCommonsPayload(verb, input, instructions) {
-  const content = normalizeContent(input);
-
-  switch (verb) {
-    case 'fetch':
-      return {
-        url: content.startsWith('http') ? content : 'https://commandlayer.org',
-        instructions: instructions || 'Fetch the resource.'
-      };
-    case 'summarize':
-      return {
-        content,
-        instructions: instructions || 'Summarize this content.'
-      };
-    case 'clean':
-      return {
-        content,
-        operations: ['trim_whitespace', 'collapse_blank_lines', 'preserve_meaning']
-      };
-    case 'classify':
-      return {
-        content,
-        labels: ['proof', 'artifact', 'receipt', 'verification'],
-        instructions: instructions || 'Classify the content.'
-      };
-    case 'describe':
-      return {
-        content,
-        detail_level: 'medium',
-        instructions: instructions || 'Describe the content.'
-      };
-    case 'explain':
-      return {
-        content,
-        instructions: instructions || 'Explain the content.'
-      };
-    case 'format':
-      return {
-        content,
-        target_format: 'markdown',
-        instructions: instructions || 'Format the content.'
-      };
-    case 'parse':
-      return {
-        content,
-        target_schema: 'generic',
-        instructions: instructions || 'Parse the content.'
-      };
-    case 'convert':
-      return {
-        content,
-        target_format: 'json',
-        instructions: instructions || 'Convert the content.'
-      };
-    case 'analyze':
-      return {
-        content,
-        instructions: instructions || 'Analyze the content.'
-      };
-    default:
-      return {
-        content,
-        instructions: instructions || `Process content with ${verb}.`
-      };
-  }
-}
-
 async function executeChain(steps, label) {
   setBusy(true);
-  setPendingState(`Executing ${label} through ${RUNTIME_BASE}...`);
+  setPendingState(`Executing ${label}...`);
 
   try {
-    let previousResult = null;
+    let previous = null;
     let finalResult = null;
-    let finalReceipt = null;
 
     for (const step of steps) {
-      const payload = step.payloadBuilder(previousResult);
-      finalResult = await runVerb(step.verb, payload);
-      finalReceipt = extractReceipt(finalResult);
-      previousResult = extractPreviousResult(finalResult);
+      const payload = step(previous);
+      finalResult = await runVerb(payload.verb, payload.body);
+      previous = extractChainedValue(finalResult);
     }
 
+    const finalReceipt = extractReceipt(finalResult);
     if (!finalReceipt) {
-      throw new Error('Runtime returned no final receipt.');
+      throw new Error('No receipt returned by final runtime step.');
     }
 
     const verification = await verifyReceipt(finalReceipt);
-    updateArtifact(
+    setSuccessState(
       finalReceipt,
       verification,
       `${label} completed. Final receipt returned and verification finished separately.`
     );
-  } catch (error) {
-    updateArtifactError(error?.message || 'Execution failed', { status: 'error', error: error?.message || 'Unknown error' });
+  } catch (err) {
+    setErrorState(err.message, { stack: String(err.stack || '') });
+    console.error(err);
   } finally {
     setBusy(false);
   }
 }
 
-function copyText(text, button, idleLabel) {
-  if (!navigator.clipboard) return;
+function buildDefaultSteps() {
+  const source = defaultSource.value.trim();
+  const instructions = defaultInstructions.value.trim();
+
+  return [
+    () => ({
+      verb: 'clean',
+      body: buildPayload('clean', source, instructions)
+    }),
+    (prev) => ({
+      verb: 'summarize',
+      body: buildPayload('summarize', prev, instructions)
+    }),
+    (prev) => ({
+      verb: 'analyze',
+      body: buildPayload('analyze', prev, instructions)
+    })
+  ];
+}
+
+function buildCustomSteps() {
+  const source = builderSource.value.trim();
+  const instructions = builderInstructions.value.trim();
+
+  return [
+    () => ({
+      verb: verb1.value,
+      body: buildPayload(verb1.value, source, instructions)
+    }),
+    (prev) => ({
+      verb: verb2.value,
+      body: buildPayload(verb2.value, prev, instructions)
+    }),
+    (prev) => ({
+      verb: verb3.value,
+      body: buildPayload(verb3.value, prev, instructions)
+    })
+  ];
+}
+
+function buildVerifyCurl(receipt) {
+  const payload = JSON.stringify(receipt).replace(/'/g, "'\''");
+  return `curl -X POST "${RUNTIME_BASE}/verify?ens=1&strict_kid=1" -H "Content-Type: application/json" -d '${payload}'`;
+}
+
+function copyText(text, button, label) {
   navigator.clipboard.writeText(text).then(() => {
-    const original = idleLabel || button.textContent;
     button.textContent = 'Copied';
     setTimeout(() => {
-      button.textContent = original;
+      button.textContent = label;
     }, 1200);
-  }).catch(() => {});
+  }).catch((err) => {
+    console.error(err);
+  });
 }
 
 defaultBtn.addEventListener('click', () => setMode('default'));
@@ -963,16 +925,21 @@ builderBtn.addEventListener('click', () => setMode('builder'));
 heroBuildCustom.addEventListener('click', () => setMode('builder'));
 heroRunDefault.addEventListener('click', () => {
   setMode('default');
-  executeChain(makeDefaultChain(), 'Default chain');
+  executeChain(buildDefaultSteps(), 'Default chain');
 });
 
-runDefaultBtn.addEventListener('click', () => executeChain(makeDefaultChain(), 'Default chain'));
-runBuilderBtn.addEventListener('click', () => executeChain(makeBuilderChain(), 'Custom chain'));
+runDefaultBtn.addEventListener('click', () => {
+  executeChain(buildDefaultSteps(), 'Default chain');
+});
+
+runBuilderBtn.addEventListener('click', () => {
+  executeChain(buildCustomSteps(), 'Custom chain');
+});
 
 resetBuilderBtn.addEventListener('click', () => {
   verb1.value = 'clean';
   verb2.value = 'summarize';
-  verb3.value = 'classify';
+  verb3.value = 'analyze';
   builderSource.value = 'Agent action: inspect this artifact, refine it, and return a compact judge-facing output.';
   builderInstructions.value = 'Keep the output short, protocol-grade, and easy to inspect.';
 });
@@ -995,6 +962,7 @@ copyCurlBtn.addEventListener('click', () => {
   copyText(buildVerifyCurl(lastReceipt), copyCurlBtn, 'Copy Verify cURL');
 });
 
+setMode('default');
 probeRuntime();
 </script>
 </body>
