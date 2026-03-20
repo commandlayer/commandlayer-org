@@ -119,6 +119,9 @@ button { cursor: pointer; }
 .btn--primary { background: linear-gradient(135deg, #2f7cf6, #4cc9f0); color: #f8fcff; border-color: rgba(76, 201, 240, 0.35); font-weight: 720; box-shadow: 0 18px 40px rgba(47, 124, 246, 0.26); }
 .btn--ghost { background: rgba(15, 23, 42, 0.76); color: var(--text-main); border-color: rgba(255,255,255,0.12); }
 .btn--ghost:hover, .btn--ghost:focus-visible { border-color: rgba(255,255,255,0.22); }
+.btn--commerce { background: linear-gradient(135deg, #1f9d55, #34d399); color: #f4fff7; border-color: rgba(52, 211, 153, 0.32); box-shadow: 0 14px 28px rgba(31, 157, 85, 0.16); }
+.btn--commerce:hover, .btn--commerce:focus-visible { border-color: rgba(74, 222, 128, 0.42); box-shadow: 0 16px 30px rgba(31, 157, 85, 0.2); }
+.hero-card__cta { margin-top: 0.15rem; align-self: flex-start; padding: 0.68rem 1rem; font-size: 0.9rem; font-weight: 650; }
 .hero-card, .panel, .proof-stage, .proof-card, .support-card, .step-card {
   border-radius: var(--radius-xl); border: 1px solid var(--border-soft); background: linear-gradient(180deg, var(--bg-panel), rgba(6, 9, 15, 0.98)); box-shadow: var(--shadow-soft);
 }
@@ -320,11 +323,7 @@ button { cursor: pointer; }
             <li>No external fetch dependency on the first proof run.</li>
             <li>Final step produces a compact receipt that is easy to inspect and verify.</li>
           </ul>
-          <div class="pill-row">
-            <span class="pill">Canonical receipt first</span>
-            <span class="pill">Signer resolution visible</span>
-            <span class="pill">Proof hash visible</span>
-          </div>
+          <a href="/demo-inner.html" class="btn btn--commerce hero-card__cta">Run a Commerce Agent</a>
         </aside>
       </div>
     </div>
