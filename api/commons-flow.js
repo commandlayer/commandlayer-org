@@ -396,6 +396,7 @@ module.exports = async function handler(req, res) {
         runtime_metadata: runtimeMetadataValidation,
       },
       receipt: normalized.receipt,
+      signed_receipt: r.data,
       ...(normalized.runtime_metadata ? { runtime_metadata: normalized.runtime_metadata } : {}),
     });
   }
@@ -405,6 +406,7 @@ module.exports = async function handler(req, res) {
   return res.status(200).json({
     trace_id,
     steps: responseSteps,
+    final_signed_receipt: responseSteps[responseSteps.length - 1]?.signed_receipt || null,
     meta: {
       mode: "runtime-backed",
       runtime_base: RUNTIME_BASE,
