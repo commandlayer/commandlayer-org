@@ -218,7 +218,7 @@ h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-w
               <label for="builder-source">Source content</label>
               <textarea id="builder-source"></textarea>
             </div>
-            <div class="helper-line">Every later step is built from the previous live receipt result using verb-specific request mapping.</div>
+            <div class="helper-line">Step 1 is required. Steps 2 and 3 are optional. Every chained step is rebuilt from the previous live receipt result using verb-specific request mapping.</div>
             <div class="actions">
               <button class="btn btn-quiet" id="reset-builder" type="button">Reset</button>
             </div>
@@ -442,12 +442,17 @@ const copyCurlBtn = document.getElementById('copy-curl');
 let currentMode = 'default';
 let lastReceipt = null;
 let lastVerification = null;
+let lastTraceId = null;
 
 function getVerbConfig(verb) {
   return SUPPORTED_COMMONS_VERBS.find((item) => item.value === verb);
 }
 
 function renderChain(target, verbs) {
+  if (!verbs.length) {
+    target.innerHTML = '<span class="pill">choose 1–3 verbs</span>';
+    return;
+  }
   target.innerHTML = verbs.map((verb, index) => {
     const chip = `<span class="pill">${verb}</span>`;
     return index === 0 ? chip : `<span class="arrow">→</span>${chip}`;
@@ -465,13 +470,19 @@ function renderBuilderSelects() {
     label.setAttribute('for', `builder-verb-${i}`);
     const select = document.createElement('select');
     select.id = `builder-verb-${i}`;
+    if (i > 0) {
+      const blank = document.createElement('option');
+      blank.value = '';
+      blank.textContent = 'skip this step';
+      select.appendChild(blank);
+    }
     SUPPORTED_COMMONS_VERBS.forEach((verb) => {
       const option = document.createElement('option');
       option.value = verb.value;
       option.textContent = `${verb.label} — ${verb.summary}`;
       select.appendChild(option);
     });
-    select.value = ['clean', 'summarize', 'classify'][i] || SUPPORTED_COMMONS_VERBS[0].value;
+    select.value = ['clean', 'summarize', 'classify'][i] || (i > 0 ? '' : SUPPORTED_COMMONS_VERBS[0].value);
     select.addEventListener('change', syncBuilderPreview);
     wrap.append(label, select);
     builderSelects.appendChild(wrap);
@@ -479,7 +490,7 @@ function renderBuilderSelects() {
 }
 
 function getBuilderVerbs() {
-  return Array.from(builderSelects.querySelectorAll('select')).map((select) => select.value).slice(0, 3);
+  return Array.from(builderSelects.querySelectorAll('select')).map((select) => select.value).filter(Boolean).slice(0, 3);
 }
 
 function syncBuilderPreview() {
@@ -638,6 +649,7 @@ function setExecutionError(errorPayload) {
   verificationJson.textContent = JSON.stringify({ status: 'not-run', reason: 'Execution did not return a final receipt.' }, null, 2);
   lastReceipt = errorPayload?.detail?.receipt || null;
   lastVerification = null;
+  if (!lastReceipt) lastTraceId = null;
   heroCopyCurl.disabled = !lastReceipt;
   copyCurlBtn.disabled = !lastReceipt;
 }
@@ -678,16 +690,30 @@ function buildStepInput(verb, text) {
   return config ? config.buildInput(text) : { content: text };
 }
 
-function buildFlowRequest(verbs, sourceText) {
+function buildFlowRequest(verb, sourceText) {
   return {
     version: RUNTIME_VERSION,
-    steps: verbs.map((verb, index) => ({
+    ...(lastTraceId ? { trace_id: lastTraceId } : {}),
+    steps: [{
       verb,
-      ...(index === 0
-        ? { input: buildStepInput(verb, sourceText) }
-        : { use_previous_result: true })
-    }))
+      input: buildStepInput(verb, sourceText)
+    }]
   };
+}
+
+function extractChainText(receipt) {
+  if (!receipt || typeof receipt !== 'object') return '';
+  const candidates = [
+    receipt.cleaned_content,
+    receipt.summary,
+    receipt.formatted_content,
+    receipt.converted_content,
+    receipt.description,
+    receipt.explanation,
+    Array.isArray(receipt.labels) ? receipt.labels.join(', ') : null,
+    receipt.result && normalizeContent(receipt.result)
+  ].filter(Boolean);
+  return String(candidates[0] || '').trim();
 }
 
 function getSelectedQuickChain() {
@@ -723,43 +749,54 @@ async function probeRuntime() {
 
 async function runChain() {
   const chain = getActiveChainConfig();
+  if (!chain.verbs.length) {
+    setExecutionError({ error: 'Select at least one Commons verb', detail: { message: 'Create Your Variation supports 1 to 3 verbs.' } });
+    return;
+  }
   if (!chain.source) {
     setExecutionError({ error: 'Source content required', detail: { message: 'Provide source content before running the chain.' } });
     return;
   }
 
-  const requestBody = buildFlowRequest(chain.verbs, chain.source);
   setBusy(true);
   setPendingState(`Executing ${chain.label} against the live runtime…`);
 
   try {
-    const response = await fetch(FLOW_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody)
-    });
-    const flowData = await response.json();
-    if (!response.ok) {
-      setExecutionError(flowData);
-      return;
-    }
+    let chainInput = chain.source;
+    let finalReceipt = null;
+    const collectedSteps = [];
 
-    const steps = Array.isArray(flowData.steps) ? flowData.steps : [];
-    const finalStep = steps[steps.length - 1] || null;
-    const finalReceipt = finalStep?.receipt || null;
-    if (!finalReceipt) {
-      setExecutionError({ error: 'No final receipt returned', detail: flowData });
-      return;
+    for (const verb of chain.verbs) {
+      const response = await fetch(FLOW_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildFlowRequest(verb, chainInput))
+      });
+      const flowData = await response.json();
+      if (!response.ok) {
+        setExecutionError(flowData);
+        return;
+      }
+
+      lastTraceId = flowData.trace_id || lastTraceId;
+      const step = Array.isArray(flowData.steps) ? flowData.steps[0] : null;
+      finalReceipt = step?.receipt || null;
+      if (!finalReceipt) {
+        setExecutionError({ error: 'No final receipt returned', detail: flowData });
+        return;
+      }
+      collectedSteps.push(step);
+      chainInput = extractChainText(finalReceipt);
     }
 
     executionBadge.className = 'badge ok';
     executionBadge.textContent = 'Executed';
-    executionTrace.textContent = flowData.trace_id || finalReceipt.trace?.trace_id || '—';
-    executionFinalVerb.textContent = finalReceipt.verb || finalStep.verb || '—';
-    buildExecutionSteps(steps);
+    executionTrace.textContent = lastTraceId || finalReceipt.trace?.trace_id || '—';
+    executionFinalVerb.textContent = finalReceipt.verb || '—';
+    buildExecutionSteps(collectedSteps);
     executionOutput.textContent = pickFinalOutput(finalReceipt);
     executionReceiptSummary.textContent = summarizeReceipt(finalReceipt);
-    executionJson.textContent = JSON.stringify(flowData, null, 2);
+    executionJson.textContent = JSON.stringify({ trace_id: lastTraceId, steps: collectedSteps }, null, 2);
     finalReceiptJson.textContent = JSON.stringify(finalReceipt, null, 2);
     verificationJson.textContent = JSON.stringify({ status: 'verifying' }, null, 2);
     setRowState(verifyRuntimeRow, 'pending', 'Final receipt returned; verifying now…');
@@ -798,7 +835,7 @@ function copyText(text, button, label) {
 function resetBuilder() {
   builderSource.value = QUICK_DEMO_CHAINS[0].source;
   Array.from(builderSelects.querySelectorAll('select')).forEach((select, index) => {
-    select.value = ['clean', 'summarize', 'classify'][index];
+    select.value = ['clean', 'summarize', 'classify'][index] || '';
   });
   syncBuilderPreview();
 }
