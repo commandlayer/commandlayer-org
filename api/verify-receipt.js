@@ -89,10 +89,18 @@ function normalizeChecks(data, schemaRequested) {
     data?.signer?.signature_valid,
     data?.crypto?.signature_valid
   );
+  const ensMatch = pickBoolean(
+    checks.ens_match,
+    data?.ens_match,
+    data?.signer?.ens_match,
+    data?.identity?.ens_match,
+    data?.resolved_signer?.ens_match
+  );
 
   checks.schema_valid = schemaValid == null ? (schemaRequested ? false : null) : schemaValid;
   checks.hash_matches = hashMatches == null ? false : hashMatches;
   checks.signature_valid = signatureValid == null ? false : signatureValid;
+  checks.ens_match = ensMatch == null ? false : ensMatch;
 
   return checks;
 }

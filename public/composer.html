@@ -281,10 +281,11 @@ h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-w
           <div style="margin-top:12px;"><span class="badge pending" id="verify-badge">Pending</span></div>
 
           <div class="verify-status">
-            <div class="verify-row pending" id="verify-runtime-row"><strong>Signed by runtime.commandlayer.eth</strong><span>Waiting for receipt</span></div>
-            <div class="verify-row pending" id="verify-signature-row"><strong>Signature valid</strong><span>Pending</span></div>
-            <div class="verify-row pending" id="verify-hash-row"><strong>Hash matches</strong><span>Pending</span></div>
-            <div class="verify-row pending" id="verify-status-row"><strong>Verification status</strong><span>Pending</span></div>
+            <div class="verify-row pending" id="verify-runtime-row"><strong>Verify request payload</strong><span>Waiting for receipt</span></div>
+            <div class="verify-row pending" id="verify-signature-row"><strong>Cryptographic verification</strong><span>Pending</span></div>
+            <div class="verify-row pending" id="verify-ens-row"><strong>ENS / signer verification</strong><span>Pending</span></div>
+            <div class="verify-row pending" id="verify-schema-row"><strong>Schema validation</strong><span>Pending</span></div>
+            <div class="verify-row pending" id="verify-status-row"><strong>Overall verification status</strong><span>Pending</span></div>
           </div>
 
           <div class="kv-grid">
@@ -431,7 +432,8 @@ const executionJson = document.getElementById('execution-json');
 const verifyBadge = document.getElementById('verify-badge');
 const verifyRuntimeRow = document.getElementById('verify-runtime-row');
 const verifySignatureRow = document.getElementById('verify-signature-row');
-const verifyHashRow = document.getElementById('verify-hash-row');
+const verifyEnsRow = document.getElementById('verify-ens-row');
+const verifySchemaRow = document.getElementById('verify-schema-row');
 const verifyStatusRow = document.getElementById('verify-status-row');
 const artifactSigner = document.getElementById('artifact-signer');
 const artifactKid = document.getElementById('artifact-kid');
@@ -557,7 +559,8 @@ function resetVerifySurface() {
   verifyBadge.textContent = 'Pending';
   setRowState(verifyRuntimeRow, 'pending', 'Waiting for receipt');
   setRowState(verifySignatureRow, 'pending', 'Pending');
-  setRowState(verifyHashRow, 'pending', 'Pending');
+  setRowState(verifyEnsRow, 'pending', 'Pending');
+  setRowState(verifySchemaRow, 'pending', 'Pending');
   setRowState(verifyStatusRow, 'pending', 'Pending');
   artifactSigner.textContent = '—';
   artifactKid.textContent = '—';
@@ -650,7 +653,8 @@ function setExecutionError(errorPayload) {
   verifyBadge.textContent = 'Blocked';
   setRowState(verifyRuntimeRow, 'bad', 'No final signed receipt to verify');
   setRowState(verifySignatureRow, 'pending', 'Pending');
-  setRowState(verifyHashRow, 'pending', 'Pending');
+  setRowState(verifyEnsRow, 'pending', 'Pending');
+  setRowState(verifySchemaRow, 'pending', 'Pending');
   setRowState(verifyStatusRow, 'bad', 'Execution failed');
   artifactSummary.textContent = summary;
   const fallbackReceipt = errorPayload?.detail?.signed_receipt || errorPayload?.detail?.receipt || errorPayload || {};
@@ -665,6 +669,39 @@ function setExecutionError(errorPayload) {
   copyCurlBtn.disabled = !lastSignedReceipt;
 }
 
+function getSchemaWarmupState(verification) {
+  const schemaErrorText = [
+    verification?.schema_error,
+    verification?.validation?.error,
+    verification?.validation?.message,
+    verification?.message,
+    verification?.error,
+    Array.isArray(verification?.errors) ? verification.errors.join(' · ') : null,
+    Array.isArray(verification?.schema_errors) ? verification.schema_errors.join(' · ') : null
+  ].filter(Boolean).join(' · ').toLowerCase();
+  const schemaErrors = [verification?.schema_error_code, verification?.validation?.code, schemaErrorText]
+    .filter(Boolean)
+    .join(' · ')
+    .toLowerCase();
+  return verification?.checks?.schema_valid === false && schemaErrors.includes('validator_not_warmed_yet');
+}
+
+async function verifySignedReceipt(signedReceipt, { retryOnWarmup = true } = {}) {
+  const verifyResponse = await fetch(VERIFY_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(signedReceipt)
+  });
+  const verification = await verifyResponse.json();
+  if (retryOnWarmup && getSchemaWarmupState(verification)) {
+    setRowState(verifySchemaRow, 'pending', 'Validator warming; retrying once…');
+    setRowState(verifyStatusRow, 'pending', 'Signature verified; schema validator still warming');
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    return verifySignedReceipt(signedReceipt, { retryOnWarmup: false });
+  }
+  return verification;
+}
+
 function applyVerification(compactReceipt, signedReceipt, verification) {
   const checks = verification?.checks || {};
   const signerEns = verification?.ens || verification?.signer_ens || verification?.signer_id || verification?.values?.signer_id || 'runtime.commandlayer.eth';
@@ -672,26 +709,54 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
   const hash = verification?.hash_sha256 || verification?.values?.hash_sha256 || verification?.content_hash || '—';
   const signatureValid = checks.signature_valid === true;
   const hashMatches = checks.hash_matches === true;
-  const verifyOk = verification?.ok === true || verification?.valid === true || (signatureValid && hashMatches);
+  const ensMatch = checks.ens_match === true || verification?.ens_match === true || verification?.values?.ens_match === true;
+  const schemaValid = checks.schema_valid === true;
+  const validatorWarming = getSchemaWarmupState(verification);
+  const cryptoValid = signatureValid && hashMatches;
+  const authenticityValid = cryptoValid && ensMatch;
+  const overallValid = authenticityValid && (schemaValid || validatorWarming);
 
-  verifyBadge.className = verifyOk ? 'badge ok' : 'badge bad';
-  verifyBadge.textContent = verifyOk ? 'Verified' : 'Needs review';
-  setRowState(verifyRuntimeRow, 'ok', signerEns);
-  setRowState(verifySignatureRow, signatureValid ? 'ok' : 'bad', signatureValid ? 'Valid' : 'Invalid');
-  setRowState(verifyHashRow, hashMatches ? 'ok' : 'bad', hashMatches ? 'Matches' : 'Mismatch');
-  setRowState(verifyStatusRow, verifyOk ? 'ok' : 'bad', verifyOk ? 'Verification passed' : (verification?.error || verification?.message || 'Verification failed'));
+  verifyBadge.className = overallValid ? 'badge ok' : 'badge bad';
+  verifyBadge.textContent = schemaValid
+    ? 'Verified'
+    : (validatorWarming && authenticityValid ? 'Verified pending schema' : 'Needs review');
+  setRowState(verifyRuntimeRow, 'ok', 'Full final signed receipt sent to /verify');
+  setRowState(
+    verifySignatureRow,
+    cryptoValid ? 'ok' : 'bad',
+    cryptoValid
+      ? 'Signature + hash verified'
+      : `${signatureValid ? 'Signature valid' : 'Signature invalid'}; ${hashMatches ? 'hash matches' : 'hash mismatch'}`
+  );
+  setRowState(verifyEnsRow, ensMatch ? 'ok' : 'bad', ensMatch ? `ENS matched signer (${signerEns})` : 'ENS signer match failed');
+  setRowState(
+    verifySchemaRow,
+    schemaValid ? 'ok' : (validatorWarming ? 'pending' : 'bad'),
+    schemaValid ? 'Schema valid' : (validatorWarming ? 'Validator still warming; retryable' : 'Schema invalid')
+  );
+  setRowState(
+    verifyStatusRow,
+    overallValid ? (schemaValid ? 'ok' : 'pending') : 'bad',
+    schemaValid
+      ? 'Cryptographic, ENS, and schema verification passed'
+      : (validatorWarming && authenticityValid
+          ? 'Signature verified; schema validator still warming'
+          : (verification?.error || verification?.message || 'Verification failed'))
+  );
 
   artifactSigner.textContent = signerEns;
   artifactKid.textContent = kid;
   artifactHash.textContent = hash;
   artifactSchema.textContent = compactReceipt?.schema_version || signedReceipt?.schema_version || RUNTIME_VERSION;
-  artifactSummary.textContent = verifyOk
-    ? 'Fresh final signed receipt verified after execution. Signed by runtime.commandlayer.eth, with signature and hash checks surfaced separately.'
-    : buildErrorSummary(verification);
+  artifactSummary.textContent = schemaValid
+    ? 'Fresh final signed receipt verified after execution. Cryptographic checks, ENS signer resolution, and schema validation all passed.'
+    : (validatorWarming && authenticityValid
+        ? 'Signature, hash, and ENS signer checks passed. Schema validation is retryable because the validator is still warming.'
+        : buildErrorSummary(verification));
   const proof = signedReceipt?.metadata?.proof || {};
   verifyPayloadSummary.textContent = proof.signature_b64 && proof.hash_sha256 && proof.signer_id
-    ? `Using exact final signed receipt payload with metadata.proof.signer_id=${proof.signer_id}, hash=${proof.hash_sha256.slice(0, 18)}…`
-    : 'Verification payload is missing metadata.proof fields; inspect the final signed receipt JSON.';
+    ? `Using the exact full final signed receipt object with metadata.proof.signer_id=${proof.signer_id}, hash=${proof.hash_sha256.slice(0, 18)}…`
+    : 'Verify sends the full final signed receipt object, but metadata.proof fields are missing; inspect the raw receipt JSON.';
   finalReceiptJson.textContent = JSON.stringify(signedReceipt, null, 2);
   verificationJson.textContent = JSON.stringify(verification, null, 2);
   lastCompactReceipt = compactReceipt;
@@ -817,19 +882,15 @@ async function runChain() {
     executionJson.textContent = JSON.stringify({ trace_id: lastTraceId, steps: collectedSteps }, null, 2);
     finalReceiptJson.textContent = JSON.stringify(finalSignedReceipt, null, 2);
     verificationJson.textContent = JSON.stringify({ status: 'verifying' }, null, 2);
-    setRowState(verifyRuntimeRow, 'pending', 'Final signed receipt returned; verifying now…');
-    setRowState(verifySignatureRow, 'pending', 'Checking');
-    setRowState(verifyHashRow, 'pending', 'Checking');
+    setRowState(verifyRuntimeRow, 'pending', 'Full final signed receipt ready; verifying now…');
+    setRowState(verifySignatureRow, 'pending', 'Checking signature + hash');
+    setRowState(verifyEnsRow, 'pending', 'Checking ENS signer');
+    setRowState(verifySchemaRow, 'pending', 'Checking schema');
     setRowState(verifyStatusRow, 'pending', 'Running verify');
     verifyBadge.className = 'badge pending';
     verifyBadge.textContent = 'Verifying';
 
-    const verifyResponse = await fetch(VERIFY_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(finalSignedReceipt)
-    });
-    const verification = await verifyResponse.json();
+    const verification = await verifySignedReceipt(finalSignedReceipt);
     applyVerification(finalReceipt, finalSignedReceipt, verification);
   } catch (error) {
     setExecutionError({ error: 'Live runtime request failed', detail: { message: error.message } });
