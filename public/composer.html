@@ -596,27 +596,41 @@ function normalizeContent(value) {
   }
 }
 
+function getReceiptPayload(receipt) {
+  if (!receipt || typeof receipt !== 'object') return null;
+  if (receipt.receipt && typeof receipt.receipt === 'object' && !Array.isArray(receipt.receipt)) {
+    return receipt.receipt;
+  }
+  return receipt;
+}
+
 function getReceiptVerb(receipt) {
-  return receipt?.x402?.verb || receipt?.verb || null;
+  const payload = getReceiptPayload(receipt);
+  return payload?.x402?.verb || payload?.verb || null;
 }
 
 function getReceiptVersion(receipt) {
-  return receipt?.x402?.version || receipt?.schema_version || null;
+  const payload = getReceiptPayload(receipt);
+  return payload?.x402?.version || payload?.schema_version || null;
 }
 
 function getReceiptResult(receipt) {
-  return receipt && typeof receipt.result === 'object' && !Array.isArray(receipt.result) ? receipt.result : {};
+  const payload = getReceiptPayload(receipt);
+  return payload && typeof payload.result === 'object' && !Array.isArray(payload.result) ? payload.result : {};
 }
 
 function getReceiptProof(receipt) {
-  return receipt?.metadata?.proof || {};
+  const payload = getReceiptPayload(receipt);
+  return payload?.metadata?.proof || {};
 }
 
 function getReceiptTrace(receipt) {
-  return receipt?.runtime_metadata?.trace?.trace_id
-    || receipt?.trace?.trace_id
-    || receipt?.metadata?.trace?.trace_id
-    || receipt?.trace_id
+  const payload = getReceiptPayload(receipt);
+  return payload?.runtime_metadata?.trace?.trace_id
+    || payload?.trace?.trace_id
+    || payload?.metadata?.trace?.trace_id
+    || payload?.trace_id
+    || receipt?.runtime_metadata?.trace?.trace_id
     || null;
 }
 
@@ -633,6 +647,7 @@ function summarizeReceipt(receipt) {
 
 function pickFinalOutput(receipt) {
   if (!receipt || typeof receipt !== 'object') return 'No live output available.';
+  const payload = getReceiptPayload(receipt) || receipt;
   const result = getReceiptResult(receipt);
   const candidates = [
     Array.isArray(result.labels) ? `labels: ${result.labels.join(', ')}` : null,
@@ -643,16 +658,16 @@ function pickFinalOutput(receipt) {
     result.description,
     result.explanation,
     result.analysis,
-    receipt.summary,
-    receipt.cleaned_content,
-    receipt.formatted_content,
-    receipt.converted_content,
-    receipt.description,
-    Array.isArray(receipt.labels) ? `labels: ${receipt.labels.join(', ')}` : null,
-    receipt.analysis,
+    payload.summary,
+    payload.cleaned_content,
+    payload.formatted_content,
+    payload.converted_content,
+    payload.description,
+    Array.isArray(payload.labels) ? `labels: ${payload.labels.join(', ')}` : null,
+    payload.analysis,
     Object.keys(result).length ? normalizeContent(result) : null
   ].filter(Boolean);
-  return candidates[0] || normalizeContent(receipt);
+  return candidates[0] || normalizeContent(payload);
 }
 
 function buildExecutionSteps(steps) {
@@ -859,6 +874,7 @@ function buildFlowRequest(verb, sourceText) {
 
 function extractChainText(receipt) {
   if (!receipt || typeof receipt !== 'object') return '';
+  const payload = getReceiptPayload(receipt) || receipt;
   const result = getReceiptResult(receipt);
   const candidates = [
     result.cleaned_content,
@@ -867,15 +883,18 @@ function extractChainText(receipt) {
     result.converted_content,
     result.description,
     result.explanation,
+    result.content,
     Array.isArray(result.labels) ? result.labels.join(', ') : null,
-    receipt.cleaned_content,
-    receipt.summary,
-    receipt.formatted_content,
-    receipt.converted_content,
-    receipt.description,
-    receipt.explanation,
-    Array.isArray(receipt.labels) ? receipt.labels.join(', ') : null,
-    Object.keys(result).length ? normalizeContent(result) : null
+    payload.cleaned_content,
+    payload.summary,
+    payload.formatted_content,
+    payload.converted_content,
+    payload.description,
+    payload.explanation,
+    payload.content,
+    Array.isArray(payload.labels) ? payload.labels.join(', ') : null,
+    Object.keys(result).length ? normalizeContent(result) : null,
+    normalizeContent(payload)
   ].filter(Boolean);
   return String(candidates[0] || '').trim();
 }
