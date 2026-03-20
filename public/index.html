@@ -416,9 +416,22 @@ body {
   margin-bottom: 1rem;
 }
 
+.receipt-card__header--stacked {
+  align-items: flex-start;
+}
+
+.receipt-card__kicker {
+  color: #7fdcff;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
 .receipt-card__title {
   font-size: 1.08rem;
   font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .receipt-card__badge {
@@ -432,6 +445,13 @@ body {
   border: 1px solid rgba(34, 197, 94, 0.28);
   font-size: 0.78rem;
   font-weight: 700;
+}
+
+.receipt-card__badge--strong {
+  padding: 0.5rem 0.82rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.18), 0 16px 36px rgba(34, 197, 94, 0.14);
 }
 
 .receipt-card__badge-dot {
@@ -452,8 +472,32 @@ body {
   display: grid;
   grid-template-columns: 92px 1fr;
   gap: 0.75rem;
-  padding: 0.7rem 0;
+  padding: 0.72rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.receipt-card__row--primary,
+.receipt-card__row--secondary,
+.receipt-card__row--hash {
+  border-radius: 14px;
+  padding: 0.82rem 0.9rem;
+  margin-bottom: 0.45rem;
+  grid-template-columns: 82px 1fr;
+}
+
+.receipt-card__row--primary {
+  background: linear-gradient(135deg, rgba(24, 60, 38, 0.9), rgba(10, 18, 30, 0.98));
+  border: 1px solid rgba(34, 197, 94, 0.24);
+}
+
+.receipt-card__row--secondary {
+  background: rgba(10, 20, 36, 0.88);
+  border: 1px solid rgba(76, 201, 240, 0.14);
+}
+
+.receipt-card__row--hash {
+  background: rgba(10, 14, 26, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .receipt-card__row:last-child {
@@ -485,9 +529,18 @@ code,
   word-break: break-word;
 }
 
-.receipt-card__value--emphasis {
+.receipt-card__value--primary {
   font-size: 1rem;
-  font-weight: 700;
+}
+
+.receipt-card__value--identity {
+  font-size: 0.94rem;
+  color: #dff3ff;
+}
+
+.receipt-card__value--hash {
+  font-size: 0.9rem;
+  color: #bfe9f6;
 }
 
 .receipt-card__value--ok {
@@ -955,7 +1008,7 @@ code,
             <p class="eyebrow">Proof layer for agent execution</p>
             <h1 class="hero__title">Agents Can Act. <span class="hero__title-accent">CommandLayer Proves They Acted.</span></h1>
             <p class="hero__subtitle">
-              Run multi-step agent flows, generate signed receipts, and verify every action against onchain identity.
+              CommandLayer is infrastructure for agents that spend money, call services, and coordinate with other agents. It runs the action, emits the signed receipt, and makes proof visible fast.
             </p>
             <p class="hero__supporting">Agents call services through ENS-resolved endpoints and leave behind signed, inspectable proof.</p>
             <div class="hero__actions">
@@ -976,37 +1029,36 @@ code,
           </div>
 
           <aside class="receipt-card" aria-label="Verified Receipt preview">
-            <div class="receipt-card__header">
-              <div class="receipt-card__title">Verified Receipt</div>
-              <div class="receipt-card__badge"><span class="receipt-card__badge-dot" aria-hidden="true"></span>verified: true</div>
+            <div class="receipt-card__header receipt-card__header--stacked">
+              <div>
+                <div class="receipt-card__kicker mono">Verified Receipt</div>
+                <div class="receipt-card__title">Receipt proof artifact</div>
+              </div>
+              <div class="receipt-card__badge receipt-card__badge--strong"><span class="receipt-card__badge-dot" aria-hidden="true"></span>VERIFIED</div>
             </div>
             <div class="receipt-card__rows">
-              <div class="receipt-card__row">
-                <div class="receipt-card__label">agent</div>
-                <div class="receipt-card__value receipt-card__value--emphasis mono">fetchagent.eth</div>
+              <div class="receipt-card__row receipt-card__row--primary">
+                <div class="receipt-card__label">status</div>
+                <div class="receipt-card__value receipt-card__value--ok receipt-card__value--primary">Ed25519 signature valid</div>
               </div>
-              <div class="receipt-card__row">
+              <div class="receipt-card__row receipt-card__row--secondary">
                 <div class="receipt-card__label">signer</div>
-                <div class="receipt-card__value mono">signer.commandlayer.eth</div>
+                <div class="receipt-card__value mono receipt-card__value--identity">checkoutagent.eth · ENS resolved</div>
               </div>
-              <div class="receipt-card__row">
+              <div class="receipt-card__row receipt-card__row--hash">
                 <div class="receipt-card__label">proof hash</div>
-                <div class="receipt-card__value mono">sha256: 5ce4c91af3ab...b70ef2</div>
+                <div class="receipt-card__value mono receipt-card__value--hash">sha256: 9fa31c4d7b2a6c91f4d8...e18f72</div>
               </div>
               <div class="receipt-card__row">
-                <div class="receipt-card__label">signature</div>
-                <div class="receipt-card__value mono">ed25519: 8Zs3...j1wQ</div>
+                <div class="receipt-card__label">contract</div>
+                <div class="receipt-card__value mono">commercial.verify.receipt v1.1.0</div>
               </div>
               <div class="receipt-card__row">
-                <div class="receipt-card__label">ens</div>
-                <div class="receipt-card__value mono">fetchagent.eth → api.fetchagent.eth</div>
-              </div>
-              <div class="receipt-card__row">
-                <div class="receipt-card__label">identity</div>
-                <div class="receipt-card__value mono receipt-card__value--muted">ERC-8004 resolved on Base</div>
+                <div class="receipt-card__label">trace</div>
+                <div class="receipt-card__value mono">trace_demo_checkout_7f3c</div>
               </div>
             </div>
-            <div class="receipt-card__footer">Signed receipt first • ENS-routed execution visible • independently verifiable</div>
+            <div class="receipt-card__footer">Independent verifier can recompute hash, resolve signer, and confirm the same receipt.</div>
           </aside>
         </div>
       </div>
@@ -1039,60 +1091,19 @@ code,
       <div class="container">
         <div class="section-card why-card">
           <div>
-            <p class="section__eyebrow">Cross-agent execution</p>
-            <h2 class="section__title">ENS names route the interaction. The receipt proves the outcome.</h2>
+            <p class="section__eyebrow">Operational infrastructure</p>
+            <h2 class="section__title">Built for agents that spend money, call services, and hand work to other agents.</h2>
             <p class="section__body">
-              A simple flow can resolve <span class="mono">fetchagent.eth → escrowagents.eth → verified receipt</span>, complete a multi-step action, and leave signed proof behind. Identity is part of execution, not a separate page.
-            </p>
-          </div>
-          <aside class="flow-card">
-            <span class="flow-card__label">ENS-routed flow</span>
-            <div class="flow-steps">
-              <div class="flow-step">
-                <div>
-                  <div class="flow-step__route mono">fetchagent.eth → api.fetchagent.eth</div>
-                  <div class="flow-step__meta">Resolve endpoint and request inventory proof</div>
-                </div>
-                <div class="flow-step__status">resolved</div>
-              </div>
-              <div class="flow-step">
-                <div>
-                  <div class="flow-step__route mono">escrowagents.eth → api.escrowagents.eth</div>
-                  <div class="flow-step__meta">Route settlement step through ENS identity</div>
-                </div>
-                <div class="flow-step__status">signed</div>
-              </div>
-              <div class="flow-step">
-                <div>
-                  <div class="flow-step__route mono">verified receipt</div>
-                  <div class="flow-step__meta">Hash, signer, ENS route, and ERC-8004 resolution are inspectable</div>
-                </div>
-                <div class="flow-step__status">verifiable</div>
-              </div>
-            </div>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="section-card why-card">
-          <div>
-            <p class="section__eyebrow">Why receipts matter</p>
-            <h2 class="section__title">If agents can spend money, call APIs, move value, or coordinate with other agents, their actions need receipts.</h2>
-            <p class="section__body">
-              Logs are not enough. Signed receipts make execution inspectable, portable, and independently verifiable across demos, integrations, and production flows.
+              CommandLayer is operational infrastructure, not just identity metadata. It gives each action a signed receipt that another system can verify after payment, service calls, or multi-agent coordination.
             </p>
           </div>
           <aside class="example-box">
-            <span class="example-box__label">Trust surface</span>
-            <p>CommandLayer makes the critical parts visible:</p>
+            <span class="example-box__label">Cross-agent example</span>
+            <p><strong>checkoutagent.eth</strong> charges the buyer, then hands the shipping task to <strong>shipagent.eth</strong>. Both steps stay on one trace, and each agent returns a receipt another party can verify.</p>
             <ul class="example-list">
-              <li>who acted</li>
-              <li>which ENS-routed endpoint executed</li>
-              <li>what was signed</li>
-              <li>how anyone can verify it later</li>
+              <li>agent-to-agent handoff stays visible</li>
+              <li>receipts prove who executed each step</li>
+              <li>verification survives outside the runtime</li>
             </ul>
           </aside>
         </div>
@@ -1107,58 +1118,9 @@ code,
             <h2 class="section__title">Execution should end with proof, not a claim.</h2>
             <p class="section__body">This is the artifact the system leaves behind: agent identity, routed endpoint, signer, proof hash, and verification status in one inspectable object.</p>
           </div>
-          <aside class="proof-object" aria-label="Receipt evidence object">
-            <div class="proof-object__row">
-              <div class="proof-object__label">agent</div>
-              <div class="proof-object__value mono">escrowagents.eth</div>
-            </div>
-            <div class="proof-object__row">
-              <div class="proof-object__label">action</div>
-              <div class="proof-object__value mono">release_settlement</div>
-            </div>
-            <div class="proof-object__row">
-              <div class="proof-object__label">routed_via</div>
-              <div class="proof-object__value mono">api.escrowagents.eth / ens-resolved endpoint</div>
-            </div>
-            <div class="proof-object__row">
-              <div class="proof-object__label">signer</div>
-              <div class="proof-object__value mono">signer.commandlayer.eth</div>
-            </div>
-            <div class="proof-object__row">
-              <div class="proof-object__label">hash</div>
-              <div class="proof-object__value mono">sha256: 31ba60c1f0d1...8be249</div>
-            </div>
-            <div class="proof-object__row">
-              <div class="proof-object__label">verified</div>
-              <div class="proof-object__value mono">true</div>
-            </div>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section--muted">
-      <div class="container">
-        <div class="section-card">
-          <p class="section__eyebrow">Built for the agent economy</p>
-          <h2 class="section__title">Trust infrastructure for agents that act in the world.</h2>
-          <div class="value-grid" style="margin-top: 1rem;">
-            <article class="value-card">
-              <h3 class="value-card__title">Agents that trust</h3>
-              <p class="value-card__text">Receipts make execution legible to operators, counterparties, and independent verifiers.</p>
-            </article>
-            <article class="value-card">
-              <h3 class="value-card__title">Agents that pay</h3>
-              <p class="value-card__text">When actions touch money or settlement, signed receipts keep the proof surface intact.</p>
-            </article>
-            <article class="value-card">
-              <h3 class="value-card__title">Agents that cooperate</h3>
-              <p class="value-card__text">Cross-agent flows can route by ENS name and still resolve into one inspectable proof trail.</p>
-            </article>
-            <article class="value-card">
-              <h3 class="value-card__title">Agents with identity</h3>
-              <p class="value-card__text">ENS names and ERC-8004 registration make identity part of the execution path and trust surface.</p>
-            </article>
+          <div class="cta-band__actions">
+            <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
+            <a href="/quickstart.html" class="btn btn--ghost">See Verified Receipt</a>
           </div>
         </div>
       </div>
