@@ -363,6 +363,33 @@
         border-color: rgba(255, 255, 255, 0.22);
       }
 
+      .btn--commerce {
+        background: linear-gradient(135deg, #1f9d55, #34d399);
+        color: #f4fff7;
+        border-color: rgba(52, 211, 153, 0.32);
+        box-shadow: 0 14px 28px rgba(31, 157, 85, 0.16);
+      }
+
+      .btn--commerce:hover,
+      .btn--commerce:focus-visible {
+        border-color: rgba(74, 222, 128, 0.42);
+        box-shadow: 0 16px 30px rgba(31, 157, 85, 0.2);
+      }
+
+      .hero-card__cta-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.65rem;
+        margin-top: 0.15rem;
+      }
+
+      .hero-card__cta {
+        align-self: flex-start;
+        padding: 0.68rem 1rem;
+        font-size: 0.9rem;
+        font-weight: 650;
+      }
+
       .hero-card,
       .status-strip,
       .panel,
@@ -1031,6 +1058,11 @@
                   <div class="hero-card__label">Runtime</div>
                   <div class="hero-card__value">metadata secondary</div>
                 </div>
+              </div>
+
+              <div class="hero-card__cta-row">
+                <a href="#commercial-controls" class="btn btn--commerce hero-card__cta">Run the Commercial Flow</a>
+                <a href="/composer.html" class="btn btn--ghost hero-card__cta">Open Commons Composer</a>
               </div>
             </aside>
           </div>
