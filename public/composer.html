@@ -38,87 +38,241 @@ a{text-decoration:none;color:inherit}
 button,input,select,textarea{font:inherit}
 code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
-.site-header{position:sticky;top:0;z-index:10;background:rgba(5,7,12,.82);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.05)}
-.site-header .wrap{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+
+/* Header */
+.site-header{
+  position:sticky;top:0;z-index:10;
+  background:rgba(5,7,12,.82);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.site-header .wrap{
+  min-height:64px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px
+}
 .brand{display:flex;align-items:center;gap:12px}
 .brand img{width:28px;height:28px;border-radius:8px;display:block}
 .brand-copy strong{display:block;font-size:13px;line-height:1.05}
 .brand-copy span{display:block;font-size:10px;color:var(--muted)}
 .nav{display:flex;gap:8px;flex-wrap:wrap}
-.nav a{font-size:12px;color:var(--muted);padding:8px 10px;border-radius:999px}
-.nav a.active{color:var(--text);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
+.nav a{
+  font-size:12px;color:var(--muted);padding:8px 10px;border-radius:999px
+}
+.nav a.active{
+  color:var(--text);
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.08)
+}
+
+/* Layout */
 .main{padding:28px 0 36px}
-.card{background:linear-gradient(180deg,rgba(11,18,32,.94),rgba(8,13,24,.98));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
+.card{
+  background:linear-gradient(180deg,rgba(11,18,32,.94),rgba(8,13,24,.98));
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow)
+}
 .card-inner{padding:18px}
-.eyebrow{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#cfe4ff;background:rgba(23,54,110,.42);border:1px solid rgba(107,160,255,.18)}
-h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-width:760px}
-.lead{margin:0;color:var(--muted);font-size:13px;line-height:1.45;max-width:760px}
-.hero{display:grid;grid-template-columns:minmax(0,1.45fr) 320px;gap:18px}
-.hero-actions,.actions,.toggle-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
-.btn{height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);cursor:pointer;font-size:12px;font-weight:700}
+.eyebrow{
+  display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;
+  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#cfe4ff;background:rgba(23,54,110,.42);border:1px solid rgba(107,160,255,.18)
+}
+h1{
+  margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-width:760px
+}
+.lead{
+  margin:0;color:var(--muted);font-size:13px;line-height:1.45;max-width:760px
+}
+.hero{
+  display:grid;grid-template-columns:minmax(0,1.45fr) 320px;gap:18px
+}
+.hero-actions,.actions,.toggle-row{
+  display:flex;gap:10px;flex-wrap:wrap;margin-top:16px
+}
+.btn{
+  height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);color:var(--text);cursor:pointer;font-size:12px;font-weight:700
+}
 .btn:hover{border-color:var(--line-strong)}
 .btn:disabled{opacity:.55;cursor:not-allowed}
-.btn-primary{border:none;color:#04111d;background:linear-gradient(135deg,var(--blue),var(--blue-2));box-shadow:0 10px 28px rgba(39,151,255,.28)}
+.btn-primary{
+  border:none;color:#04111d;background:linear-gradient(135deg,var(--blue),var(--blue-2));
+  box-shadow:0 10px 28px rgba(39,151,255,.28)
+}
 .btn-quiet{color:var(--muted)}
-.status-strip{margin-top:16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.mini{min-height:64px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.025);border:1px solid var(--line)}
-.mini-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
-.mini-value{margin-top:8px;font-size:13px;font-weight:650;line-height:1.25}
-.live-dot,.warn-dot,.bad-dot{display:inline-block;width:8px;height:8px;border-radius:999px}
+
+.status-strip{
+  margin-top:16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px
+}
+.mini{
+  min-height:64px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.025);border:1px solid var(--line)
+}
+.mini-label{
+  font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700
+}
+.mini-value{
+  margin-top:8px;font-size:13px;font-weight:650;line-height:1.25
+}
+.live-dot,.warn-dot,.bad-dot{
+  display:inline-block;width:8px;height:8px;border-radius:999px
+}
 .live-dot{background:var(--ok);box-shadow:0 0 0 4px rgba(99,230,168,.12)}
 .warn-dot{background:var(--warn);box-shadow:0 0 0 4px rgba(255,204,102,.12)}
 .bad-dot{background:var(--bad);box-shadow:0 0 0 4px rgba(255,141,141,.12)}
-.flow-grid{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) 50px minmax(0,1fr) 50px minmax(0,1fr);gap:12px;align-items:stretch}
-.flow-arrow{display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-size:30px;font-weight:800}
-.section-title{margin:0;font-size:17px;font-weight:700;letter-spacing:-.02em}
-.section-sub{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
-.toggle{height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);cursor:pointer;font-size:12px;font-weight:700}
-.toggle.active{color:var(--text);background:linear-gradient(180deg,rgba(43,112,220,.32),rgba(20,67,160,.28));border-color:rgba(107,160,255,.28)}
-.chain-preview,.chain-builder{margin-top:14px;padding:14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
-.chain-preview-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
-.chain-preview-list{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
-.pill,.arrow,.step-chip{height:34px;display:inline-flex;align-items:center;justify-content:center}
-.pill,.step-chip{padding:0 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:12px;font-weight:650}
+
+.flow-grid{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 50px minmax(0,1fr) 50px minmax(0,1fr);
+  gap:12px;align-items:stretch
+}
+.flow-arrow{
+  display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-size:30px;font-weight:800
+}
+
+.section-title{
+  margin:0;font-size:17px;font-weight:700;letter-spacing:-.02em
+}
+.section-sub{
+  margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.45
+}
+
+.toggle{
+  height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);color:var(--muted);cursor:pointer;font-size:12px;font-weight:700
+}
+.toggle.active{
+  color:var(--text);
+  background:linear-gradient(180deg,rgba(43,112,220,.32),rgba(20,67,160,.28));
+  border-color:rgba(107,160,255,.28)
+}
+
+.chain-preview,.chain-builder{
+  margin-top:14px;padding:14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.025)
+}
+.chain-preview-head{
+  display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap
+}
+.chain-preview-list{
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px
+}
+.pill,.arrow,.step-chip{
+  height:34px;display:inline-flex;align-items:center;justify-content:center
+}
+.pill,.step-chip{
+  padding:0 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:12px;font-weight:650
+}
 .arrow{color:var(--muted-2);font-size:14px;padding:0 2px}
+
 .field{margin-top:14px}
-.field label{display:block;margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
-.field textarea,.field select,.field input{width:100%;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:13px 14px;line-height:1.45;font-size:13px;outline:none}
+.field label{
+  display:block;margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700
+}
+.field textarea,.field select,.field input{
+  width:100%;border-radius:14px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);color:var(--text);padding:13px 14px;line-height:1.45;font-size:13px;outline:none
+}
 .field textarea{min-height:124px;resize:vertical}
 .field textarea::placeholder,.field input::placeholder{color:var(--muted)}
-.compact-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
-.helper-line{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.45}
-.badge{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:700}
+.field select{
+  background:#10192b;
+  color:var(--text);
+  appearance:none;-webkit-appearance:none;-moz-appearance:none;
+}
+.field select option{
+  background:#10192b;
+  color:#f3f7ff;
+}
+
+.compact-grid{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px
+}
+.helper-line{
+  margin-top:10px;color:var(--muted);font-size:12px;line-height:1.45
+}
+
+.badge{
+  display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:700
+}
 .badge.pending{color:#ffe2a6;background:rgba(122,91,20,.20);border:1px solid rgba(255,204,102,.20)}
 .badge.ok{color:#b8f6d7;background:rgba(38,120,82,.22);border:1px solid rgba(99,230,168,.24)}
 .badge.bad{color:#ffd0d0;background:rgba(120,38,38,.22);border:1px solid rgba(255,141,141,.24)}
-.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
-.kv{border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:14px;padding:12px}
-.kv .k{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
-.kv .v{margin-top:8px;font-size:12px;font-weight:650;word-break:break-word;line-height:1.4}
-.exec-steps{margin-top:14px;display:grid;gap:10px}
-.exec-step{padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+
+.kv-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px
+}
+.kv{
+  border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:14px;padding:12px
+}
+.kv .k{
+  font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700
+}
+.kv .v{
+  margin-top:8px;font-size:12px;font-weight:650;word-break:break-word;line-height:1.4
+}
+
+.exec-steps{
+  margin-top:14px;display:grid;gap:10px
+}
+.exec-step{
+  padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.025)
+}
 .exec-step strong{font-size:12px}
 .exec-step span{display:block;margin-top:6px;color:var(--muted);font-size:12px;line-height:1.4}
-.summary-card{margin-top:12px;border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:14px;padding:12px}
-.summary-card h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2)}
-.summary-card p{margin:0;color:var(--text);font-size:13px;line-height:1.5;white-space:pre-wrap}
-.details-block{margin-top:12px;border:1px solid var(--line);background:#060a12;border-radius:14px;overflow:hidden}
-.details-block summary{cursor:pointer;list-style:none;padding:12px 14px;font-size:12px;font-weight:700;color:var(--muted);border-bottom:1px solid transparent}
+
+.summary-card{
+  margin-top:12px;border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:14px;padding:12px
+}
+.summary-card h3{
+  margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2)
+}
+.summary-card p{
+  margin:0;color:var(--text);font-size:13px;line-height:1.5;white-space:pre-wrap
+}
+
+.details-block{
+  margin-top:12px;border:1px solid var(--line);background:#060a12;border-radius:14px;overflow:hidden
+}
+.details-block summary{
+  cursor:pointer;list-style:none;padding:12px 14px;font-size:12px;font-weight:700;color:var(--muted);border-bottom:1px solid transparent
+}
 .details-block[open] summary{border-bottom-color:var(--line)}
 .details-block summary::-webkit-details-marker{display:none}
-.details-block pre{margin:0;padding:12px 14px;overflow:auto;font-size:11px;line-height:1.5;color:#dce7ff}
-.verify-status{margin-top:14px;display:grid;gap:10px}
-.verify-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+.details-block pre{
+  margin:0;padding:12px 14px;overflow:auto;font-size:11px;line-height:1.5;color:#dce7ff
+}
+
+.verify-status{
+  margin-top:14px;display:grid;gap:10px
+}
+.verify-row{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.025)
+}
 .verify-row strong{font-size:12px}
 .verify-row span{font-size:12px;color:var(--muted)}
 .verify-row.ok span{color:var(--ok)}
 .verify-row.bad span{color:var(--bad)}
 .verify-row.pending span{color:var(--warn)}
+
 .hidden{display:none !important}
+
 .footer{padding:18px 0 28px}
-.footer-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted-2);font-size:11px}
-@media (max-width:1120px){.hero{grid-template-columns:1fr}.flow-grid{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg);min-height:30px}.status-strip{grid-template-columns:1fr 1fr}}
-@media (max-width:760px){h1{font-size:28px}.status-strip,.compact-grid,.kv-grid{grid-template-columns:1fr}.nav{display:none}}
+.footer-row{
+  display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted-2);font-size:11px
+}
+
+@media (max-width:1120px){
+  .hero{grid-template-columns:1fr}
+  .flow-grid{grid-template-columns:1fr}
+  .flow-arrow{transform:rotate(90deg);min-height:30px}
+  .status-strip{grid-template-columns:1fr 1fr}
+}
+@media (max-width:760px){
+  h1{font-size:28px}
+  .status-strip,.compact-grid,.kv-grid{grid-template-columns:1fr}
+  .nav{display:none}
+}
 </style>
 </head>
 <body>
@@ -155,19 +309,20 @@ h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-w
             <button class="btn btn-quiet" id="hero-copy-curl" type="button" disabled>Copy Verify cURL</button>
           </div>
           <div class="status-strip">
-            <div class="mini"><div class="mini-label">Status</div><div class="mini-value" id="runtime-status-row"><span class="warn-dot"></span> <span id="runtime-status-text">Checking runtime…</span></div></div>
+            <div class="mini"><div class="mini-label">Status</div><div class="mini-value" id="runtime-status-row"><span class="warn-dot"></span> <span>Checking runtime…</span></div></div>
             <div class="mini"><div class="mini-label">Latency</div><div class="mini-value" id="runtime-latency">—</div></div>
             <div class="mini"><div class="mini-label">Execution</div><div class="mini-value">Live runtime</div></div>
             <div class="mini"><div class="mini-label">Signer target</div><div class="mini-value">runtime.commandlayer.eth</div></div>
           </div>
         </div>
       </div>
+
       <aside class="card">
         <div class="card-inner">
-          <div class="eyebrow">Hackathon-safe</div>
+          <div class="eyebrow">Proof-first</div>
           <h2 class="section-title" style="margin-top:12px;">One obvious path.</h2>
-          <p class="section-sub">Choose a Commons chain, run a fresh execution, then inspect verification state. No mixed commercial verbs. No mock receipts. No fallback demo output.</p>
-          <div class="helper-line">Default quick demo: <strong>clean → summarize → classify</strong>. Compact, judge-friendly, and schema-mapped to the live runtime.</div>
+          <p class="section-sub">Quick Demo gives one safe Commons chain. Create Your Variation stays inside a constrained Commons verb set. Execution and verification remain separate and visible.</p>
+          <div class="helper-line">Default demo path: <strong>clean → summarize → classify</strong>. The final receipt is what gets verified, not the chain itself.</div>
         </div>
       </aside>
     </section>
@@ -208,7 +363,7 @@ h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-w
             <div class="chain-preview-head">
               <div>
                 <strong>Create your Commons variation</strong>
-                <div class="section-sub">Up to 3 verbs. Commons-only. Only verbs with safe schema mapping stay enabled.</div>
+                <div class="section-sub">Up to 3 verbs. Commons-only. Only verbs with safe request mapping stay enabled.</div>
               </div>
               <div class="step-chip">Max 3</div>
             </div>
@@ -218,7 +373,7 @@ h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-w
               <label for="builder-source">Source content</label>
               <textarea id="builder-source"></textarea>
             </div>
-            <div class="helper-line">Step 1 is required. Steps 2 and 3 are optional. Every chained step is rebuilt from the previous live receipt result using verb-specific request mapping.</div>
+            <div class="helper-line">Step 1 is required. Steps 2 and 3 are optional. Each downstream step is rebuilt from the previous live receipt result using verb-specific request mapping.</div>
             <div class="actions">
               <button class="btn btn-quiet" id="reset-builder" type="button">Reset</button>
             </div>
@@ -236,7 +391,7 @@ h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-w
         <div class="card-inner">
           <div class="eyebrow">Box 2 · Execute</div>
           <h2 class="section-title" style="margin-top:12px;">Live runtime execution</h2>
-          <p class="section-sub">Executed by <code>runtime.commandlayer.org</code>. Each run produces a fresh response and final receipt.</p>
+          <p class="section-sub">Executed by <code>runtime.commandlayer.org</code>. Each run produces a fresh response and a final receipt.</p>
 
           <div style="margin-top:12px;"><span class="badge pending" id="execution-badge">Ready</span></div>
 
@@ -276,7 +431,7 @@ h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-w
         <div class="card-inner">
           <div class="eyebrow">Box 3 · Verify</div>
           <h2 class="section-title" style="margin-top:12px;">Independent final receipt verification</h2>
-          <p class="section-sub">Verification starts only after execution returns the final live signed receipt. The display keeps the final output/result separate from the signed receipt and the independent verification result.</p>
+          <p class="section-sub">Verification starts only after execution returns the final live signed receipt. Final output, signed receipt, and verification result stay separate.</p>
 
           <div style="margin-top:12px;"><span class="badge pending" id="verify-badge">Pending</span></div>
 
@@ -344,13 +499,17 @@ const RUNTIME_BASE = 'https://runtime.commandlayer.org';
 const FLOW_ENDPOINT = '/api/commons-flow';
 const VERIFY_ENDPOINT = '/api/verify-receipt?ens=1&refresh=1&schema=1';
 const RUNTIME_VERSION = '1.1.0';
+
 const SUPPORTED_COMMONS_VERBS = [
   {
     value: 'clean',
     label: 'clean',
     summary: 'Normalize source text before downstream steps.',
     buildInput(text) {
-      return { content: text, operations: ['trim_whitespace', 'collapse_blank_lines'] };
+      return {
+        content: text,
+        operations: ['trim_whitespace', 'collapse_blank_lines']
+      };
     }
   },
   {
@@ -358,7 +517,11 @@ const SUPPORTED_COMMONS_VERBS = [
     label: 'summarize',
     summary: 'Compress the prior result into a shorter brief.',
     buildInput(text) {
-      return { content: text, summary_style: 'exec_brief', format_hint: 'plain' };
+      return {
+        content: text,
+        summary_style: 'exec_brief',
+        format_hint: 'plain'
+      };
     }
   },
   {
@@ -366,7 +529,10 @@ const SUPPORTED_COMMONS_VERBS = [
     label: 'classify',
     summary: 'Assign compact proof-oriented labels to the final result.',
     buildInput(text) {
-      return { content: text, taxonomy: ['proof', 'artifact', 'receipt', 'verification', 'protocol'] };
+      return {
+        content: text,
+        taxonomy: ['proof', 'artifact', 'receipt', 'verification', 'protocol']
+      };
     }
   },
   {
@@ -374,7 +540,11 @@ const SUPPORTED_COMMONS_VERBS = [
     label: 'format',
     summary: 'Restyle text into a compact bullet-list surface.',
     buildInput(text) {
-      return { content: text, target_style: 'bullet-list', source_style: 'plain' };
+      return {
+        content: text,
+        target_style: 'bullet-list',
+        source_style: 'plain'
+      };
     }
   },
   {
@@ -382,7 +552,11 @@ const SUPPORTED_COMMONS_VERBS = [
     label: 'convert',
     summary: 'Convert plain text into markdown for a more structured handoff.',
     buildInput(text) {
-      return { content: text, source_format: 'text', target_format: 'markdown' };
+      return {
+        content: text,
+        source_format: 'text',
+        target_format: 'markdown'
+      };
     }
   }
 ];
@@ -413,8 +587,10 @@ const heroBuildCustom = document.getElementById('hero-build-custom');
 const heroCopyCurl = document.getElementById('hero-copy-curl');
 const runChainBtn = document.getElementById('run-chain');
 const resetBuilderBtn = document.getElementById('reset-builder');
+
 const runtimeLatency = document.getElementById('runtime-latency');
 const runtimeStatusRow = document.getElementById('runtime-status-row');
+
 const defaultChainPreview = document.getElementById('default-chain-preview');
 const builderChainPreview = document.getElementById('builder-chain-preview');
 const quickChainSelect = document.getElementById('quick-chain-select');
@@ -422,6 +598,7 @@ const defaultSource = document.getElementById('default-source-content');
 const defaultChainHelper = document.getElementById('default-chain-helper');
 const builderSource = document.getElementById('builder-source');
 const builderSelects = document.getElementById('builder-selects');
+
 const executionBadge = document.getElementById('execution-badge');
 const executionTrace = document.getElementById('execution-trace');
 const executionFinalVerb = document.getElementById('execution-final-verb');
@@ -429,12 +606,14 @@ const executionSteps = document.getElementById('execution-steps');
 const executionOutput = document.getElementById('execution-output');
 const executionReceiptSummary = document.getElementById('execution-receipt-summary');
 const executionJson = document.getElementById('execution-json');
+
 const verifyBadge = document.getElementById('verify-badge');
 const verifyRuntimeRow = document.getElementById('verify-runtime-row');
 const verifySignatureRow = document.getElementById('verify-signature-row');
 const verifyEnsRow = document.getElementById('verify-ens-row');
 const verifySchemaRow = document.getElementById('verify-schema-row');
 const verifyStatusRow = document.getElementById('verify-status-row');
+
 const artifactSigner = document.getElementById('artifact-signer');
 const artifactKid = document.getElementById('artifact-kid');
 const artifactHash = document.getElementById('artifact-hash');
@@ -443,6 +622,7 @@ const artifactSummary = document.getElementById('artifact-summary');
 const finalReceiptJson = document.getElementById('final-receipt-json');
 const verificationJson = document.getElementById('verification-json');
 const verifyPayloadSummary = document.getElementById('verify-payload-summary');
+
 const copyReceiptBtn = document.getElementById('copy-receipt');
 const copyVerificationBtn = document.getElementById('copy-verification');
 const copyCurlBtn = document.getElementById('copy-curl');
@@ -474,32 +654,41 @@ function renderBuilderSelects() {
     const wrap = document.createElement('div');
     wrap.className = 'field';
     wrap.style.marginTop = '0';
+
     const label = document.createElement('label');
     label.textContent = `Step ${i + 1}`;
     label.setAttribute('for', `builder-verb-${i}`);
+
     const select = document.createElement('select');
     select.id = `builder-verb-${i}`;
+
     if (i > 0) {
       const blank = document.createElement('option');
       blank.value = '';
       blank.textContent = 'skip this step';
       select.appendChild(blank);
     }
+
     SUPPORTED_COMMONS_VERBS.forEach((verb) => {
       const option = document.createElement('option');
       option.value = verb.value;
       option.textContent = `${verb.label} — ${verb.summary}`;
       select.appendChild(option);
     });
-    select.value = ['clean', 'summarize', 'classify'][i] || (i > 0 ? '' : SUPPORTED_COMMONS_VERBS[0].value);
+
+    select.value = ['clean', 'summarize', 'classify'][i] || '';
     select.addEventListener('change', syncBuilderPreview);
+
     wrap.append(label, select);
     builderSelects.appendChild(wrap);
   }
 }
 
 function getBuilderVerbs() {
-  return Array.from(builderSelects.querySelectorAll('select')).map((select) => select.value).filter(Boolean).slice(0, 3);
+  return Array.from(builderSelects.querySelectorAll('select'))
+    .map((select) => select.value)
+    .filter(Boolean)
+    .slice(0, 3);
 }
 
 function syncBuilderPreview() {
@@ -531,7 +720,6 @@ function setMode(mode) {
   builderBtn.classList.toggle('active', !isDefault);
   defaultMode.classList.toggle('hidden', !isDefault);
   builderMode.classList.toggle('hidden', isDefault);
-  runChainBtn.textContent = 'Run Chain';
 }
 
 function setBusy(isBusy) {
@@ -704,6 +892,7 @@ function setExecutionError(errorPayload) {
   executionOutput.textContent = 'No successful final output.';
   executionReceiptSummary.textContent = summary;
   executionJson.textContent = JSON.stringify(errorPayload || { error: 'Unknown runtime error' }, null, 2);
+
   verifyBadge.className = 'badge bad';
   verifyBadge.textContent = 'Blocked';
   setRowState(verifyRuntimeRow, 'bad', 'No final signed receipt to verify');
@@ -712,14 +901,17 @@ function setExecutionError(errorPayload) {
   setRowState(verifySchemaRow, 'pending', 'Pending');
   setRowState(verifyStatusRow, 'bad', 'Execution failed');
   artifactSummary.textContent = summary;
+
   const fallbackReceipt = errorPayload?.detail?.signed_receipt || errorPayload?.detail?.receipt || errorPayload || {};
   finalReceiptJson.textContent = JSON.stringify(fallbackReceipt, null, 2);
   verificationJson.textContent = JSON.stringify({ status: 'not-run', reason: 'Execution did not return a final signed receipt.' }, null, 2);
   verifyPayloadSummary.textContent = 'Verification blocked because the live run did not produce a final signed receipt payload.';
+
   lastCompactReceipt = errorPayload?.detail?.receipt || null;
   lastSignedReceipt = errorPayload?.detail?.signed_receipt || null;
   lastVerification = null;
   if (!lastSignedReceipt) lastTraceId = null;
+
   heroCopyCurl.disabled = !lastSignedReceipt;
   copyCurlBtn.disabled = !lastSignedReceipt;
 }
@@ -734,10 +926,12 @@ function getSchemaWarmupState(verification) {
     Array.isArray(verification?.errors) ? verification.errors.join(' · ') : null,
     Array.isArray(verification?.schema_errors) ? verification.schema_errors.join(' · ') : null
   ].filter(Boolean).join(' · ').toLowerCase();
+
   const schemaErrors = [verification?.schema_error_code, verification?.validation?.code, schemaErrorText]
     .filter(Boolean)
     .join(' · ')
     .toLowerCase();
+
   return verification?.checks?.schema_valid === false && schemaErrors.includes('validator_not_warmed_yet');
 }
 
@@ -747,17 +941,20 @@ async function verifySignedReceipt(signedReceipt, { retryOnWarmup = true } = {})
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(signedReceipt)
   });
+
   const verification = await verifyResponse.json();
   verification.transport = {
     ok: verifyResponse.ok,
     status: verifyResponse.status
   };
+
   if (retryOnWarmup && getSchemaWarmupState(verification)) {
     setRowState(verifySchemaRow, 'pending', 'Validator warming; retrying once…');
     setRowState(verifyStatusRow, 'pending', 'Signature verified; schema validator still warming');
     await new Promise((resolve) => setTimeout(resolve, 900));
     return verifySignedReceipt(signedReceipt, { retryOnWarmup: false });
   }
+
   return verification;
 }
 
@@ -769,22 +966,26 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
 
   const checks = verification?.checks || {};
   const proof = getReceiptProof(signedReceipt);
+
   const signerEns = proof.signer_id
     || verification?.ens
     || verification?.signer_ens
     || verification?.signer_id
     || verification?.values?.signer_id
     || 'runtime.commandlayer.eth';
+
   const kid = proof.kid
     || verification?.kid
     || verification?.values?.kid
     || verification?.resolved_kid
     || '—';
+
   const hash = proof.hash_sha256
     || verification?.hash_sha256
     || verification?.values?.hash_sha256
     || verification?.content_hash
     || '—';
+
   const signatureValid = checks.signature_valid === true;
   const hashMatches = checks.hash_matches === true;
   const ensMatch = checks.ens_match === true || verification?.ens_match === true || verification?.values?.ens_match === true;
@@ -793,6 +994,7 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
   const verifyTransportFailed = verification?.transport?.ok === false || verification?.transport_ok === false || verification?.endpoint_ok === false;
   const verifyEndpointError = verification?.error || verification?.message || verification?.detail?.message || (verification?.transport?.ok === false ? `HTTP ${verification.transport.status}` : null);
   const receiptPresent = !!(signedReceipt && typeof signedReceipt === 'object' && Object.keys(signedReceipt).length);
+
   const cryptoValid = signatureValid && hashMatches;
   const authenticityValid = cryptoValid && ensMatch;
   const overallValid = receiptPresent && authenticityValid && (schemaValid || validatorWarming) && !verifyTransportFailed;
@@ -801,9 +1003,11 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
   verifyBadge.textContent = schemaValid
     ? 'Verified'
     : (validatorWarming && authenticityValid ? 'Verified pending schema' : 'Needs review');
+
   setRowState(verifyRuntimeRow, receiptPresent ? 'ok' : 'bad', receiptPresent
     ? 'Full final signed receipt present and sent to /verify'
     : 'Final signed receipt payload missing');
+
   setRowState(
     verifySignatureRow,
     cryptoValid ? 'ok' : 'bad',
@@ -811,7 +1015,13 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
       ? 'Signature + hash verified'
       : `${signatureValid ? 'Signature valid' : 'Signature invalid'}; ${hashMatches ? 'hash matches' : 'hash mismatch'}`
   );
-  setRowState(verifyEnsRow, ensMatch ? 'ok' : 'bad', ensMatch ? `ENS matched signer (${signerEns})` : 'ENS signer match failed');
+
+  setRowState(
+    verifyEnsRow,
+    ensMatch ? 'ok' : 'bad',
+    ensMatch ? `ENS matched signer (${signerEns})` : 'ENS signer match failed'
+  );
+
   setRowState(
     verifySchemaRow,
     schemaValid ? 'ok' : (validatorWarming ? 'pending' : 'bad'),
@@ -828,6 +1038,7 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
       ? 'Schema validation passed'
       : (validatorWarming ? 'Schema validator warming' : 'Schema validation failed')
   );
+
   setRowState(
     verifyStatusRow,
     overallValid ? (schemaValid ? 'ok' : 'pending') : 'bad',
@@ -838,20 +1049,25 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
   artifactKid.textContent = kid;
   artifactHash.textContent = hash;
   artifactSchema.textContent = getReceiptVersion(signedReceipt) || getReceiptVersion(compactReceipt) || RUNTIME_VERSION;
+
   artifactSummary.textContent = schemaValid
     ? `Fresh final signed receipt verified after execution. ${summarizeReceipt(signedReceipt)}.`
     : (validatorWarming && authenticityValid
         ? `Signature, hash, and ENS signer checks passed for ${summarizeReceipt(signedReceipt)}. Schema validation is retryable because the validator is still warming.`
         : `${summarizeReceipt(signedReceipt)}. ${verificationMessages.join(' · ')}`);
+
   const proofAvailable = !!(proof.signature_b64 || proof.hash_sha256 || proof.signer_id || proof.kid);
+
   verifyPayloadSummary.textContent = cryptoValid
     ? `Using the exact final signed receipt object. metadata.proof signer=${signerEns}, hash=${hash === '—' ? 'n/a' : String(hash).slice(0, 18) + '…'}.`
     : (proofAvailable
         ? 'Verify used the exact final signed receipt object and found incomplete or failing proof checks; inspect metadata.proof and the verification response JSON.'
         : 'Verify used the exact final signed receipt object, but metadata.proof fields are missing; inspect the raw receipt JSON.');
+
   lastCompactReceipt = compactReceipt;
   lastSignedReceipt = signedReceipt;
   lastVerification = verification;
+
   heroCopyCurl.disabled = false;
   copyCurlBtn.disabled = false;
 }
@@ -876,6 +1092,7 @@ function extractChainText(receipt) {
   if (!receipt || typeof receipt !== 'object') return '';
   const payload = getReceiptPayload(receipt) || receipt;
   const result = getReceiptResult(receipt);
+
   const candidates = [
     result.cleaned_content,
     result.summary,
@@ -896,6 +1113,7 @@ function extractChainText(receipt) {
     Object.keys(result).length ? normalizeContent(result) : null,
     normalizeContent(payload)
   ].filter(Boolean);
+
   return String(candidates[0] || '').trim();
 }
 
@@ -912,6 +1130,7 @@ function getActiveChainConfig() {
       source: defaultSource.value.trim() || chain.source
     };
   }
+
   return {
     label: 'Create Your Variation',
     verbs: getBuilderVerbs(),
@@ -932,10 +1151,12 @@ async function probeRuntime() {
 
 async function runChain() {
   const chain = getActiveChainConfig();
+
   if (!chain.verbs.length) {
     setExecutionError({ error: 'Select at least one Commons verb', detail: { message: 'Create Your Variation supports 1 to 3 verbs.' } });
     return;
   }
+
   if (!chain.source) {
     setExecutionError({ error: 'Source content required', detail: { message: 'Provide source content before running the chain.' } });
     return;
@@ -956,7 +1177,9 @@ async function runChain() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(buildFlowRequest(verb, chainInput))
       });
-      const flowData = await response.json();
+
+      const flowData = await response.json().catch(() => ({}));
+
       if (!response.ok) {
         setExecutionError(flowData);
         return;
@@ -966,10 +1189,12 @@ async function runChain() {
       const step = Array.isArray(flowData.steps) ? flowData.steps[0] : null;
       finalReceipt = step?.receipt || null;
       finalSignedReceipt = step?.signed_receipt || flowData.final_signed_receipt || null;
+
       if (!finalReceipt || !finalSignedReceipt) {
         setExecutionError({ error: 'No final signed receipt returned', detail: flowData });
         return;
       }
+
       collectedSteps.push(step);
       chainInput = extractChainText(finalSignedReceipt || finalReceipt);
     }
@@ -982,8 +1207,10 @@ async function runChain() {
     executionOutput.textContent = pickFinalOutput(finalSignedReceipt || finalReceipt);
     executionReceiptSummary.textContent = summarizeReceipt(finalSignedReceipt || finalReceipt);
     executionJson.textContent = JSON.stringify({ trace_id: lastTraceId, steps: collectedSteps }, null, 2);
+
     finalReceiptJson.textContent = JSON.stringify(finalSignedReceipt, null, 2);
     verificationJson.textContent = JSON.stringify({ status: 'verifying' }, null, 2);
+
     setRowState(verifyRuntimeRow, 'pending', 'Full final signed receipt ready; verifying now…');
     setRowState(verifySignatureRow, 'pending', 'Checking signature + hash');
     setRowState(verifyEnsRow, 'pending', 'Checking ENS signer');
@@ -1002,7 +1229,7 @@ async function runChain() {
 }
 
 function buildVerifyCurl(receipt) {
-  const payload = JSON.stringify(receipt).replace(/'/g, `"'"'`);
+  const payload = JSON.stringify(receipt).replace(/'/g, "'\\''");
   return `curl -sS -X POST "${RUNTIME_BASE}/verify?ens=1&refresh=1&schema=1" -H "Content-Type: application/json" --data-binary '${payload}'`;
 }
 
@@ -1030,6 +1257,7 @@ heroRunDefault.addEventListener('click', () => {
 });
 runChainBtn.addEventListener('click', runChain);
 resetBuilderBtn.addEventListener('click', resetBuilder);
+
 copyReceiptBtn.addEventListener('click', () => copyText(finalReceiptJson.textContent, copyReceiptBtn, 'Copy Receipt'));
 copyVerificationBtn.addEventListener('click', () => copyText(verificationJson.textContent, copyVerificationBtn, 'Copy Verification'));
 heroCopyCurl.addEventListener('click', () => lastSignedReceipt && copyText(buildVerifyCurl(lastSignedReceipt), heroCopyCurl, 'Copy Verify cURL'));
