@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CommandLayer — Composer</title>
+<title>CommandLayer — Commons Composer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="description" content="Run a live CommandLayer Commons chain, receive a signed receipt, and verify it independently." />
+<meta name="description" content="Compose a live Commons chain, execute it against the runtime, and verify the final receipt independently." />
 <style>
 :root{
   --bg:#05070c;
@@ -22,7 +22,7 @@
   --bad:#ff8d8d;
   --radius:18px;
   --shadow:0 18px 60px rgba(0,0,0,.35);
-  --max:1160px;
+  --max:1240px;
 }
 *{box-sizing:border-box}
 html,body{
@@ -36,258 +36,89 @@ html,body{
 }
 a{text-decoration:none;color:inherit}
 button,input,select,textarea{font:inherit}
+code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 .wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
-
-.site-header{
-  position:sticky;top:0;z-index:10;
-  background:rgba(5,7,12,.82);
-  backdrop-filter:blur(10px);
-  border-bottom:1px solid rgba(255,255,255,.05);
-}
-.site-header .wrap{
-  min-height:64px;
-  display:flex;align-items:center;justify-content:space-between;gap:16px;
-}
+.site-header{position:sticky;top:0;z-index:10;background:rgba(5,7,12,.82);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.05)}
+.site-header .wrap{min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:16px}
 .brand{display:flex;align-items:center;gap:12px}
 .brand img{width:28px;height:28px;border-radius:8px;display:block}
 .brand-copy strong{display:block;font-size:13px;line-height:1.05}
 .brand-copy span{display:block;font-size:10px;color:var(--muted)}
 .nav{display:flex;gap:8px;flex-wrap:wrap}
-.nav a{
-  font-size:12px;color:var(--muted);
-  padding:8px 10px;border-radius:999px;
-}
-.nav a.active{
-  color:var(--text);
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.08);
-}
-
+.nav a{font-size:12px;color:var(--muted);padding:8px 10px;border-radius:999px}
+.nav a.active{color:var(--text);background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}
 .main{padding:28px 0 36px}
-.hero{
-  display:grid;
-  grid-template-columns:minmax(0,1.35fr) 340px;
-  gap:18px;
-}
-.card{
-  background:linear-gradient(180deg,rgba(11,18,32,.94),rgba(8,13,24,.98));
-  border:1px solid var(--line);
-  border-radius:var(--radius);
-  box-shadow:var(--shadow);
-}
+.card{background:linear-gradient(180deg,rgba(11,18,32,.94),rgba(8,13,24,.98));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow)}
 .card-inner{padding:18px}
-.eyebrow{
-  display:inline-flex;align-items:center;
-  height:24px;padding:0 10px;border-radius:999px;
-  font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
-  color:#cfe4ff;background:rgba(23,54,110,.42);
-  border:1px solid rgba(107,160,255,.18);
-}
-h1{
-  margin:12px 0 8px;
-  font-size:34px;line-height:1.02;letter-spacing:-.04em;
-  max-width:760px;
-}
-.lead{
-  margin:0;color:var(--muted);
-  font-size:13px;line-height:1.45;max-width:760px;
-}
-.hero-actions,.actions{
-  display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;
-}
-.btn{
-  height:40px;padding:0 16px;border-radius:999px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.03);color:var(--text);
-  cursor:pointer;font-size:12px;font-weight:700;
-}
+.eyebrow{display:inline-flex;align-items:center;height:24px;padding:0 10px;border-radius:999px;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#cfe4ff;background:rgba(23,54,110,.42);border:1px solid rgba(107,160,255,.18)}
+h1{margin:12px 0 8px;font-size:34px;line-height:1.02;letter-spacing:-.04em;max-width:760px}
+.lead{margin:0;color:var(--muted);font-size:13px;line-height:1.45;max-width:760px}
+.hero{display:grid;grid-template-columns:minmax(0,1.45fr) 320px;gap:18px}
+.hero-actions,.actions,.toggle-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.btn{height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);cursor:pointer;font-size:12px;font-weight:700}
 .btn:hover{border-color:var(--line-strong)}
-.btn:disabled{
-  opacity:.55;
-  cursor:not-allowed;
-}
-.btn-primary{
-  border:none;color:#04111d;
-  background:linear-gradient(135deg,var(--blue),var(--blue-2));
-  box-shadow:0 10px 28px rgba(39,151,255,.28);
-}
+.btn:disabled{opacity:.55;cursor:not-allowed}
+.btn-primary{border:none;color:#04111d;background:linear-gradient(135deg,var(--blue),var(--blue-2));box-shadow:0 10px 28px rgba(39,151,255,.28)}
 .btn-quiet{color:var(--muted)}
-
-.status-strip{
-  margin-top:16px;
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;
-}
-.mini{
-  min-height:64px;padding:12px 14px;border-radius:14px;
-  background:rgba(255,255,255,.025);
-  border:1px solid var(--line);
-}
-.mini-label{
-  font-size:10px;text-transform:uppercase;letter-spacing:.12em;
-  color:var(--muted-2);font-weight:700;
-}
-.mini-value{
-  margin-top:8px;font-size:13px;font-weight:650;line-height:1.25;
-}
-.live-dot{
-  display:inline-block;width:8px;height:8px;border-radius:999px;
-  background:var(--ok);box-shadow:0 0 0 4px rgba(99,230,168,.12);
-}
-.warn-dot{
-  display:inline-block;width:8px;height:8px;border-radius:999px;
-  background:var(--warn);box-shadow:0 0 0 4px rgba(255,204,102,.12);
-}
-
-.workspace{
-  margin-top:18px;
-  display:grid;
-  grid-template-columns:minmax(0,1.35fr) 340px;
-  gap:18px;
-}
-.section-title{
-  margin:0;font-size:15px;font-weight:700;letter-spacing:-.02em;
-}
-.section-sub{
-  margin:4px 0 0;color:var(--muted);font-size:12px;
-}
-
-.modebar{
-  display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;
-}
-.modebtn{
-  height:36px;padding:0 14px;border-radius:999px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.03);color:var(--muted);
-  cursor:pointer;font-size:12px;font-weight:600;
-}
-.modebtn.active{
-  color:var(--text);
-  background:linear-gradient(180deg,rgba(43,112,220,.32),rgba(20,67,160,.28));
-  border-color:rgba(107,160,255,.28);
-}
-
-.chain-pills{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px;
-}
-.pill,.arrow{
-  height:34px;display:inline-flex;align-items:center;justify-content:center;
-}
-.pill{
-  padding:0 12px;border-radius:999px;
-  background:rgba(255,255,255,.04);
-  border:1px solid var(--line);
-  font-size:12px;font-weight:650;
-}
+.status-strip{margin-top:16px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.mini{min-height:64px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.025);border:1px solid var(--line)}
+.mini-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
+.mini-value{margin-top:8px;font-size:13px;font-weight:650;line-height:1.25}
+.live-dot,.warn-dot,.bad-dot{display:inline-block;width:8px;height:8px;border-radius:999px}
+.live-dot{background:var(--ok);box-shadow:0 0 0 4px rgba(99,230,168,.12)}
+.warn-dot{background:var(--warn);box-shadow:0 0 0 4px rgba(255,204,102,.12)}
+.bad-dot{background:var(--bad);box-shadow:0 0 0 4px rgba(255,141,141,.12)}
+.flow-grid{margin-top:18px;display:grid;grid-template-columns:minmax(0,1fr) 50px minmax(0,1fr) 50px minmax(0,1fr);gap:12px;align-items:stretch}
+.flow-arrow{display:flex;align-items:center;justify-content:center;color:var(--muted-2);font-size:30px;font-weight:800}
+.section-title{margin:0;font-size:17px;font-weight:700;letter-spacing:-.02em}
+.section-sub{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.45}
+.toggle{height:34px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--muted);cursor:pointer;font-size:12px;font-weight:700}
+.toggle.active{color:var(--text);background:linear-gradient(180deg,rgba(43,112,220,.32),rgba(20,67,160,.28));border-color:rgba(107,160,255,.28)}
+.chain-preview,.chain-builder{margin-top:14px;padding:14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+.chain-preview-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.chain-preview-list{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}
+.pill,.arrow,.step-chip{height:34px;display:inline-flex;align-items:center;justify-content:center}
+.pill,.step-chip{padding:0 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--line);font-size:12px;font-weight:650}
 .arrow{color:var(--muted-2);font-size:14px;padding:0 2px}
-
-.builder-row{
-  display:grid;
-  grid-template-columns:1fr auto 1fr auto 1fr;
-  gap:10px;align-items:center;margin-top:16px;
-}
-.select-wrap{position:relative}
-.select-wrap select{
-  width:100%;height:44px;padding:0 42px 0 14px;
-  background:#10192b;
-  color:var(--text);
-  border:1px solid var(--line);
-  border-radius:14px;outline:none;
-  appearance:none;-webkit-appearance:none;-moz-appearance:none;
-  font-size:13px;font-weight:600;
-}
-.select-wrap select option{
-  background:#10192b;
-  color:#f3f7ff;
-}
-.select-wrap::after{
-  content:"▾";
-  position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  color:var(--muted);pointer-events:none;font-size:12px;
-}
-.chain-arrow{color:var(--muted-2);font-size:16px;font-weight:700}
-
 .field{margin-top:14px}
-.field label{
-  display:block;margin:0 0 8px;
-  font-size:11px;text-transform:uppercase;letter-spacing:.12em;
-  color:var(--muted-2);font-weight:700;
-}
-.field textarea{
-  width:100%;min-height:110px;resize:vertical;
-  border-radius:14px;border:1px solid var(--line);
-  background:rgba(255,255,255,.03);color:var(--text);
-  padding:13px 14px;line-height:1.45;font-size:13px;outline:none;
-}
-.field textarea::placeholder{color:var(--muted)}
-
-.rail .card + .card{margin-top:16px}
-.kv-grid{
-  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;
-}
-.kv{
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.02);
-  border-radius:14px;padding:12px;
-}
-.kv .k{
-  font-size:10px;text-transform:uppercase;letter-spacing:.12em;
-  color:var(--muted-2);font-weight:700;
-}
-.kv .v{
-  margin-top:8px;font-size:12px;font-weight:650;word-break:break-word;
-}
-.badge{
-  display:inline-flex;align-items:center;gap:8px;
-  height:28px;padding:0 10px;border-radius:999px;
-  font-size:11px;font-weight:700;
-}
-.badge.pending{
-  color:#ffe2a6;background:rgba(122,91,20,.20);
-  border:1px solid rgba(255,204,102,.20);
-}
-.badge.ok{
-  color:#b8f6d7;background:rgba(38,120,82,.22);
-  border:1px solid rgba(99,230,168,.24);
-}
-.badge.bad{
-  color:#ffd0d0;background:rgba(120,38,38,.22);
-  border:1px solid rgba(255,141,141,.24);
-}
-.codebox{
-  margin-top:12px;border-radius:14px;
-  background:#060a12;border:1px solid var(--line);
-  padding:12px;overflow:auto;
-}
-.codebox pre{
-  margin:0;
-  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  font-size:11px;line-height:1.5;color:#dce7ff;
-}
-.helper-line{
-  margin-top:10px;
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.45;
-}
+.field label{display:block;margin:0 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
+.field textarea,.field select,.field input{width:100%;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.03);color:var(--text);padding:13px 14px;line-height:1.45;font-size:13px;outline:none}
+.field textarea{min-height:124px;resize:vertical}
+.field textarea::placeholder,.field input::placeholder{color:var(--muted)}
+.compact-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.helper-line{margin-top:10px;color:var(--muted);font-size:12px;line-height:1.45}
+.badge{display:inline-flex;align-items:center;gap:8px;height:28px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:700}
+.badge.pending{color:#ffe2a6;background:rgba(122,91,20,.20);border:1px solid rgba(255,204,102,.20)}
+.badge.ok{color:#b8f6d7;background:rgba(38,120,82,.22);border:1px solid rgba(99,230,168,.24)}
+.badge.bad{color:#ffd0d0;background:rgba(120,38,38,.22);border:1px solid rgba(255,141,141,.24)}
+.kv-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.kv{border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:14px;padding:12px}
+.kv .k{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
+.kv .v{margin-top:8px;font-size:12px;font-weight:650;word-break:break-word;line-height:1.4}
+.exec-steps{margin-top:14px;display:grid;gap:10px}
+.exec-step{padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+.exec-step strong{font-size:12px}
+.exec-step span{display:block;margin-top:6px;color:var(--muted);font-size:12px;line-height:1.4}
+.summary-card{margin-top:12px;border:1px solid var(--line);background:rgba(255,255,255,.02);border-radius:14px;padding:12px}
+.summary-card h3{margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2)}
+.summary-card p{margin:0;color:var(--text);font-size:13px;line-height:1.5;white-space:pre-wrap}
+.details-block{margin-top:12px;border:1px solid var(--line);background:#060a12;border-radius:14px;overflow:hidden}
+.details-block summary{cursor:pointer;list-style:none;padding:12px 14px;font-size:12px;font-weight:700;color:var(--muted);border-bottom:1px solid transparent}
+.details-block[open] summary{border-bottom-color:var(--line)}
+.details-block summary::-webkit-details-marker{display:none}
+.details-block pre{margin:0;padding:12px 14px;overflow:auto;font-size:11px;line-height:1.5;color:#dce7ff}
+.verify-status{margin-top:14px;display:grid;gap:10px}
+.verify-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+.verify-row strong{font-size:12px}
+.verify-row span{font-size:12px;color:var(--muted)}
+.verify-row.ok span{color:var(--ok)}
+.verify-row.bad span{color:var(--bad)}
+.verify-row.pending span{color:var(--warn)}
 .hidden{display:none !important}
-
 .footer{padding:18px 0 28px}
-.footer-row{
-  display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
-  color:var(--muted-2);font-size:11px;
-}
-
-@media (max-width:1100px){
-  .hero,.workspace{grid-template-columns:1fr}
-}
-@media (max-width:760px){
-  h1{font-size:28px}
-  .status-strip{grid-template-columns:1fr 1fr}
-  .builder-row{grid-template-columns:1fr;gap:8px}
-  .chain-arrow{display:none}
-  .kv-grid{grid-template-columns:1fr}
-  .nav{display:none}
-}
+.footer-row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--muted-2);font-size:11px}
+@media (max-width:1120px){.hero{grid-template-columns:1fr}.flow-grid{grid-template-columns:1fr}.flow-arrow{transform:rotate(90deg);min-height:30px}.status-strip{grid-template-columns:1fr 1fr}}
+@media (max-width:760px){h1{font-size:28px}.status-strip,.compact-grid,.kv-grid{grid-template-columns:1fr}.nav{display:none}}
 </style>
 </head>
 <body>
@@ -312,227 +143,184 @@ h1{
 
 <main class="main">
   <div class="wrap">
-
     <section class="hero">
       <div class="card">
         <div class="card-inner">
           <div class="eyebrow">Live Commons Runtime</div>
-          <h1>Chain 3 Commons verbs. Run live. Verify independently.</h1>
-          <p class="lead">
-            Compact execution surface for live Commons chains. The builder runs Commons verbs only. Verification happens after the final receipt returns.
-          </p>
-
+          <h1>Compose → Execute → Verify</h1>
+          <p class="lead">Commons-only composer for live chained execution. Pick a Commons chain, run it against <code>runtime.commandlayer.org</code>, then verify the final receipt independently.</p>
           <div class="hero-actions">
-            <button class="btn btn-primary" id="hero-run-default" type="button">Run Default Chain</button>
-            <button class="btn" id="hero-build-custom" type="button">Build Chain</button>
+            <button class="btn btn-primary" id="hero-run-default" type="button">Run Chain</button>
+            <button class="btn" id="hero-build-custom" type="button">Create Your Variation</button>
             <button class="btn btn-quiet" id="hero-copy-curl" type="button" disabled>Copy Verify cURL</button>
           </div>
-
           <div class="status-strip">
-            <div class="mini">
-              <div class="mini-label">Status</div>
-              <div class="mini-value" id="runtime-status-row">
-                <span class="warn-dot"></span>
-                <span id="runtime-status-text">Checking runtime…</span>
-              </div>
-            </div>
-            <div class="mini">
-              <div class="mini-label">Latency</div>
-              <div class="mini-value" id="runtime-latency">—</div>
-            </div>
-            <div class="mini">
-              <div class="mini-label">Mode</div>
-              <div class="mini-value">Live runtime</div>
-            </div>
-            <div class="mini">
-              <div class="mini-label">Runtime URL</div>
-              <div class="mini-value">runtime.commandlayer.org</div>
-            </div>
+            <div class="mini"><div class="mini-label">Status</div><div class="mini-value" id="runtime-status-row"><span class="warn-dot"></span> <span id="runtime-status-text">Checking runtime…</span></div></div>
+            <div class="mini"><div class="mini-label">Latency</div><div class="mini-value" id="runtime-latency">—</div></div>
+            <div class="mini"><div class="mini-label">Execution</div><div class="mini-value">Live runtime</div></div>
+            <div class="mini"><div class="mini-label">Signer target</div><div class="mini-value">runtime.commandlayer.eth</div></div>
           </div>
         </div>
       </div>
-
-      <aside class="card rail">
+      <aside class="card">
         <div class="card-inner">
-          <div class="eyebrow">Protocol surface</div>
-          <h2 class="section-title" style="margin-top:12px;">Commons chain first. Verification second.</h2>
-          <p class="section-sub" style="margin-top:10px;">
-            No fake verify step in the Commons builder. Build 3 Commons verbs, run them, then verify the final receipt independently.
-          </p>
+          <div class="eyebrow">Hackathon-safe</div>
+          <h2 class="section-title" style="margin-top:12px;">One obvious path.</h2>
+          <p class="section-sub">Choose a Commons chain, run a fresh execution, then inspect verification state. No mixed commercial verbs. No mock receipts. No fallback demo output.</p>
+          <div class="helper-line">Default quick demo: <strong>clean → summarize → classify</strong>. Compact, judge-friendly, and schema-mapped to the live runtime.</div>
         </div>
       </aside>
     </section>
 
-    <section class="workspace">
-      <div>
-        <div class="card">
-          <div class="card-inner">
-            <div class="eyebrow">Chain mode</div>
-            <h2 class="section-title" style="margin-top:12px;">Choose a preloaded chain or build your own.</h2>
-            <p class="section-sub">Smaller, tighter, protocol-like. No oversized demo copy.</p>
+    <section class="flow-grid">
+      <section class="card" id="compose-box">
+        <div class="card-inner">
+          <div class="eyebrow">Box 1 · Compose</div>
+          <h2 class="section-title" style="margin-top:12px;">Commons chain builder</h2>
+          <p class="section-sub">Quick Demo selects one preloaded Commons chain. Create Your Variation builds a custom Commons chain with up to 3 supported verbs.</p>
 
-            <div class="modebar">
-              <button class="modebtn active" id="mode-default-btn" type="button">Default chain</button>
-              <button class="modebtn" id="mode-builder-btn" type="button">Build chain</button>
-            </div>
+          <div class="toggle-row">
+            <button class="toggle active" id="mode-default-btn" type="button">Quick Demo</button>
+            <button class="toggle" id="mode-builder-btn" type="button">Create Your Variation</button>
           </div>
-        </div>
 
-        <section class="card" id="default-mode" style="margin-top:16px;">
-          <div class="card-inner">
-            <h2 class="section-title">Default chain</h2>
-            <p class="section-sub">Fast proof path with a preloaded Commons chain.</p>
-
-            <div class="chain-pills">
-              <span class="pill">clean</span>
-              <span class="arrow">→</span>
-              <span class="pill">summarize</span>
-              <span class="arrow">→</span>
-              <span class="pill">classify</span>
+          <section id="default-mode" class="chain-preview">
+            <div class="chain-preview-head">
+              <div>
+                <strong>Preloaded Commons chain</strong>
+                <div class="section-sub">One selected chain at a time. Default path is already armed.</div>
+              </div>
+              <div class="step-chip">Selected</div>
             </div>
-
+            <div class="chain-preview-list" id="default-chain-preview"></div>
+            <div class="field">
+              <label for="quick-chain-select">Quick demo chain</label>
+              <select id="quick-chain-select"></select>
+            </div>
             <div class="field">
               <label for="default-source-content">Source content</label>
-              <textarea id="default-source-content">Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, then produce a compact judge-facing output.</textarea>
+              <textarea id="default-source-content"></textarea>
             </div>
+            <div class="helper-line" id="default-chain-helper"></div>
+          </section>
 
-            <div class="field">
-              <label for="default-final-instructions">Final instructions</label>
-              <textarea id="default-final-instructions">Return a short proof brief explaining what ran, what artifact was produced, and why the final receipt can be checked independently.</textarea>
-            </div>
-
-            <div class="actions">
-              <button class="btn btn-primary" id="run-default" type="button">Run Chain</button>
-            </div>
-          </div>
-        </section>
-
-        <section class="card hidden" id="builder-mode" style="margin-top:16px;">
-          <div class="card-inner">
-            <h2 class="section-title">Build chain</h2>
-            <p class="section-sub">Choose 3 Commons verbs. Verification is separate.</p>
-
-            <div class="builder-row">
-              <div class="select-wrap">
-                <select id="verb-1">
-                  <option value="clean">clean</option>
-                  <option value="summarize">summarize</option>
-                  <option value="analyze">analyze</option>
-                  <option value="describe">describe</option>
-                  <option value="explain">explain</option>
-                  <option value="format">format</option>
-                  <option value="parse">parse</option>
-                  <option value="convert">convert</option>
-                  <option value="fetch">fetch</option>
-                  <option value="classify">classify</option>
-                </select>
+          <section id="builder-mode" class="chain-builder hidden">
+            <div class="chain-preview-head">
+              <div>
+                <strong>Create your Commons variation</strong>
+                <div class="section-sub">Up to 3 verbs. Commons-only. Only verbs with safe schema mapping stay enabled.</div>
               </div>
-
-              <div class="chain-arrow">→</div>
-
-              <div class="select-wrap">
-                <select id="verb-2">
-                  <option value="summarize">summarize</option>
-                  <option value="clean">clean</option>
-                  <option value="analyze">analyze</option>
-                  <option value="describe">describe</option>
-                  <option value="explain">explain</option>
-                  <option value="format">format</option>
-                  <option value="parse">parse</option>
-                  <option value="convert">convert</option>
-                  <option value="fetch">fetch</option>
-                  <option value="classify">classify</option>
-                </select>
-              </div>
-
-              <div class="chain-arrow">→</div>
-
-              <div class="select-wrap">
-                <select id="verb-3">
-                  <option value="classify">classify</option>
-                  <option value="clean">clean</option>
-                  <option value="summarize">summarize</option>
-                  <option value="analyze">analyze</option>
-                  <option value="describe">describe</option>
-                  <option value="explain">explain</option>
-                  <option value="format">format</option>
-                  <option value="parse">parse</option>
-                  <option value="convert">convert</option>
-                  <option value="fetch">fetch</option>
-                </select>
-              </div>
+              <div class="step-chip">Max 3</div>
             </div>
-
+            <div class="compact-grid" id="builder-selects"></div>
+            <div class="chain-preview-list" id="builder-chain-preview"></div>
             <div class="field">
               <label for="builder-source">Source content</label>
-              <textarea id="builder-source" placeholder="Paste input for step 1.">Agent action: inspect this artifact, refine it, and return a compact judge-facing output.</textarea>
+              <textarea id="builder-source"></textarea>
             </div>
-
-            <div class="field">
-              <label for="builder-instructions">Optional instructions</label>
-              <textarea id="builder-instructions" placeholder="Optional instructions for later steps.">Keep the output short, protocol-grade, and easy to inspect.</textarea>
-            </div>
-
+            <div class="helper-line">Step 1 is required. Steps 2 and 3 are optional. Every chained step is rebuilt from the previous live receipt result using verb-specific request mapping.</div>
             <div class="actions">
-              <button class="btn btn-primary" id="run-builder" type="button">Run Chain</button>
               <button class="btn btn-quiet" id="reset-builder" type="button">Reset</button>
             </div>
+          </section>
+
+          <div class="actions">
+            <button class="btn btn-primary" id="run-chain" type="button">Run Chain</button>
           </div>
-        </section>
-      </div>
+        </div>
+      </section>
 
-      <aside class="rail">
-        <section class="card">
-          <div class="card-inner">
-            <div class="eyebrow">Final receipt</div>
-            <div style="margin-top:12px;">
-              <span class="badge pending" id="artifact-badge">Awaiting run</span>
-            </div>
+      <div class="flow-arrow" aria-hidden="true">→</div>
 
-            <div class="kv-grid">
-              <div class="kv"><div class="k">Verification</div><div class="v" id="artifact-verification">Pending</div></div>
-              <div class="kv"><div class="k">Artifact mode</div><div class="v">Live runtime</div></div>
-              <div class="kv"><div class="k">Signer ENS</div><div class="v" id="artifact-signer">—</div></div>
-              <div class="kv"><div class="k">kid</div><div class="v" id="artifact-kid">—</div></div>
-              <div class="kv"><div class="k">Hash</div><div class="v" id="artifact-hash">—</div></div>
-              <div class="kv"><div class="k">Schema version</div><div class="v" id="artifact-schema">—</div></div>
-            </div>
+      <section class="card" id="execute-box">
+        <div class="card-inner">
+          <div class="eyebrow">Box 2 · Execute</div>
+          <h2 class="section-title" style="margin-top:12px;">Live runtime execution</h2>
+          <p class="section-sub">Executed by <code>runtime.commandlayer.org</code>. Each run produces a fresh response and final receipt.</p>
 
-            <div class="codebox">
-<pre id="final-receipt-json">{
+          <div style="margin-top:12px;"><span class="badge pending" id="execution-badge">Ready</span></div>
+
+          <div class="kv-grid">
+            <div class="kv"><div class="k">Executed by</div><div class="v">runtime.commandlayer.org</div></div>
+            <div class="kv"><div class="k">Mode</div><div class="v">Live runtime</div></div>
+            <div class="kv"><div class="k">Trace</div><div class="v" id="execution-trace">—</div></div>
+            <div class="kv"><div class="k">Final verb</div><div class="v" id="execution-final-verb">—</div></div>
+          </div>
+
+          <div class="exec-steps" id="execution-steps">
+            <div class="exec-step"><strong>Awaiting run</strong><span>Compose a chain, then click Run Chain.</span></div>
+          </div>
+
+          <div class="summary-card">
+            <h3>Final output</h3>
+            <p id="execution-output">No live output yet.</p>
+          </div>
+
+          <div class="summary-card">
+            <h3>Final receipt summary</h3>
+            <p id="execution-receipt-summary">No fresh receipt yet.</p>
+          </div>
+
+          <details class="details-block">
+            <summary>Raw execution details</summary>
+            <pre id="execution-json">{
   "status": "ready"
 }</pre>
-            </div>
+          </details>
+        </div>
+      </section>
 
-            <div class="codebox">
-<pre id="verification-json">{
+      <div class="flow-arrow" aria-hidden="true">→</div>
+
+      <section class="card" id="verify-box">
+        <div class="card-inner">
+          <div class="eyebrow">Box 3 · Verify</div>
+          <h2 class="section-title" style="margin-top:12px;">Independent final receipt verification</h2>
+          <p class="section-sub">Verification starts only after execution returns the final live receipt.</p>
+
+          <div style="margin-top:12px;"><span class="badge pending" id="verify-badge">Pending</span></div>
+
+          <div class="verify-status">
+            <div class="verify-row pending" id="verify-runtime-row"><strong>Signed by runtime.commandlayer.eth</strong><span>Waiting for receipt</span></div>
+            <div class="verify-row pending" id="verify-signature-row"><strong>Signature valid</strong><span>Pending</span></div>
+            <div class="verify-row pending" id="verify-hash-row"><strong>Hash matches</strong><span>Pending</span></div>
+            <div class="verify-row pending" id="verify-status-row"><strong>Verification status</strong><span>Pending</span></div>
+          </div>
+
+          <div class="kv-grid">
+            <div class="kv"><div class="k">Signer ENS</div><div class="v" id="artifact-signer">—</div></div>
+            <div class="kv"><div class="k">kid</div><div class="v" id="artifact-kid">—</div></div>
+            <div class="kv"><div class="k">Hash</div><div class="v" id="artifact-hash">—</div></div>
+            <div class="kv"><div class="k">Receipt schema</div><div class="v" id="artifact-schema">—</div></div>
+          </div>
+
+          <div class="summary-card">
+            <h3>Verification summary</h3>
+            <p id="artifact-summary">Run a chain to generate a fresh final receipt and verification result.</p>
+          </div>
+
+          <div class="actions">
+            <button class="btn" id="copy-receipt" type="button">Copy Receipt</button>
+            <button class="btn" id="copy-verification" type="button">Copy Verification</button>
+            <button class="btn" id="copy-curl" type="button" disabled>Copy Verify cURL</button>
+          </div>
+
+          <details class="details-block">
+            <summary>Raw receipt JSON</summary>
+            <pre id="final-receipt-json">{
+  "status": "ready"
+}</pre>
+          </details>
+
+          <details class="details-block">
+            <summary>Raw verification JSON</summary>
+            <pre id="verification-json">{
   "status": "pending"
 }</pre>
-            </div>
-
-            <div class="actions">
-              <button class="btn" id="copy-receipt" type="button">Copy Receipt</button>
-              <button class="btn" id="copy-verification" type="button">Copy Verification</button>
-              <button class="btn" id="copy-curl" type="button" disabled>Copy Verify cURL</button>
-            </div>
-
-            <div class="helper-line" id="artifact-summary">
-              Run a chain to generate a final receipt and verification result.
-            </div>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card-inner">
-            <div class="eyebrow">Verification surface</div>
-            <p class="section-sub" style="margin-top:12px;">
-              Final receipt first. Then independent verification through the verify endpoint.
-            </p>
-          </div>
-        </section>
-      </aside>
+          </details>
+        </div>
+      </section>
     </section>
-
   </div>
 </main>
 
@@ -547,231 +335,405 @@ h1{
 
 <script>
 const RUNTIME_BASE = 'https://runtime.commandlayer.org';
+const FLOW_ENDPOINT = '/api/commons-flow';
+const VERIFY_ENDPOINT = '/api/verify-receipt?ens=1&refresh=1&schema=1';
 const RUNTIME_VERSION = '1.1.0';
+const SUPPORTED_COMMONS_VERBS = [
+  {
+    value: 'clean',
+    label: 'clean',
+    summary: 'Normalize source text before downstream steps.',
+    buildInput(text) {
+      return { content: text, operations: ['trim_whitespace', 'collapse_blank_lines'] };
+    }
+  },
+  {
+    value: 'summarize',
+    label: 'summarize',
+    summary: 'Compress the prior result into a shorter brief.',
+    buildInput(text) {
+      return { content: text, summary_style: 'exec_brief', format_hint: 'plain' };
+    }
+  },
+  {
+    value: 'classify',
+    label: 'classify',
+    summary: 'Assign compact proof-oriented labels to the final result.',
+    buildInput(text) {
+      return { content: text, taxonomy: ['proof', 'artifact', 'receipt', 'verification', 'protocol'] };
+    }
+  },
+  {
+    value: 'format',
+    label: 'format',
+    summary: 'Restyle text into a compact bullet-list surface.',
+    buildInput(text) {
+      return { content: text, target_style: 'bullet-list', source_style: 'plain' };
+    }
+  },
+  {
+    value: 'convert',
+    label: 'convert',
+    summary: 'Convert plain text into markdown for a more structured handoff.',
+    buildInput(text) {
+      return { content: text, source_format: 'text', target_format: 'markdown' };
+    }
+  }
+];
+
+const QUICK_DEMO_CHAINS = [
+  {
+    id: 'clean-summarize-classify',
+    name: 'Proof brief → labels',
+    helper: 'Safe default: normalize the source, compress it, then classify the final brief for fast judge inspection.',
+    verbs: ['clean', 'summarize', 'classify'],
+    source: 'Hackathon demo note:   CommandLayer Commons should show a fresh live runtime run, then a final signed receipt, then an independent verification result. Remove visual noise, keep the proof path obvious, and keep the explanation short enough for a judge to parse quickly.\n\nKey proof points: live execution, signed final receipt, ENS-linked signer, hash + signature verification.'
+  },
+  {
+    id: 'clean-format-classify',
+    name: 'Normalize → bullet-list → labels',
+    helper: 'Alternative quick path: normalize source content, turn it into a compact bullet list, then classify the outcome.',
+    verbs: ['clean', 'format', 'classify'],
+    source: 'Judge notes: the Commons composer should feel sequential, not fragmented. It must run against the live runtime, return a fresh receipt, and verify that final receipt after execution.'
+  }
+];
 
 const defaultBtn = document.getElementById('mode-default-btn');
 const builderBtn = document.getElementById('mode-builder-btn');
 const defaultMode = document.getElementById('default-mode');
 const builderMode = document.getElementById('builder-mode');
-
-const heroBuildCustom = document.getElementById('hero-build-custom');
 const heroRunDefault = document.getElementById('hero-run-default');
+const heroBuildCustom = document.getElementById('hero-build-custom');
 const heroCopyCurl = document.getElementById('hero-copy-curl');
-
-const runDefaultBtn = document.getElementById('run-default');
-const runBuilderBtn = document.getElementById('run-builder');
+const runChainBtn = document.getElementById('run-chain');
 const resetBuilderBtn = document.getElementById('reset-builder');
-
 const runtimeLatency = document.getElementById('runtime-latency');
 const runtimeStatusRow = document.getElementById('runtime-status-row');
-
-const artifactBadge = document.getElementById('artifact-badge');
-const artifactVerification = document.getElementById('artifact-verification');
+const defaultChainPreview = document.getElementById('default-chain-preview');
+const builderChainPreview = document.getElementById('builder-chain-preview');
+const quickChainSelect = document.getElementById('quick-chain-select');
+const defaultSource = document.getElementById('default-source-content');
+const defaultChainHelper = document.getElementById('default-chain-helper');
+const builderSource = document.getElementById('builder-source');
+const builderSelects = document.getElementById('builder-selects');
+const executionBadge = document.getElementById('execution-badge');
+const executionTrace = document.getElementById('execution-trace');
+const executionFinalVerb = document.getElementById('execution-final-verb');
+const executionSteps = document.getElementById('execution-steps');
+const executionOutput = document.getElementById('execution-output');
+const executionReceiptSummary = document.getElementById('execution-receipt-summary');
+const executionJson = document.getElementById('execution-json');
+const verifyBadge = document.getElementById('verify-badge');
+const verifyRuntimeRow = document.getElementById('verify-runtime-row');
+const verifySignatureRow = document.getElementById('verify-signature-row');
+const verifyHashRow = document.getElementById('verify-hash-row');
+const verifyStatusRow = document.getElementById('verify-status-row');
 const artifactSigner = document.getElementById('artifact-signer');
 const artifactKid = document.getElementById('artifact-kid');
 const artifactHash = document.getElementById('artifact-hash');
 const artifactSchema = document.getElementById('artifact-schema');
+const artifactSummary = document.getElementById('artifact-summary');
 const finalReceiptJson = document.getElementById('final-receipt-json');
 const verificationJson = document.getElementById('verification-json');
-const artifactSummary = document.getElementById('artifact-summary');
-
 const copyReceiptBtn = document.getElementById('copy-receipt');
 const copyVerificationBtn = document.getElementById('copy-verification');
 const copyCurlBtn = document.getElementById('copy-curl');
 
-const defaultSource = document.getElementById('default-source-content');
-const defaultInstructions = document.getElementById('default-final-instructions');
-
-const builderSource = document.getElementById('builder-source');
-const builderInstructions = document.getElementById('builder-instructions');
-const verb1 = document.getElementById('verb-1');
-const verb2 = document.getElementById('verb-2');
-const verb3 = document.getElementById('verb-3');
-
+let currentMode = 'default';
 let lastReceipt = null;
+let lastVerification = null;
+let lastTraceId = null;
+
+function getVerbConfig(verb) {
+  return SUPPORTED_COMMONS_VERBS.find((item) => item.value === verb);
+}
+
+function renderChain(target, verbs) {
+  if (!verbs.length) {
+    target.innerHTML = '<span class="pill">choose 1–3 verbs</span>';
+    return;
+  }
+  target.innerHTML = verbs.map((verb, index) => {
+    const chip = `<span class="pill">${verb}</span>`;
+    return index === 0 ? chip : `<span class="arrow">→</span>${chip}`;
+  }).join('');
+}
+
+function renderBuilderSelects() {
+  builderSelects.innerHTML = '';
+  for (let i = 0; i < 3; i += 1) {
+    const wrap = document.createElement('div');
+    wrap.className = 'field';
+    wrap.style.marginTop = '0';
+    const label = document.createElement('label');
+    label.textContent = `Step ${i + 1}`;
+    label.setAttribute('for', `builder-verb-${i}`);
+    const select = document.createElement('select');
+    select.id = `builder-verb-${i}`;
+    if (i > 0) {
+      const blank = document.createElement('option');
+      blank.value = '';
+      blank.textContent = 'skip this step';
+      select.appendChild(blank);
+    }
+    SUPPORTED_COMMONS_VERBS.forEach((verb) => {
+      const option = document.createElement('option');
+      option.value = verb.value;
+      option.textContent = `${verb.label} — ${verb.summary}`;
+      select.appendChild(option);
+    });
+    select.value = ['clean', 'summarize', 'classify'][i] || (i > 0 ? '' : SUPPORTED_COMMONS_VERBS[0].value);
+    select.addEventListener('change', syncBuilderPreview);
+    wrap.append(label, select);
+    builderSelects.appendChild(wrap);
+  }
+}
+
+function getBuilderVerbs() {
+  return Array.from(builderSelects.querySelectorAll('select')).map((select) => select.value).filter(Boolean).slice(0, 3);
+}
+
+function syncBuilderPreview() {
+  renderChain(builderChainPreview, getBuilderVerbs());
+}
+
+function populateQuickDemoChains() {
+  quickChainSelect.innerHTML = '';
+  QUICK_DEMO_CHAINS.forEach((chain) => {
+    const option = document.createElement('option');
+    option.value = chain.id;
+    option.textContent = `${chain.name} — ${chain.verbs.join(' → ')}`;
+    quickChainSelect.appendChild(option);
+  });
+  quickChainSelect.addEventListener('change', applySelectedQuickChain);
+}
+
+function applySelectedQuickChain() {
+  const chain = QUICK_DEMO_CHAINS.find((item) => item.id === quickChainSelect.value) || QUICK_DEMO_CHAINS[0];
+  defaultSource.value = chain.source;
+  defaultChainHelper.textContent = chain.helper;
+  renderChain(defaultChainPreview, chain.verbs);
+}
 
 function setMode(mode) {
+  currentMode = mode;
   const isDefault = mode === 'default';
   defaultBtn.classList.toggle('active', isDefault);
   builderBtn.classList.toggle('active', !isDefault);
   defaultMode.classList.toggle('hidden', !isDefault);
   builderMode.classList.toggle('hidden', isDefault);
+  runChainBtn.textContent = 'Run Chain';
 }
 
 function setBusy(isBusy) {
-  runDefaultBtn.disabled = isBusy;
-  runBuilderBtn.disabled = isBusy;
+  runChainBtn.disabled = isBusy;
   heroRunDefault.disabled = isBusy;
+  defaultBtn.disabled = isBusy;
+  builderBtn.disabled = isBusy;
 }
 
 function setRuntimeState(ok, latencyText) {
   runtimeLatency.textContent = latencyText || '—';
-  if (ok) {
-    runtimeStatusRow.innerHTML = '<span class="live-dot"></span><span> Live runtime reachable</span>';
-  } else {
-    runtimeStatusRow.innerHTML = '<span class="warn-dot"></span><span> Runtime unavailable</span>';
-  }
+  runtimeStatusRow.innerHTML = ok
+    ? '<span class="live-dot"></span> <span>Live runtime reachable</span>'
+    : '<span class="warn-dot"></span> <span>Runtime unavailable</span>';
+}
+
+function setRowState(row, state, label) {
+  row.classList.remove('ok', 'bad', 'pending');
+  row.classList.add(state);
+  row.querySelector('span').textContent = label;
+}
+
+function resetVerifySurface() {
+  verifyBadge.className = 'badge pending';
+  verifyBadge.textContent = 'Pending';
+  setRowState(verifyRuntimeRow, 'pending', 'Waiting for receipt');
+  setRowState(verifySignatureRow, 'pending', 'Pending');
+  setRowState(verifyHashRow, 'pending', 'Pending');
+  setRowState(verifyStatusRow, 'pending', 'Pending');
+  artifactSigner.textContent = '—';
+  artifactKid.textContent = '—';
+  artifactHash.textContent = '—';
+  artifactSchema.textContent = '—';
+  finalReceiptJson.textContent = JSON.stringify({ status: 'ready' }, null, 2);
+  verificationJson.textContent = JSON.stringify({ status: 'pending' }, null, 2);
+  artifactSummary.textContent = 'Run a chain to generate a fresh final receipt and verification result.';
+  heroCopyCurl.disabled = true;
+  copyCurlBtn.disabled = true;
 }
 
 function setPendingState(message) {
-  artifactBadge.className = 'badge pending';
-  artifactBadge.textContent = 'Running';
-  artifactVerification.textContent = 'Pending';
-  artifactSigner.textContent = '—';
-  artifactKid.textContent = '—';
-  artifactHash.textContent = '—';
-  artifactSchema.textContent = '—';
-  finalReceiptJson.textContent = JSON.stringify({ status: 'running' }, null, 2);
-  verificationJson.textContent = JSON.stringify({ status: 'pending' }, null, 2);
-  artifactSummary.textContent = message || 'Executing chain...';
-  heroCopyCurl.disabled = true;
-  copyCurlBtn.disabled = true;
-}
-
-function setErrorState(title, details) {
-  artifactBadge.className = 'badge bad';
-  artifactBadge.textContent = 'Error';
-  artifactVerification.textContent = title || 'Execution failed';
-  artifactSigner.textContent = '—';
-  artifactKid.textContent = '—';
-  artifactHash.textContent = '—';
-  artifactSchema.textContent = '—';
-  finalReceiptJson.textContent = JSON.stringify({
-    status: 'error',
-    message: title || 'Execution failed'
-  }, null, 2);
-  verificationJson.textContent = JSON.stringify(details || {}, null, 2);
-  artifactSummary.textContent = title || 'Execution failed.';
-  heroCopyCurl.disabled = true;
-  copyCurlBtn.disabled = true;
-}
-
-function setSuccessState(receipt, verification, summaryText) {
-  const ok = verification?.ok === true || verification?.valid === true;
-
-  artifactBadge.className = ok ? 'badge ok' : 'badge bad';
-  artifactBadge.textContent = ok ? 'Verified' : 'Needs review';
-
-  artifactVerification.textContent = ok
-    ? 'Verified via ENS + Ed25519'
-    : (verification?.reason || verification?.message || 'Verification failed');
-
-  artifactSigner.textContent =
-    verification?.signer_id ||
-    verification?.values?.signer_id ||
-    receipt?.metadata?.proof?.signer_id ||
-    '—';
-
-  artifactKid.textContent =
-    verification?.kid ||
-    verification?.values?.kid ||
-    receipt?.metadata?.proof?.kid ||
-    '—';
-
-  artifactHash.textContent =
-    verification?.hash_sha256 ||
-    verification?.values?.hash_sha256 ||
-    receipt?.metadata?.proof?.hash_sha256 ||
-    '—';
-
-  artifactSchema.textContent = receipt?.schema_version || '1.1.0';
-  finalReceiptJson.textContent = JSON.stringify(receipt, null, 2);
-  verificationJson.textContent = JSON.stringify(verification, null, 2);
-  artifactSummary.textContent = summaryText || 'Chain completed.';
-  heroCopyCurl.disabled = false;
-  copyCurlBtn.disabled = false;
-  lastReceipt = receipt;
+  executionBadge.className = 'badge pending';
+  executionBadge.textContent = 'Running';
+  executionTrace.textContent = 'Starting…';
+  executionFinalVerb.textContent = '—';
+  executionSteps.innerHTML = `<div class="exec-step"><strong>Executing live chain</strong><span>${message}</span></div>`;
+  executionOutput.textContent = 'Live runtime execution in progress…';
+  executionReceiptSummary.textContent = 'Waiting for final receipt…';
+  executionJson.textContent = JSON.stringify({ status: 'running' }, null, 2);
+  resetVerifySurface();
 }
 
 function normalizeContent(value) {
   if (typeof value === 'string') return value;
+  if (value == null) return '';
   try {
-    return JSON.stringify(value);
+    return JSON.stringify(value, null, 2);
   } catch {
     return String(value);
   }
 }
 
-function extractReceipt(result) {
-  if (!result || typeof result !== 'object') return null;
-  if (result.receipt && typeof result.receipt === 'object') return result.receipt;
-  return result;
+function summarizeReceipt(receipt) {
+  if (!receipt || typeof receipt !== 'object') return 'No receipt returned.';
+  const parts = [
+    `verb=${receipt.verb || 'unknown'}`,
+    `status=${receipt.status || 'unknown'}`,
+    `schema=${receipt.schema_version || RUNTIME_VERSION}`,
+    `trace=${receipt.trace?.trace_id || 'n/a'}`
+  ];
+  return parts.join(' · ');
 }
 
-function extractChainedValue(result) {
-  if (!result || typeof result !== 'object') return result;
-  if (result.output !== undefined) return result.output;
-  if (result.result !== undefined) return result.result;
-  if (result.artifact !== undefined) return result.artifact;
-  if (result.receipt !== undefined) return result.receipt;
-  return result;
+function pickFinalOutput(receipt) {
+  if (!receipt || typeof receipt !== 'object') return 'No live output available.';
+  const candidates = [
+    receipt.summary,
+    receipt.cleaned_content,
+    receipt.formatted_content,
+    receipt.converted_content,
+    receipt.description,
+    Array.isArray(receipt.labels) ? `labels: ${receipt.labels.join(', ')}` : null,
+    receipt.analysis,
+    receipt.result && normalizeContent(receipt.result)
+  ].filter(Boolean);
+  return candidates[0] || normalizeContent(receipt);
 }
 
-function buildPayload(verb, input, instructions) {
-  const content = normalizeContent(input);
-
-  switch (verb) {
-    case 'clean':
-      return {
-        content,
-        operations: ['trim_whitespace', 'collapse_blank_lines']
-      };
-
-    case 'summarize':
-      return {
-        content,
-        instructions: instructions || 'Summarize this content.'
-      };
-
-    case 'analyze':
-      return {
-        content,
-        instructions: instructions || 'Analyze this content.'
-      };
-
-    case 'describe':
-      return {
-        content,
-        instructions: instructions || 'Describe this content.'
-      };
-
-    case 'explain':
-      return {
-        content,
-        instructions: instructions || 'Explain this content.'
-      };
-
-    case 'format':
-      return {
-        content,
-        format: 'markdown'
-      };
-
-    case 'parse':
-      return {
-        content
-      };
-
-    case 'convert':
-      return {
-        content,
-        target_format: 'json'
-      };
-
-    case 'classify':
-      return {
-        content,
-        labels: ['proof', 'artifact', 'receipt', 'verification']
-      };
-
-    case 'fetch':
-      return {
-        url: content.startsWith('http') ? content : 'https://commandlayer.org'
-      };
-
-    default:
-      return { content };
+function buildExecutionSteps(steps) {
+  if (!Array.isArray(steps) || !steps.length) {
+    executionSteps.innerHTML = '<div class="exec-step"><strong>No steps</strong><span>Nothing executed.</span></div>';
+    return;
   }
+  executionSteps.innerHTML = steps.map((step, index) => {
+    const summary = summarizeReceipt(step.receipt);
+    return `<div class="exec-step"><strong>Step ${index + 1} · ${step.verb}</strong><span>${summary}</span></div>`;
+  }).join('');
+}
+
+function buildErrorSummary(errorPayload) {
+  const top = errorPayload?.error || 'Runtime returned an error receipt';
+  const detail = errorPayload?.detail?.error || errorPayload?.detail?.message || errorPayload?.detail?.details?.message || errorPayload?.raw || '';
+  return detail ? `${top}\nCause: ${detail}` : top;
+}
+
+function setExecutionError(errorPayload) {
+  const summary = buildErrorSummary(errorPayload);
+  executionBadge.className = 'badge bad';
+  executionBadge.textContent = 'Runtime error';
+  executionTrace.textContent = errorPayload?.trace_id || '—';
+  executionFinalVerb.textContent = errorPayload?.detail?.details?.verb || '—';
+  executionSteps.innerHTML = `<div class="exec-step"><strong>Runtime returned a signed or upstream error</strong><span>${summary}</span></div>`;
+  executionOutput.textContent = 'No successful final output.';
+  executionReceiptSummary.textContent = summary;
+  executionJson.textContent = JSON.stringify(errorPayload || { error: 'Unknown runtime error' }, null, 2);
+  verifyBadge.className = 'badge bad';
+  verifyBadge.textContent = 'Blocked';
+  setRowState(verifyRuntimeRow, 'bad', 'No final receipt to verify');
+  setRowState(verifySignatureRow, 'pending', 'Pending');
+  setRowState(verifyHashRow, 'pending', 'Pending');
+  setRowState(verifyStatusRow, 'bad', 'Execution failed');
+  artifactSummary.textContent = summary;
+  finalReceiptJson.textContent = JSON.stringify(errorPayload?.detail?.receipt || errorPayload || {}, null, 2);
+  verificationJson.textContent = JSON.stringify({ status: 'not-run', reason: 'Execution did not return a final receipt.' }, null, 2);
+  lastReceipt = errorPayload?.detail?.receipt || null;
+  lastVerification = null;
+  if (!lastReceipt) lastTraceId = null;
+  heroCopyCurl.disabled = !lastReceipt;
+  copyCurlBtn.disabled = !lastReceipt;
+}
+
+function applyVerification(receipt, verification) {
+  const checks = verification?.checks || {};
+  const signerEns = verification?.ens || verification?.signer_ens || verification?.signer_id || verification?.values?.signer_id || 'runtime.commandlayer.eth';
+  const kid = verification?.kid || verification?.values?.kid || verification?.resolved_kid || '—';
+  const hash = verification?.hash_sha256 || verification?.values?.hash_sha256 || verification?.content_hash || '—';
+  const signatureValid = checks.signature_valid === true;
+  const hashMatches = checks.hash_matches === true;
+  const verifyOk = verification?.ok === true || verification?.valid === true || (signatureValid && hashMatches);
+
+  verifyBadge.className = verifyOk ? 'badge ok' : 'badge bad';
+  verifyBadge.textContent = verifyOk ? 'Verified' : 'Needs review';
+  setRowState(verifyRuntimeRow, 'ok', signerEns);
+  setRowState(verifySignatureRow, signatureValid ? 'ok' : 'bad', signatureValid ? 'Valid' : 'Invalid');
+  setRowState(verifyHashRow, hashMatches ? 'ok' : 'bad', hashMatches ? 'Matches' : 'Mismatch');
+  setRowState(verifyStatusRow, verifyOk ? 'ok' : 'bad', verifyOk ? 'Verification passed' : (verification?.error || verification?.message || 'Verification failed'));
+
+  artifactSigner.textContent = signerEns;
+  artifactKid.textContent = kid;
+  artifactHash.textContent = hash;
+  artifactSchema.textContent = receipt?.schema_version || RUNTIME_VERSION;
+  artifactSummary.textContent = verifyOk
+    ? 'Fresh final receipt verified after execution. Signed by runtime.commandlayer.eth, with signature and hash checks surfaced separately.'
+    : buildErrorSummary(verification);
+  finalReceiptJson.textContent = JSON.stringify(receipt, null, 2);
+  verificationJson.textContent = JSON.stringify(verification, null, 2);
+  lastReceipt = receipt;
+  lastVerification = verification;
+  heroCopyCurl.disabled = false;
+  copyCurlBtn.disabled = false;
+}
+
+function buildStepInput(verb, text) {
+  const config = getVerbConfig(verb);
+  return config ? config.buildInput(text) : { content: text };
+}
+
+function buildFlowRequest(verb, sourceText) {
+  return {
+    version: RUNTIME_VERSION,
+    ...(lastTraceId ? { trace_id: lastTraceId } : {}),
+    steps: [{
+      verb,
+      input: buildStepInput(verb, sourceText)
+    }]
+  };
+}
+
+function extractChainText(receipt) {
+  if (!receipt || typeof receipt !== 'object') return '';
+  const candidates = [
+    receipt.cleaned_content,
+    receipt.summary,
+    receipt.formatted_content,
+    receipt.converted_content,
+    receipt.description,
+    receipt.explanation,
+    Array.isArray(receipt.labels) ? receipt.labels.join(', ') : null,
+    receipt.result && normalizeContent(receipt.result)
+  ].filter(Boolean);
+  return String(candidates[0] || '').trim();
+}
+
+function getSelectedQuickChain() {
+  return QUICK_DEMO_CHAINS.find((item) => item.id === quickChainSelect.value) || QUICK_DEMO_CHAINS[0];
+}
+
+function getActiveChainConfig() {
+  if (currentMode === 'default') {
+    const chain = getSelectedQuickChain();
+    return {
+      label: `Quick Demo · ${chain.name}`,
+      verbs: chain.verbs,
+      source: defaultSource.value.trim() || chain.source
+    };
+  }
+  return {
+    label: 'Create Your Variation',
+    verbs: getBuilderVerbs(),
+    source: builderSource.value.trim()
+  };
 }
 
 async function probeRuntime() {
@@ -780,144 +742,102 @@ async function probeRuntime() {
     const res = await fetch(`${RUNTIME_BASE}/health`, { method: 'GET' });
     const latency = `${Math.round(performance.now() - started)} ms`;
     setRuntimeState(res.ok, latency);
-  } catch (err) {
+  } catch (error) {
     setRuntimeState(false, 'offline');
   }
 }
 
-async function runVerb(verb, payload) {
-  const url = `${RUNTIME_BASE}/${verb}/v${RUNTIME_VERSION}`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
-  });
-
-  const text = await res.text();
-  let data;
-  try {
-    data = text ? JSON.parse(text) : {};
-  } catch {
-    data = { raw: text };
+async function runChain() {
+  const chain = getActiveChainConfig();
+  if (!chain.verbs.length) {
+    setExecutionError({ error: 'Select at least one Commons verb', detail: { message: 'Create Your Variation supports 1 to 3 verbs.' } });
+    return;
+  }
+  if (!chain.source) {
+    setExecutionError({ error: 'Source content required', detail: { message: 'Provide source content before running the chain.' } });
+    return;
   }
 
-  if (!res.ok) {
-    throw new Error(`${verb} failed (${res.status}): ${data?.error || data?.message || text || 'Unknown error'}`);
-  }
-
-  return data;
-}
-
-async function verifyReceipt(receipt) {
-  const url = `${RUNTIME_BASE}/verify?ens=1&strict_kid=1`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(receipt)
-  });
-
-  const text = await res.text();
-  let data;
-  try {
-    data = text ? JSON.parse(text) : {};
-  } catch {
-    data = { raw: text };
-  }
-
-  if (!res.ok) {
-    throw new Error(`verify failed (${res.status}): ${data?.error || data?.message || text || 'Unknown error'}`);
-  }
-
-  return data;
-}
-
-async function executeChain(steps, label) {
   setBusy(true);
-  setPendingState(`Executing ${label}...`);
+  setPendingState(`Executing ${chain.label} against the live runtime…`);
 
   try {
-    let previous = null;
-    let finalResult = null;
+    let chainInput = chain.source;
+    let finalReceipt = null;
+    const collectedSteps = [];
 
-    for (const step of steps) {
-      const payload = step(previous);
-      finalResult = await runVerb(payload.verb, payload.body);
-      previous = extractChainedValue(finalResult);
+    for (const verb of chain.verbs) {
+      const response = await fetch(FLOW_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(buildFlowRequest(verb, chainInput))
+      });
+      const flowData = await response.json();
+      if (!response.ok) {
+        setExecutionError(flowData);
+        return;
+      }
+
+      lastTraceId = flowData.trace_id || lastTraceId;
+      const step = Array.isArray(flowData.steps) ? flowData.steps[0] : null;
+      finalReceipt = step?.receipt || null;
+      if (!finalReceipt) {
+        setExecutionError({ error: 'No final receipt returned', detail: flowData });
+        return;
+      }
+      collectedSteps.push(step);
+      chainInput = extractChainText(finalReceipt);
     }
 
-    const finalReceipt = extractReceipt(finalResult);
-    if (!finalReceipt) {
-      throw new Error('No receipt returned by final runtime step.');
-    }
+    executionBadge.className = 'badge ok';
+    executionBadge.textContent = 'Executed';
+    executionTrace.textContent = lastTraceId || finalReceipt.trace?.trace_id || '—';
+    executionFinalVerb.textContent = finalReceipt.verb || '—';
+    buildExecutionSteps(collectedSteps);
+    executionOutput.textContent = pickFinalOutput(finalReceipt);
+    executionReceiptSummary.textContent = summarizeReceipt(finalReceipt);
+    executionJson.textContent = JSON.stringify({ trace_id: lastTraceId, steps: collectedSteps }, null, 2);
+    finalReceiptJson.textContent = JSON.stringify(finalReceipt, null, 2);
+    verificationJson.textContent = JSON.stringify({ status: 'verifying' }, null, 2);
+    setRowState(verifyRuntimeRow, 'pending', 'Final receipt returned; verifying now…');
+    setRowState(verifySignatureRow, 'pending', 'Checking');
+    setRowState(verifyHashRow, 'pending', 'Checking');
+    setRowState(verifyStatusRow, 'pending', 'Running verify');
+    verifyBadge.className = 'badge pending';
+    verifyBadge.textContent = 'Verifying';
 
-    const verification = await verifyReceipt(finalReceipt);
-    setSuccessState(
-      finalReceipt,
-      verification,
-      `${label} completed. Final receipt returned and verification finished separately.`
-    );
-  } catch (err) {
-    setErrorState(err.message, { stack: String(err.stack || '') });
-    console.error(err);
+    const verifyResponse = await fetch(VERIFY_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ receipt: finalReceipt })
+    });
+    const verification = await verifyResponse.json();
+    applyVerification(finalReceipt, verification);
+  } catch (error) {
+    setExecutionError({ error: 'Live runtime request failed', detail: { message: error.message } });
   } finally {
     setBusy(false);
   }
 }
 
-function buildDefaultSteps() {
-  const source = defaultSource.value.trim();
-  const instructions = defaultInstructions.value.trim();
-
-  return [
-    () => ({
-      verb: 'clean',
-      body: buildPayload('clean', source, instructions)
-    }),
-    (prev) => ({
-      verb: 'summarize',
-      body: buildPayload('summarize', prev, instructions)
-    }),
-    (prev) => ({
-      verb: 'analyze',
-      body: buildPayload('analyze', prev, instructions)
-    })
-  ];
-}
-
-function buildCustomSteps() {
-  const source = builderSource.value.trim();
-  const instructions = builderInstructions.value.trim();
-
-  return [
-    () => ({
-      verb: verb1.value,
-      body: buildPayload(verb1.value, source, instructions)
-    }),
-    (prev) => ({
-      verb: verb2.value,
-      body: buildPayload(verb2.value, prev, instructions)
-    }),
-    (prev) => ({
-      verb: verb3.value,
-      body: buildPayload(verb3.value, prev, instructions)
-    })
-  ];
-}
-
 function buildVerifyCurl(receipt) {
-  const payload = JSON.stringify(receipt).replace(/'/g, "'\''");
-  return `curl -X POST "${RUNTIME_BASE}/verify?ens=1&strict_kid=1" -H "Content-Type: application/json" -d '${payload}'`;
+  const payload = JSON.stringify(receipt).replace(/'/g, `"'"'`);
+  return `curl -sS -X POST "${RUNTIME_BASE}/verify?ens=1&refresh=1&schema=1" -H "Content-Type: application/json" --data-binary '${payload}'`;
 }
 
 function copyText(text, button, label) {
   navigator.clipboard.writeText(text).then(() => {
     button.textContent = 'Copied';
-    setTimeout(() => {
-      button.textContent = label;
-    }, 1200);
-  }).catch((err) => {
-    console.error(err);
+    setTimeout(() => { button.textContent = label; }, 1200);
+  }).catch((error) => console.error(error));
+}
+
+function resetBuilder() {
+  builderSource.value = QUICK_DEMO_CHAINS[0].source;
+  Array.from(builderSelects.querySelectorAll('select')).forEach((select, index) => {
+    select.value = ['clean', 'summarize', 'classify'][index] || '';
   });
+  syncBuilderPreview();
 }
 
 defaultBtn.addEventListener('click', () => setMode('default'));
@@ -925,43 +845,19 @@ builderBtn.addEventListener('click', () => setMode('builder'));
 heroBuildCustom.addEventListener('click', () => setMode('builder'));
 heroRunDefault.addEventListener('click', () => {
   setMode('default');
-  executeChain(buildDefaultSteps(), 'Default chain');
+  runChain();
 });
+runChainBtn.addEventListener('click', runChain);
+resetBuilderBtn.addEventListener('click', resetBuilder);
+copyReceiptBtn.addEventListener('click', () => copyText(finalReceiptJson.textContent, copyReceiptBtn, 'Copy Receipt'));
+copyVerificationBtn.addEventListener('click', () => copyText(verificationJson.textContent, copyVerificationBtn, 'Copy Verification'));
+heroCopyCurl.addEventListener('click', () => lastReceipt && copyText(buildVerifyCurl(lastReceipt), heroCopyCurl, 'Copy Verify cURL'));
+copyCurlBtn.addEventListener('click', () => lastReceipt && copyText(buildVerifyCurl(lastReceipt), copyCurlBtn, 'Copy Verify cURL'));
 
-runDefaultBtn.addEventListener('click', () => {
-  executeChain(buildDefaultSteps(), 'Default chain');
-});
-
-runBuilderBtn.addEventListener('click', () => {
-  executeChain(buildCustomSteps(), 'Custom chain');
-});
-
-resetBuilderBtn.addEventListener('click', () => {
-  verb1.value = 'clean';
-  verb2.value = 'summarize';
-  verb3.value = 'analyze';
-  builderSource.value = 'Agent action: inspect this artifact, refine it, and return a compact judge-facing output.';
-  builderInstructions.value = 'Keep the output short, protocol-grade, and easy to inspect.';
-});
-
-copyReceiptBtn.addEventListener('click', () => {
-  copyText(finalReceiptJson.textContent, copyReceiptBtn, 'Copy Receipt');
-});
-
-copyVerificationBtn.addEventListener('click', () => {
-  copyText(verificationJson.textContent, copyVerificationBtn, 'Copy Verification');
-});
-
-heroCopyCurl.addEventListener('click', () => {
-  if (!lastReceipt) return;
-  copyText(buildVerifyCurl(lastReceipt), heroCopyCurl, 'Copy Verify cURL');
-});
-
-copyCurlBtn.addEventListener('click', () => {
-  if (!lastReceipt) return;
-  copyText(buildVerifyCurl(lastReceipt), copyCurlBtn, 'Copy Verify cURL');
-});
-
+populateQuickDemoChains();
+renderBuilderSelects();
+applySelectedQuickChain();
+resetBuilder();
 setMode('default');
 probeRuntime();
 </script>
