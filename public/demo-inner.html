@@ -4,135 +4,313 @@
     <meta charset="UTF-8" />
     <title>CommandLayer Commercial Demo — Runtime-backed flow</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="Run the Commercial flow, inspect result, canonical receipt, runtime metadata, verification, and raw JSON without blurring runtime wrappers into protocol receipt semantics." />
+    <meta name="description" content="Run the commercial flow, inspect canonical receipts, compare runtime metadata, and verify proof across the five-step commercial path." />
     <style>
       :root {
-        --bg: #05060a; --bg-elevated: #0a0c14; --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
-        --border-soft: rgba(255,255,255,0.08); --border-strong: rgba(255,255,255,0.18); --accent: #c5cbe0; --accent-strong: #eef2ff; --accent-muted: #97a0c5;
-        --success: #86efac; --danger: #fca5a5; --warning: #93c5fd; --text-main: #f7f8ff; --text-muted: #9ca3c7; --text-soft: #6b7280; --radius-lg: 18px; --radius-xl: 24px; --shadow-soft: 0 22px 60px rgba(0,0,0,0.55); --max-width: 1180px;
+        --bg: #05060a;
+        --bg-deep: #020308;
+        --bg-panel: rgba(10, 14, 24, 0.92);
+        --bg-panel-strong: rgba(7, 10, 18, 0.98);
+        --bg-soft: rgba(255, 255, 255, 0.03);
+        --border-soft: rgba(255, 255, 255, 0.08);
+        --border-strong: rgba(255, 255, 255, 0.18);
+        --text-main: #f7f9ff;
+        --text-muted: #9aa4bd;
+        --text-soft: #6d7687;
+        --accent-blue: #60a5fa;
+        --accent-blue-strong: #93c5fd;
+        --accent-green: #4ade80;
+        --accent-green-strong: #22c55e;
+        --accent-amber: #fbbf24;
+        --accent-red: #f87171;
+        --radius-lg: 18px;
+        --radius-xl: 24px;
+        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.48);
+        --shadow-proof: 0 0 0 1px rgba(74, 222, 128, 0.22), 0 30px 70px rgba(10, 24, 14, 0.32);
+        --max-width: 1320px;
         --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       }
       * { box-sizing: border-box; }
-      html, body { margin: 0; padding: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif; background: radial-gradient(circle at 0 0, #121826 0, #020308 65%); color: var(--text-main); }
+      html, body {
+        margin: 0;
+        padding: 0;
+        min-height: 100%;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
+        background:
+          radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 20%),
+          radial-gradient(circle at top right, rgba(74, 222, 128, 0.08), transparent 18%),
+          linear-gradient(180deg, #0a0e16 0%, #03050a 54%, #020308 100%);
+        color: var(--text-main);
+      }
       body { min-height: 100vh; }
       code, pre { font-family: var(--mono); }
+      button, input { font: inherit; }
+      button { cursor: pointer; }
       .page-shell { min-height: 100vh; display: flex; flex-direction: column; }
       .page-main { flex: 1; }
       .container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
-      .site-header { background: var(--bg-header); border-bottom: 1px solid rgba(255,255,255,0.06); position: sticky; top: 0; z-index: 20; backdrop-filter: blur(18px); }
-      .site-header__inner { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.5rem; }
-      .site-header__brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; }
-      .site-header__logo-img { width: 28px; height: 28px; object-fit: contain; display: block; border-radius: 6px; box-shadow: 0 0 0 1px rgba(255,255,255,0.35), 0 14px 40px rgba(0,0,0,0.9); }
+      .site-header {
+        position: sticky;
+        top: 0;
+        z-index: 40;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        background: rgba(5, 7, 12, 0.86);
+        backdrop-filter: blur(18px);
+      }
+      .site-header__inner { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.95rem 1.5rem; }
+      .site-header__brand { display: flex; align-items: center; gap: 0.78rem; text-decoration: none; color: inherit; }
+      .site-header__logo-img {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        object-fit: contain;
+        display: block;
+        box-shadow: 0 0 0 1px rgba(255,255,255,0.28), 0 14px 30px rgba(0,0,0,0.55);
+      }
       .site-header__text { display: flex; flex-direction: column; }
       .site-header__title { font-size: 0.98rem; font-weight: 600; letter-spacing: 0.03em; }
       .site-header__subtitle { font-size: 0.78rem; color: var(--text-muted); }
-      .site-header__nav { display: flex; gap: 1rem; align-items: center; }
-      .site-header__link { font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; text-decoration: none; color: var(--text-muted); border: 1px solid transparent; white-space: nowrap; }
-      .site-header__link:hover { color: var(--accent-strong); border-color: rgba(255,255,255,0.18); background: rgba(15,23,42,0.7); }
-      .site-header__link--active { color: #020617; background: linear-gradient(135deg, #e5e7eb, #cdd3e7); border-color: rgba(255,255,255,0.25); }
-      .site-header__dropdown { position: relative; }
-      .site-header__dropdown-btn { font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; }
-      .site-header__dropdown-btn:hover { color: var(--accent-strong); border-color: rgba(255,255,255,0.18); background: rgba(15,23,42,0.7); }
-      .site-header__dropdown-menu { position: absolute; top: 2.3rem; right: 0; background: rgba(15,23,42,0.98); border-radius: 14px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); padding: 0.5rem 0.4rem; min-width: 210px; display: none; }
-      .site-header__dropdown-menu a { display: block; padding: 0.35rem 0.7rem; font-size: 0.82rem; text-decoration: none; color: var(--text-muted); border-radius: 999px; }
-      .site-header__dropdown-menu a:hover { color: var(--accent-strong); background: rgba(31,41,55,0.95); }
-      .site-header--docs-open .site-header__dropdown-menu { display: block; }
-      .site-header__toggle { display: none; border-radius: 999px; border: 1px solid rgba(148,163,184,0.7); background: rgba(15,23,42,0.9); color: var(--text-main); padding: 0.25rem 0.6rem; font-size: 0.9rem; cursor: pointer; }
-      .hero { padding: 3.6rem 0 2rem; border-bottom: 1px solid var(--border-soft); background: radial-gradient(circle at 15% 10%, rgba(99,102,241,0.18), transparent 25%), radial-gradient(circle at 0 0, #111827, #020308); }
-      .hero__wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.95fr); gap: 2rem; align-items: start; }
-      .hero__eyebrow, .section__eyebrow { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-muted); margin-bottom: 0.9rem; }
-      .hero__title { margin: 0; font-size: clamp(2rem, 4vw, 3.6rem); line-height: 1.06; letter-spacing: -0.04em; max-width: 13ch; }
-      .hero__subtitle { margin: 1rem 0 0; color: var(--text-muted); font-size: 1.02rem; line-height: 1.7; max-width: 42rem; }
-      .hero__proofs { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
-      .pill, .hero__proof-pill, .meta-pill { border-radius: 999px; border: 1px solid rgba(148,163,184,0.32); padding: 0.24rem 0.7rem; font-size: 0.8rem; background: rgba(15,23,42,0.55); color: var(--accent-strong); }
-      .hero__proof-pill { transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease, color 160ms ease; }
-      .helper-pill:hover { background: rgba(15,23,42,0.82); border-color: rgba(56,189,248,0.98); box-shadow: 0 0 0 1px rgba(56,189,248,0.92), 0 0 0 3px rgba(37,99,235,0.12); color: #f8fbff; transform: translateY(-1px); }
-      .hero__aside, .panel, .output-panel, .site-footer__col { background: rgba(10,12,20,0.88); border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); }
-      .hero__aside, .panel, .output-panel { border-radius: var(--radius-xl); padding: 1.2rem; }
-      .hero__aside p, .hero__aside li, .section__header p, .helper, .panel p, .field label, .tab-note { color: var(--text-muted); line-height: 1.65; }
-      .section { padding: 1.4rem 0 2.6rem; }
-      .section__header { max-width: 48rem; margin-bottom: 1rem; }
-      .grid { display: grid; grid-template-columns: minmax(320px, 0.95fr) minmax(0, 1.35fr); gap: 1rem; }
-      .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 0.7rem; margin-bottom: 0.8rem; }
-      .field label { display: block; font-size: 0.78rem; margin-bottom: 0.24rem; }
-      .field input { width: 100%; border-radius: 12px; border: 1px solid rgba(55,65,81,0.9); background: rgba(2,6,23,0.55); color: var(--accent-strong); font-size: 0.85rem; padding: 0.55rem 0.65rem; }
-      .field input:focus { outline: none; border-color: rgba(229,231,235,0.95); box-shadow: 0 0 0 3px rgba(165,180,252,0.18); }
-      .button-row, .tab-row, .verification-pills, .step-pills { display: flex; flex-wrap: wrap; gap: 0.55rem; }
-      button, .btn { border-radius: 999px; border: 1px solid rgba(148,163,184,0.65); background: rgba(2,6,23,0.55); color: var(--accent-strong); font-size: 0.84rem; padding: 0.5rem 0.9rem; cursor: pointer; text-decoration:none; }
-      button:hover, .btn:hover { background: rgba(2,6,23,0.75); border-color: var(--accent-strong); }
-      button.primary, .btn--primary { background: linear-gradient(135deg, #e5e7eb, #cdd3e7); color: #020617; border-color: rgba(255,255,255,0.3); }
-      .status-line { display:flex; flex-wrap:wrap; gap:0.45rem; margin-top:0.8rem; align-items:center; }
-      .status-pill { display:inline-flex; align-items:center; gap:0.4rem; border-radius:999px; padding:0.24rem 0.62rem; min-height: 28px; font-size:0.74rem; line-height:1; border:1px solid rgba(148,163,184,0.3); background:rgba(2,6,23,0.35); color:var(--accent-muted); }
-      .status-pill.good { border-color: rgba(34,197,94,0.42); color: var(--success); background: rgba(34,197,94,0.08); }
-      .status-pill.bad { border-color: rgba(239,68,68,0.42); color: var(--danger); background: rgba(239,68,68,0.08); }
-      .status-pill.warn { border-color: rgba(59,130,246,0.42); color: var(--warning); background: rgba(59,130,246,0.08); }
-      .dot { width: 7px; height: 7px; border-radius: 999px; background: currentColor; }
-      .dot--pulse { box-shadow: 0 0 0 rgba(34,197,94,0.45); animation: runtimePulse 2.2s ease-out infinite; }
-      .step-strip { display:grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap:0.65rem; margin-top:1rem; align-items:stretch; }
-      .step-card { display:flex; flex-direction:column; gap:0.36rem; min-height: 122px; border-radius:16px; padding:0.9rem 0.95rem; background: linear-gradient(180deg, rgba(6,10,26,0.92), rgba(2,6,23,0.78)); border:1px solid rgba(148,163,184,0.14); }
-      .step-card__index { font-size:0.7rem; line-height:1; letter-spacing:0.1em; text-transform:uppercase; color:var(--accent-muted); }
-      .step-card strong { display:block; margin:0; font-size:0.92rem; line-height:1.1; font-weight:700; color:var(--accent-strong); }
-      .step-card span { display:block; font-size:0.76rem; line-height:1.42; color:var(--text-muted); text-wrap:pretty; }
-      @keyframes runtimePulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.34); } 70% { box-shadow: 0 0 0 7px rgba(34,197,94,0); } 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); } }
-      .output-tabs { display:flex; flex-wrap:wrap; gap:0.45rem; margin-bottom:0.8rem; }
-      .tab { border-radius:999px; border:1px solid rgba(148,163,184,0.55); background: rgba(2,6,23,0.25); color: var(--accent-muted); font-size:0.78rem; padding:0.3rem 0.7rem; cursor:pointer; }
-      .tab.active { background: rgba(2,6,23,0.75); border-color: rgba(229,231,235,0.65); color: var(--accent); }
-      pre { margin:0; background:#020617; border-radius:14px; border:1px solid rgba(55,65,81,0.9); padding:0.85rem; font-size:0.78rem; color:#dbe4ff; max-height:430px; overflow:auto; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
-      .panel-heading { display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:0.75rem; }
-      .panel-heading h2, .section__header h2, .hero__aside h2 { margin:0 0 0.4rem; }
-      .meta-grid { display:grid; gap:0.7rem; }
-      .meta-box { border-radius:16px; padding:0.95rem; background: rgba(2,6,23,0.72); border:1px solid rgba(148,163,184,0.14); }
-      .meta-box strong { display:block; margin-bottom:0.35rem; color: var(--accent-strong); }
-      .kv { display:grid; grid-template-columns: 140px minmax(0,1fr); gap:0.4rem 0.75rem; font-size:0.82rem; }
-      .kv div:nth-child(odd) { color: var(--text-muted); }
-      .verification-card { border-radius:16px; padding:0.95rem; background: rgba(2,6,23,0.72); border:1px solid rgba(148,163,184,0.14); }
-      .site-footer { border-top: 1px solid rgba(255,255,255,0.1); background: #020308; margin-top: auto; }
-      .site-footer__inner {
-  display: grid;
-  gap: 1.1rem;
-}
-.site-footer__row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-.site-footer__col {
-  border-radius: 18px;
-  padding: 1rem;
-  background: rgba(10, 12, 20, 0.88);
-  border: 1px solid var(--border-soft);
-}
-.site-footer__col-title {
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent-muted, var(--text-muted));
-  margin-bottom: 0.45rem;
-}
-.site-footer__cid {
-  color: var(--text-muted);
-  line-height: 1.6;
-  font-size: 0.84rem;
-}
-.site-footer__inner { padding: 1.6rem 1.5rem 2rem; display:grid; gap:1.2rem; }
-      .site-footer__top { display:flex; flex-wrap:wrap; justify-content:space-between; gap:1rem; }
-      .site-footer__cols { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
-      .site-footer__col { border-radius:18px; padding:1rem; }
-      .site-footer__col-title { font-size:0.78rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent-muted); margin-bottom:0.45rem; }
-      .site-footer__col p { margin:0; color:var(--text-muted); line-height:1.6; font-size:0.84rem; }
-      .site-footer__links { display:flex; flex-wrap:wrap; gap:1rem; }
-      .site-footer__links a { color:var(--accent); text-decoration:none; }
-      .site-footer__links a:hover { text-decoration:underline; }
-      @media (max-width: 980px) {
-        .site-header__inner { padding-inline: 1rem; }
-        .site-header__toggle { display:inline-flex; align-items:center; justify-content:center; }
-        .site-header__nav { display:none; flex-direction:column; align-items:flex-start; gap:0.5rem; margin-top:0.8rem; }
-        .site-header.site-header--open .site-header__nav { display:flex; }
-        .hero__wrap, .grid, .site-footer__cols { grid-template-columns:minmax(0,1fr); }
-        .form-grid { grid-template-columns:minmax(0,1fr); }
-        .step-strip { grid-template-columns: repeat(2, minmax(0,1fr)); }
+      .site-header__nav { display: flex; align-items: center; gap: 0.9rem; }
+      .site-header__link, .site-header__dropdown-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        text-decoration: none;
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        background: transparent;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        padding: 0.38rem 0.82rem;
       }
-      @media (max-width: 640px) { .step-strip { grid-template-columns:minmax(0,1fr); } }
+      .site-header__link:hover, .site-header__dropdown-btn:hover { color: var(--text-main); border-color: rgba(255,255,255,0.14); background: rgba(15, 23, 42, 0.72); }
+      .site-header__link--active { color: var(--text-main); background: rgba(15, 23, 42, 0.72); border-color: rgba(255,255,255,0.14); }
+      .site-header__dropdown { position: relative; }
+      .site-header__dropdown-menu {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 2.25rem;
+        min-width: 220px;
+        border-radius: 14px;
+        background: rgba(10, 14, 22, 0.98);
+        border: 1px solid var(--border-soft);
+        box-shadow: var(--shadow-soft);
+        padding: 0.4rem;
+      }
+      .site-header__dropdown-menu a { display: block; text-decoration: none; color: var(--text-muted); border-radius: 10px; padding: 0.45rem 0.7rem; font-size: 0.82rem; }
+      .site-header__dropdown-menu a:hover { color: var(--text-main); background: rgba(15, 23, 42, 0.72); }
+      .site-header--docs-open .site-header__dropdown-menu { display: block; }
+      .site-header__toggle { display: none; border-radius: 999px; padding: 0.32rem 0.72rem; background: rgba(15, 23, 42, 0.9); color: var(--text-main); border: 1px solid rgba(148, 163, 184, 0.58); }
+
+      .hero { padding: 1.4rem 0 0.8rem; }
+      .hero__wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) 360px; gap: 1rem; align-items: stretch; }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin: 0 0 0.72rem;
+        padding: 0.34rem 0.68rem;
+        border-radius: 999px;
+        border: 1px solid rgba(96, 165, 250, 0.28);
+        background: rgba(8, 14, 25, 0.8);
+        color: #dbeafe;
+        font-size: 0.75rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+      .hero__title { margin: 0; font-size: clamp(2rem, 4.2vw, 3.85rem); line-height: 0.98; letter-spacing: -0.05em; max-width: 11ch; }
+      .hero__subtitle { margin: 0.85rem 0 0; max-width: 44rem; color: var(--text-muted); line-height: 1.62; font-size: 0.98rem; }
+      .verb-row, .pill-row, .hero__actions, .button-row, .status-line, .output-tabs, .mini-pills { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+      .verb-row { margin-top: 0.95rem; }
+      .pill, .verb-pill, .meta-pill, .runtime-pill, .mini-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.42rem;
+        min-height: 2rem;
+        padding: 0.36rem 0.72rem;
+        border-radius: 999px;
+        border: 1px solid rgba(96, 165, 250, 0.3);
+        background: rgba(8, 14, 24, 0.92);
+        color: #e8f2ff;
+        font-size: 0.8rem;
+      }
+      .verb-pill { font-weight: 700; letter-spacing: 0.02em; text-transform: lowercase; }
+      .verb-pill--active { border-color: rgba(74,222,128,0.5); color: #dcfce7; background: rgba(7, 20, 12, 0.86); box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.16); }
+      .pill--soft, .meta-pill { border-color: rgba(255,255,255,0.12); color: var(--text-muted); background: rgba(255,255,255,0.04); }
+      .hero__actions { margin-top: 1rem; }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 999px;
+        padding: 0.76rem 1.1rem;
+        border: 1px solid transparent;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: transform 140ms ease, filter 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+      }
+      .btn:hover, .btn:focus-visible, button:hover, button:focus-visible { transform: translateY(-1px); filter: brightness(1.03); outline: none; }
+      .btn--primary, button.primary {
+        background: linear-gradient(135deg, #2f7cf6, #4cc9f0);
+        color: #f8fcff;
+        border-color: rgba(76, 201, 240, 0.35);
+        font-weight: 720;
+        box-shadow: 0 18px 40px rgba(47, 124, 246, 0.22);
+      }
+      .btn--ghost, button, .tab {
+        background: rgba(15, 23, 42, 0.76);
+        color: var(--text-main);
+        border: 1px solid rgba(255,255,255,0.12);
+      }
+      .btn--ghost:hover, button:hover, .tab:hover { border-color: rgba(255,255,255,0.22); }
+
+      .hero-card, .status-strip, .panel, .output-panel, .meta-box, .verification-card, .step-card {
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--border-soft);
+        background: linear-gradient(180deg, var(--bg-panel), rgba(6, 9, 15, 0.98));
+        box-shadow: var(--shadow-soft);
+      }
+      .hero-card { padding: 1.05rem; display: grid; gap: 0.8rem; }
+      .hero-card h2, .panel h2, .output-panel h2, .hero__title, .status-strip h2 { margin: 0; }
+      .hero-card p, .panel p, .output-panel p, .helper, .tab-note { margin: 0; color: var(--text-muted); line-height: 1.58; }
+      .hero-card__list { display: grid; gap: 0.6rem; }
+      .hero-card__item { padding: 0.72rem 0.8rem; border-radius: 16px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+      .hero-card__item strong { display: block; margin-bottom: 0.2rem; font-size: 0.82rem; color: var(--text-main); letter-spacing: 0.08em; text-transform: uppercase; }
+
+      .status-wrap { padding-bottom: 0.8rem; }
+      .status-strip {
+        padding: 0.9rem 1rem;
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) repeat(3, minmax(140px, 0.55fr));
+        gap: 0.8rem;
+        align-items: center;
+      }
+      .status-strip__main { display: flex; align-items: center; gap: 0.8rem; min-width: 0; }
+      .runtime-dot { width: 11px; height: 11px; border-radius: 999px; background: var(--accent-green); box-shadow: 0 0 0 1px rgba(74,222,128,0.28), 0 0 18px rgba(74,222,128,0.35); }
+      .runtime-dot--pulse { animation: runtimePulse 2.2s ease-out infinite; }
+      .status-strip__eyebrow, .section__eyebrow, .panel__eyebrow { color: var(--text-soft); font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase; }
+      .status-strip__state { font-size: 0.98rem; font-weight: 700; letter-spacing: 0.06em; }
+      .status-strip__desc { color: var(--text-muted); font-size: 0.88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .status-metric { text-align: right; }
+      .status-metric strong { display: block; margin-bottom: 0.3rem; color: var(--text-soft); font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; }
+      .status-metric span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 110px;
+        padding: 0.36rem 0.72rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255,255,255,0.14);
+        background: rgba(5, 10, 18, 0.92);
+        color: #dbeafe;
+        font-size: 0.8rem;
+      }
+      @keyframes runtimePulse {
+        0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.34); }
+        70% { box-shadow: 0 0 0 7px rgba(34,197,94,0); }
+        100% { box-shadow: 0 0 0 0 rgba(34,197,94,0); }
+      }
+
+      .stage { padding: 0 0 2rem; }
+      .stage-grid { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 1rem; align-items: start; }
+      .panel, .output-panel { padding: 1rem; }
+      .panel-heading { display: flex; justify-content: space-between; gap: 0.8rem; align-items: flex-start; flex-wrap: wrap; margin-bottom: 0.8rem; }
+      .panel h2, .output-panel h2 { font-size: 1.02rem; margin-top: 0.18rem; }
+      .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.65rem; margin-top: 0.75rem; }
+      .field label { display: block; margin-bottom: 0.28rem; color: #c5cfdf; font-size: 0.8rem; }
+      .field input {
+        width: 100%;
+        border-radius: 14px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(2, 6, 13, 0.96);
+        color: var(--text-main);
+        padding: 0.72rem 0.8rem;
+      }
+      .field input:focus { outline: none; border-color: rgba(147,197,253,0.75); box-shadow: 0 0 0 3px rgba(59,130,246,0.18); }
+      .button-row { margin-top: 0.8rem; }
+      button { border-radius: 999px; padding: 0.64rem 0.92rem; font-size: 0.84rem; }
+      .status-line { margin-top: 0.9rem; align-items: center; }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.42rem;
+        border-radius: 999px;
+        padding: 0.28rem 0.66rem;
+        min-height: 28px;
+        font-size: 0.74rem;
+        line-height: 1;
+        border: 1px solid rgba(148,163,184,0.3);
+        background: rgba(2,6,23,0.35);
+        color: var(--text-muted);
+      }
+      .status-pill.good { border-color: rgba(34,197,94,0.42); color: #dcfce7; background: rgba(34,197,94,0.08); }
+      .status-pill.bad { border-color: rgba(239,68,68,0.42); color: #fecaca; background: rgba(239,68,68,0.08); }
+      .status-pill.warn { border-color: rgba(59,130,246,0.42); color: #dbeafe; background: rgba(59,130,246,0.08); }
+      .dot { width: 7px; height: 7px; border-radius: 999px; background: currentColor; }
+      .helper { margin-top: 0.75rem; font-size: 0.86rem; }
+      .step-strip { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0.6rem; margin-top: 0.85rem; }
+      .step-card {
+        padding: 0.78rem 0.8rem;
+        min-height: 112px;
+        border-radius: 18px;
+        background: linear-gradient(180deg, rgba(6,10,26,0.92), rgba(2,6,23,0.78));
+        border-color: rgba(255,255,255,0.06);
+        box-shadow: none;
+      }
+      .step-card__index { font-size: 0.7rem; line-height: 1; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-soft); }
+      .step-card strong { display: block; margin: 0.35rem 0 0.25rem; font-size: 0.92rem; color: var(--text-main); }
+      .step-card span { display: block; font-size: 0.76rem; line-height: 1.42; color: var(--text-muted); }
+
+      .output-panel { box-shadow: var(--shadow-proof); }
+      .output-tabs { margin: 0.8rem 0 0.55rem; }
+      .tab { font-size: 0.78rem; padding: 0.36rem 0.74rem; color: var(--text-muted); }
+      .tab.active { background: rgba(2,6,23,0.92); border-color: rgba(74,222,128,0.46); color: #dcfce7; }
+      pre {
+        margin: 0;
+        padding: 0.9rem;
+        border-radius: 16px;
+        background: rgba(2, 6, 13, 0.98);
+        border: 1px solid rgba(255,255,255,0.08);
+        color: #dbe7fb;
+        font-size: 0.79rem;
+        line-height: 1.56;
+        white-space: pre-wrap;
+        word-break: break-word;
+        max-height: 390px;
+        overflow: auto;
+      }
+      .meta-grid { display: grid; gap: 0.75rem; margin-top: 0.85rem; }
+      .meta-box, .verification-card { padding: 0.9rem; border-radius: 18px; }
+      .meta-box strong, .verification-card strong { display: block; margin-bottom: 0.45rem; color: var(--text-main); }
+      .kv { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 0.38rem 0.7rem; font-size: 0.82rem; }
+      .kv div:nth-child(odd) { color: var(--text-muted); }
+
+      .site-footer { border-top: 1px solid rgba(255,255,255,0.07); background: #020308; margin-top: auto; }
+      .site-footer__inner { padding: 1.6rem 1.5rem 2rem; display: grid; gap: 1rem; font-size: 0.8rem; color: var(--text-soft); text-align: center; }
+      .site-footer__links { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+      .site-footer__links a { color: #c2cad8; text-decoration: none; }
+      .site-footer__links a:hover { text-decoration: underline; }
+
+      @media (max-width: 1120px) {
+        .hero__wrap, .stage-grid { grid-template-columns: minmax(0, 1fr); }
+        .status-strip { grid-template-columns: minmax(0, 1fr) repeat(2, minmax(140px, 1fr)); }
+      }
+      @media (max-width: 920px) {
+        .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
+        .site-header__nav { display: none; flex-direction: column; align-items: flex-start; width: 100%; }
+        .site-header.site-header--open .site-header__nav { display: flex; }
+        .status-strip { grid-template-columns: 1fr; }
+        .form-grid, .step-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+      @media (max-width: 640px) {
+        .container { padding: 0 1rem; }
+        .site-header__inner { padding-inline: 1rem; }
+        .form-grid, .step-strip, .kv { grid-template-columns: minmax(0, 1fr); }
+        .hero { padding-top: 1rem; }
+      }
     </style>
   </head>
   <body>
@@ -151,17 +329,15 @@
             <a href="/" class="site-header__link">Home</a>
             <a href="/composer.html" class="site-header__link site-header__link--active">Demo</a>
             <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-
             <div class="site-header__dropdown">
               <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
               <div class="site-header__dropdown-menu">
-              <a href="/commons.html">Commons</a>
-              <a href="/commercial.html">Commercial</a>
-              <a href="/agent-cards.html">Agent Cards</a>
-              <a href="/runtime.html">Runtime</a>
+                <a href="/commons.html">Commons</a>
+                <a href="/commercial.html">Commercial</a>
+                <a href="/agent-cards.html">Agent Cards</a>
+                <a href="/runtime.html">Runtime</a>
               </div>
             </div>
-
             <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
           </nav>
         </div>
@@ -171,123 +347,165 @@
         <section class="hero">
           <div class="container hero__wrap">
             <div>
-              <div class="hero__eyebrow">Commercial demo</div>
-              <h1 class="hero__title">Run the flow. Inspect the receipt. Then inspect runtime evidence.</h1>
-              <p class="hero__subtitle">The runtime executes this multi-step Commercial flow. Each step returns the canonical receipt contract. The runtime may also attach trace, proof, or orchestration metadata around that receipt.</p>
-              <div class="hero__proofs">
-                <span class="hero__proof-pill">authorize → checkout → purchase → ship → verify</span>
-                <span class="hero__proof-pill helper-pill">Canonical receipt first</span>
-                <span class="hero__proof-pill helper-pill">Runtime details second</span>
+              <div class="eyebrow">Commercial demo</div>
+              <h1 class="hero__title">Run the commercial flow. Inspect the receipt. Verify the proof.</h1>
+              <p class="hero__subtitle">This demo shows the commercial path running on the same receipt-first model: authorize → checkout → purchase → ship → verify.</p>
+              <div class="verb-row" aria-label="Commercial flow verbs">
+                <span class="verb-pill verb-pill--active">authorize</span>
+                <span class="verb-pill">checkout</span>
+                <span class="verb-pill">purchase</span>
+                <span class="verb-pill">ship</span>
+                <span class="verb-pill">verify</span>
+              </div>
+              <div class="hero__actions">
+                <a class="btn btn--primary" href="#commercial-controls">Jump to controls</a>
+                <a class="btn btn--ghost" href="#inspection-surface">Proof surface</a>
               </div>
             </div>
-            <aside class="hero__aside">
-              <h2>What this surface teaches</h2>
-              <p>Commercial defines economic contract semantics. Runtime executes the flow and may wrap each step response in a structure like <code>{ "receipt": ..., "runtime_metadata": ... }</code>. The wrapper is execution context, not the canonical protocol receipt itself.</p>
-              <ul>
-                <li>Result / action stays visible for the latest step.</li>
-                <li>Canonical receipt is shown independently of runtime-added metadata.</li>
-                <li>Receipt verification and raw JSON remain inspectable for judges and technical reviewers.</li>
-              </ul>
+            <aside class="hero-card">
+              <div class="panel__eyebrow">Receipt-first teaching card</div>
+              <h2>Same trust model. Longer paid flow.</h2>
+              <div class="hero-card__list">
+                <div class="hero-card__item">
+                  <strong>Canonical receipt first</strong>
+                  <span>The contract truth stays in the receipt for every step.</span>
+                </div>
+                <div class="hero-card__item">
+                  <strong>Runtime metadata second</strong>
+                  <span>Trace, proof, and orchestration stay secondary to the receipt.</span>
+                </div>
+                <div class="hero-card__item">
+                  <strong>Commercial execution demo</strong>
+                  <span>This surface shows multi-step paid execution with proof inspection, not just form input.</span>
+                </div>
+              </div>
             </aside>
           </div>
         </section>
 
-        <section class="section">
+        <section class="status-wrap">
           <div class="container">
-            <div class="section__header">
-              <div class="section__eyebrow">Runtime-backed flow</div>
-              <h2>Commercial flow controls</h2>
-              <p>Run one step or the full flow against <code>/api/commercial-flow</code>. This page assumes a single backend surface and avoids old per-verb demo endpoint language.</p>
+            <div class="status-strip">
+              <div class="status-strip__main">
+                <span class="runtime-dot runtime-dot--pulse"></span>
+                <div>
+                  <div class="status-strip__eyebrow">Runtime status strip</div>
+                  <div class="status-strip__state">Commercial runtime live</div>
+                  <div class="status-strip__desc">Receipt-first execution surface for the five-step commercial flow.</div>
+                </div>
+              </div>
+              <div class="status-metric">
+                <strong>Backend</strong>
+                <span>/api/commercial-flow</span>
+              </div>
+              <div class="status-metric">
+                <strong>Active flow</strong>
+                <span>authorize → verify</span>
+              </div>
+              <div class="status-metric">
+                <strong>Mode</strong>
+                <span>commercial</span>
+              </div>
             </div>
-            <div class="grid">
-              <article class="panel">
-                <div class="panel-heading">
-                  <div>
-                    <h2>Trigger execution</h2>
-                    <p>Set the commercial input once, then run a single step or the full orchestration path.</p>
-                  </div>
-                  <div class="step-pills">
-                    <span class="meta-pill">Backend: /api/commercial-flow</span>
-                    <span class="meta-pill">Commercial v1.1.0</span>
-                  </div>
-                </div>
-                <div class="form-grid">
-                  <div class="field"><label>Buyer</label><input id="buyer" value="0xBEEF" /></div>
-                  <div class="field"><label>Chain ID</label><input id="chain_id" value="eip155:84532" /></div>
-                  <div class="field"><label>Order ID</label><input id="order_id" value="order_demo_1" /></div>
-                </div>
-                <div class="form-grid">
-                  <div class="field"><label>Item SKU</label><input id="sku" value="demo-sticker-pack" /></div>
-                  <div class="field"><label>Qty</label><input id="qty" value="1" /></div>
-                  <div class="field"><label>Total (ETH)</label><input id="total_amount" value="0.0001" /></div>
-                </div>
-                <div class="form-grid">
-                  <div class="field"><label>Currency</label><input id="currency" value="ETH" /></div>
-                  <div class="field"><label>Ship To</label><input id="address" value="123 Demo Street" /></div>
-                  <div class="field"><label>Trace ID (optional)</label><input id="trace_id" placeholder="auto if blank" /></div>
-                </div>
-                <div class="button-row">
-                  <button id="b_authorize" onclick="runStep('authorize')">Authorize</button>
-                  <button id="b_checkout" onclick="runStep('checkout')">Checkout</button>
-                  <button id="b_purchase" onclick="runStep('purchase')">Purchase</button>
-                  <button id="b_ship" onclick="runStep('ship')">Ship</button>
-                  <button id="b_verify" onclick="runStep('verify')">Verify</button>
-                </div>
-                <div class="button-row" style="margin-top:0.6rem;">
-                  <button class="primary" id="b_flow" onclick="runFlow()">Run full flow</button>
-                  <button onclick="copyCurl()">Copy curl</button>
-                  <button onclick="resetState()">Reset</button>
-                </div>
-                <div class="status-line">
-                  <span class="status-pill" id="status_pill" style="display:none;"><span class="dot"></span><span id="status_text">Idle</span></span>
-                  <span class="status-pill" id="net_pill" style="display:none;"><span class="dot"></span><span id="net_text">Ready</span></span>
-                  <span class="status-pill good" id="runtime_pill"><span class="dot dot--pulse"></span><span id="runtime_text">Runtime live</span></span>
-                </div>
-                <p class="helper">Commercial flow language stays contract-first: the runtime executes the flow, receipts remain the contract layer, and trace / proof / orchestration fields are runtime-added execution metadata.</p>
-                <div class="step-strip">
-                  <div class="step-card"><div class="step-card__index">1.</div><strong>Authorize</strong><span>Economic permission step returns a canonical receipt.</span></div>
-                  <div class="step-card"><div class="step-card__index">2.</div><strong>Checkout</strong><span>Order context remains tied to the commercial contract.</span></div>
-                  <div class="step-card"><div class="step-card__index">3.</div><strong>Purchase</strong><span>Execution moves forward while receipts remain inspectable.</span></div>
-                  <div class="step-card"><div class="step-card__index">4.</div><strong>Ship</strong><span>Fulfillment step can attach runtime trace context.</span></div>
-                  <div class="step-card"><div class="step-card__index">5.</div><strong>Verify</strong><span>Receipt verification checks evidence around the receipt.</span></div>
-                </div>
-              </article>
+          </div>
+        </section>
 
-              <article class="output-panel">
-                <div class="panel-heading">
-                  <div>
-                    <h2>Inspection surface</h2>
-                    <p>See the latest action, then move across canonical receipt, runtime metadata, verification, raw JSON, and curl.</p>
+        <section class="stage">
+          <div class="container stage-grid">
+            <article class="panel" id="commercial-controls">
+              <div class="panel-heading">
+                <div>
+                  <div class="panel__eyebrow">Live surface</div>
+                  <h2>Commercial Flow Controls</h2>
+                  <p>Set the order context once, then run one verb or the full receipt-first orchestration path.</p>
+                </div>
+                <div class="mini-pills">
+                  <span class="meta-pill">Commercial v1.1.0</span>
+                  <span class="meta-pill">5 verbs</span>
+                </div>
+              </div>
+
+              <div class="form-grid">
+                <div class="field"><label>Buyer</label><input id="buyer" value="0xBEEF" /></div>
+                <div class="field"><label>Chain ID</label><input id="chain_id" value="eip155:84532" /></div>
+                <div class="field"><label>Order ID</label><input id="order_id" value="order_demo_1" /></div>
+              </div>
+              <div class="form-grid">
+                <div class="field"><label>Item SKU</label><input id="sku" value="demo-sticker-pack" /></div>
+                <div class="field"><label>Qty</label><input id="qty" value="1" /></div>
+                <div class="field"><label>Total (ETH)</label><input id="total_amount" value="0.0001" /></div>
+              </div>
+              <div class="form-grid">
+                <div class="field"><label>Currency</label><input id="currency" value="ETH" /></div>
+                <div class="field"><label>Ship To</label><input id="address" value="123 Demo Street" /></div>
+                <div class="field"><label>Trace ID (optional)</label><input id="trace_id" placeholder="auto if blank" /></div>
+              </div>
+
+              <div class="button-row">
+                <button id="b_authorize" onclick="runStep('authorize')">Authorize</button>
+                <button id="b_checkout" onclick="runStep('checkout')">Checkout</button>
+                <button id="b_purchase" onclick="runStep('purchase')">Purchase</button>
+                <button id="b_ship" onclick="runStep('ship')">Ship</button>
+                <button id="b_verify" onclick="runStep('verify')">Verify</button>
+              </div>
+              <div class="button-row">
+                <button class="primary" id="b_flow" onclick="runFlow()">Run full flow</button>
+                <button onclick="copyCurl()">Copy curl</button>
+                <button onclick="resetState()">Reset</button>
+              </div>
+
+              <div class="status-line">
+                <span class="status-pill" id="status_pill" style="display:none;"><span class="dot"></span><span id="status_text">Idle</span></span>
+                <span class="status-pill" id="net_pill" style="display:none;"><span class="dot"></span><span id="net_text">Ready</span></span>
+                <span class="status-pill good" id="runtime_pill"><span class="dot"></span><span id="runtime_text">Runtime live</span></span>
+              </div>
+
+              <p class="helper">The visual star here is the verb chain: authorize, checkout, purchase, ship, verify. Each action can produce a canonical receipt plus optional runtime context.</p>
+
+              <div class="step-strip">
+                <div class="step-card"><div class="step-card__index">1.</div><strong>Authorize</strong><span>Permission and payment intent become a canonical commercial receipt.</span></div>
+                <div class="step-card"><div class="step-card__index">2.</div><strong>Checkout</strong><span>Order context remains attached to the commercial contract surface.</span></div>
+                <div class="step-card"><div class="step-card__index">3.</div><strong>Purchase</strong><span>Execution advances while the receipt remains separately inspectable.</span></div>
+                <div class="step-card"><div class="step-card__index">4.</div><strong>Ship</strong><span>Fulfillment can add runtime trace context without replacing receipt truth.</span></div>
+                <div class="step-card"><div class="step-card__index">5.</div><strong>Verify</strong><span>Proof inspection checks the receipt boundary and associated evidence.</span></div>
+              </div>
+            </article>
+
+            <article class="output-panel" id="inspection-surface">
+              <div class="panel-heading">
+                <div>
+                  <div class="panel__eyebrow">Proof side</div>
+                  <h2>Proof + Inspection Surface</h2>
+                  <p>See the latest commercial result, compare canonical receipt vs runtime metadata, then verify proof or inspect raw JSON.</p>
+                </div>
+              </div>
+              <div class="output-tabs">
+                <button class="tab active" data-tab="latest" onclick="setTab('latest')">Latest action</button>
+                <button class="tab" data-tab="receipt" onclick="setTab('receipt')">Canonical receipt</button>
+                <button class="tab" data-tab="runtime" onclick="setTab('runtime')">Runtime details</button>
+                <button class="tab" data-tab="verification" onclick="setTab('verification')">Receipt verification</button>
+                <button class="tab" data-tab="raw" onclick="setTab('raw')">Raw JSON</button>
+                <button class="tab" data-tab="curl" onclick="setTab('curl')">Curl</button>
+              </div>
+              <p class="tab-note" id="tab_note">Latest step action and response summary.</p>
+              <pre id="output">{}</pre>
+              <div class="meta-grid">
+                <div class="meta-box">
+                  <strong>Latest action summary</strong>
+                  <div class="kv">
+                    <div>verb</div><div><code id="m_verb">-</code></div>
+                    <div>runtime_url</div><div><code id="m_url">-</code></div>
+                    <div>trace_id</div><div><code id="m_trace">-</code></div>
+                    <div>receipt_id</div><div><code id="m_receipt">-</code></div>
+                    <div>signer</div><div><code id="m_signer">-</code></div>
                   </div>
                 </div>
-                <div class="output-tabs">
-                  <button class="tab active" data-tab="latest" onclick="setTab('latest')">Latest step</button>
-                  <button class="tab" data-tab="receipt" onclick="setTab('receipt')">Canonical receipt</button>
-                  <button class="tab" data-tab="runtime" onclick="setTab('runtime')">Runtime details</button>
-                  <button class="tab" data-tab="verification" onclick="setTab('verification')">Receipt verification</button>
-                  <button class="tab" data-tab="raw" onclick="setTab('raw')">Raw JSON</button>
-                  <button class="tab" data-tab="curl" onclick="setTab('curl')">Curl</button>
+                <div class="verification-card">
+                  <strong>Boundary reminder</strong>
+                  <p>If a response returns <code>receipt</code> plus <code>runtime_metadata</code>, the canonical contract remains inside <code>receipt</code>. Runtime fields are proof, trace, and orchestration context around that contract.</p>
                 </div>
-                <p class="tab-note" id="tab_note">Latest step action and response summary.</p>
-                <pre id="output">{}</pre>
-                <div class="meta-grid" style="margin-top:0.85rem;">
-                  <div class="meta-box">
-                    <strong>Latest step summary</strong>
-                    <div class="kv">
-                      <div>verb</div><div><code id="m_verb">-</code></div>
-                      <div>runtime_url</div><div><code id="m_url">-</code></div>
-                      <div>trace_id</div><div><code id="m_trace">-</code></div>
-                      <div>receipt_id</div><div><code id="m_receipt">-</code></div>
-                      <div>signer</div><div><code id="m_signer">-</code></div>
-                    </div>
-                  </div>
-                  <div class="verification-card">
-                    <strong>Boundary reminder</strong>
-                    <p style="margin:0;">If a response returns <code>receipt</code> plus <code>runtime_metadata</code>, the canonical contract lives in <code>receipt</code>. Runtime details are proof and orchestration context around that contract.</p>
-                  </div>
-                </div>
-              </article>
-            </div>
+              </div>
+            </article>
           </div>
         </section>
       </main>
