@@ -4,1187 +4,504 @@
 <meta charset="UTF-8" />
 <title>CommandLayer — Composer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="description" content="Run a live CommandLayer chain, receive a signed receipt, and verify it independently." />
+<meta name="description" content="Run a live CommandLayer Commons chain, receive a signed receipt, and verify it independently." />
 <style>
 :root{
   --bg:#05070c;
-  --bg-2:#09101a;
-  --panel:rgba(10,16,28,.92);
-  --panel-2:rgba(8,13,24,.98);
-  --soft:rgba(255,255,255,.04);
-  --soft-2:rgba(255,255,255,.08);
-  --soft-3:rgba(255,255,255,.14);
-  --text:#f4f7ff;
-  --muted:#93a0bb;
-  --muted-2:#6f7b93;
+  --panel:#0b1220;
+  --panel-2:#0f1728;
+  --line:rgba(255,255,255,.08);
+  --text:#f3f7ff;
+  --muted:#94a3b8;
   --blue:#4db2ff;
-  --blue-2:#88d5ff;
+  --blue-2:#82d6ff;
   --ok:#63e6a8;
   --warn:#ffcc66;
   --radius:18px;
-  --radius-sm:12px;
   --shadow:0 18px 60px rgba(0,0,0,.35);
-  --max:1180px;
+  --max:1160px;
 }
-
 *{box-sizing:border-box}
-html,body{margin:0;padding:0;background:
-  radial-gradient(circle at top left, rgba(33,80,180,.18), transparent 28%),
-  radial-gradient(circle at top right, rgba(0,180,255,.10), transparent 24%),
-  linear-gradient(180deg, #05070c 0%, #04060a 100%);
-color:var(--text);font-family:Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+html,body{
+  margin:0;padding:0;
+  background:
+    radial-gradient(circle at top left, rgba(33,80,180,.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(0,180,255,.10), transparent 24%),
+    linear-gradient(180deg,#05070c 0%,#04060a 100%);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+}
 a{text-decoration:none;color:inherit}
 button,input,select,textarea{font:inherit}
-
 .wrap{max-width:var(--max);margin:0 auto;padding:0 20px}
-.shell{min-height:100vh}
 
-/* header */
 .site-header{
-  position:sticky;top:0;z-index:20;
-  backdrop-filter:blur(12px);
-  background:rgba(4,7,12,.82);
+  position:sticky;top:0;z-index:10;
+  background:rgba(5,7,12,.82);
+  backdrop-filter:blur(10px);
   border-bottom:1px solid rgba(255,255,255,.05);
 }
 .site-header .wrap{
-  display:flex;align-items:center;justify-content:space-between;
-  min-height:64px;gap:18px;
+  min-height:64px;
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
 }
-.brand{
-  display:flex;align-items:center;gap:12px;min-width:0;
-}
-.brand-mark{
-  width:28px;height:28px;border-radius:8px;
-  background:linear-gradient(135deg,#dfe8ff 0%,#8ec8ff 100%);
-  box-shadow:0 6px 20px rgba(77,178,255,.22);
-  flex:0 0 auto;
-}
-.brand-copy{min-width:0}
-.brand-copy strong{
-  display:block;font-size:13px;line-height:1.05;font-weight:700;letter-spacing:.01em
-}
-.brand-copy span{
-  display:block;font-size:10px;line-height:1.2;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis
-}
-.nav{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end
-}
+.brand{display:flex;align-items:center;gap:12px}
+.brand img{width:28px;height:28px;border-radius:8px;display:block}
+.brand-copy strong{display:block;font-size:13px;line-height:1.05}
+.brand-copy span{display:block;font-size:10px;color:var(--muted)}
+.nav{display:flex;gap:8px;flex-wrap:wrap}
 .nav a{
   font-size:12px;color:var(--muted);
-  padding:8px 10px;border-radius:999px
+  padding:8px 10px;border-radius:999px;
 }
 .nav a.active{
   color:var(--text);
   background:rgba(255,255,255,.06);
   border:1px solid rgba(255,255,255,.08);
 }
-</style>
-</head>
-<body>
-<div class="page-shell">
-<header class="site-header">
-  <div class="site-header__inner container">
-    <a href="/" class="site-header__brand">
-      <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-      <div class="site-header__text">
-        <span class="site-header__title">CommandLayer</span>
-        <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
-      </div>
-    </a>
-    <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-    <nav class="site-header__nav">
-      <a href="/" class="site-header__link">Home</a>
-      <a href="/composer.html" class="site-header__link site-header__link--active">Composer</a>
-      <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-      <div class="site-header__dropdown">
-        <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
-        <div class="site-header__dropdown-menu">
-          <a href="/commons.html">Commons</a>
-          <a href="/commercial.html">Commercial</a>
-          <a href="/agent-cards.html">Agent Cards</a>
-          <a href="/runtime.html">Runtime</a>
-        </div>
-      </div>
-      <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
-    </nav>
-  </div>
-</header>
 
-<main class="page-main">
-  <section class="hero">
-    <div class="container">
-      <div class="hero-shell">
-        <div class="hero-grid">
-          <div>
-            <p class="eyebrow">Live Commons Runtime</p>
-            <h1>Run a live chain. Get a signed receipt. Verify it yourself.</h1>
-            <p class="hero-copy">
-              This surface sends live verb executions to the CommandLayer runtime, returns receipts for the chain,
-              and verifies the final artifact through ENS + Ed25519 so the proof moment is immediate and independently inspectable.
-            </p>
-            <div class="hero-actions">
-              <button id="hero-run-default" class="btn btn--primary" type="button">Run Default Chain</button>
-              <button id="hero-build-custom" class="btn btn--secondary" type="button">Build Custom Chain</button>
-              <button id="hero-copy-curl" class="btn btn--ghost" type="button" disabled>Copy cURL Verify Command</button>
-            </div>
-            <section id="proof-strip" class="proof-strip" aria-live="polite">
-              <div class="proof-strip__top">
-                <div>
-                  <div class="section-eyebrow">Verified proof</div>
-                  <h2 id="proof-strip-title" style="margin:0.16rem 0 0; font-size:1.28rem;">Verified via ENS + Ed25519</h2>
-                  <p id="proof-strip-copy" style="margin:0.42rem 0 0; color:var(--text-muted);">Run the default chain to surface the live receipt and verification details here.</p>
-                </div>
-                <span id="proof-strip-badge" class="badge badge--verified">VERIFIED</span>
-              </div>
-              <div class="proof-strip__meta">
-                <div class="proof-metric"><strong>Status</strong><span id="proof-strip-status">Awaiting run</span></div>
-                <div class="proof-metric"><strong>Signer ENS</strong><span id="proof-strip-signer">—</span></div>
-                <div class="proof-metric"><strong>kid</strong><span id="proof-strip-kid">—</span></div>
-                <div class="proof-metric"><strong>Hash</strong><span id="proof-strip-hash">—</span></div>
-              </div>
-            </section>
-          </div>
-          <aside class="hero-card">
-            <div class="card-eyebrow">Protocol surface</div>
-            <h2>Live runtime first. Recorded proof second.</h2>
-            <p>
-              The composer now opens on a proof-first path instead of a blank builder. Live execution is the main story.
-              Recorded artifacts remain available when the runtime degrades, but they stay clearly labeled and visually secondary.
-            </p>
-            <ul>
-              <li>Default chain opens ready to run.</li>
-              <li>Custom chain exposes all 10 live verbs.</li>
-              <li>Final receipt and verification stay visually primary.</li>
-            </ul>
-          </aside>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="status-wrap">
-    <div class="container">
-      <div id="runtime-status-bar" class="status-bar status-live" aria-live="polite">
-        <div class="status-item"><strong>Status</strong><span><span class="status-dot" aria-hidden="true"></span><span id="runtime-status-text">Checking runtime…</span></span></div>
-        <div class="status-item"><strong>Latency</strong><span id="runtime-latency">—</span></div>
-        <div class="status-item"><strong>Mode</strong><span id="runtime-mode">Live runtime</span></div>
-        <div class="status-item"><strong>Runtime URL</strong><span id="runtime-url" class="runtime-url">https://runtime.commandlayer.org</span></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="container workspace">
-    <div class="workspace-left">
-      <article class="card">
-        <div class="section-eyebrow">Chain mode</div>
-        <h2 style="margin-top:0.18rem;">Choose the fastest proof path or build a live chain.</h2>
-        <p>Default mode gets to a signed, verified artifact quickly. Custom mode exposes the runtime verbs without turning the surface into a generic workflow builder.</p>
-        <div class="mode-toggle" role="tablist" aria-label="Chain mode toggle" style="margin-top:1rem;">
-          <button id="mode-default" class="is-active" type="button" role="tab" aria-selected="true">Default chain</button>
-          <button id="mode-custom" type="button" role="tab" aria-selected="false">Custom chain</button>
-        </div>
-      </article>
-
-      <article id="default-card" class="card">
-        <div class="section-eyebrow">Default chain</div>
-        <h2 style="margin-top:0.18rem;">Run the verified default chain.</h2>
-        <p>Locked chain: <span class="mono">clean → summarize</span>. Edit the source content and final instructions, then run the live chain and verify the final receipt.</p>
-        <div class="chain-summary">
-          <div class="mode-label">Chain summary</div>
-          <div class="chain-flow">
-            <span class="chain-pill">1 · clean</span>
-            <span class="chain-pill">2 · summarize</span>
-          </div>
-          <div class="form-hint">Step 2 receives the output of Step 1 automatically so the first proof moment stays fast and deterministic.</div>
-        </div>
-        <div class="form-grid">
-          <div class="form-row">
-            <label for="default-source-content">Source content</label>
-            <textarea id="default-source-content">Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently.</textarea>
-          </div>
-          <div class="form-row">
-            <label for="default-final-instructions">Final instructions</label>
-            <textarea id="default-final-instructions">Summarize the cleaned result into a short proof brief for a skeptical hackathon judge. Focus on what ran, what artifact was emitted, and why the receipt is independently verifiable.</textarea>
-          </div>
-        </div>
-        <div class="run-controls">
-          <button id="run-default" class="btn btn--primary" type="button">Run Default Chain</button>
-        </div>
-      </article>
-
-      <article id="custom-card" class="card" hidden>
-        <div class="section-eyebrow">Custom chain</div>
-        <h2 style="margin-top:0.18rem;">Build a live chain from the runtime verbs.</h2>
-        <p>Compose the chain from the 10 verbs, pass previous step output forward when needed, and run the sequence through the live Commons v1.1.0 verb routes.</p>
-        <div class="run-controls">
-          <button id="add-step" class="btn btn--secondary" type="button">Add Step</button>
-          <span class="form-hint">Available verbs: fetch, describe, format, clean, parse, summarize, convert, explain, analyze, classify.</span>
-        </div>
-        <div id="custom-builder" class="custom-builder"></div>
-        <div class="run-controls">
-          <button id="run-custom" class="btn btn--primary" type="button">Run Custom Chain</button>
-        </div>
-      </article>
-    </div>
-
-    <div class="workspace-right">
-      <article id="final-artifact-card" class="receipt-card" aria-live="polite">
-        <div class="receipt-head">
-          <div>
-            <div class="section-eyebrow">Final artifact</div>
-            <h2 style="margin-top:0.18rem;">Signed receipt and verification summary.</h2>
-          </div>
-          <span id="artifact-badge" class="badge">Awaiting run</span>
-        </div>
-        <p id="artifact-summary">Run the default chain to generate a final receipt and verify it through the live runtime.</p>
-        <div class="receipt-meta-grid">
-          <div class="mini-card"><strong>Verification</strong><span id="artifact-verification">Pending</span></div>
-          <div class="mini-card"><strong>Signer ENS</strong><span id="artifact-signer">—</span></div>
-          <div class="mini-card"><strong>kid</strong><span id="artifact-kid">—</span></div>
-          <div class="mini-card"><strong>Hash</strong><span id="artifact-hash">—</span></div>
-          <div class="mini-card"><strong>Schema version</strong><span id="artifact-schema">—</span></div>
-          <div class="mini-card"><strong>Artifact mode</strong><span id="artifact-mode">Live runtime</span></div>
-        </div>
-        <div class="copy-grid">
-          <div>
-            <div class="section-eyebrow" style="margin-bottom:0.45rem;">Final receipt JSON</div>
-            <pre id="final-receipt-json" class="json-block">{
-  "status": "ready"
-}</pre>
-          </div>
-          <div>
-            <div class="section-eyebrow" style="margin-bottom:0.45rem;">Verification JSON</div>
-            <pre id="verification-json" class="json-block">{
-  "status": "pending"
-}</pre>
-          </div>
-        </div>
-        <div class="card-actions">
-          <button id="copy-final-receipt" class="btn btn--secondary" type="button">Copy Final Receipt</button>
-          <button id="copy-verification-json" class="btn btn--secondary" type="button">Copy Verification JSON</button>
-          <button id="copy-curl-command" class="btn btn--secondary" type="button" disabled>Copy cURL Verify Command</button>
-          <a id="view-schema-link" class="btn btn--ghost" href="/schemas/v1.1.0/commons/summarize/receipts/summarize.receipt.schema.json" target="_blank" rel="noopener noreferrer">View Schema</a>
-        </div>
-      </article>
-
-      <article class="card">
-        <div class="section-eyebrow">Trust details</div>
-        <h2 style="margin-top:0.18rem;">Independent verification at a glance.</h2>
-        <p id="trust-copy">The right rail keeps the final artifact primary: verification status, signer identity, proof hash, and direct copy actions for independent verification.</p>
-        <div class="chain-flow" id="trust-tags" style="margin-top:0.9rem;">
-          <span class="mini-pill">POST /&lt;verb&gt;/v1.1.0</span>
-          <span class="mini-pill">POST /verify?ens=1&amp;strict_kid=1</span>
-          <span class="mini-pill">ENS + Ed25519</span>
-        </div>
-      </article>
-    </div>
-  </section>
-
-  <section class="container" style="padding-bottom:2rem; display:grid; gap:1rem;">
-    <details id="step-receipts-disclosure" class="disclosure">
-      <summary>
-        <div>
-          <div class="section-eyebrow">Step receipts</div>
-          <h2 style="margin:0.16rem 0 0; font-size:1.1rem;">Inspect the chain receipts.</h2>
-        </div>
-        <span id="steps-summary-tag" class="badge">0 steps</span>
-      </summary>
-      <div class="disclosure__content" id="step-receipts-content">
-        <div class="empty-state">Run the chain to inspect step receipts here.</div>
-      </div>
-    </details>
-
-    <details id="runtime-context-disclosure" class="disclosure">
-      <summary>
-        <div>
-          <div class="section-eyebrow">Runtime context</div>
-          <h2 style="margin:0.16rem 0 0; font-size:1.1rem;">Execution context and fallback state.</h2>
-        </div>
-        <span id="runtime-context-badge" class="badge">Waiting</span>
-      </summary>
-      <div class="disclosure__content">
-        <div id="runtime-context-callout" class="callout"><strong>Waiting for execution.</strong> Runtime metadata and any recorded fallback note will appear here after a run.</div>
-      </div>
-    </details>
-  </section>
-</main>
-
-<footer class="site-footer">
-  <div class="container site-footer__inner">
-    <div>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</div>
-    <div class="site-footer__links">
-      <a href="/docs.html">Docs</a>
-      <a href="/repositories.html">Repositories</a>
-      <a href="/faq.html">FAQ</a>
-      <a href="/about.html">About</a>
-      <a href="/licensing.html">Licensing</a>
-    </div>
-  </div>
-</footer>
-</div>
-
-<script>
-(function () {
-  const header = document.querySelector('.site-header');
-  const toggle = document.querySelector('.site-header__toggle');
-  const docsBtn = document.querySelector('.site-header__dropdown-btn');
-  if (toggle && header) {
-    toggle.addEventListener('click', () => {
-      const isOpen = header.classList.toggle('site-header--open');
-      toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    });
-  }
-  if (docsBtn && header) {
-    docsBtn.addEventListener('click', () => {
-      header.classList.toggle('site-header--docs-open');
-    });
-  }
-})();
-
-(function () {
-  const RUNTIME_BASE = 'https://runtime.commandlayer.org';
-  const RUNTIME_VERSION = '1.1.0';
-  const STORAGE_KEY = 'commandlayer:last-proof-artifact:v2';
-  const RECORDED_ARTIFACT_URL = '/assets/receipts/clean.recorded-live-artifact.v1.1.0.json';
-  const VERBS = ['fetch', 'describe', 'format', 'clean', 'parse', 'summarize', 'convert', 'explain', 'analyze', 'classify'];
-  const DEFAULT_CHAIN = [
-    {
-      verb: 'clean',
-      inputBuilder: () => ({
-        content: document.getElementById('default-source-content').value,
-        operations: ['trim_whitespace', 'collapse_blank_lines', 'preserve_meaning']
-      })
-    },
-    {
-      verb: 'summarize',
-      usePreviousOutput: true,
-      inputBuilder: () => ({
-        instructions: document.getElementById('default-final-instructions').value
-      })
-    }
-  ];
-
-  const state = {
-    mode: 'default',
-    runtimeHealthy: null,
-    runtimeLatency: '—',
-    bundledRecordedArtifact: null,
-    lastArtifact: null,
-    running: false,
-    customSteps: [
-      { id: crypto.randomUUID(), verb: 'fetch', usePreviousOutput: false, inputText: '{\n  "url": "https://commandlayer.org"\n}' },
-      { id: crypto.randomUUID(), verb: 'describe', usePreviousOutput: true, inputText: '{\n  "detail_level": "medium",\n  "audience": "technical"\n}' }
-    ]
-  };
-
-  const elements = {
-    modeDefault: document.getElementById('mode-default'),
-    modeCustom: document.getElementById('mode-custom'),
-    defaultCard: document.getElementById('default-card'),
-    customCard: document.getElementById('custom-card'),
-    customBuilder: document.getElementById('custom-builder'),
-    addStep: document.getElementById('add-step'),
-    runDefault: document.getElementById('run-default'),
-    runCustom: document.getElementById('run-custom'),
-    heroRunDefault: document.getElementById('hero-run-default'),
-    heroBuildCustom: document.getElementById('hero-build-custom'),
-    heroCopyCurl: document.getElementById('hero-copy-curl'),
-    runtimeStatusBar: document.getElementById('runtime-status-bar'),
-    runtimeStatusText: document.getElementById('runtime-status-text'),
-    runtimeLatency: document.getElementById('runtime-latency'),
-    runtimeMode: document.getElementById('runtime-mode'),
-    runtimeUrl: document.getElementById('runtime-url'),
-    proofStrip: document.getElementById('proof-strip'),
-    proofStripTitle: document.getElementById('proof-strip-title'),
-    proofStripCopy: document.getElementById('proof-strip-copy'),
-    proofStripBadge: document.getElementById('proof-strip-badge'),
-    proofStripStatus: document.getElementById('proof-strip-status'),
-    proofStripSigner: document.getElementById('proof-strip-signer'),
-    proofStripKid: document.getElementById('proof-strip-kid'),
-    proofStripHash: document.getElementById('proof-strip-hash'),
-    finalArtifactCard: document.getElementById('final-artifact-card'),
-    artifactBadge: document.getElementById('artifact-badge'),
-    artifactSummary: document.getElementById('artifact-summary'),
-    artifactVerification: document.getElementById('artifact-verification'),
-    artifactSigner: document.getElementById('artifact-signer'),
-    artifactKid: document.getElementById('artifact-kid'),
-    artifactHash: document.getElementById('artifact-hash'),
-    artifactSchema: document.getElementById('artifact-schema'),
-    artifactMode: document.getElementById('artifact-mode'),
-    finalReceiptJson: document.getElementById('final-receipt-json'),
-    verificationJson: document.getElementById('verification-json'),
-    copyFinalReceipt: document.getElementById('copy-final-receipt'),
-    copyVerificationJson: document.getElementById('copy-verification-json'),
-    copyCurlCommand: document.getElementById('copy-curl-command'),
-    viewSchemaLink: document.getElementById('view-schema-link'),
-    stepReceiptsDisclosure: document.getElementById('step-receipts-disclosure'),
-    stepReceiptsContent: document.getElementById('step-receipts-content'),
-    stepsSummaryTag: document.getElementById('steps-summary-tag'),
-    runtimeContextDisclosure: document.getElementById('runtime-context-disclosure'),
-    runtimeContextBadge: document.getElementById('runtime-context-badge'),
-    runtimeContextCallout: document.getElementById('runtime-context-callout')
-  };
-
-  function escapeHtml(value) {
-    return String(value)
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;');
-  }
-
-  function formatJson(value) {
-    try {
-      return JSON.stringify(value, null, 2);
-    } catch {
-      return String(value);
-    }
-  }
-
-/* main */
-.main{
-  padding:26px 0 32px;
-}
-.stack{
+.main{padding:28px 0 36px}
+.hero{
   display:grid;
-  grid-template-columns:minmax(0,1.4fr) minmax(320px,.8fr);
+  grid-template-columns:minmax(0,1.35fr) 340px;
   gap:18px;
-  align-items:start;
 }
 .card{
-  background:linear-gradient(180deg, rgba(12,18,31,.94), rgba(7,12,23,.96));
-  border:1px solid rgba(255,255,255,.07);
+  background:linear-gradient(180deg,rgba(11,18,32,.94),rgba(8,13,24,.98));
+  border:1px solid var(--line);
   border-radius:var(--radius);
   box-shadow:var(--shadow);
 }
 .card-inner{padding:18px}
 .eyebrow{
-  display:inline-flex;align-items:center;gap:6px;
+  display:inline-flex;align-items:center;
   height:24px;padding:0 10px;border-radius:999px;
   font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
   color:#cfe4ff;background:rgba(23,54,110,.42);
-  border:1px solid rgba(107,160,255,.18)
+  border:1px solid rgba(107,160,255,.18);
 }
-.title{
-  margin:12px 0 8px;font-size:34px;line-height:.98;letter-spacing:-.04em;font-weight:750;
-  max-width:760px
+h1{
+  margin:12px 0 8px;
+  font-size:34px;line-height:1.02;letter-spacing:-.04em;
+  max-width:760px;
 }
 .lead{
-  margin:0;color:var(--muted);font-size:13px;line-height:1.45;max-width:760px
+  margin:0;color:var(--muted);
+  font-size:13px;line-height:1.45;max-width:760px;
 }
+.hero-actions,.actions{
+  display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;
+}
+.btn{
+  height:40px;padding:0 16px;border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);color:var(--text);
+  cursor:pointer;font-size:12px;font-weight:700;
+}
+.btn-primary{
+  border:none;color:#04111d;
+  background:linear-gradient(135deg,var(--blue),var(--blue-2));
+  box-shadow:0 10px 28px rgba(39,151,255,.28);
+}
+.btn-quiet{color:var(--muted)}
 
-/* top run surface */
-.run-surface .card-inner{padding:20px}
-.modebar{
-  margin-top:18px;display:flex;gap:8px;flex-wrap:wrap
-}
-.modebtn{
-  height:36px;padding:0 14px;border-radius:999px;
-  border:1px solid rgba(255,255,255,.08);
-  background:rgba(255,255,255,.03);color:var(--muted);
-  cursor:pointer;font-size:12px;font-weight:600
-}
-.modebtn.active{
-  color:var(--text);
-  background:linear-gradient(180deg, rgba(43,112,220,.32), rgba(20,67,160,.28));
-  border-color:rgba(107,160,255,.28)
-}
-
-  function schemaUrlForReceipt(receipt) {
-    const version = receipt?.schema_version || '1.1.0';
-    const verb = receipt?.verb || 'summarize';
-    return `/schemas/v${version}/commons/${verb}/receipts/${verb}.receipt.schema.json`;
-  }
-
-.panel{
-  background:rgba(255,255,255,.02);
-  border:1px solid rgba(255,255,255,.06);
-  border-radius:16px;
-}
-.panel-inner{padding:16px}
-.panel-title{
-  margin:0 0 8px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--muted-2);font-weight:700
-}
-.panel-copy{
-  margin:0;color:var(--muted);font-size:12px;line-height:1.45
-}
-
-/* status strip */
 .status-strip{
-  margin-top:14px;
-  display:grid;grid-template-columns:repeat(4, minmax(0,1fr));
-  gap:10px
+  margin-top:16px;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;
 }
 .mini{
   min-height:64px;padding:12px 14px;border-radius:14px;
   background:rgba(255,255,255,.025);
-  border:1px solid rgba(255,255,255,.06)
+  border:1px solid var(--line);
 }
 .mini-label{
-  font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700
+  font-size:10px;text-transform:uppercase;letter-spacing:.12em;
+  color:#6f7b93;font-weight:700;
 }
 .mini-value{
-  margin-top:8px;font-size:13px;font-weight:650;line-height:1.25
+  margin-top:8px;font-size:13px;font-weight:650;line-height:1.25;
 }
 .live-dot{
-  display:inline-block;width:8px;height:8px;border-radius:999px;background:var(--ok);
-  box-shadow:0 0 0 4px rgba(99,230,168,.12)
+  display:inline-block;width:8px;height:8px;border-radius:999px;
+  background:var(--ok);box-shadow:0 0 0 4px rgba(99,230,168,.12);
 }
 
-  function loadStoredArtifact() {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      return parsed && typeof parsed === 'object' ? parsed : null;
-    } catch {
-      return null;
-    }
-  }
+.workspace{
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:minmax(0,1.35fr) 340px;
+  gap:18px;
+}
+.section-title{
+  margin:0;font-size:15px;font-weight:700;letter-spacing:-.02em;
+}
+.section-sub{
+  margin:4px 0 0;color:var(--muted);font-size:12px;
+}
+
+.modebar{
+  display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;
+}
+.modebtn{
+  height:36px;padding:0 14px;border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);color:var(--muted);
+  cursor:pointer;font-size:12px;font-weight:600;
+}
+.modebtn.active{
+  color:var(--text);
+  background:linear-gradient(180deg,rgba(43,112,220,.32),rgba(20,67,160,.28));
+  border-color:rgba(107,160,255,.28);
+}
 
 .chain-pills{
-  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px
+  display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px;
 }
-.pill, .arrow{
-  height:34px;display:inline-flex;align-items:center;justify-content:center
+.pill,.arrow{
+  height:34px;display:inline-flex;align-items:center;justify-content:center;
 }
 .pill{
-  padding:0 12px;border-radius:999px;background:rgba(255,255,255,.04);
-  border:1px solid rgba(255,255,255,.08);font-size:12px;font-weight:650
+  padding:0 12px;border-radius:999px;
+  background:rgba(255,255,255,.04);
+  border:1px solid var(--line);
+  font-size:12px;font-weight:650;
 }
-.arrow{
-  color:var(--muted-2);font-size:14px;padding:0 2px
-}
+.arrow{color:#6f7b93;font-size:14px;padding:0 2px}
 
 .builder-row{
-  display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:10px;align-items:center;
-  margin-top:16px
+  display:grid;
+  grid-template-columns:1fr auto 1fr auto 1fr;
+  gap:10px;align-items:center;margin-top:16px;
 }
-.select-wrap{
-  position:relative
-}
+.select-wrap{position:relative}
 .select-wrap select{
   width:100%;height:44px;padding:0 14px;
   background:rgba(255,255,255,.035);color:var(--text);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:14px;outline:none;
-  appearance:none;-webkit-appearance:none;-moz-appearance:none;
-  font-size:13px;font-weight:600
+  border:1px solid var(--line);border-radius:14px;outline:none;
+  appearance:none;
+  font-size:13px;font-weight:600;
 }
-.select-wrap:after{
-  content:"▾";position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  color:var(--muted);pointer-events:none;font-size:12px
+.select-wrap::after{
+  content:"▾";
+  position:absolute;right:14px;top:50%;transform:translateY(-50%);
+  color:var(--muted);pointer-events:none;font-size:12px;
 }
-.chain-arrow{
-  text-align:center;color:var(--muted-2);font-size:16px;font-weight:700
+.chain-arrow{color:#6f7b93;font-size:16px;font-weight:700}
+
+.field{margin-top:14px}
+.field label{
+  display:block;margin:0 0 8px;
+  font-size:11px;text-transform:uppercase;letter-spacing:.12em;
+  color:#6f7b93;font-weight:700;
+}
+.field textarea{
+  width:100%;min-height:110px;resize:vertical;
+  border-radius:14px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03);color:var(--text);
+  padding:13px 14px;line-height:1.45;font-size:13px;outline:none;
 }
 
-  function extractKid(source) {
-    return source?.verification?.kid
-      || source?.verification?.values?.kid
-      || source?.artifact?.receipt?.metadata?.proof?.kid
-      || source?.artifact?.runtime_metadata?.proof?.kid
-      || source?.runtime_metadata?.proof?.kid
-      || null;
-  }
-
-  function extractSigner(source) {
-    return source?.verification?.signer_id
-      || source?.verification?.values?.signer_id
-      || source?.artifact?.receipt?.metadata?.proof?.signer_id
-      || source?.artifact?.runtime_metadata?.proof?.signer_id
-      || source?.runtime_metadata?.proof?.signer_id
-      || source?.fallback_signer
-      || null;
-  }
-
-  function extractHash(source) {
-    return source?.verification?.hash_sha256
-      || source?.verification?.values?.hash_sha256
-      || source?.artifact?.receipt?.metadata?.proof?.hash_sha256
-      || source?.artifact?.runtime_metadata?.proof?.hash_sha256
-      || source?.runtime_metadata?.proof?.hash_sha256
-      || null;
-  }
-
-.badge-ok,.badge-pending{
+.rail .card + .card{margin-top:16px}
+.kv-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;
+}
+.kv{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  border-radius:14px;padding:12px;
+}
+.kv .k{
+  font-size:10px;text-transform:uppercase;letter-spacing:.12em;
+  color:#6f7b93;font-weight:700;
+}
+.kv .v{
+  margin-top:8px;font-size:12px;font-weight:650;word-break:break-word;
+}
+.badge{
   display:inline-flex;align-items:center;gap:8px;
-  height:28px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:700
+  height:28px;padding:0 10px;border-radius:999px;
+  font-size:11px;font-weight:700;
 }
-.badge-ok{
-  color:#b8f6d7;background:rgba(38,120,82,.22);border:1px solid rgba(99,230,168,.24)
+.badge.pending{
+  color:#ffe2a6;background:rgba(122,91,20,.20);
+  border:1px solid rgba(255,204,102,.20);
 }
-.badge-pending{
-  color:#ffe2a6;background:rgba(122,91,20,.20);border:1px solid rgba(255,204,102,.20)
+.badge.ok{
+  color:#b8f6d7;background:rgba(38,120,82,.22);
+  border:1px solid rgba(99,230,168,.24);
 }
-.dot-ok,.dot-pending{
-  width:8px;height:8px;border-radius:999px;display:inline-block
+.codebox{
+  margin-top:12px;border-radius:14px;
+  background:#060a12;border:1px solid var(--line);
+  padding:12px;overflow:auto;
 }
-.dot-ok{background:var(--ok)}
-.dot-pending{background:var(--warn)}
-
-  function buildArtifact({ steps, mode, fallbackLabel, runtimeMessage }) {
-    const normalizedSteps = Array.isArray(steps) ? steps : [];
-    const finalStep = normalizedSteps[normalizedSteps.length - 1] || {};
-    const finalArtifact = finalStep.artifact || null;
-    const finalReceipt = finalStep.receipt || null;
-    const verification = normalizeVerification(finalStep.verification || {});
-    const runtimeMetadata = finalStep.runtime_metadata || null;
-    const signer = extractSigner({ verification, artifact: finalArtifact, runtime_metadata: runtimeMetadata, fallback_signer: finalStep.fallback_signer }) || 'Signer unavailable';
-    const kid = extractKid({ verification, artifact: finalArtifact, runtime_metadata: runtimeMetadata }) || 'unknown';
-    const hash = extractHash({ verification, artifact: finalArtifact, runtime_metadata: runtimeMetadata }) || 'Hash unavailable';
-    return {
-      mode,
-      fallbackLabel: fallbackLabel || null,
-      runtimeMessage: runtimeMessage || '',
-      artifact: finalArtifact,
-      receipt: finalReceipt,
-      verification,
-      runtime_metadata: runtimeMetadata,
-      signer,
-      kid,
-      hash,
-      schema_version: finalReceipt?.schema_version || '—',
-      schema_url: schemaUrlForReceipt(finalReceipt || {}),
-      steps: normalizedSteps,
-      verified: verification.ok === true
-    };
-  }
-
-.footer{
-  padding:18px 0 28px
+.codebox pre{
+  margin:0;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  font-size:11px;line-height:1.5;color:#dce7ff;
 }
-.footer-row{
-  display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
-  color:var(--muted-2);font-size:11px
-}
-
 .hidden{display:none !important}
 
-@media (max-width: 1100px){
-  .stack,
-  .surface-grid{
-    grid-template-columns:1fr;
-  }
+.footer{padding:18px 0 28px}
+.footer-row{
+  display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;
+  color:#6f7b93;font-size:11px;
 }
 
-@media (max-width: 760px){
-  .title{font-size:28px}
+@media (max-width:1100px){
+  .hero,.workspace{grid-template-columns:1fr}
+}
+@media (max-width:760px){
+  h1{font-size:28px}
   .status-strip{grid-template-columns:1fr 1fr}
   .builder-row{grid-template-columns:1fr;gap:8px}
   .chain-arrow{display:none}
   .kv-grid{grid-template-columns:1fr}
-  .site-header .wrap{min-height:60px}
   .nav{display:none}
 }
 </style>
 </head>
 <body>
-<div class="shell">
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand" href="/">
+      <img src="icon2.png" alt="CommandLayer Logo" />
+      <div class="brand-copy">
+        <strong>CommandLayer</strong>
+        <span>Signed, verifiable receipts for agent execution</span>
+      </div>
+    </a>
+    <nav class="nav">
+      <a href="/">Home</a>
+      <a href="/composer.html" class="active">Composer</a>
+      <a href="/quickstart.html">Quickstart</a>
+      <a href="/docs.html">Docs</a>
+      <a href="https://github.com/commandlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </nav>
+  </div>
+</header>
 
-  <header class="site-header">
-    <div class="wrap">
-      <a class="brand" href="/">
-        <div class="brand-mark" aria-hidden="true"></div>
-        <div class="brand-copy">
-          <strong>CommandLayer</strong>
-          <span>Signed, verifiable receipts for agent execution</span>
+<main class="main">
+  <div class="wrap">
+
+    <section class="hero">
+      <div class="card">
+        <div class="card-inner">
+          <div class="eyebrow">Live Commons Runtime</div>
+          <h1>Chain 3 Commons verbs. Run live. Verify independently.</h1>
+          <p class="lead">
+            Compact execution surface for live Commons chains. The builder runs Commons verbs only. Verification happens after the final receipt returns.
+          </p>
+
+          <div class="hero-actions">
+            <button class="btn btn-primary" id="hero-run-default" type="button">Run Default Chain</button>
+            <button class="btn" id="hero-build-custom" type="button">Build Chain</button>
+            <button class="btn btn-quiet" id="hero-copy-curl" type="button" disabled>Copy Verify cURL</button>
+          </div>
+
+          <div class="status-strip">
+            <div class="mini">
+              <div class="mini-label">Status</div>
+              <div class="mini-value"><span class="live-dot"></span> <span id="runtime-status-text">Checking runtime…</span></div>
+            </div>
+            <div class="mini">
+              <div class="mini-label">Latency</div>
+              <div class="mini-value" id="runtime-latency">—</div>
+            </div>
+            <div class="mini">
+              <div class="mini-label">Mode</div>
+              <div class="mini-value">Live runtime</div>
+            </div>
+            <div class="mini">
+              <div class="mini-label">Runtime URL</div>
+              <div class="mini-value">runtime.commandlayer.org</div>
+            </div>
+          </div>
         </div>
-      </article>
-    `).join('');
-  }
+      </div>
 
-  function addCustomStep() {
-    state.customSteps.push({ id: crypto.randomUUID(), verb: 'clean', usePreviousOutput: true, inputText: '{\n  "content": "Example input"\n}' });
-    renderCustomBuilder();
-  }
+      <aside class="card rail">
+        <div class="card-inner">
+          <div class="eyebrow">Protocol surface</div>
+          <h2 class="section-title" style="margin-top:12px;">Commons chain first. Verification second.</h2>
+          <p class="section-sub" style="margin-top:10px;">
+            No fake verify step in the Commons builder. Build 3 Commons verbs, run them, then verify the final receipt independently.
+          </p>
+        </div>
+      </aside>
+    </section>
 
-  function moveStep(index, direction) {
-    const target = index + direction;
-    if (target < 0 || target >= state.customSteps.length) return;
-    const next = [...state.customSteps];
-    [next[index], next[target]] = [next[target], next[index]];
-    state.customSteps = next;
-    renderCustomBuilder();
-  }
+    <section class="workspace">
+      <div>
+        <div class="card">
+          <div class="card-inner">
+            <div class="eyebrow">Chain mode</div>
+            <h2 class="section-title" style="margin-top:12px;">Choose a preloaded chain or build your own.</h2>
+            <p class="section-sub">Smaller, tighter, protocol-like. No oversized demo copy.</p>
 
-  function updateCustomStep(id, field, value) {
-    state.customSteps = state.customSteps.map((step) => step.id === id ? { ...step, [field]: value } : step);
-  }
-
-  function removeCustomStep(id) {
-    state.customSteps = state.customSteps.filter((step) => step.id !== id);
-    renderCustomBuilder();
-  }
-
-  async function verifyReceipt(receipt) {
-    const res = await fetch(`${RUNTIME_BASE}/verify?ens=1&strict_kid=1`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(receipt)
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(`Verification failed (${res.status})`);
-    }
-    return normalizeVerification(data);
-  }
-
-  async function runVerb(verb, body) {
-    const res = await fetch(`${RUNTIME_BASE}/${verb}/v${RUNTIME_VERSION}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-
-    const data = await res.json().catch(() => ({}));
-
-    if (!res.ok) {
-      throw new Error(`Runtime ${verb} failed (${res.status})`);
-    }
-
-    return data;
-  }
-
-  function extractReceipt(result) {
-    return result?.receipt || result?.payload || result?.result || result || null;
-  }
-
-  function buildStepRuntimeMetadata(result, verification) {
-    const metadata = result?.runtime_metadata && typeof result.runtime_metadata === 'object'
-      ? { ...result.runtime_metadata }
-      : {};
-
-    if (!metadata.proof && verification?.proof && typeof verification.proof === 'object') {
-      metadata.proof = verification.proof;
-    }
-
-    if (!metadata.proof) {
-      const proof = {};
-      const kid = extractKid({ verification });
-      const signer = extractSigner({ verification });
-      const hash = extractHash({ verification });
-      if (kid) proof.kid = kid;
-      if (signer) proof.signer_id = signer;
-      if (hash) proof.hash_sha256 = hash;
-      if (Object.keys(proof).length) metadata.proof = proof;
-    }
-
-    return Object.keys(metadata).length ? metadata : null;
-  }
-
-  async function executeChain(chainSteps, modeLabel) {
-    updateBusyState(true);
-    elements.artifactBadge.className = 'badge';
-    elements.artifactBadge.textContent = 'Running';
-    elements.artifactSummary.textContent = `Executing ${modeLabel} through ${RUNTIME_BASE}.`;
-    elements.runtimeContextBadge.textContent = 'Running';
-    elements.runtimeContextCallout.innerHTML = '<strong>Running live execution.</strong> The runtime context will update when the chain completes.';
-
-    try {
-      const results = [];
-      let previousOutput = null;
-
-      for (const step of chainSteps) {
-        const baseInput = typeof step.inputBuilder === 'function' ? step.inputBuilder() : parseJsonInput(step.inputText);
-        const input = step.usePreviousOutput
-          ? { ...(baseInput || {}), previous_result: previousOutput }
-          : (baseInput || {});
-
-        const result = await runVerb(step.verb, input);
-        const receipt = extractReceipt(result);
-        const verification = receipt
-          ? await verifyReceipt(receipt).catch((error) => ({ ok: false, reason: error?.message || 'Verification request failed.' }))
-          : { ok: false, reason: 'Runtime did not return a receipt payload.' };
-
-        results.push({
-          verb: step.verb,
-          input,
-          artifact: result,
-          receipt,
-          verification,
-          runtime_metadata: buildStepRuntimeMetadata(result, verification),
-          raw_result: result
-        });
-
-            <div class="modebar" role="tablist" aria-label="Composer mode">
+            <div class="modebar">
               <button class="modebtn active" id="mode-default-btn" type="button">Default chain</button>
               <button class="modebtn" id="mode-builder-btn" type="button">Build chain</button>
             </div>
+          </div>
+        </div>
 
-            <div class="status-strip">
-              <div class="mini">
-                <div class="mini-label">Status</div>
-                <div class="mini-value"><span class="live-dot"></span> Live runtime reachable</div>
-              </div>
-              <div class="mini">
-                <div class="mini-label">Latency</div>
-                <div class="mini-value">656 ms</div>
-              </div>
-              <div class="mini">
-                <div class="mini-label">Mode</div>
-                <div class="mini-value">Live runtime</div>
-              </div>
-              <div class="mini">
-                <div class="mini-label">Runtime URL</div>
-                <div class="mini-value">runtime.commandlayer.org</div>
-              </div>
+        <section class="card" id="default-mode" style="margin-top:16px;">
+          <div class="card-inner">
+            <h2 class="section-title">Default chain</h2>
+            <p class="section-sub">Fast proof path with a preloaded Commons chain.</p>
+
+            <div class="chain-pills">
+              <span class="pill">clean</span>
+              <span class="arrow">→</span>
+              <span class="pill">summarize</span>
+              <span class="arrow">→</span>
+              <span class="pill">classify</span>
             </div>
 
-            <div class="surface-grid">
+            <div class="field">
+              <label for="default-source-content">Source content</label>
+              <textarea id="default-source-content">Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, then produce a compact judge-facing output.</textarea>
+            </div>
 
-              <div>
-                <!-- DEFAULT MODE -->
-                <section class="panel chain-card" id="default-mode">
-                  <div class="panel-inner">
-                    <div class="chain-head">
-                      <div>
-                        <h2 class="chain-title">Default chain</h2>
-                        <p class="chain-sub">Fast proof path with a preloaded chain.</p>
-                      </div>
-                    </div>
+            <div class="field">
+              <label for="default-final-instructions">Final instructions</label>
+              <textarea id="default-final-instructions">Return a short proof brief explaining what ran, what artifact was produced, and why the final receipt can be checked independently.</textarea>
+            </div>
 
-                    <div class="chain-pills" aria-label="Default chain steps">
-                      <span class="pill">clean</span>
-                      <span class="arrow">→</span>
-                      <span class="pill">summarize</span>
-                      <span class="arrow">→</span>
-                      <span class="pill">verify</span>
-                    </div>
-
-                    <div class="field-grid">
-                      <div class="field">
-                        <label for="default-source-content">Source content</label>
-                        <textarea id="default-source-content">Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently.</textarea>
-                      </div>
-                      <div class="field">
-                        <label for="default-final-instructions">Final instructions</label>
-                        <textarea id="default-final-instructions">Summarize the cleaned result into a short proof brief for a skeptical hackathon judge. Focus on what ran, what artifact was emitted, and why the receipt is independently verifiable.</textarea>
-                      </div>
-                    </div>
-
-                    <div class="actions">
-                      <button class="btn btn-primary" type="button">Run chain</button>
-                      <button class="btn btn-quiet" type="button">Load example</button>
-                    </div>
-                  </div>
-                </section>
-
-                <!-- BUILDER MODE -->
-                <section class="panel chain-card hidden" id="builder-mode">
-                  <div class="panel-inner">
-                    <div class="chain-head">
-                      <div>
-                        <h2 class="chain-title">Build chain</h2>
-                        <p class="chain-sub">Select 3 runtime verbs and execute them in sequence.</p>
-                      </div>
-                    </div>
-
-                    <div class="builder-row" aria-label="3-step chain builder">
-                      <div class="select-wrap">
-                        <select id="verb-1">
-                          <option>clean</option>
-                          <option>summarize</option>
-                          <option>analyze</option>
-                          <option>describe</option>
-                          <option>explain</option>
-                          <option>format</option>
-                          <option>parse</option>
-                          <option>convert</option>
-                          <option>fetch</option>
-                          <option>verify</option>
-                        </select>
-                      </div>
-
-                      <div class="chain-arrow">→</div>
-
-                      <div class="select-wrap">
-                        <select id="verb-2">
-                          <option>summarize</option>
-                          <option>clean</option>
-                          <option>analyze</option>
-                          <option>describe</option>
-                          <option>explain</option>
-                          <option>format</option>
-                          <option>parse</option>
-                          <option>convert</option>
-                          <option>fetch</option>
-                          <option>verify</option>
-                        </select>
-                      </div>
-
-                      <div class="chain-arrow">→</div>
-
-                      <div class="select-wrap">
-                        <select id="verb-3">
-                          <option>verify</option>
-                          <option>clean</option>
-                          <option>summarize</option>
-                          <option>analyze</option>
-                          <option>describe</option>
-                          <option>explain</option>
-                          <option>format</option>
-                          <option>parse</option>
-                          <option>convert</option>
-                          <option>fetch</option>
-                        </select>
-                      </div>
-                    </div>
-
-                    <div class="field-grid">
-                      <div class="field">
-                        <label for="builder-source">Source content</label>
-                        <textarea id="builder-source" placeholder="Paste the input artifact or source content for step 1."></textarea>
-                      </div>
-                      <div class="field">
-                        <label for="builder-instructions">Execution instructions</label>
-                        <textarea id="builder-instructions" placeholder="Optional execution hint or final instruction for the chain."></textarea>
-                      </div>
-                    </div>
-
-                    <div class="actions">
-                      <button class="btn btn-primary" type="button">Run chain</button>
-                      <button class="btn btn-quiet" type="button">Reset</button>
-                    </div>
-                  </div>
-                </section>
-              </div>
-
-              <aside class="rail">
-                <section class="panel">
-                  <div class="panel-inner">
-                    <div class="panel-title">Final receipt</div>
-                    <span class="badge-pending">
-                      <span class="dot-pending"></span>
-                      Awaiting run
-                    </span>
-
-                    <div class="kv-grid">
-                      <div class="kv">
-                        <div class="k">Verification</div>
-                        <div class="v">Pending</div>
-                      </div>
-                      <div class="kv">
-                        <div class="k">Artifact mode</div>
-                        <div class="v">Live runtime</div>
-                      </div>
-                      <div class="kv">
-                        <div class="k">Signer ENS</div>
-                        <div class="v">—</div>
-                      </div>
-                      <div class="kv">
-                        <div class="k">kid</div>
-                        <div class="v">—</div>
-                      </div>
-                      <div class="kv">
-                        <div class="k">Hash</div>
-                        <div class="v">—</div>
-                      </div>
-                      <div class="kv">
-                        <div class="k">Schema version</div>
-                        <div class="v">—</div>
-                      </div>
-                    </div>
-
-                    <div class="codebox">
-<pre>{
-  "status": "ready"
-}</pre>
-                    </div>
-
-                    <div class="actions">
-                      <button class="btn" type="button">Copy receipt</button>
-                      <button class="btn" type="button">Copy verification</button>
-                      <button class="btn" type="button">Verify via cURL</button>
-                    </div>
-                  </div>
-                </section>
-
-                <section class="panel">
-                  <div class="panel-inner">
-                    <div class="panel-title">Verification surface</div>
-                    <p class="panel-copy">
-                      Final artifact first. Independent verification second. Minimal proof details, no giant explainer block.
-                    </p>
-                    <div class="token-row">
-                      <span class="token">POST /execute</span>
-                      <span class="token">POST /verify</span>
-                      <span class="token">ENS + Ed25519</span>
-                    </div>
-                    <p class="inline-note">
-                      Show full chain receipts only after a run, in a collapsed section below the result.
-                    </p>
-                  </div>
-                </section>
-              </aside>
-
+            <div class="actions">
+              <button class="btn btn-primary" id="run-default" type="button">Run Chain</button>
             </div>
           </div>
         </section>
 
-  function renderRuntimeContext(artifact) {
-    const label = artifact.mode === 'recorded' ? 'Recorded verified artifact' : 'Live runtime context';
-    const context = {
-      mode: artifact.mode,
-      runtime_message: artifact.runtimeMessage,
-      fallback_label: artifact.fallbackLabel,
-      runtime_metadata: artifact.runtime_metadata,
-      verification: artifact.verification
-    };
-    elements.runtimeContextBadge.textContent = artifact.mode === 'recorded' ? 'Recorded artifact' : 'Live context';
-    elements.runtimeContextCallout.innerHTML = `<strong>${escapeHtml(label)}.</strong> <pre class="json-block" style="margin-top:0.7rem; max-height:none;">${escapeHtml(formatJson(context))}</pre>`;
-  }
+        <section class="card hidden" id="builder-mode" style="margin-top:16px;">
+          <div class="card-inner">
+            <h2 class="section-title">Build chain</h2>
+            <p class="section-sub">Choose 3 Commons verbs. Verification is separate.</p>
 
-  function renderArtifact(artifact) {
-    state.lastArtifact = artifact;
-    const verified = artifact?.verified === true;
-    const recorded = artifact?.mode === 'recorded';
-    const badgeClass = verified ? 'badge badge--verified' : 'badge badge--review';
-    elements.finalArtifactCard.classList.toggle('receipt-card--verified', verified);
-    elements.artifactBadge.className = recorded ? `${badgeClass} badge--recorded` : badgeClass;
-    elements.artifactBadge.textContent = verified ? 'VERIFIED' : 'NEEDS REVIEW';
-    elements.artifactSummary.textContent = recorded
-      ? (artifact.fallbackLabel || 'Recorded verified artifact shown because live runtime is degraded.')
-      : 'Live chain execution completed. The final receipt and verification output are shown below.';
-    elements.artifactVerification.textContent = verified ? 'Verified via ENS + Ed25519' : (artifact.verification?.reason || 'Verification needs review');
-    elements.artifactSigner.textContent = artifact.signer || 'Signer unavailable';
-    elements.artifactKid.textContent = artifact.kid || 'unknown';
-    elements.artifactHash.textContent = artifact.hash || 'Hash unavailable';
-    elements.artifactSchema.textContent = artifact.schema_version || '—';
-    elements.artifactMode.textContent = recorded ? 'Recorded verified artifact' : 'Live runtime';
-    elements.finalReceiptJson.textContent = formatJson(artifact.receipt || { status: 'No receipt available' });
-    elements.verificationJson.textContent = formatJson(artifact.verification || { status: 'No verification response' });
-    elements.viewSchemaLink.href = artifact.schema_url || schemaUrlForReceipt(artifact.receipt || {});
+            <div class="builder-row">
+              <div class="select-wrap">
+                <select id="verb-1">
+                  <option>clean</option>
+                  <option>summarize</option>
+                  <option>analyze</option>
+                  <option>describe</option>
+                  <option>explain</option>
+                  <option>format</option>
+                  <option>parse</option>
+                  <option>convert</option>
+                  <option>fetch</option>
+                  <option>classify</option>
+                </select>
+              </div>
 
-    if (verified) {
-      elements.proofStrip.classList.add('is-visible');
-      elements.proofStripBadge.className = recorded ? 'badge badge--verified badge--recorded' : 'badge badge--verified';
-      elements.proofStripBadge.textContent = recorded ? 'RECORDED VERIFIED' : 'VERIFIED';
-      elements.proofStripTitle.textContent = recorded ? 'Recorded verified artifact' : 'Verified via ENS + Ed25519';
-      elements.proofStripCopy.textContent = recorded
-        ? 'The runtime is degraded, so a preserved verified artifact is shown. It remains distinct from a live run.'
-        : 'Live runtime execution completed and the final receipt verified successfully.';
-      elements.proofStripStatus.textContent = recorded ? 'Recorded verified artifact' : 'Live verified receipt';
-      elements.proofStripSigner.textContent = artifact.signer || 'Signer unavailable';
-      elements.proofStripKid.textContent = artifact.kid || 'unknown';
-      elements.proofStripHash.textContent = shortenHash(artifact.hash);
-    } else {
-      elements.proofStrip.classList.remove('is-visible');
-    }
+              <div class="chain-arrow">→</div>
 
-    const curlAvailable = Boolean(artifact.receipt);
-    elements.copyCurlCommand.disabled = !curlAvailable;
-    elements.heroCopyCurl.disabled = !curlAvailable;
+              <div class="select-wrap">
+                <select id="verb-2">
+                  <option>summarize</option>
+                  <option>clean</option>
+                  <option>analyze</option>
+                  <option>describe</option>
+                  <option>explain</option>
+                  <option>format</option>
+                  <option>parse</option>
+                  <option>convert</option>
+                  <option>fetch</option>
+                  <option>classify</option>
+                </select>
+              </div>
 
-    renderStepReceipts(artifact);
-    renderRuntimeContext(artifact);
-  }
+              <div class="chain-arrow">→</div>
 
-  async function renderRecordedFallback(reason) {
-    const stored = loadStoredArtifact();
-    if (stored && stored.receipt) {
-      renderArtifact({
-        ...stored,
-        mode: 'recorded',
-        fallbackLabel: reason || 'Recorded verified artifact',
-        runtimeMessage: 'Loaded from local stored artifact after runtime degradation.'
-      });
-      return;
-    }
+              <div class="select-wrap">
+                <select id="verb-3">
+                  <option>classify</option>
+                  <option>clean</option>
+                  <option>summarize</option>
+                  <option>analyze</option>
+                  <option>describe</option>
+                  <option>explain</option>
+                  <option>format</option>
+                  <option>parse</option>
+                  <option>convert</option>
+                  <option>fetch</option>
+                </select>
+              </div>
+            </div>
 
-    const bundled = await loadBundledRecordedArtifact();
-    const bundledArtifact = {
-      ...bundled,
-      mode: 'recorded',
-      verified: bundled?.verification?.ok === true,
-      fallbackLabel: reason || 'Recorded verified artifact',
-      runtimeMessage: 'Loaded bundled recorded artifact because live execution was unavailable.',
-      signer: bundled?.signer || extractSigner({ verification: bundled?.verification, runtime_metadata: bundled?.runtime_metadata, fallback_signer: bundled?.fallback_signer }) || 'Signer unavailable',
-      kid: bundled?.kid || extractKid({ verification: bundled?.verification, runtime_metadata: bundled?.runtime_metadata }) || 'unknown',
-      hash: bundled?.proof_hash || extractHash({ verification: bundled?.verification, runtime_metadata: bundled?.runtime_metadata }) || 'Hash unavailable',
-      schema_version: bundled?.receipt?.schema_version || '—',
-      schema_url: schemaUrlForReceipt(bundled?.receipt || {}),
-      steps: Array.isArray(bundled?.steps) ? bundled.steps : []
-    };
-    renderArtifact(bundledArtifact);
-  }
+            <div class="field">
+              <label for="builder-source">Source content</label>
+              <textarea id="builder-source" placeholder="Paste input for step 1."></textarea>
+            </div>
 
-  function copyText(text, button, idleLabel) {
-    if (!navigator.clipboard) return;
-    navigator.clipboard.writeText(text).then(() => {
-      button.textContent = "Copied";
-      setTimeout(() => {
-        button.textContent = idleLabel;
-      }, 1200);
-    }).catch(() => {});
-  }
+            <div class="field">
+              <label for="builder-instructions">Optional instructions</label>
+              <textarea id="builder-instructions" placeholder="Optional instructions for later steps."></textarea>
+            </div>
 
-  async function probeRuntime() {
-    const start = performance.now();
-    try {
-      const res = await fetch(`${RUNTIME_BASE}/health`, { method: 'GET' });
-      const duration = `${Math.round(performance.now() - start)} ms`;
-      state.runtimeLatency = duration;
-      if (!res.ok) {
-        state.runtimeHealthy = false;
-        setRuntimeVisualState('degraded', 'Runtime health degraded', duration);
-        return;
-      }
-      state.runtimeHealthy = true;
-      setRuntimeVisualState('live', 'Live runtime reachable', duration);
-    } catch {
-      state.runtimeHealthy = false;
-      state.runtimeLatency = 'offline';
-      setRuntimeVisualState('degraded', 'Runtime health unavailable', 'offline');
-    }
-  }
-
-  function copyText(text, button, idleLabel) {
-    if (!navigator.clipboard) return;
-    navigator.clipboard.writeText(text).then(() => {
-      const previous = idleLabel || button.textContent;
-      button.textContent = 'Copied';
-      setTimeout(() => {
-        button.textContent = previous;
-      }, 1200);
-    }).catch(() => {});
-  }
-
-  function handleCopyCurl(button) {
-    if (!state.lastArtifact?.receipt) return;
-    copyText(buildCurlCommand(state.lastArtifact.receipt), button, button.id === 'hero-copy-curl' ? 'Copy cURL Verify Command' : 'Copy cURL Verify Command');
-  }
-
-  elements.modeDefault.addEventListener('click', () => setMode('default'));
-  elements.modeCustom.addEventListener('click', () => setMode('custom'));
-  elements.heroBuildCustom.addEventListener('click', () => {
-    setMode('custom');
-    window.scrollTo({ top: document.querySelector('.workspace').offsetTop - 80, behavior: 'smooth' });
-  });
-  elements.heroRunDefault.addEventListener('click', () => {
-    setMode('default');
-    executeChain(DEFAULT_CHAIN, 'default chain');
-  });
-  elements.runDefault.addEventListener('click', () => executeChain(DEFAULT_CHAIN, 'default chain'));
-  elements.runCustom.addEventListener('click', () => executeChain(state.customSteps, 'custom chain'));
-  elements.addStep.addEventListener('click', addCustomStep);
-  elements.copyFinalReceipt.addEventListener('click', () => copyText(elements.finalReceiptJson.textContent, elements.copyFinalReceipt, 'Copy Final Receipt'));
-  elements.copyVerificationJson.addEventListener('click', () => copyText(elements.verificationJson.textContent, elements.copyVerificationJson, 'Copy Verification JSON'));
-  elements.copyCurlCommand.addEventListener('click', () => handleCopyCurl(elements.copyCurlCommand));
-  elements.heroCopyCurl.addEventListener('click', () => handleCopyCurl(elements.heroCopyCurl));
-
-  <footer class="footer">
-    <div class="wrap">
-      <div class="footer-row">
-        <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
-        <span>Docs · Repositories · FAQ · About · Licensing</span>
+            <div class="actions">
+              <button class="btn btn-primary" id="run-builder" type="button">Run Chain</button>
+              <button class="btn btn-quiet" id="reset-builder" type="button">Reset</button>
+            </div>
+          </div>
+        </section>
       </div>
-    </div>
-  </footer>
 
-</div>
+      <aside class="rail">
+        <section class="card">
+          <div class="card-inner">
+            <div class="eyebrow">Final receipt</div>
+            <div style="margin-top:12px;">
+              <span class="badge pending" id="artifact-badge">Awaiting run</span>
+            </div>
+
+            <div class="kv-grid">
+              <div class="kv"><div class="k">Verification</div><div class="v" id="artifact-verification">Pending</div></div>
+              <div class="kv"><div class="k">Artifact mode</div><div class="v">Live runtime</div></div>
+              <div class="kv"><div class="k">Signer ENS</div><div class="v" id="artifact-signer">—</div></div>
+              <div class="kv"><div class="k">kid</div><div class="v" id="artifact-kid">—</div></div>
+              <div class="kv"><div class="k">Hash</div><div class="v" id="artifact-hash">—</div></div>
+              <div class="kv"><div class="k">Schema version</div><div class="v" id="artifact-schema">—</div></div>
+            </div>
+
+            <div class="codebox">
+<pre id="final-receipt-json">{
+  "status": "ready"
+}</pre>
+            </div>
+
+            <div class="actions">
+              <button class="btn" id="copy-receipt" type="button">Copy Receipt</button>
+              <button class="btn" id="copy-verification" type="button">Copy Verification</button>
+              <button class="btn" id="copy-curl" type="button" disabled>Copy Verify cURL</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-inner">
+            <div class="eyebrow">Verification surface</div>
+            <p class="section-sub" style="margin-top:12px;">
+              Final receipt first. Then independent verification through the verify endpoint.
+            </p>
+          </div>
+        </section>
+      </aside>
+    </section>
+
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-row">
+      <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
+      <span>Docs · Repositories · FAQ · About · Licensing</span>
+    </div>
+  </div>
+</footer>
 
 <script>
 const defaultBtn = document.getElementById('mode-default-btn');
@@ -1202,6 +519,8 @@ function setMode(mode){
 
 defaultBtn.addEventListener('click', () => setMode('default'));
 builderBtn.addEventListener('click', () => setMode('builder'));
+document.getElementById('hero-build-custom').addEventListener('click', () => setMode('builder'));
+document.getElementById('hero-run-default').addEventListener('click', () => setMode('default'));
 </script>
 </body>
 </html>
