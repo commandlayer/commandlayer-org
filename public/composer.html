@@ -97,6 +97,20 @@ button { cursor: pointer; }
 }
 .pill--green { border-color: rgba(74,222,128,0.5); color: #dcfce7; background: rgba(7, 20, 12, 0.86); }
 .hero__actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-top: 1.35rem; }
+.hero__secondary-link {
+  margin-top: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+.hero__secondary-link:hover, .hero__secondary-link:focus-visible {
+  color: var(--text-main);
+  text-decoration: underline;
+  outline: none;
+}
 .btn {
   display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; border-radius: 999px; padding: 0.84rem 1.2rem;
   border: 1px solid transparent; text-decoration: none; white-space: nowrap; transition: transform 140ms ease, filter 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
@@ -235,7 +249,7 @@ button { cursor: pointer; }
     <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
     <nav class="site-header__nav">
       <a href="/" class="site-header__link">Home</a>
-      <a href="/demo.html" class="site-header__link">Demo</a>
+      <a href="/composer.html" class="site-header__link site-header__link--active">Demo</a>
       <a href="/quickstart.html" class="site-header__link">Quickstart</a>
       <div class="site-header__dropdown">
         <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
@@ -273,6 +287,7 @@ button { cursor: pointer; }
             <button id="hero-fallback" class="btn btn--ghost" type="button">Inspect recorded proof mode</button>
             <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" class="btn btn--ghost" target="_blank" rel="noopener noreferrer">View identity anchor</a>
           </div>
+          <a href="/demo-inner.html" class="hero__secondary-link">View Commerce Demo →</a>
           <div class="runtime-bar" id="runtime-bar" aria-live="polite">
             <div class="runtime-main">
               <span class="runtime-dot" aria-hidden="true"></span>

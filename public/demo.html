@@ -2,360 +2,54 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>CommandLayer Live Demo — Proof Surfaces</title>
+    <title>Redirecting to CommandLayer Demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta
-      name="description"
-      content="CommandLayer proof demos: jump directly into the strongest verified flow, or secondarily inspect the commerce extension without confusing runtime metadata for canonical receipts."
-    />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content="0; url=/composer.html" />
+    <link rel="canonical" href="https://www.commandlayer.org/composer.html" />
     <style>
       :root {
-        --bg: #05060a;
-        --bg-elevated: #0a0c14;
-        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
-        --border-soft: rgba(255, 255, 255, 0.08);
-        --border-strong: rgba(255, 255, 255, 0.18);
-        --accent: #c5cbe0;
-        --accent-strong: #eef2ff;
-        --accent-muted: #97a0c5;
-        --success: #86efac;
-        --warning: #93c5fd;
-        --neon-blue: rgba(59, 130, 246, 0.85);
-        --neon-blue-soft: rgba(59, 130, 246, 0.35);
-        --neon-blue-glow: rgba(59, 130, 246, 0.14);
-        --neon-green: rgba(34, 197, 94, 0.9);
-        --neon-green-soft: rgba(34, 197, 94, 0.35);
-        --neon-green-glow: rgba(34, 197, 94, 0.16);
-        --text-main: #f7f8ff;
-        --text-muted: #9ca3c7;
-        --text-soft: #6b7280;
-        --radius-lg: 18px;
-        --radius-xl: 24px;
-        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.55);
-        --max-width: 1120px;
+        --panel: rgba(10, 14, 24, 0.92);
+        --border: rgba(255, 255, 255, 0.08);
+        --text-main: #f7f9ff;
+        --text-muted: #9aa4bd;
       }
       * { box-sizing: border-box; }
-      html, body {
+      body {
         margin: 0;
-        padding: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
         font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
-        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
+        background:
+          radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 20%),
+          linear-gradient(180deg, #0a0e16 0%, #03050a 54%, #020308 100%);
         color: var(--text-main);
       }
-      body { min-height: 100vh; }
-      .page-shell { min-height: 100vh; display: flex; flex-direction: column; }
-      .page-main { flex: 1; }
-      .container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
-      .site-header {
-        background: var(--bg-header); border-bottom: 1px solid rgba(255,255,255,0.06); position: sticky; top: 0; z-index: 20; backdrop-filter: blur(18px);
+      main {
+        width: min(100%, 640px);
+        padding: 1.75rem;
+        border-radius: 24px;
+        border: 1px solid var(--border);
+        background: var(--panel);
+        text-align: center;
       }
-      .site-header__inner { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.5rem; }
-      .site-header__brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; }
-      .site-header__logo-img { width: 28px; height: 28px; object-fit: contain; display: block; border-radius: 6px; box-shadow: 0 0 0 1px rgba(255,255,255,0.35), 0 14px 40px rgba(0,0,0,0.9); }
-      .site-header__text { display: flex; flex-direction: column; }
-      .site-header__title { font-size: 0.98rem; font-weight: 600; letter-spacing: 0.03em; }
-      .site-header__subtitle { font-size: 0.78rem; color: var(--text-muted); }
-      .site-header__nav { display: flex; gap: 1rem; align-items: center; }
-      .site-header__link { font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; text-decoration: none; color: var(--text-muted); border: 1px solid transparent; white-space: nowrap; }
-      .site-header__link:hover { color: var(--accent-strong); border-color: rgba(255,255,255,0.18); background: rgba(15,23,42,0.7); }
-      .site-header__link--active { color: #020617; background: linear-gradient(135deg, #e5e7eb, #cdd3e7); border-color: rgba(255,255,255,0.25); }
-      .site-header__dropdown { position: relative; }
-      .site-header__dropdown-btn { font-size: 0.86rem; padding: 0.35rem 0.8rem; border-radius: 999px; border: 1px solid transparent; background: transparent; color: var(--text-muted); display: inline-flex; align-items: center; gap: 0.25rem; cursor: pointer; }
-      .site-header__dropdown-btn:hover { color: var(--accent-strong); border-color: rgba(255,255,255,0.18); background: rgba(15,23,42,0.7); }
-      .site-header__dropdown-menu { position: absolute; top: 2.3rem; right: 0; background: rgba(15,23,42,0.98); border-radius: 14px; border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); padding: 0.5rem 0.4rem; min-width: 210px; display: none; }
-      .site-header__dropdown-menu a { display: block; padding: 0.35rem 0.7rem; font-size: 0.82rem; text-decoration: none; color: var(--text-muted); border-radius: 999px; }
-      .site-header__dropdown-menu a:hover { color: var(--accent-strong); background: rgba(31,41,55,0.95); }
-      .site-header--docs-open .site-header__dropdown-menu { display: block; }
-      .site-header__toggle { display: none; border-radius: 999px; border: 1px solid rgba(148,163,184,0.7); background: rgba(15,23,42,0.9); color: var(--text-main); padding: 0.25rem 0.6rem; font-size: 0.9rem; cursor: pointer; }
-      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0.7rem 1.2rem; border-radius: 999px; font-size: 0.92rem; text-decoration: none; border: 1px solid transparent; cursor: pointer; white-space: nowrap; transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease, background 180ms ease, color 180ms ease, filter 180ms ease; }
-      .btn--primary { background: linear-gradient(135deg, #f8fafc, #c7d2fe); color: #020617; border-color: rgba(255,255,255,0.35); box-shadow: 0 16px 40px rgba(0,0,0,0.55); }
-      .btn--ghost { background: rgba(15,23,42,0.9); color: var(--accent-strong); border-color: rgba(148,163,184,0.6); }
-      .btn:hover, .btn:focus-visible { transform: translateY(-1px); outline: none; }
-      .btn--primary:hover, .btn--primary:focus-visible, .btn--ghost:hover, .btn--ghost:focus-visible { filter: brightness(1.05); border-color: var(--neon-green); box-shadow: 0 0 0 1px var(--neon-green-soft), 0 0 14px var(--neon-green-glow), 0 18px 40px rgba(0,0,0,0.45); }
-      .btn:active { transform: translateY(0); filter: brightness(1.02); }
-      .hero { padding: 4.5rem 0 2.8rem; border-bottom: 1px solid var(--border-soft); background: radial-gradient(circle at 15% 10%, rgba(99,102,241,0.18), transparent 25%), radial-gradient(circle at 0 0, #111827, #020308); }
-      .hero__wrap { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(300px, 0.95fr); gap: 2rem; align-items: center; }
-      .hero__eyebrow, .section__eyebrow { font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-muted); margin-bottom: 0.9rem; }
-      .hero__title { margin: 0; font-size: clamp(2.4rem, 5vw, 4.4rem); line-height: 1.04; letter-spacing: -0.04em; max-width: 11ch; }
-      .hero__subtitle { margin: 1rem 0 0; color: var(--text-muted); font-size: 1.05rem; max-width: 42rem; line-height: 1.7; }
-      .hero__stack { margin: 1rem 0 0; color: var(--accent-strong); font-size: 0.98rem; max-width: 44rem; }
-      .hero__cta { margin-top: 1.8rem; display: flex; flex-wrap: wrap; gap: 0.8rem; }
-      .hero__proofs, .proof-pills { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
-      .hero__proof-pill, .proof-pill, .path-card__badge, .split-box__tag { border-radius: 999px; padding: 0.26rem 0.72rem; font-size: 0.78rem; color: #dbeafe; background: rgba(9, 16, 30, 0.82); border: 1px solid var(--neon-blue); box-shadow: 0 0 0 1px var(--neon-blue-soft), 0 0 12px var(--neon-blue-glow); transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease; }
-      .hero__proof-pill:hover, .proof-pill--blue:hover, .path-card__badge:hover, .split-box__tag:hover,
-      .hero__proof-pill:focus-visible, .proof-pill--blue:focus-visible, .path-card__badge:focus-visible, .split-box__tag:focus-visible { transform: translateY(-1px); border-color: rgba(96, 165, 250, 0.95); box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.45), 0 0 18px rgba(59, 130, 246, 0.2); outline: none; }
-      .proof-pill { color: #dcfce7; background: rgba(7, 20, 12, 0.78); border-color: var(--neon-green); box-shadow: 0 0 0 1px var(--neon-green-soft), 0 0 12px var(--neon-green-glow); }
-      .proof-pill:hover, .proof-pill:focus-visible { transform: translateY(-1px); border-color: rgba(74, 222, 128, 0.98); box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.45), 0 0 18px rgba(34, 197, 94, 0.2); outline: none; }
-      .hero__aside, .panel, .path-card, .note-card { background: rgba(10,12,20,0.88); border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); }
-      .hero__aside { border-radius: var(--radius-xl); padding: 1.4rem; }
-      .hero__aside h2, .section__header h2, .path-card h3, .note-card h3 { margin: 0 0 0.75rem; }
-      .hero__aside p, .path-card p, .section__header p, .note-card p, .list li { color: var(--text-muted); line-height: 1.65; }
-      .section { padding: 1.5rem 0 3rem; }
-      .section__header { max-width: 46rem; margin-bottom: 1rem; }
-      .panel { border-radius: var(--radius-xl); padding: 1.3rem; }
-      .paths { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-      .path-card { border-radius: 22px; padding: 1.3rem; display: grid; gap: 0.9rem; }
-      .path-card__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
-      .path-card__label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-muted); }
-      .path-card ul { margin: 0; padding-left: 1rem; }
-      .path-card li { margin-bottom: 0.45rem; }
-      .path-card__foot { display: flex; flex-wrap: wrap; gap: 0.55rem; }
-      .note-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 1rem; }
-      .note-card { border-radius: 20px; padding: 1.25rem; }
-      .note-card__split { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
-      .split-box { border-radius: 16px; padding: 0.95rem; background: rgba(2,6,23,0.72); border: 1px solid rgba(148,163,184,0.14); }
-      .split-box__tag { display: inline-flex; margin-bottom: 0.65rem; }
-      .split-box strong { display: block; margin-bottom: 0.35rem; color: var(--accent-strong); }
-      .proof-surface-cluster { display: flex; flex-wrap: wrap; gap: 0.55rem; margin: 1rem 0 0.75rem; }
-      .cta-band { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; align-items: center; }
-      .site-footer { border-top: 1px solid rgba(255,255,255,0.1); background: #020308; }
-      .site-footer__inner {
-  display: grid;
-  gap: 1.1rem;
-}
-.site-footer__row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-.site-footer__col {
-  border-radius: 18px;
-  padding: 1rem;
-  background: rgba(10, 12, 20, 0.88);
-  border: 1px solid var(--border-soft);
-}
-.site-footer__col-title {
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent-muted, var(--text-muted));
-  margin-bottom: 0.45rem;
-}
-.site-footer__cid {
-  color: var(--text-muted);
-  line-height: 1.6;
-  font-size: 0.84rem;
-}
-.site-footer__inner { padding: 1.6rem 1.5rem 2rem; display: grid; gap: 1.2rem; }
-      .site-footer__top { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: space-between; }
-      .site-footer__cols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-      .site-footer__col { border-radius: 18px; padding: 1rem; background: rgba(10, 12, 20, 0.88); border: 1px solid var(--border-soft); }
-      .site-footer__col-title { font-size: 0.78rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-muted); margin-bottom: 0.45rem; }
-      .site-footer__col p { margin: 0; color: var(--text-muted); line-height: 1.6; font-size: 0.84rem; }
-      .site-footer__links { display: flex; flex-wrap: wrap; gap: 1rem; }
-      .site-footer__links a { color: var(--accent); text-decoration: none; }
-      .site-footer__links a:hover { text-decoration: underline; }
-@media (max-width: 920px) { .site-footer__row { grid-template-columns: minmax(0, 1fr); } }
-      @media (max-width: 920px) {
-        .site-header__inner { padding-inline: 1rem; }
-        .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
-        .site-header__nav { display: none; flex-direction: column; align-items: flex-start; gap: 0.5rem; margin-top: 0.8rem; }
-        .site-header.site-header--open .site-header__nav { display: flex; }
-        .hero__wrap, .paths, .note-grid, .note-card__split, .site-footer__cols { grid-template-columns: minmax(0, 1fr); }
+      a { color: var(--text-main); }
+      p {
+        color: var(--text-muted);
+        line-height: 1.7;
       }
     </style>
+    <script>
+      window.location.replace("/composer.html");
+    </script>
   </head>
   <body>
-    <div class="page-shell">
-      <header class="site-header">
-        <div class="site-header__inner container">
-          <a href="/" class="site-header__brand">
-            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-            <div class="site-header__text">
-              <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
-            </div>
-          </a>
-          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-          <nav class="site-header__nav">
-            <a href="/" class="site-header__link">Home</a>
-            <a href="/demo.html" class="site-header__link site-header__link--active">Demo</a>
-            <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-
-            <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
-              <div class="site-header__dropdown-menu">
-              <a href="/commons.html">Commons</a>
-              <a href="/commercial.html">Commercial</a>
-              <a href="/agent-cards.html">Agent Cards</a>
-              <a href="/runtime.html">Runtime</a>
-              </div>
-            </div>
-
-            <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
-          </nav>
-        </div>
-      </header>
-
-      <main class="page-main">
-        <section class="hero">
-          <div class="container hero__wrap">
-            <div>
-              <div class="hero__eyebrow">Live Demo</div>
-              <h1 class="hero__title">Run an agent flow and watch proof appear.</h1>
-              <p class="hero__subtitle">This page answers one question: can CommandLayer actually run? Yes—execute a flow, inspect the signed receipt, then verify the proof.</p>
-              <p class="hero__stack">Start with the Commons demo for the clearest path. Use the commerce extension only after the execute → receipt → verify model is obvious.</p>
-              <div class="hero__cta">
-                <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-                <a href="/demo-inner.html" class="btn btn--ghost">Run the Commerce Extension Demo</a>
-              </div>
-              <div class="hero__proofs">
-                <span class="hero__proof-pill">Execute</span>
-                <span class="hero__proof-pill">Emit signed receipt</span>
-                <span class="hero__proof-pill">Verify proof</span>
-              </div>
-              <div class="proof-surface-cluster">
-                <span class="proof-pill">Trigger execution</span>
-                <span class="proof-pill">See result</span>
-                <span class="proof-pill">Inspect receipt</span>
-                <span class="proof-pill">Verify receipt</span>
-              </div>
-            </div>
-            <aside class="hero__aside">
-              <h2>What the demo should prove</h2>
-              <p>CommandLayer is not just a schema story. The live surface lets you watch a real flow run, shows the receipt that was emitted, and exposes the verification boundary clearly.</p>
-              <ul class="list">
-                <li>Commons demo = fastest path from action to signed receipt.</li>
-                <li>Commerce extension = same proof model, with paid multi-step execution layered on top.</li>
-                <li>Runtime metadata stays separate from the canonical receipt.</li>
-              </ul>
-            </aside>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="container">
-            <div class="section__header">
-              <div class="section__eyebrow">Choose a proof path</div>
-              <h2>Start simple, then expand.</h2>
-              <p>Judges should see the cleanest possible proof path first. That is why the Commons flow leads, and the commerce extension follows as a role inside the same system.</p>
-            </div>
-            <div class="paths">
-              <article class="path-card">
-                <div class="path-card__top">
-                  <div>
-                    <div class="path-card__label">Recommended first run</div>
-                    <h3>Commons: execute → receipt → verify.</h3>
-                  </div>
-                  <span class="path-card__badge">Canonical proof path</span>
-                </div>
-                <p>Run the default flow, inspect the output, open the receipt, and verify the signature without learning extra system concepts first.</p>
-                <ul>
-                  <li>Shows the core CommandLayer thesis in its cleanest form.</li>
-                  <li>Keeps the canonical receipt front and center.</li>
-                  <li>Maps directly to Quickstart and Commons docs.</li>
-                </ul>
-                <div class="path-card__foot">
-                  <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-                  <a href="/commons.html" class="btn btn--ghost">Explore the Commons Contract</a>
-                </div>
-              </article>
-
-              <article class="path-card">
-                <div class="path-card__top">
-                  <div>
-                    <div class="path-card__label">Second run</div>
-                    <h3>Commercial: paid execution on the same proof model.</h3>
-                  </div>
-                  <span class="path-card__badge">Extended flow</span>
-                </div>
-                <p>Watch a longer paid flow run while keeping the receipt boundary intact. Commercial extends the system; it does not replace the core trust model.</p>
-                <ul>
-                  <li>Per-step receipts remain the proof surface.</li>
-                  <li>Runtime orchestration stays visible but secondary.</li>
-                  <li>Useful once the Commons path already makes sense.</li>
-                </ul>
-                <div class="path-card__foot">
-                  <a href="/demo-inner.html" class="btn btn--primary">Run the Commerce Extension Demo</a>
-                  <a href="/commercial.html" class="btn btn--ghost">Read the Commercial Extension</a>
-                </div>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="container">
-            <div class="note-grid">
-              <article class="note-card">
-                <div class="section__eyebrow">Read the boundary correctly</div>
-                <h3>Receipt first. Runtime details second.</h3>
-                <div class="note-card__split">
-                  <div class="split-box">
-                    <span class="split-box__tag">Canonical receipt</span>
-                    <strong>What happened</strong>
-                    <p>The signed receipt is the contract-shaped record of the action. It is the first thing a judge should inspect.</p>
-                  </div>
-                  <div class="split-box">
-                    <span class="split-box__tag">Runtime details</span>
-                    <strong>How it was executed</strong>
-                    <p>Trace IDs, timing, and orchestration details add evidence around the receipt without redefining it.</p>
-                  </div>
-                </div>
-              </article>
-              <article class="note-card">
-                <div class="section__eyebrow">Judge flow</div>
-                <h3>What a fast scan should reveal.</h3>
-                <p>CommandLayer can run a real flow, emit a signed receipt, and expose verification in a public interface. The rest of the system supports that story.</p>
-                <div class="proof-pills">
-                  <span class="proof-pill">Run flow</span>
-                  <span class="proof-pill">Inspect receipt</span>
-                  <span class="proof-pill">Verify proof</span>
-                  <span class="proof-pill">Check signer identity</span>
-                </div>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="container panel cta-band">
-            <div>
-              <div class="section__eyebrow">Next step</div>
-              <h2 style="margin:0 0 0.45rem;">Start with the clearest proof path.</h2>
-              <p style="margin:0; color: var(--text-muted); line-height:1.65; max-width:42rem;">Use the Commons demo if you want the shortest route from execution to verification, then open the commerce extension if you want to show paid execution built on the same receipt model.</p>
-            </div>
-            <div class="hero__cta" style="margin-top:0;">
-              <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-              <a href="/quickstart.html" class="btn btn--ghost">Verify Proof in Quickstart</a>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer class="site-footer">
-        <div class="container site-footer__inner" style="align-items: center; text-align: center;">
-          <div class="site-footer__cid">Commons v1.1.0 &middot; Commercial v1.1.0 &middot; Agent Cards v1.1.0 &middot; ERC-8004 registered</div>
-          <div class="site-footer__links" style="justify-content: center;">
-            <a href="/docs.html">Docs</a>
-            <a href="/repositories.html">Repositories</a>
-            <a href="/faq.html">FAQ</a>
-            <a href="/about.html">About</a>
-            <a href="/licensing.html">Licensing</a>
-          </div>
-        </div>
-      </footer>
-    </div>
-
-    <script>
-      (function () {
-        const header = document.querySelector('.site-header');
-        const toggle = document.querySelector('.site-header__toggle');
-        const docsBtn = document.querySelector('.site-header__dropdown-btn');
-        if (toggle && header) {
-          toggle.addEventListener('click', () => {
-            const isOpen = header.classList.toggle('site-header--open');
-            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-          });
-        }
-        if (docsBtn && header) {
-          docsBtn.addEventListener('click', () => header.classList.toggle('site-header--docs-open'));
-        }
-        document.addEventListener('click', (e) => {
-          const dropdown = header?.querySelector('.site-header__dropdown');
-          if (dropdown && !dropdown.contains(e.target)) header.classList.remove('site-header--docs-open');
-        });
-      })();
-    </script>
+    <main>
+      <h1>Redirecting to the verified flow demo…</h1>
+      <p>The primary CommandLayer proof path now starts directly on the strongest demo surface.</p>
+      <p><a href="/composer.html">Continue to the verified flow demo</a></p>
+    </main>
   </body>
 </html>
