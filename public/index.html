@@ -394,9 +394,22 @@ body {
   margin-bottom: 1rem;
 }
 
+.receipt-card__header--stacked {
+  align-items: flex-start;
+}
+
+.receipt-card__kicker {
+  color: #7fdcff;
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  margin-bottom: 0.4rem;
+}
+
 .receipt-card__title {
-  font-size: 1rem;
-  font-weight: 600;
+  font-size: 1.08rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 .receipt-card__badge {
@@ -410,6 +423,13 @@ body {
   border: 1px solid rgba(34, 197, 94, 0.28);
   font-size: 0.78rem;
   font-weight: 700;
+}
+
+.receipt-card__badge--strong {
+  padding: 0.5rem 0.82rem;
+  font-size: 0.82rem;
+  letter-spacing: 0.12em;
+  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.18), 0 16px 36px rgba(34, 197, 94, 0.14);
 }
 
 .receipt-card__badge-dot {
@@ -430,8 +450,32 @@ body {
   display: grid;
   grid-template-columns: 92px 1fr;
   gap: 0.75rem;
-  padding: 0.7rem 0;
+  padding: 0.72rem 0;
   border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.receipt-card__row--primary,
+.receipt-card__row--secondary,
+.receipt-card__row--hash {
+  border-radius: 14px;
+  padding: 0.82rem 0.9rem;
+  margin-bottom: 0.45rem;
+  grid-template-columns: 82px 1fr;
+}
+
+.receipt-card__row--primary {
+  background: linear-gradient(135deg, rgba(24, 60, 38, 0.9), rgba(10, 18, 30, 0.98));
+  border: 1px solid rgba(34, 197, 94, 0.24);
+}
+
+.receipt-card__row--secondary {
+  background: rgba(10, 20, 36, 0.88);
+  border: 1px solid rgba(76, 201, 240, 0.14);
+}
+
+.receipt-card__row--hash {
+  background: rgba(10, 14, 26, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .receipt-card__row:last-child {
@@ -461,6 +505,20 @@ code,
   font-size: 0.84rem;
   line-height: 1.55;
   word-break: break-word;
+}
+
+.receipt-card__value--primary {
+  font-size: 1rem;
+}
+
+.receipt-card__value--identity {
+  font-size: 0.94rem;
+  color: #dff3ff;
+}
+
+.receipt-card__value--hash {
+  font-size: 0.9rem;
+  color: #bfe9f6;
 }
 
 .receipt-card__value--ok {
@@ -828,7 +886,7 @@ code,
             <p class="eyebrow">Proof layer for agent execution</p>
             <h1 class="hero__title">Agents Can Act. <span class="hero__title-accent">CommandLayer Proves They Acted.</span></h1>
             <p class="hero__subtitle">
-              CommandLayer is the proof layer for agent execution: an agent runs an action, CommandLayer emits a signed receipt, and anyone can verify what happened.
+              CommandLayer is infrastructure for agents that spend money, call services, and coordinate with other agents. It runs the action, emits the signed receipt, and makes proof visible fast.
             </p>
             <div class="hero__actions">
               <div class="hero__cta-row">
@@ -848,38 +906,37 @@ code,
             </div>
           </div>
 
-          <aside class="receipt-card" aria-label="Verified Flow Receipt preview">
-            <div class="receipt-card__header">
-              <div class="receipt-card__title">Verified Flow Receipt</div>
-              <div class="receipt-card__badge"><span class="receipt-card__badge-dot" aria-hidden="true"></span>verified</div>
+          <aside class="receipt-card" aria-label="Verified Receipt preview">
+            <div class="receipt-card__header receipt-card__header--stacked">
+              <div>
+                <div class="receipt-card__kicker mono">Verified Receipt</div>
+                <div class="receipt-card__title">Receipt proof artifact</div>
+              </div>
+              <div class="receipt-card__badge receipt-card__badge--strong"><span class="receipt-card__badge-dot" aria-hidden="true"></span>VERIFIED</div>
             </div>
             <div class="receipt-card__rows">
-              <div class="receipt-card__row">
-                <div class="receipt-card__label">step 1</div>
-                <div class="receipt-card__value">execute</div>
+              <div class="receipt-card__row receipt-card__row--primary">
+                <div class="receipt-card__label">status</div>
+                <div class="receipt-card__value receipt-card__value--ok receipt-card__value--primary">Ed25519 signature valid</div>
+              </div>
+              <div class="receipt-card__row receipt-card__row--secondary">
+                <div class="receipt-card__label">signer</div>
+                <div class="receipt-card__value mono receipt-card__value--identity">checkoutagent.eth · ENS resolved</div>
+              </div>
+              <div class="receipt-card__row receipt-card__row--hash">
+                <div class="receipt-card__label">proof hash</div>
+                <div class="receipt-card__value mono receipt-card__value--hash">sha256: 9fa31c4d7b2a6c91f4d8...e18f72</div>
               </div>
               <div class="receipt-card__row">
-                <div class="receipt-card__label">step 2</div>
-                <div class="receipt-card__value">emit signed receipt</div>
+                <div class="receipt-card__label">contract</div>
+                <div class="receipt-card__value mono">commercial.verify.receipt v1.1.0</div>
               </div>
               <div class="receipt-card__row">
-                <div class="receipt-card__label">step 3</div>
-                <div class="receipt-card__value receipt-card__value--ok">verify</div>
-              </div>
-              <div class="receipt-card__row">
-                <div class="receipt-card__label">agent</div>
-                <div class="receipt-card__value mono">checkoutagent.eth</div>
-              </div>
-              <div class="receipt-card__row">
-                <div class="receipt-card__label">proof</div>
-                <div class="receipt-card__value mono">sha256: 9fa31c4d7b2a...e18f72</div>
-              </div>
-              <div class="receipt-card__row">
-                <div class="receipt-card__label">signature</div>
-                <div class="receipt-card__value mono">ed25519 • ENS / ERC-8004 resolved</div>
+                <div class="receipt-card__label">trace</div>
+                <div class="receipt-card__value mono">trace_demo_checkout_7f3c</div>
               </div>
             </div>
-            <div class="receipt-card__footer">Signed receipt first • verification visible • identity anchored onchain</div>
+            <div class="receipt-card__footer">Independent verifier can recompute hash, resolve signer, and confirm the same receipt.</div>
           </aside>
         </div>
       </div>
@@ -912,20 +969,19 @@ code,
       <div class="container">
         <div class="section-card why-card">
           <div>
-            <p class="section__eyebrow">Why it matters</p>
-            <h2 class="section__title">If agents can spend money, call APIs, or move state, their actions need receipts.</h2>
+            <p class="section__eyebrow">Operational infrastructure</p>
+            <h2 class="section__title">Built for agents that spend money, call services, and hand work to other agents.</h2>
             <p class="section__body">
-              Logs say something happened. A signed receipt says what executed, who signed it, and what contract shaped the result. That is the trust layer a skeptical operator, judge, or integration partner can inspect.
+              CommandLayer is operational infrastructure, not just identity metadata. It gives each action a signed receipt that another system can verify after payment, service calls, or multi-agent coordination.
             </p>
           </div>
           <aside class="example-box">
-            <span class="example-box__label">What a judge should understand fast</span>
-            <p>After a 20-second scan, the model should be simple:</p>
+            <span class="example-box__label">Cross-agent example</span>
+            <p><strong>checkoutagent.eth</strong> charges the buyer, then hands the shipping task to <strong>shipagent.eth</strong>. Both steps stay on one trace, and each agent returns a receipt another party can verify.</p>
             <ul class="example-list">
-              <li>agents execute actions</li>
-              <li>CommandLayer emits signed receipts</li>
-              <li>receipts can be verified independently</li>
-              <li>supporting layers keep that proof portable</li>
+              <li>agent-to-agent handoff stays visible</li>
+              <li>receipts prove who executed each step</li>
+              <li>verification survives outside the runtime</li>
             </ul>
           </aside>
         </div>
@@ -942,7 +998,7 @@ code,
           </div>
           <div class="cta-band__actions">
             <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-            <a href="/quickstart.html" class="btn btn--ghost">Verify Proof in Quickstart</a>
+            <a href="/quickstart.html" class="btn btn--ghost">See Verified Receipt</a>
           </div>
         </div>
       </div>
