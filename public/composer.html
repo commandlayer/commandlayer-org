@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CommandLayer — Run a Verified Agent Flow</title>
+<title>CommandLayer — Run a Verified Commons Flow</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="description" content="Run the default CommandLayer proof flow, receive a signed receipt, verify it, and inspect the artifact without wading through a generic builder UI." />
+<meta name="description" content="Run the default CommandLayer Commons proof flow, inspect each step receipt, verify the final artifact, and review the proof surface without a generic builder-first UI." />
 <style>
 :root {
   --bg: #05060a;
@@ -48,6 +48,7 @@ button { cursor: pointer; }
 .page-shell { min-height: 100vh; display: flex; flex-direction: column; }
 .page-main { flex: 1; }
 .container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
+
 .site-header {
   position: sticky;
   top: 0;
@@ -81,14 +82,15 @@ button { cursor: pointer; }
 .site-header__dropdown-menu a:hover { color: var(--text-main); background: rgba(15, 23, 42, 0.72); }
 .site-header--docs-open .site-header__dropdown-menu { display: block; }
 .site-header__toggle { display: none; border-radius: 999px; padding: 0.32rem 0.72rem; background: rgba(15, 23, 42, 0.9); color: var(--text-main); border: 1px solid rgba(148, 163, 184, 0.58); }
-.hero { padding: 1.6rem 0 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+.hero { padding: 1.2rem 0 0.9rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
 .hero__wrap { display: grid; grid-template-columns: minmax(0, 1.15fr) 360px; gap: 1rem; align-items: stretch; }
 .eyebrow {
   display: inline-flex; align-items: center; gap: 0.45rem; margin: 0 0 0.8rem; padding: 0.34rem 0.68rem;
   border-radius: 999px; border: 1px solid rgba(96, 165, 250, 0.28); background: rgba(8, 14, 25, 0.8);
   color: #dbeafe; font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase;
 }
-.hero h1 { margin: 0; font-size: clamp(2.4rem, 5vw, 4.6rem); line-height: 0.98; letter-spacing: -0.05em; max-width: 12ch; }
+.hero h1 { margin: 0; font-size: clamp(2.4rem, 5vw, 4.6rem); line-height: 0.98; letter-spacing: -0.05em; max-width: 11ch; }
 .hero p { margin: 1rem 0 0; max-width: 48rem; color: var(--text-muted); line-height: 1.72; font-size: 1rem; }
 .hero__proof-rail, .pill-row { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1rem; }
 .pill {
@@ -122,6 +124,7 @@ button { cursor: pointer; }
 .btn--commerce { background: linear-gradient(135deg, #1f9d55, #34d399); color: #f4fff7; border-color: rgba(52, 211, 153, 0.32); box-shadow: 0 14px 28px rgba(31, 157, 85, 0.16); }
 .btn--commerce:hover, .btn--commerce:focus-visible { border-color: rgba(74, 222, 128, 0.42); box-shadow: 0 16px 30px rgba(31, 157, 85, 0.2); }
 .hero-card__cta { margin-top: 0.15rem; align-self: flex-start; padding: 0.68rem 1rem; font-size: 0.9rem; font-weight: 650; }
+
 .hero-card, .panel, .proof-stage, .proof-card, .support-card, .step-card {
   border-radius: var(--radius-xl); border: 1px solid var(--border-soft); background: linear-gradient(180deg, var(--bg-panel), rgba(6, 9, 15, 0.98)); box-shadow: var(--shadow-soft);
 }
@@ -129,6 +132,7 @@ button { cursor: pointer; }
 .hero-card h2, .panel h2, .proof-stage h2, .support-card h3 { margin: 0; }
 .hero-card p, .panel p, .proof-stage p, .support-card p, .step-card p { margin: 0; color: var(--text-muted); line-height: 1.62; }
 .hero-card__list { margin: 0; padding-left: 1rem; color: var(--text-muted); display: grid; gap: 0.55rem; }
+
 .runtime-bar {
   margin-top: 1rem; padding: 0.95rem 1rem; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 0.8rem; align-items: center;
   border-radius: 20px; background: linear-gradient(180deg, rgba(12, 17, 27, 0.98), rgba(6, 9, 16, 0.98)); border: 1px solid rgba(255,255,255,0.08); box-shadow: var(--shadow-soft);
@@ -143,13 +147,12 @@ button { cursor: pointer; }
 .runtime-metric span { display: inline-flex; align-items: center; justify-content: center; min-width: 88px; padding: 0.34rem 0.7rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.14); background: rgba(5, 10, 18, 0.92); }
 .runtime-bar.status-live .runtime-state, .status-live { color: #d8ffe6; }
 .runtime-bar.status-live .runtime-dot { background: var(--accent-green); }
-.runtime-bar.status-live .metric-pill { border-color: rgba(34,197,94,0.88); box-shadow: 0 0 0 1px rgba(34,197,94,0.4), 0 0 12px rgba(34,197,94,0.16); }
 .runtime-bar.status-fallback .runtime-state, .status-fallback { color: #fde68a; }
 .runtime-bar.status-fallback .runtime-dot { background: var(--accent-amber); box-shadow: 0 0 0 1px rgba(251,191,36,0.3), 0 0 18px rgba(251,191,36,0.22); }
 .runtime-bar.status-fail .runtime-state, .status-fail { color: #fecaca; }
 .runtime-bar.status-fail .runtime-dot { background: var(--accent-red); box-shadow: 0 0 0 1px rgba(248,113,113,0.3), 0 0 18px rgba(248,113,113,0.22); }
-.runtime-bar.status-fail .metric-pill { border-color: rgba(248,113,113,0.8); }
-.stage-grid { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 1rem; padding: 1rem 0 2rem; }
+
+.stage-grid { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 1rem; padding: 1rem 0 2rem; }
 .panel { padding: 1rem; }
 .panel__eyebrow, .section__eyebrow, .card-eyebrow, .step-card__eyebrow {
   color: var(--text-soft); font-size: 0.76rem; letter-spacing: 0.14em; text-transform: uppercase;
@@ -161,12 +164,14 @@ button { cursor: pointer; }
   width: 100%; border-radius: 16px; border: 1px solid rgba(255,255,255,0.12); background: rgba(2, 6, 13, 0.96); color: var(--text-main); padding: 0.84rem 0.9rem;
 }
 .form-row textarea { min-height: 122px; resize: vertical; }
+
 .kv-grid { display: grid; gap: 0.6rem; margin-top: 1rem; }
 .kv {
   display: grid; grid-template-columns: 1fr auto; gap: 0.6rem; align-items: center; padding: 0.68rem 0.76rem; border-radius: 16px; background: var(--bg-soft); border: 1px solid rgba(255,255,255,0.06);
 }
 .kv strong { font-size: 0.85rem; color: var(--text-main); }
 .kv span { font-size: 0.8rem; color: var(--text-muted); text-align: right; }
+
 .panel-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
 .proof-ladder { display: grid; gap: 0.9rem; }
 .proof-stage { padding: 1rem; }
@@ -181,46 +186,54 @@ button { cursor: pointer; }
 .proof-stage__note {
   margin-top: 0.55rem; color: var(--text-muted); font-size: 0.82rem; line-height: 1.5;
 }
+
 .proof-metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.8rem; margin-top: 1rem; }
 .metric-card { border-radius: 18px; padding: 0.88rem; background: rgba(4, 10, 18, 0.92); border: 1px solid rgba(255,255,255,0.07); }
 .metric-card__label { color: var(--text-soft); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.12em; }
 .metric-card__value { margin-top: 0.4rem; font-size: 0.95rem; line-height: 1.45; color: var(--text-main); word-break: break-word; }
 .metric-card__value--ok { color: #dcfce7; }
-.metric-card__value--warn { color: #fde68a; }
+
 .proof-actions { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-top: 1rem; }
-.proof-grid { display: grid; grid-template-columns: 1.08fr 0.92fr; gap: 0.9rem; }
+.proof-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.9rem; }
 .proof-card { padding: 0.95rem; display: grid; gap: 0.75rem; }
 .proof-card header { display: flex; justify-content: space-between; gap: 0.7rem; align-items: center; flex-wrap: wrap; }
 .proof-card pre, .step-card pre {
   margin: 0; padding: 0.9rem; border-radius: 16px; background: rgba(2, 6, 13, 0.98); border: 1px solid rgba(255,255,255,0.08);
   color: #dbe7fb; font-size: 0.8rem; line-height: 1.56; white-space: pre-wrap; word-break: break-word;
 }
+
 .callout {
   border-radius: 18px; padding: 0.9rem 1rem; background: rgba(10, 18, 32, 0.88); border: 1px solid rgba(96,165,250,0.22); color: var(--text-muted); line-height: 1.62;
 }
 .callout strong { color: var(--text-main); }
+
 .support-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0.9rem; }
 .support-card { padding: 0.95rem; display: grid; gap: 0.6rem; }
 .support-card ul { margin: 0; padding-left: 1rem; color: var(--text-muted); display: grid; gap: 0.45rem; }
+
 .steps-grid { display: grid; gap: 0.8rem; }
 .step-card { padding: 0.92rem; display: grid; gap: 0.75rem; }
 .step-card__top { display: flex; justify-content: space-between; gap: 0.8rem; align-items: flex-start; flex-wrap: wrap; }
 .step-card__title { display: grid; gap: 0.18rem; }
 .step-card__title h3 { margin: 0; font-size: 1.02rem; }
-.step-chip, .mini-chip, .tag {
+
+.step-chip, .tag {
   display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.26rem 0.62rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04); color: var(--text-muted); font-size: 0.76rem;
 }
 .step-chip--good { color: #dcfce7; border-color: rgba(74,222,128,0.5); background: rgba(7, 20, 12, 0.74); }
 .step-chip--warn { color: #fde68a; border-color: rgba(251,191,36,0.45); background: rgba(40, 24, 6, 0.72); }
+
 .empty-state, .error-surface {
   border-radius: 20px; padding: 1rem 1.05rem; border: 1px dashed rgba(255,255,255,0.14); background: rgba(255,255,255,0.02); color: var(--text-muted);
 }
 .error-surface { border-style: solid; border-color: rgba(248,113,113,0.28); background: rgba(58, 12, 18, 0.26); color: #fee2e2; }
+
 .site-footer { border-top: 1px solid rgba(255,255,255,0.07); background: #020308; }
 .site-footer__inner { padding: 1.6rem 1.5rem 2rem; display: grid; gap: 1rem; font-size: 0.8rem; color: var(--text-soft); text-align: center; }
 .site-footer__links { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
 .site-footer__links a { color: #c2cad8; text-decoration: none; }
 .site-footer__links a:hover { text-decoration: underline; }
+
 @media (max-width: 1120px) {
   .hero__wrap, .stage-grid, .proof-grid, .support-grid { grid-template-columns: minmax(0, 1fr); }
   .proof-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -252,7 +265,7 @@ button { cursor: pointer; }
     <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
     <nav class="site-header__nav">
       <a href="/" class="site-header__link">Home</a>
-      <a href="/composer.html" class="site-header__link site-header__link--active">Demo</a>
+      <a href="/composer.html" class="site-header__link site-header__link--active">Composer</a>
       <a href="/quickstart.html" class="site-header__link">Quickstart</a>
       <div class="site-header__dropdown">
         <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
@@ -273,24 +286,26 @@ button { cursor: pointer; }
     <div class="container">
       <div class="hero__wrap">
         <div>
-          <p class="eyebrow">Judge-ready proof path</p>
+          <p class="eyebrow">Commons proof path</p>
           <h1>Run once. Get a receipt. Verify the proof.</h1>
           <p>
-            This page is the canonical CommandLayer demo journey. It opens on the strongest default flow,
-            runs with almost no setup, and ends on the proof artifact — not a generic pipeline builder.
+            This is the strongest default Commons story. It opens on a stable proof flow,
+            produces a canonical final receipt, preserves the step receipts underneath, and
+            keeps the proof artifact front and center instead of burying it inside a generic builder.
           </p>
           <div class="hero__proof-rail" aria-label="Proof ladder">
-            <span class="pill pill--green">1. Run a verified flow</span>
-            <span class="pill pill--green">2. Receive a signed receipt</span>
+            <span class="pill pill--green">1. Run a verified Commons flow</span>
+            <span class="pill pill--green">2. Receive the final receipt</span>
             <span class="pill pill--green">3. Verify the receipt</span>
-            <span class="pill pill--green">4. Inspect the proof artifact</span>
+            <span class="pill pill--green">4. Inspect every step</span>
           </div>
           <div class="hero__actions">
-            <button id="hero-run" class="btn btn--primary" type="button">Run the Verified Agent Flow</button>
+            <button id="hero-run" class="btn btn--primary" type="button">Run the Verified Commons Flow</button>
             <button id="hero-fallback" class="btn btn--ghost" type="button">Inspect recorded proof mode</button>
-            <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" class="btn btn--ghost" target="_blank" rel="noopener noreferrer">View identity anchor</a>
+            <a href="/demo-inner.html" class="btn btn--commerce">Run a Commerce Agent</a>
           </div>
           <a href="/demo-inner.html" class="hero__secondary-link">View Commerce Demo →</a>
+
           <div class="runtime-bar" id="runtime-bar" aria-live="polite">
             <div class="runtime-main">
               <span class="runtime-dot" aria-hidden="true"></span>
@@ -298,7 +313,7 @@ button { cursor: pointer; }
                 <div class="runtime-kicker">Runtime health</div>
                 <div class="runtime-state" id="runtime-state">Checking live runtime…</div>
               </div>
-              <div class="runtime-description" id="runtime-description">Probing runtime.commandlayer.org and preparing the proof surface.</div>
+              <div class="runtime-description" id="runtime-description">Probing runtime health and preparing the proof surface.</div>
             </div>
             <div class="runtime-metric">
               <strong>Latency</strong>
@@ -315,13 +330,13 @@ button { cursor: pointer; }
           <div class="card-eyebrow">Default flow</div>
           <h2>Clean → Summarize</h2>
           <p>
-            The first run is intentionally stable and understandable. It cleans a short agent action statement,
-            then summarizes the normalized result into a judge-readable proof brief.
+            The first run is intentionally stable and understandable. It cleans a short proof statement,
+            then summarizes the normalized result into a compact judge-readable artifact.
           </p>
           <ul class="hero-card__list">
-            <li>No demo chooser or concept picking before value appears.</li>
-            <li>No external fetch dependency on the first proof run.</li>
-            <li>Final step produces a compact receipt that is easy to inspect and verify.</li>
+            <li>No flow chooser before value appears.</li>
+            <li>No dependency on external fetch for the first proof moment.</li>
+            <li>The final receipt stays visible and the supporting step receipts remain inspectable below.</li>
           </ul>
           <a href="/demo-inner.html" class="btn btn--commerce hero-card__cta">Run a Commerce Agent</a>
         </aside>
@@ -331,9 +346,12 @@ button { cursor: pointer; }
 
   <section class="container stage-grid">
     <aside class="panel">
-      <div class="panel__eyebrow">Proof setup</div>
-      <h2>Best default story, pre-loaded</h2>
-      <p>Judges should be able to run this immediately. The advanced composer path is intentionally secondary.</p>
+      <div class="panel__eyebrow">Flow setup</div>
+      <h2>Best default story, still inspectable</h2>
+      <p>
+        Start with the strongest default proof path. The page still preserves step receipts,
+        verification output, and runtime context so devs can inspect what actually happened.
+      </p>
 
       <div class="form-row">
         <label for="starter-flow">Starter flow</label>
@@ -355,13 +373,13 @@ button { cursor: pointer; }
       </div>
 
       <div class="kv-grid">
-        <div class="kv"><strong>Expected ending</strong><span>Verified receipt + proof artifact</span></div>
+        <div class="kv"><strong>Expected ending</strong><span>Verified final receipt</span></div>
         <div class="kv"><strong>Schema target</strong><span>Commons v1.1.0</span></div>
-        <div class="kv"><strong>Identity anchor</strong><span>ERC-8004 registration on Base</span></div>
+        <div class="kv"><strong>Flow shape</strong><span>Step receipts preserved</span></div>
       </div>
 
       <div class="panel-actions">
-        <button id="run-flow" class="btn btn--primary" type="button">Run a Verified Agent Flow</button>
+        <button id="run-flow" class="btn btn--primary" type="button">Run the Verified Commons Flow</button>
         <button id="load-fallback" class="btn btn--ghost" type="button">Use recorded proof mode</button>
       </div>
     </aside>
@@ -372,7 +390,7 @@ button { cursor: pointer; }
           <div class="proof-stage__title">
             <div class="section__eyebrow">Proof result</div>
             <h2 id="proof-title">Ready to produce a verified receipt</h2>
-            <p id="proof-subtitle">Run the default flow to generate a signed artifact. If live execution degrades, recorded proof mode will keep the trust story inspectable.</p>
+            <p id="proof-subtitle">Run the default flow to generate a final Commons receipt. If live execution degrades, recorded proof mode keeps the trust story visible.</p>
             <div id="availability-note" class="proof-stage__note" hidden>Recorded from live execution (runtime currently unavailable)</div>
           </div>
           <div id="proof-badge" class="proof-stage__badge">Awaiting run</div>
@@ -399,8 +417,7 @@ button { cursor: pointer; }
 
         <div class="proof-actions">
           <a id="action-schema" class="btn btn--ghost" href="/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json">View Schema</a>
-          <a id="action-anchor" class="btn btn--ghost" href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">View Identity Anchor</a>
-          <button id="copy-receipt" class="btn btn--ghost" type="button">Copy Signed Receipt</button>
+          <button id="copy-receipt" class="btn btn--ghost" type="button">Copy Final Receipt</button>
           <button id="copy-verification" class="btn btn--ghost" type="button">Copy Verification JSON</button>
         </div>
       </article>
@@ -409,12 +426,12 @@ button { cursor: pointer; }
         <article class="proof-card">
           <header>
             <div>
-              <div class="section__eyebrow">Signed artifact</div>
-              <h3 style="margin:0.22rem 0 0;">Verified Receipt</h3>
+              <div class="section__eyebrow">Final artifact</div>
+              <h3 style="margin:0.22rem 0 0;">Verified Final Receipt</h3>
             </div>
             <span class="tag" id="artifact-tag">No receipt yet</span>
           </header>
-          <p>The canonical receipt is the proof object. This stays front and center even when runtime metadata is attached around it.</p>
+          <p>The final receipt is the main proof artifact. Supporting steps are preserved below instead of replacing this view.</p>
           <pre id="receipt-json">{
   "status": "ready"
 }</pre>
@@ -424,7 +441,7 @@ button { cursor: pointer; }
           <header>
             <div>
               <div class="section__eyebrow">Verification result</div>
-              <h3 style="margin:0.22rem 0 0;">Verification Passed</h3>
+              <h3 style="margin:0.22rem 0 0;">Verification output</h3>
             </div>
             <span class="tag" id="verification-tag">Waiting</span>
           </header>
@@ -439,11 +456,11 @@ button { cursor: pointer; }
         <article class="support-card">
           <div class="section__eyebrow">Inspection</div>
           <h3>Inspect JSON</h3>
-          <p>Judges can inspect the raw receipt and the verification response without losing the high-level proof narrative.</p>
+          <p>Keep the proof artifact front and center while still letting devs inspect exactly what happened.</p>
           <ul>
-            <li>Canonical receipt shown independently.</li>
+            <li>Final receipt shown independently.</li>
             <li>Verification response shown independently.</li>
-            <li>Runtime details remain subordinate.</li>
+            <li>Step receipts preserved below.</li>
           </ul>
         </article>
 
@@ -452,8 +469,8 @@ button { cursor: pointer; }
           <h3>What this surface makes obvious</h3>
           <ul>
             <li>Something ran.</li>
-            <li>It emitted a signed artifact.</li>
-            <li>The artifact stays visibly verified even when runtime availability changes.</li>
+            <li>It emitted a final receipt.</li>
+            <li>The final artifact remains visibly verified.</li>
           </ul>
         </article>
 
@@ -467,9 +484,9 @@ button { cursor: pointer; }
       <article class="proof-stage">
         <div class="section__eyebrow">Proof context</div>
         <h2 style="margin-top:0.2rem;">Runtime details and proof boundary</h2>
-        <p>Execution details help explain provenance, but they do not replace the canonical receipt.</p>
+        <p>Execution details help explain provenance, but they do not replace the final Commons receipt.</p>
         <div class="callout" id="runtime-callout">
-          <strong>Waiting for execution.</strong> The runtime metadata block will appear here after a live run, or recorded proof mode will explain what is available offline.
+          <strong>Waiting for execution.</strong> Runtime metadata will appear here after a live run, or recorded proof mode will explain what is available offline.
         </div>
       </article>
 
@@ -477,12 +494,12 @@ button { cursor: pointer; }
         <div class="proof-stage__top">
           <div>
             <div class="section__eyebrow">Step receipts</div>
-            <h2 style="margin-top:0.2rem;">Run flow → see each receipt</h2>
+            <h2 style="margin-top:0.2rem;">Run flow → inspect each step</h2>
           </div>
           <span class="tag" id="steps-tag">0 steps</span>
         </div>
         <div id="steps-grid" class="steps-grid">
-          <div class="empty-state">The strongest proof moment will appear above after the first run. Step-by-step receipts stay available below for deeper inspection.</div>
+          <div class="empty-state">The strongest proof moment will appear above after the first run. Step receipts stay available here for deeper inspection.</div>
         </div>
       </article>
     </section>
@@ -524,27 +541,62 @@ button { cursor: pointer; }
 (function () {
   const STORAGE_KEY = "commandlayer:last-proof-artifact:v1";
   const RECORDED_ARTIFACT_URL = "/assets/receipts/clean.recorded-live-artifact.v1.1.0.json";
-  const IDENTITY_ANCHOR = "https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d";
+
   const STARTER_FLOWS = {
     proof_default: {
       name: "Clean → Summarize",
       steps: [
-        { verb: "clean", inputFromField: "clean-input", inputBuilder: (value) => ({ content: value, operations: ["trim_whitespace", "collapse_blank_lines", "preserve_meaning"] }) },
-        { verb: "summarize", use_previous_result: true, inputFromField: "summary-instructions", inputBuilder: () => null }
+        {
+          verb: "clean",
+          inputFromField: "clean-input",
+          inputBuilder: (value) => ({
+            content: value,
+            operations: ["trim_whitespace", "collapse_blank_lines", "preserve_meaning"]
+          })
+        },
+        {
+          verb: "summarize",
+          use_previous_result: true,
+          inputFromField: "summary-instructions",
+          inputBuilder: () => null
+        }
       ]
     },
     analysis: {
       name: "Describe → Explain",
       steps: [
-        { verb: "describe", inputBuilder: () => ({ subject: "CommandLayer proof receipt", context: "A signed artifact that proves what an agent executed.", detail_level: "medium", audience: "judge" }) },
-        { verb: "explain", use_previous_result: true, inputBuilder: () => null }
+        {
+          verb: "describe",
+          inputBuilder: () => ({
+            subject: "CommandLayer proof receipt",
+            context: "A signed artifact that proves what an agent executed.",
+            detail_level: "medium",
+            audience: "judge"
+          })
+        },
+        {
+          verb: "explain",
+          use_previous_result: true,
+          inputBuilder: () => null
+        }
       ]
     },
     parse: {
       name: "Parse → Summarize",
       steps: [
-        { verb: "parse", inputBuilder: () => ({ content: "agent=commandlayer verdict=verified signer=runtime.commandlayer.eth schema=v1.1.0 receipt=success", content_type: "log", mode: "best_effort" }) },
-        { verb: "summarize", use_previous_result: true, inputBuilder: () => null }
+        {
+          verb: "parse",
+          inputBuilder: () => ({
+            content: "agent=commandlayer verdict=verified signer=runtime.commandlayer.eth schema=v1.1.0 receipt=success",
+            content_type: "log",
+            mode: "best_effort"
+          })
+        },
+        {
+          verb: "summarize",
+          use_previous_result: true,
+          inputBuilder: () => null
+        }
       ]
     }
   };
@@ -566,7 +618,6 @@ button { cursor: pointer; }
   const metricHash = document.getElementById("metric-hash");
   const metricSchema = document.getElementById("metric-schema");
   const actionSchema = document.getElementById("action-schema");
-  const actionAnchor = document.getElementById("action-anchor");
   const artifactTag = document.getElementById("artifact-tag");
   const verificationTag = document.getElementById("verification-tag");
   const receiptJson = document.getElementById("receipt-json");
@@ -579,27 +630,21 @@ button { cursor: pointer; }
   const copyVerificationBtn = document.getElementById("copy-verification");
 
   let runtimeHealthy = true;
-  let lastArtifact = null;
   let bundledRecordedArtifact = null;
+  let lastArtifact = null;
 
   function escapeHtml(value) {
     return String(value)
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;")
-      .replace(/\"/g, "&quot;")
+      .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
   }
 
   function formatJson(value) {
     try { return JSON.stringify(value, null, 2); }
     catch { return String(value); }
-  }
-
-  function truncateMiddle(value, head = 18, tail = 10) {
-    const text = String(value || "—");
-    if (text.length <= head + tail + 3) return text;
-    return `${text.slice(0, head)}...${text.slice(-tail)}`;
   }
 
   function schemaUrlForReceipt(receipt) {
@@ -633,7 +678,7 @@ button { cursor: pointer; }
   }
 
   function setRuntimeVisualState(kind, description, latencyText) {
-    runtimeBar.classList.remove("status-live", "status-fail", "status-fallback");
+    runtimeBar.classList.remove("status-live", "status-fallback", "status-fail");
     runtimeBar.classList.add(kind === "live" ? "status-live" : kind === "fallback" ? "status-fallback" : "status-fail");
     runtimeState.textContent = kind === "live" ? "Runtime live" : kind === "fallback" ? "Fallback proof mode ready" : "Runtime degraded";
     runtimeDescription.textContent = description;
@@ -644,7 +689,7 @@ button { cursor: pointer; }
   function updateButtonBusy(isBusy) {
     runButtons.forEach((button) => {
       button.disabled = isBusy;
-      button.textContent = isBusy ? "Generating verified receipt…" : "Run the Verified Agent Flow";
+      button.textContent = isBusy ? "Generating verified receipt…" : "Run the Verified Commons Flow";
     });
   }
 
@@ -685,16 +730,17 @@ button { cursor: pointer; }
     const proofHash = artifact?.proof_hash || runtimeMetadata?.proof?.hash_sha256 || verification?.hash_sha256 || null;
     const verificationStatus = availability.verification_status ?? (verification?.ok === true);
     const signerResolved = availability.signer_resolved ?? Boolean(
-      runtimeMetadata?.proof?.signer_id
-      || runtimeMetadata?.metadata?.signer_id
-      || verification?.signer?.resolved
-      || verification?.signer?.id
-      || verification?.signer_id
-      || artifact?.signer
+      runtimeMetadata?.proof?.signer_id ||
+      runtimeMetadata?.metadata?.signer_id ||
+      verification?.signer?.resolved ||
+      verification?.signer?.id ||
+      verification?.signer_id ||
+      artifact?.signer
     );
     const hashPresent = availability.hash_present ?? Boolean(proofHash);
     const proofArtifactAvailable = availability.proof_artifact_available ?? Boolean(receipt && Object.keys(receipt).length);
     const runtimeAvailable = availability.runtime_available ?? (artifact?.mode === "live" && runtimeHealthy);
+
     return {
       runtime_available: Boolean(runtimeAvailable),
       proof_artifact_available: Boolean(proofArtifactAvailable),
@@ -708,19 +754,23 @@ button { cursor: pointer; }
 
   function buildArtifactFromFlow(flow, options = {}) {
     const steps = Array.isArray(flow?.steps) ? flow.steps : [];
-    const finalStep = steps[steps.length - 1] || null;
+    const finalStep = steps.length ? steps[steps.length - 1] : null;
     const receipt = finalStep?.receipt || null;
     const verification = finalStep?.verification || { ok: false, reason: "Verification not returned." };
     const runtimeMetadata = finalStep?.runtime_metadata || null;
+
     return {
       mode: options.mode || "live",
-      title: verification.ok ? "Verified receipt ready" : (options.mode === "recorded" ? "Recorded verified receipt" : "Receipt ready for inspection"),
+      title: verification.ok
+        ? "Verified final receipt ready"
+        : (options.mode === "recorded"
+          ? "Recorded verified receipt"
+          : "Final receipt ready for inspection"),
       subtitle: verification.ok
-        ? "A live run emitted a canonical receipt and the verification check passed."
+        ? "A live Commons flow emitted a final canonical receipt and the verification check passed."
         : (options.mode === "recorded"
           ? "Showing the last successful verified artifact because live runtime health is degraded."
-          : "The flow returned a receipt, but the verification layer needs inspection."),
-      sourceLabel: options.mode === "recorded" ? "Recorded verified artifact" : "Live proof",
+          : "The flow returned a final receipt, but the verification layer needs inspection."),
       receipt,
       verification,
       runtime_metadata: runtimeMetadata,
@@ -736,33 +786,40 @@ button { cursor: pointer; }
 
   function renderArtifact(artifact) {
     lastArtifact = artifact;
+
     const receipt = artifact?.receipt || null;
     const verification = artifact?.verification || {};
     const state = deriveProofState(artifact);
     const isFallback = !state.runtime_available && state.proof_artifact_available;
     const isVerified = state.verification_status;
-    const badgeClass = isVerified ? "proof-stage__badge" : "proof-stage__badge proof-stage__badge--fail";
-    proofBadge.className = badgeClass;
+
+    proofBadge.className = isVerified ? "proof-stage__badge" : "proof-stage__badge proof-stage__badge--fail";
     proofBadge.textContent = isVerified ? "VERIFIED RECEIPT" : "VERIFICATION NEEDS ATTENTION";
+
     proofTitle.textContent = artifact?.title || "Verified Receipt";
     proofSubtitle.textContent = artifact?.subtitle || "Inspect the receipt and verification result below.";
+
     availabilityNote.hidden = !isFallback;
     availabilityNote.textContent = "Recorded from live execution (runtime currently unavailable)";
+
     metricVerification.textContent = isVerified ? "ok: true" : "Verification incomplete";
-    metricVerification.className = `metric-card__value ${isVerified ? 'metric-card__value--ok' : ''}`;
+    metricVerification.className = `metric-card__value ${isVerified ? "metric-card__value--ok" : ""}`;
     metricSigner.textContent = state.signer_resolved ? state.signer : "Signer unavailable";
     metricHash.textContent = state.hash_present ? state.proof_hash : "—";
     metricSchema.textContent = receipt?.schema_version || "—";
+
     actionSchema.href = artifact?.schema_url || schemaUrlForReceipt(receipt || {});
-    actionAnchor.href = IDENTITY_ANCHOR;
+
     artifactTag.textContent = isVerified ? "Signed artifact ready" : "Receipt available";
     verificationTag.textContent = isVerified ? "Passed" : "Review";
+
     receiptJson.textContent = formatJson(receipt || { status: "No receipt available" });
     verificationJson.textContent = formatJson(verification);
+
     verificationSummary.textContent = isVerified
       ? (isFallback
-        ? "Verification remains true. The preserved receipt, signer resolution, and proof hash stay visible while runtime is temporarily unavailable."
-        : "Verification passed. The signer, proof hash, and receipt contract are all visible in one place.")
+        ? "Verification remains true. The preserved final receipt, signer resolution, and proof hash stay visible while runtime is temporarily unavailable."
+        : "Verification passed. The signer, proof hash, and final receipt contract are all visible in one place.")
       : (artifact?.verification?.reason || artifact?.verification?.note || "Verification output needs review.");
 
     const runtimePayload = artifact?.runtime_metadata || artifact?.meta || {
@@ -770,10 +827,12 @@ button { cursor: pointer; }
         ? "Recorded live proof artifact is active. Inspect the preserved receipt, signer resolution, and proof hash while live execution is unavailable."
         : "No runtime metadata was attached to the final receipt."
     };
+
     runtimeCallout.innerHTML = `<strong>${escapeHtml(isFallback ? "Recorded proof context" : "Runtime context")}</strong> ${escapeHtml(JSON.stringify(runtimePayload, null, 2))}`;
 
     const steps = Array.isArray(artifact?.steps) ? artifact.steps : [];
     stepsTag.textContent = `${steps.length} ${steps.length === 1 ? "step" : "steps"}`;
+
     if (!steps.length) {
       stepsGrid.innerHTML = '<div class="empty-state">No step receipts were captured.</div>';
       return;
@@ -790,11 +849,15 @@ button { cursor: pointer; }
               <h3>${escapeHtml(step?.verb || stepReceipt?.verb || `step-${index + 1}`)}</h3>
             </div>
             <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-              <span class="step-chip ${stepVerified ? 'step-chip--good' : isFallback ? 'step-chip--warn' : ''}">${escapeHtml(stepVerified ? 'ok: true' : (isFallback ? 'Recorded proof' : 'Receipt captured'))}</span>
-              <span class="step-chip">${escapeHtml(stepReceipt?.status || 'unknown')}</span>
+              <span class="step-chip ${stepVerified ? "step-chip--good" : (isFallback ? "step-chip--warn" : "")}">${escapeHtml(stepVerified ? "ok: true" : (isFallback ? "Recorded proof" : "Receipt captured"))}</span>
+              <span class="step-chip">${escapeHtml(stepReceipt?.status || "unknown")}</span>
             </div>
           </div>
-          <p>${escapeHtml(stepVerified ? 'This step produced a receipt that passed the verification check.' : (isFallback ? 'This step preserves a previously verified receipt from live execution.' : 'This step produced a receipt. Inspect it below.'))}</p>
+          <p>${escapeHtml(stepVerified
+            ? "This step produced a receipt that passed the verification check."
+            : (isFallback
+              ? "This step preserves a previously verified receipt from live execution."
+              : "This step produced a receipt. Inspect it below."))}</p>
           <pre>${escapeHtml(formatJson(stepReceipt))}</pre>
         </article>
       `;
@@ -808,11 +871,11 @@ button { cursor: pointer; }
         ...stored,
         mode: "recorded",
         title: "Recorded verified receipt",
-        subtitle: reason || "Live runtime is degraded. Showing the last successful verified artifact captured in this browser.",
-        sourceLabel: "Recorded verified artifact"
+        subtitle: reason || "Live runtime is degraded. Showing the last successful verified artifact captured in this browser."
       });
       return;
     }
+
     const bundled = await loadBundledRecordedArtifact();
     renderArtifact({
       ...bundled,
@@ -827,11 +890,13 @@ button { cursor: pointer; }
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(receipt)
     });
+
     const data = await res.json().catch(() => ({}));
     const checks = data?.checks || {};
     const ok = typeof data?.ok === "boolean"
       ? data.ok
       : (checks.hash_matches === true && checks.signature_valid === true && checks.schema_valid !== false);
+
     return { ...data, ok, checks };
   }
 
@@ -840,15 +905,19 @@ button { cursor: pointer; }
     proofBadge.className = "proof-stage__badge";
     proofBadge.textContent = "RUNNING LIVE FLOW";
     proofTitle.textContent = "Executing the verified flow…";
-    proofSubtitle.textContent = "Generating canonical receipts and preparing verification output.";
+    proofSubtitle.textContent = "Generating step receipts, final receipt, and verification output.";
+
     try {
       const steps = buildRequestFromSelection();
+
       const res = await fetch("/api/commons-flow", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ steps })
       });
+
       const data = await res.json().catch(() => ({}));
+
       if (!res.ok) {
         runtimeHealthy = false;
         setRuntimeVisualState("fallback", `Live execution failed (${res.status}). Recorded proof mode is ready.`, runtimeLatency.textContent);
@@ -857,17 +926,23 @@ button { cursor: pointer; }
       }
 
       const responseSteps = Array.isArray(data?.steps) ? data.steps : [];
+
       for (let i = 0; i < responseSteps.length; i += 1) {
         if (responseSteps[i]?.receipt) {
-          responseSteps[i].verification = await verifyReceipt(responseSteps[i].receipt).catch(() => ({ ok: false, reason: "Verification request failed." }));
+          responseSteps[i].verification = await verifyReceipt(responseSteps[i].receipt).catch(() => ({
+            ok: false,
+            reason: "Verification request failed."
+          }));
         }
       }
 
       const artifact = buildArtifactFromFlow({ ...data, steps: responseSteps }, { mode: "live" });
       renderArtifact(artifact);
+
       if (artifact?.verification?.ok) persistArtifact(artifact);
+
       runtimeHealthy = true;
-      setRuntimeVisualState("live", `Connected to ${data?.meta?.runtime_base || 'runtime.commandlayer.org'} · live proof generated successfully.`, runtimeLatency.textContent);
+      setRuntimeVisualState("live", `Connected to ${data?.meta?.runtime_base || "runtime.commandlayer.org"} · live proof generated successfully.`, runtimeLatency.textContent);
     } catch (error) {
       runtimeHealthy = false;
       setRuntimeVisualState("fallback", "Runtime request failed. Recorded proof mode is active.", runtimeLatency.textContent);
@@ -883,12 +958,13 @@ button { cursor: pointer; }
       const res = await fetch("/api/health", { method: "GET" });
       const duration = `${Math.round(performance.now() - start)} ms`;
       const data = await res.json().catch(() => ({}));
+
       if (res.ok && data?.runtime_ok) {
         runtimeHealthy = true;
-        setRuntimeVisualState("live", `Connected to ${data?.runtime_base || 'runtime.commandlayer.org'} · live verified flow ready.`, duration);
+        setRuntimeVisualState("live", `Connected to ${data?.runtime_base || "runtime.commandlayer.org"} · live verified flow ready.`, duration);
       } else {
         runtimeHealthy = false;
-        setRuntimeVisualState("fallback", `Runtime health is degraded${data?.runtime_status ? ` (${data.runtime_status})` : ''}. Recorded proof mode is ready.`, duration);
+        setRuntimeVisualState("fallback", `Runtime health is degraded${data?.runtime_status ? ` (${data.runtime_status})` : ""}. Recorded proof mode is ready.`, duration);
         await renderRecordedFallback("Live runtime health is degraded. Recorded proof mode keeps the proof surface available.");
       }
     } catch {
@@ -903,26 +979,36 @@ button { cursor: pointer; }
     navigator.clipboard.writeText(text).then(() => {
       const previous = button.textContent;
       button.textContent = "Copied";
-      setTimeout(() => { button.textContent = idleLabel || previous; }, 1200);
+      setTimeout(() => {
+        button.textContent = idleLabel || previous;
+      }, 1200);
     }).catch(() => {});
   }
 
-  copyReceiptBtn?.addEventListener("click", () => copyText(receiptJson.textContent || "", copyReceiptBtn, "Copy Signed Receipt"));
+  copyReceiptBtn?.addEventListener("click", () => copyText(receiptJson.textContent || "", copyReceiptBtn, "Copy Final Receipt"));
   copyVerificationBtn?.addEventListener("click", () => copyText(verificationJson.textContent || "", copyVerificationBtn, "Copy Verification JSON"));
+
   runButtons.forEach((button) => button.addEventListener("click", runFlow));
-  fallbackButtons.forEach((button) => button.addEventListener("click", () => {
-    renderRecordedFallback("Recorded proof mode loaded manually so the trust story stays visible even without a live run.").catch(() => {});
-  }));
+  fallbackButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      renderRecordedFallback("Recorded proof mode loaded manually so the trust story stays visible even without a live run.").catch(() => {});
+    });
+  });
+
   starterFlow?.addEventListener("change", () => {
-    const isDefault = starterFlow.value === "proof_default";
-    document.getElementById("clean-input").value = isDefault
-      ? "Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently."
-      : document.getElementById("clean-input").value;
-    document.getElementById("summary-instructions").value = starterFlow.value === "analysis"
-      ? "Explain why the described proof receipt matters for a skeptical judge."
-      : starterFlow.value === "parse"
-        ? "Summarize the parsed proof facts into a short judge-facing brief."
-        : "Summarize the cleaned result into a short proof brief for a skeptical hackathon judge. Focus on what ran, what artifact was emitted, and why the receipt is verifiable.";
+    const cleanInput = document.getElementById("clean-input");
+    const summaryInstructions = document.getElementById("summary-instructions");
+
+    if (starterFlow.value === "analysis") {
+      cleanInput.value = "Describe the CommandLayer proof receipt in a way a skeptical judge can understand.";
+      summaryInstructions.value = "Explain why the described proof receipt matters for a skeptical judge.";
+    } else if (starterFlow.value === "parse") {
+      cleanInput.value = "agent=commandlayer verdict=verified signer=runtime.commandlayer.eth schema=v1.1.0 receipt=success";
+      summaryInstructions.value = "Summarize the parsed proof facts into a short judge-facing brief.";
+    } else {
+      cleanInput.value = "Agent action: normalize a judge-facing proof statement, preserve meaning, remove noise, and return a canonical receipt that can be verified independently.";
+      summaryInstructions.value = "Summarize the cleaned result into a short proof brief for a skeptical hackathon judge. Focus on what ran, what artifact was emitted, and why the receipt is verifiable.";
+    }
   });
 
   const stored = loadStoredArtifact();
@@ -931,10 +1017,10 @@ button { cursor: pointer; }
       ...stored,
       mode: "recorded",
       title: "Recorded verified receipt",
-      subtitle: "A previously verified artifact is already available in this browser. You can inspect it immediately or run the live flow again.",
-      sourceLabel: "Recorded verified artifact"
+      subtitle: "A previously verified artifact is already available in this browser. You can inspect it immediately or run the live flow again."
     });
   }
+
   probeRuntime().catch(() => {});
 })();
 </script>
