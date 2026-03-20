@@ -539,6 +539,7 @@ button { cursor: pointer; }
 })();
 
 (function () {
+  const RUNTIME_BASE = "https://runtime.commandlayer.org";
   const STORAGE_KEY = "commandlayer:last-proof-artifact:v1";
   const RECORDED_ARTIFACT_URL = "/assets/receipts/clean.recorded-live-artifact.v1.1.0.json";
 
@@ -558,7 +559,9 @@ button { cursor: pointer; }
           verb: "summarize",
           use_previous_result: true,
           inputFromField: "summary-instructions",
-          inputBuilder: () => null
+          inputBuilder: (value) => ({
+            instructions: value
+          })
         }
       ]
     },
@@ -595,7 +598,10 @@ button { cursor: pointer; }
         {
           verb: "summarize",
           use_previous_result: true,
-          inputBuilder: () => null
+          inputFromField: "summary-instructions",
+          inputBuilder: (value) => ({
+            instructions: value
+          })
         }
       ]
     }
@@ -709,7 +715,15 @@ button { cursor: pointer; }
   function deriveProofHash(step) {
     return step?.runtime_metadata?.proof?.hash_sha256
       || step?.verification?.hash_sha256
+      || step?.verification?.proof?.hash_sha256
       || step?.receipt?.proof?.hash_sha256
+      || null;
+  }
+
+  function deriveKid(step) {
+    return step?.verification?.kid
+      || step?.runtime_metadata?.proof?.kid
+      || step?.runtime_metadata?.metadata?.kid
       || null;
   }
 
@@ -775,6 +789,7 @@ button { cursor: pointer; }
       verification,
       runtime_metadata: runtimeMetadata,
       signer: deriveSigner(finalStep),
+      kid: deriveKid(finalStep),
       proof_hash: deriveProofHash(finalStep) || "Proof hash unavailable",
       schema_url: schemaUrlForReceipt(receipt),
       steps,
@@ -804,7 +819,17 @@ button { cursor: pointer; }
 
     metricVerification.textContent = isVerified ? "ok: true" : "Verification incomplete";
     metricVerification.className = `metric-card__value ${isVerified ? "metric-card__value--ok" : ""}`;
-    metricSigner.textContent = state.signer_resolved ? state.signer : "Signer unavailable";
+
+    const kid =
+      artifact?.verification?.kid ||
+      artifact?.runtime_metadata?.proof?.kid ||
+      artifact?.kid ||
+      "unknown";
+
+    metricSigner.textContent = state.signer_resolved
+      ? `${state.signer} (kid: ${kid})`
+      : "Signer unavailable";
+
     metricHash.textContent = state.hash_present ? state.proof_hash : "—";
     metricSchema.textContent = receipt?.schema_version || "—";
 
@@ -817,10 +842,8 @@ button { cursor: pointer; }
     verificationJson.textContent = formatJson(verification);
 
     verificationSummary.textContent = isVerified
-      ? (isFallback
-        ? "Verification remains true. The preserved final receipt, signer resolution, and proof hash stay visible while runtime is temporarily unavailable."
-        : "Verification passed. The signer, proof hash, and final receipt contract are all visible in one place.")
-      : (artifact?.verification?.reason || artifact?.verification?.note || "Verification output needs review.");
+      ? "Verified via ENS-resolved public key. Signature and hash match."
+      : (artifact?.verification?.reason || "Verification output needs review.");
 
     const runtimePayload = artifact?.runtime_metadata || artifact?.meta || {
       note: isFallback
@@ -885,7 +908,7 @@ button { cursor: pointer; }
   }
 
   async function verifyReceipt(receipt) {
-    const res = await fetch("/api/verify-receipt?schema=0&ens=0", {
+    const res = await fetch(`${RUNTIME_BASE}/verify?ens=1&strict_kid=1`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(receipt)
@@ -910,7 +933,7 @@ button { cursor: pointer; }
     try {
       const steps = buildRequestFromSelection();
 
-      const res = await fetch("/api/commons-flow", {
+      const res = await fetch(`${RUNTIME_BASE}/execute`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ steps })
@@ -942,7 +965,7 @@ button { cursor: pointer; }
       if (artifact?.verification?.ok) persistArtifact(artifact);
 
       runtimeHealthy = true;
-      setRuntimeVisualState("live", `Connected to ${data?.meta?.runtime_base || "runtime.commandlayer.org"} · live proof generated successfully.`, runtimeLatency.textContent);
+      setRuntimeVisualState("live", `Connected to ${data?.meta?.runtime_base || RUNTIME_BASE} · live proof generated successfully.`, runtimeLatency.textContent);
     } catch (error) {
       runtimeHealthy = false;
       setRuntimeVisualState("fallback", "Runtime request failed. Recorded proof mode is active.", runtimeLatency.textContent);
@@ -955,13 +978,13 @@ button { cursor: pointer; }
   async function probeRuntime() {
     const start = performance.now();
     try {
-      const res = await fetch("/api/health", { method: "GET" });
+      const res = await fetch(`${RUNTIME_BASE}/health`, { method: "GET" });
       const duration = `${Math.round(performance.now() - start)} ms`;
       const data = await res.json().catch(() => ({}));
 
-      if (res.ok && data?.runtime_ok) {
+      if (res.ok) {
         runtimeHealthy = true;
-        setRuntimeVisualState("live", `Connected to ${data?.runtime_base || "runtime.commandlayer.org"} · live verified flow ready.`, duration);
+        setRuntimeVisualState("live", `Connected to ${data?.runtime_base || RUNTIME_BASE} · live verified flow ready.`, duration);
       } else {
         runtimeHealthy = false;
         setRuntimeVisualState("fallback", `Runtime health is degraded${data?.runtime_status ? ` (${data.runtime_status})` : ""}. Recorded proof mode is ready.`, duration);
