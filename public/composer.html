@@ -420,7 +420,7 @@ details.disclosure summary::-webkit-details-marker { display: none; }
       <article id="custom-card" class="card" hidden>
         <div class="section-eyebrow">Custom chain</div>
         <h2 style="margin-top:0.18rem;">Build a live chain from the runtime verbs.</h2>
-        <p>Compose the chain from the 10 verbs, pass previous step output forward when needed, and run the sequence through the single runtime entrypoint.</p>
+        <p>Compose the chain from the 10 verbs, pass previous step output forward when needed, and run the sequence through the live Commons v1.1.0 verb routes.</p>
         <div class="run-controls">
           <button id="add-step" class="btn btn--secondary" type="button">Add Step</button>
           <span class="form-hint">Available verbs: fetch, describe, format, clean, parse, summarize, convert, explain, analyze, classify.</span>
@@ -468,7 +468,7 @@ details.disclosure summary::-webkit-details-marker { display: none; }
           <button id="copy-final-receipt" class="btn btn--secondary" type="button">Copy Final Receipt</button>
           <button id="copy-verification-json" class="btn btn--secondary" type="button">Copy Verification JSON</button>
           <button id="copy-curl-command" class="btn btn--secondary" type="button" disabled>Copy cURL Verify Command</button>
-          <a id="view-schema-link" class="btn btn--ghost" href="/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json" target="_blank" rel="noopener noreferrer">View Schema</a>
+          <a id="view-schema-link" class="btn btn--ghost" href="/schemas/v1.1.0/commons/summarize/receipts/summarize.receipt.schema.json" target="_blank" rel="noopener noreferrer">View Schema</a>
         </div>
       </article>
 
@@ -477,8 +477,8 @@ details.disclosure summary::-webkit-details-marker { display: none; }
         <h2 style="margin-top:0.18rem;">Independent verification at a glance.</h2>
         <p id="trust-copy">The right rail keeps the final artifact primary: verification status, signer identity, proof hash, and direct copy actions for independent verification.</p>
         <div class="chain-flow" id="trust-tags" style="margin-top:0.9rem;">
-          <span class="mini-pill">POST /</span>
-          <span class="mini-pill">POST /verify</span>
+          <span class="mini-pill">POST /&lt;verb&gt;/v1.1.0</span>
+          <span class="mini-pill">POST /verify?ens=1&amp;strict_kid=1</span>
           <span class="mini-pill">ENS + Ed25519</span>
         </div>
       </article>
@@ -548,6 +548,7 @@ details.disclosure summary::-webkit-details-marker { display: none; }
 
 (function () {
   const RUNTIME_BASE = 'https://runtime.commandlayer.org';
+  const RUNTIME_VERSION = '1.1.0';
   const STORAGE_KEY = 'commandlayer:last-proof-artifact:v2';
   const RECORDED_ARTIFACT_URL = '/assets/receipts/clean.recorded-live-artifact.v1.1.0.json';
   const VERBS = ['fetch', 'describe', 'format', 'clean', 'parse', 'summarize', 'convert', 'explain', 'analyze', 'classify'];
@@ -661,7 +662,7 @@ details.disclosure summary::-webkit-details-marker { display: none; }
   function schemaUrlForReceipt(receipt) {
     const version = receipt?.schema_version || '1.1.0';
     const verb = receipt?.verb || 'summarize';
-    return `/schemas/v${version}/commons/${verb}/${verb}.receipt.schema.json`;
+    return `/schemas/v${version}/commons/${verb}/receipts/${verb}.receipt.schema.json`;
   }
 
   function shellEscapeSingleQuotes(text) {
@@ -680,7 +681,7 @@ details.disclosure summary::-webkit-details-marker { display: none; }
       const parsed = JSON.parse(raw);
       return parsed && typeof parsed === 'object' ? parsed : null;
     } catch {
-      return fallback;
+      return null;
     }
   }
 
@@ -702,6 +703,8 @@ details.disclosure summary::-webkit-details-marker { display: none; }
   function extractKid(source) {
     return source?.verification?.kid
       || source?.verification?.values?.kid
+      || source?.artifact?.receipt?.metadata?.proof?.kid
+      || source?.artifact?.runtime_metadata?.proof?.kid
       || source?.runtime_metadata?.proof?.kid
       || null;
   }
@@ -709,6 +712,8 @@ details.disclosure summary::-webkit-details-marker { display: none; }
   function extractSigner(source) {
     return source?.verification?.signer_id
       || source?.verification?.values?.signer_id
+      || source?.artifact?.receipt?.metadata?.proof?.signer_id
+      || source?.artifact?.runtime_metadata?.proof?.signer_id
       || source?.runtime_metadata?.proof?.signer_id
       || source?.fallback_signer
       || null;
@@ -717,6 +722,8 @@ details.disclosure summary::-webkit-details-marker { display: none; }
   function extractHash(source) {
     return source?.verification?.hash_sha256
       || source?.verification?.values?.hash_sha256
+      || source?.artifact?.receipt?.metadata?.proof?.hash_sha256
+      || source?.artifact?.runtime_metadata?.proof?.hash_sha256
       || source?.runtime_metadata?.proof?.hash_sha256
       || null;
   }
@@ -732,16 +739,18 @@ details.disclosure summary::-webkit-details-marker { display: none; }
   function buildArtifact({ steps, mode, fallbackLabel, runtimeMessage }) {
     const normalizedSteps = Array.isArray(steps) ? steps : [];
     const finalStep = normalizedSteps[normalizedSteps.length - 1] || {};
+    const finalArtifact = finalStep.artifact || null;
     const finalReceipt = finalStep.receipt || null;
     const verification = normalizeVerification(finalStep.verification || {});
     const runtimeMetadata = finalStep.runtime_metadata || null;
-    const signer = extractSigner({ verification, runtime_metadata: runtimeMetadata, fallback_signer: finalStep.fallback_signer }) || 'Signer unavailable';
-    const kid = extractKid({ verification, runtime_metadata: runtimeMetadata }) || 'unknown';
-    const hash = extractHash({ verification, runtime_metadata: runtimeMetadata }) || 'Hash unavailable';
+    const signer = extractSigner({ verification, artifact: finalArtifact, runtime_metadata: runtimeMetadata, fallback_signer: finalStep.fallback_signer }) || 'Signer unavailable';
+    const kid = extractKid({ verification, artifact: finalArtifact, runtime_metadata: runtimeMetadata }) || 'unknown';
+    const hash = extractHash({ verification, artifact: finalArtifact, runtime_metadata: runtimeMetadata }) || 'Hash unavailable';
     return {
       mode,
       fallbackLabel: fallbackLabel || null,
       runtimeMessage: runtimeMessage || '',
+      artifact: finalArtifact,
       receipt: finalReceipt,
       verification,
       runtime_metadata: runtimeMetadata,
@@ -863,14 +872,17 @@ details.disclosure summary::-webkit-details-marker { display: none; }
       body: JSON.stringify(receipt)
     });
     const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(`Verification failed (${res.status})`);
+    }
     return normalizeVerification(data);
   }
 
-  async function runVerb(verb, input) {
-    const res = await fetch(`${RUNTIME_BASE}/`, {
+  async function runVerb(verb, body) {
+    const res = await fetch(`${RUNTIME_BASE}/${verb}/v${RUNTIME_VERSION}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ verb, input })
+      body: JSON.stringify(body)
     });
 
     const data = await res.json().catch(() => ({}));
@@ -930,12 +942,13 @@ details.disclosure summary::-webkit-details-marker { display: none; }
         const result = await runVerb(step.verb, input);
         const receipt = extractReceipt(result);
         const verification = receipt
-          ? await verifyReceipt(receipt).catch(() => ({ ok: false, reason: 'Verification request failed.' }))
+          ? await verifyReceipt(receipt).catch((error) => ({ ok: false, reason: error?.message || 'Verification request failed.' }))
           : { ok: false, reason: 'Runtime did not return a receipt payload.' };
 
         results.push({
           verb: step.verb,
           input,
+          artifact: result,
           receipt,
           verification,
           runtime_metadata: buildStepRuntimeMetadata(result, verification),
@@ -1079,12 +1092,6 @@ details.disclosure summary::-webkit-details-marker { display: none; }
       steps: Array.isArray(bundled?.steps) ? bundled.steps : []
     };
     renderArtifact(bundledArtifact);
-  }
-
-  function buildVerifyCurl() {
-    const receipt = lastRun?.receipt || safeJsonParse(receiptJson.textContent, {});
-    const receiptPayload = JSON.stringify(receipt).replace(/'/g, "'\\''");
-    return `curl -X POST \"${VERIFY_URL}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '${receiptPayload}'`;
   }
 
   function copyText(text, button, idleLabel) {
