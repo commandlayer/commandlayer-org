@@ -1,142 +1,283 @@
 {
   "name": "@commandlayer/agent-cards",
   "version": "1.1.0",
-  "description": "Manifest for CommandLayer Commons AgentCards v1.1.0.",
+  "description": "Canonical registry index for the CommandLayer Agent Cards v1.1.0 release-candidate repository line.",
+  "repository": "https://github.com/commandlayer/agent-cards",
+  "homepage": "https://commandlayer.org/agent-cards",
   "owner": "commandlayer.eth",
   "contact": "dev@commandlayer.org",
   "license": "Apache-2.0",
-  "agents_root": "agents/v1.1.0/commons",
-  "agents_cid": "bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we",
+  "updated_at": "2026-03-21T00:00:00Z",
+  "release_lines": {
+    "current": "v1.1.0",
+    "legacy_compatibility": [
+      "v1.0.0"
+    ],
+    "superseded": [
+      "v1.0.0"
+    ]
+  },
+  "roots": {
+    "canonical_cards_http": "https://commandlayer.org/agent-cards/agents/v1.1.0",
+    "canonical_schemas_http": "https://commandlayer.org/agent-cards/schemas/v1.1.0",
+    "canonical_meta_http": "https://commandlayer.org/agent-cards/meta",
+    "discovery_http": "https://commandlayer.org/agent-cards/.well-known",
+    "derivative_bundle": "dist-pin/agent-cards/v1.1.0"
+  },
+  "bindings": {
+    "commons": {
+      "source_repo": "https://github.com/commandlayer/protocol-commons",
+      "source_tag": "v1.1.0",
+      "shape": "flat",
+      "count": 10,
+      "entry": "https://runtime.commandlayer.org/execute",
+      "schema_root": "https://commandlayer.org/schemas/v1.1.0/commons"
+    },
+    "commercial": {
+      "source_repo": "https://github.com/commandlayer/protocol-commercial",
+      "source_tag": "v1.1.0",
+      "shape": "flat",
+      "count": 5,
+      "entry_pattern": "x402://<agent>/<verb>/v1.1.0",
+      "schema_root": "https://commandlayer.org/schemas/v1.1.0/commercial"
+    }
+  },
+  "checksums": {
+    "file": "https://commandlayer.org/agent-cards/checksums.txt",
+    "covers": [
+      "agents",
+      "schemas",
+      "meta",
+      ".well-known"
+    ],
+    "derivative_verification": "dist-pin/agent-cards/v1.1.0 must match a rebuild from the canonical root artifacts"
+  },
   "entries": [
     {
-      "id": "cleanagent.eth",
-      "class": "commons",
-      "ens": "cleanagent.eth",
+      "id": "authorizeagent.eth",
+      "class": "commercial",
+      "verb": "authorize",
       "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/authorizeagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commercial/authorize/authorize.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commercial/authorize/authorize.receipt.schema.json",
+      "entry": "x402://authorizeagent.eth/authorize/v1.1.0",
       "status": "protocol_reference",
       "networks": [
         "eip155:1"
-      ],
-      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/cleanagent.eth.json",
-      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/cleanagent.eth.json",
-      "checksum_agentcard": "sha256:220df3cda6f0099d4beeaeb3046819639cd1de04ac8bb0444ff733b4bd3babae"
+      ]
+    },
+    {
+      "id": "checkoutagent.eth",
+      "class": "commercial",
+      "verb": "checkout",
+      "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/checkoutagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commercial/checkout/checkout.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commercial/checkout/checkout.receipt.schema.json",
+      "entry": "x402://checkoutagent.eth/checkout/v1.1.0",
+      "status": "protocol_reference",
+      "networks": [
+        "eip155:1"
+      ]
+    },
+    {
+      "id": "purchaseagent.eth",
+      "class": "commercial",
+      "verb": "purchase",
+      "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/purchaseagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commercial/purchase/purchase.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commercial/purchase/purchase.receipt.schema.json",
+      "entry": "x402://purchaseagent.eth/purchase/v1.1.0",
+      "status": "protocol_reference",
+      "networks": [
+        "eip155:1"
+      ]
+    },
+    {
+      "id": "shipagent.eth",
+      "class": "commercial",
+      "verb": "ship",
+      "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/shipagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commercial/ship/ship.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commercial/ship/ship.receipt.schema.json",
+      "entry": "x402://shipagent.eth/ship/v1.1.0",
+      "status": "protocol_reference",
+      "networks": [
+        "eip155:1"
+      ]
+    },
+    {
+      "id": "verifyagent.eth",
+      "class": "commercial",
+      "verb": "verify",
+      "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/verifyagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commercial/verify/verify.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commercial/verify/verify.receipt.schema.json",
+      "entry": "x402://verifyagent.eth/verify/v1.1.0",
+      "status": "protocol_reference",
+      "networks": [
+        "eip155:1"
+      ]
     },
     {
       "id": "analyzeagent.eth",
       "class": "commons",
-      "ens": "analyzeagent.eth",
+      "verb": "analyze",
       "version": "1.1.0",
-      "status": "protocol_reference",
-      "networks": [
-        "eip155:1"
-      ],
       "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/analyzeagent.eth.json",
-      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/analyzeagent.eth.json",
-      "checksum_agentcard": "sha256:71d13f9e117184ad60badbeb939a9274791c3acb7d0f8b1b52a4714bebd87bb5"
-    },
-    {
-      "id": "summarizeagent.eth",
-      "class": "commons",
-      "ens": "summarizeagent.eth",
-      "version": "1.1.0",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.receipt.schema.json",
+      "entry": "https://runtime.commandlayer.org/execute",
       "status": "protocol_reference",
       "networks": [
         "eip155:1"
-      ],
-      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/summarizeagent.eth.json",
-      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/summarizeagent.eth.json",
-      "checksum_agentcard": "sha256:4e0d5a99f9c034a1550ccca0828e3e6220bf356ae4b251adbe229f4ef5879407"
+      ]
     },
     {
       "id": "classifyagent.eth",
       "class": "commons",
-      "ens": "classifyagent.eth",
+      "verb": "classify",
       "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/classifyagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commons/classify/classify.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commons/classify/classify.receipt.schema.json",
+      "entry": "https://runtime.commandlayer.org/execute",
       "status": "protocol_reference",
       "networks": [
         "eip155:1"
-      ],
-      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/classifyagent.eth.json",
-      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/classifyagent.eth.json",
-      "checksum_agentcard": "sha256:5f469fe18437abec845ecbc4e85375eb7aaee58edc704c13e2fbe0931c891df2"
+      ]
+    },
+    {
+      "id": "cleanagent.eth",
+      "class": "commons",
+      "verb": "clean",
+      "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/cleanagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.receipt.schema.json",
+      "entry": "https://runtime.commandlayer.org/execute",
+      "status": "protocol_reference",
+      "networks": [
+        "eip155:1"
+      ]
     },
     {
       "id": "convertagent.eth",
       "class": "commons",
-      "ens": "convertagent.eth",
+      "verb": "convert",
       "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/convertagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.receipt.schema.json",
+      "entry": "https://runtime.commandlayer.org/execute",
       "status": "protocol_reference",
       "networks": [
         "eip155:1"
-      ],
-      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/convertagent.eth.json",
-      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/convertagent.eth.json",
-      "checksum_agentcard": "sha256:b4f05d8f695ff0312b3f336bb9e7725af7807ca09b4a6ba065c960592b1657cb"
+      ]
     },
     {
       "id": "describeagent.eth",
       "class": "commons",
-      "ens": "describeagent.eth",
+      "verb": "describe",
       "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/describeagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commons/describe/describe.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commons/describe/describe.receipt.schema.json",
+      "entry": "https://runtime.commandlayer.org/execute",
       "status": "protocol_reference",
       "networks": [
         "eip155:1"
-      ],
-      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/describeagent.eth.json",
-      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/describeagent.eth.json",
-      "checksum_agentcard": "sha256:e6b470c58224068896ba701f9a3ee01482f623b567e3f11d10e5bb17543d2901"
+      ]
     },
     {
       "id": "explainagent.eth",
       "class": "commons",
-      "ens": "explainagent.eth",
+      "verb": "explain",
       "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/explainagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commons/explain/explain.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commons/explain/explain.receipt.schema.json",
+      "entry": "https://runtime.commandlayer.org/execute",
       "status": "protocol_reference",
       "networks": [
         "eip155:1"
-      ],
-      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/explainagent.eth.json",
-      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/explainagent.eth.json",
-      "checksum_agentcard": "sha256:19ce6caf0afff8ff992d6c6e127635327c0fe55624c13ca8cc699a965809aa8b"
+      ]
     },
     {
       "id": "fetchagent.eth",
       "class": "commons",
-      "ens": "fetchagent.eth",
+      "verb": "fetch",
       "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/fetchagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.receipt.schema.json",
+      "entry": "https://runtime.commandlayer.org/execute",
       "status": "protocol_reference",
       "networks": [
         "eip155:1"
-      ],
-      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/fetchagent.eth.json",
-      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/fetchagent.eth.json",
-      "checksum_agentcard": "sha256:40f752e62f4643804f7874c6cc054f8fb05f3d46d93ab1892a6345d976ffe8a7"
+      ]
     },
     {
       "id": "formatagent.eth",
       "class": "commons",
-      "ens": "formatagent.eth",
+      "verb": "format",
       "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/formatagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commons/format/format.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commons/format/format.receipt.schema.json",
+      "entry": "https://runtime.commandlayer.org/execute",
       "status": "protocol_reference",
       "networks": [
         "eip155:1"
-      ],
-      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/formatagent.eth.json",
-      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/formatagent.eth.json",
-      "checksum_agentcard": "sha256:149c0609107a7ee3c326b077d90a57c0d946b3eb0913a7d5bfe79f5e13ff9c3a"
+      ]
     },
     {
       "id": "parseagent.eth",
       "class": "commons",
-      "ens": "parseagent.eth",
+      "verb": "parse",
       "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/parseagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commons/parse/parse.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commons/parse/parse.receipt.schema.json",
+      "entry": "https://runtime.commandlayer.org/execute",
       "status": "protocol_reference",
       "networks": [
         "eip155:1"
-      ],
-      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/parseagent.eth.json",
-      "agent_card_ipfs": "ipfs://bafybeiccpdmehf7532b6yiirjjqcvbu2zq53ftbejz65to356ltnuyc2we/agents/parseagent.eth.json",
-      "checksum_agentcard": "sha256:514b86a75eb82fc9960d3236d76d36e18e1ede5e5c607bfa5bf6283190062ecb"
+      ]
+    },
+    {
+      "id": "summarizeagent.eth",
+      "class": "commons",
+      "verb": "summarize",
+      "version": "1.1.0",
+      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/summarizeagent.eth.json",
+      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json",
+      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json",
+      "entry": "https://runtime.commandlayer.org/execute",
+      "status": "protocol_reference",
+      "networks": [
+        "eip155:1"
+      ]
     }
-  ]
+  ],
+  "surface_roles": {
+    "root": "canonical repository artifacts for Agent Cards v1.1.0",
+    "meta_manifest": "canonical registry index",
+    "well_known": "discovery pointers only",
+    "dist_pin": "derivative current-line bundle for pinning/repinning and rebuild verification; not independent authority",
+    "legacy_v1_0_0": "archival compatibility only"
+  },
+  "publication": {
+    "model": "root-canonical-plus-derivative-dist-pin",
+    "canonical_root": "repository-root-artifacts",
+    "discovery_role": ".well-known discovery pointers only",
+    "derivative_bundle": "dist-pin/agent-cards/v1.1.0",
+    "state": "release_candidate_pending_validation",
+    "external_bindings": "unconfirmed_until_validate_release_passes",
+    "checksum_scope": "checksums_txt_covers_root_release_surfaces_only"
+  }
 }

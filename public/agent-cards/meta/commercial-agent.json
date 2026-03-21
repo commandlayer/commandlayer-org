@@ -1,7 +1,7 @@
 {
-  "id": "x402://commandlayer.eth/commons-agent/v1.1.0",
-  "name": "CommandLayer Commons Agent Registry",
-  "description": "Registry descriptor pointer for CommandLayer Commons Agent Cards v1.1.0 release-candidate repository bindings.",
+  "id": "x402://commandlayer.eth/commercial-agent/v1.1.0",
+  "name": "CommandLayer Commercial Agent Registry",
+  "description": "Registry descriptor pointer for CommandLayer Commercial Agent Cards v1.1.0 release-candidate repository bindings.",
   "owner": "commandlayer.eth",
   "ens": "commandlayer.eth",
   "version": "1.1.0",
@@ -15,12 +15,12 @@
     }
   },
   "agents_root": {
-    "http": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/"
+    "http": "https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/"
   },
   "bindings": {
     "shape": "flat",
-    "entry": "https://runtime.commandlayer.org/execute",
-    "schema_root": "https://commandlayer.org/schemas/v1.1.0/commons"
+    "entry_pattern": "x402://<agent>/<verb>/v1.1.0",
+    "schema_root": "https://commandlayer.org/schemas/v1.1.0/commercial"
   },
   "meta": {
     "agent_cards_version": "1.1.0",

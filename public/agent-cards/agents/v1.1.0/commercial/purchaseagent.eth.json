@@ -1,51 +1,24 @@
 {
-  "$schema": "https://commandlayer.org/agent-cards/schemas/v1.1.0/_shared/agent.card.base.schema.json",
+  "$schema": "https://commandlayer.org/agent-cards/schemas/v1.1.0/agent.card.schema.json",
   "$id": "https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/purchaseagent.eth.json",
-
   "id": "purchaseagent.eth",
-  "slug": "purchaseagent",
-  "display_name": "Purchase Agent",
-  "description": "Commercial reference agent for the purchase verb. Executes direct purchases without complex cart semantics, using purchase.request and purchase.receipt.",
-
   "owner": "commandlayer.eth",
   "ens": "purchaseagent.eth",
   "version": "1.1.0",
   "status": "protocol_reference",
   "class": "commercial",
-
-  "implements": ["purchase"],
-
+  "implements": [
+    "purchase"
+  ],
   "schemas": {
-    "request": "https://commandlayer.org/schemas/v1.1.0/commercial/purchase/requests/purchase.request.schema.json",
-    "receipt": "https://commandlayer.org/schemas/v1.1.0/commercial/purchase/receipts/purchase.receipt.schema.json"
+    "request": "https://commandlayer.org/schemas/v1.1.0/commercial/purchase/purchase.request.schema.json",
+    "receipt": "https://commandlayer.org/schemas/v1.1.0/commercial/purchase/purchase.receipt.schema.json"
   },
-  "schemas_mirror": {
-    "request": "https://ipfs.io/ipfs/bafybeiftjpyw6lwy3zm52sipbbwryssg5hoyu2qhr53j5gaqjvwfgfc344/commercial/purchase/requests/purchase.request.schema.json",
-    "receipt": "https://ipfs.io/ipfs/bafybeiftjpyw6lwy3zm52sipbbwryssg5hoyu2qhr53j5gaqjvwfgfc344/commercial/purchase/receipts/purchase.receipt.schema.json"
-  },
-
   "entry": "x402://purchaseagent.eth/purchase/v1.1.0",
-
-  "capabilities": {
-    "operations": [
-      "execute_purchase",
-      "apply_pricing",
-      "record_order"
-    ],
-    "input_types": ["application/json"],
-    "output_types": ["application/json"]
-  },
-
-  "meta": {
-    "publisher": "CommandLayer",
-    "contact": "dev@commandlayer.org",
-    "pgp_fingerprint": "5016 D496 9F38 22B2 C5A2 FA40 99A2 6950 197D AB0A",
-    "tags": ["purchase", "commercial", "payments"]
-  },
-
-  "networks": ["eip155:1"],
+  "networks": [
+    "eip155:1"
+  ],
   "license": "Apache-2.0",
-
   "created_at": "2025-11-22T00:00:00Z",
-  "updated_at": "2025-11-22T00:00:00Z"
+  "updated_at": "2026-03-19T00:00:00Z"
 }
