@@ -9,6 +9,7 @@ const crypto = require("crypto");
 const {
   COMMONS_ENTRY,
   normalizeCanonicalReceipt,
+  unwrapRuntimeReceipt,
   validateCanonicalReceipt,
   validateRuntimeMetadata,
 } = require("./_receipt-model");
@@ -68,11 +69,7 @@ function normalizeInput(input) {
 
 function getReceiptResult(result) {
   if (!result || typeof result !== "object") return {};
-  const payload = (result.final_receipt && typeof result.final_receipt === "object" && !Array.isArray(result.final_receipt))
-    ? result.final_receipt
-    : (result.receipt && typeof result.receipt === "object" && !Array.isArray(result.receipt))
-      ? result.receipt
-      : result;
+  const payload = unwrapRuntimeReceipt(result);
   if (payload.result && typeof payload.result === "object" && !Array.isArray(payload.result)) return payload.result;
   return payload;
 }
@@ -325,6 +322,7 @@ module.exports = async function handler(req, res) {
     }
 
     const runtimeReq = buildRuntimeRequest(step.verb, trace_id, stepInput, version);
+    console.log('[commons-flow] runtime execute target', JSON.stringify({ runtime_url: runtimeUrl }));
     const r = await postJson(runtimeUrl, runtimeReq, 20000);
 
     if (!r.ok) {
@@ -345,11 +343,34 @@ module.exports = async function handler(req, res) {
           runtime_content_type: r.content_type || null,
           server_time: nowIso(),
         },
+        logs: {
+          runtime_url: runtimeUrl,
+          outgoing_request_body: runtimeReq,
+          raw_runtime_response_body: r.data || r.raw || null,
+          normalized_receipt_chosen: null,
+          canonical_validation_failure_reason: r.error || null,
+        },
       });
     }
 
+    console.log('[commons-flow] runtime execute request', JSON.stringify({
+      runtime_url: runtimeUrl,
+      body: runtimeReq,
+    }));
+    console.log('[commons-flow] runtime execute response', JSON.stringify({
+      runtime_url: runtimeUrl,
+      body: r.data,
+    }));
+
     const normalized = normalizeCanonicalReceipt(r.data);
-    const receiptValidation = validateCanonicalReceipt(normalized.receipt, {
+    console.log('[commons-flow] normalized receipt', JSON.stringify({
+      runtime_url: runtimeUrl,
+      normalized_receipt: normalized.receipt,
+      trace_id: normalized.trace_id,
+      runtime_metadata: normalized.runtime_metadata || null,
+    }));
+
+    const receiptValidation = validateCanonicalReceipt(r.data, {
       allowEntryClass: true,
       expectedVerb: step.verb,
       expectedVersion: version,
@@ -370,6 +391,7 @@ module.exports = async function handler(req, res) {
         details: receiptValidation.errors,
         receipt: normalized.receipt,
         raw_response: r.data,
+        normalized_receipt: normalized.receipt,
         meta: {
           mode: "runtime-backed",
           runtime_base: RUNTIME_BASE,
@@ -379,7 +401,14 @@ module.exports = async function handler(req, res) {
           supported_versions: Array.from(SUPPORTED_VERSIONS),
           runtime_health,
           receipt_schema_found: receiptValidation.schema_found !== false,
+          canonical_validation_failure_reason: receiptValidation.errors || null,
           server_time: nowIso(),
+        },
+        logs: {
+          runtime_url: runtimeUrl,
+          outgoing_request_body: runtimeReq,
+          raw_runtime_response_body: r.data,
+          normalized_receipt_chosen: normalized.receipt,
         },
       });
     }
@@ -392,6 +421,15 @@ module.exports = async function handler(req, res) {
         version,
         details: runtimeMetadataValidation.errors,
         runtime_metadata: normalized.runtime_metadata,
+        normalized_receipt: normalized.receipt,
+        raw_response: r.data,
+        logs: {
+          runtime_url: runtimeUrl,
+          outgoing_request_body: runtimeReq,
+          raw_runtime_response_body: r.data,
+          normalized_receipt_chosen: normalized.receipt,
+          canonical_validation_failure_reason: runtimeMetadataValidation.errors || null,
+        },
       });
     }
 

@@ -6,27 +6,29 @@
 //   refresh=1 -> bypass caches (optional)
 //   schema=1  -> include schema validation (default 0 = crypto+hash only)
 
+const { normalizeCanonicalReceipt, unwrapRuntimeReceipt } = require('./_receipt-model');
+
 function respondNoStore(res) {
-  res.setHeader("Content-Type", "application/json; charset=utf-8");
-  res.setHeader("Cache-Control", "no-store");
+  res.setHeader('Content-Type', 'application/json; charset=utf-8');
+  res.setHeader('Cache-Control', 'no-store');
 }
 
 function normalizeRuntimeBase(url) {
-  let s = String(url || "").trim();
-  if (!s) return "";
-  s = s.replace(/\s+/g, "");
-  s = s.replace(/\/+$/, "");
-  if (!/^https?:\/\//i.test(s)) s = "https://" + s; // ✅ add scheme if missing
-  s = s.replace(/^http:\/\//i, "https://"); // ✅ force https
+  let s = String(url || '').trim();
+  if (!s) return '';
+  s = s.replace(/\s+/g, '');
+  s = s.replace(/\/+$/g, '');
+  if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+  s = s.replace(/^http:\/\//i, 'https://');
   return s;
 }
 
-function qflag(v, def = "0") {
+function qflag(v, def = '0') {
   const s = String(v ?? def);
-  return s === "1" ? "1" : "0";
+  return s === '1' ? '1' : '0';
 }
 
-async function fetchTextWithTimeout(url, { method = "GET", headers = {}, body = null, timeoutMs = 15000 } = {}) {
+async function fetchTextWithTimeout(url, { method = 'GET', headers = {}, body = null, timeoutMs = 15000 } = {}) {
   const controller = new AbortController();
   const t = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -36,11 +38,11 @@ async function fetchTextWithTimeout(url, { method = "GET", headers = {}, body = 
       headers,
       body,
       signal: controller.signal,
-      redirect: "follow",
+      redirect: 'follow',
     });
 
-    const text = await r.text().catch(() => "");
-    const contentType = r.headers.get("content-type") || null;
+    const text = await r.text().catch(() => '');
+    const contentType = r.headers.get('content-type') || null;
 
     return { ok: r.ok, status: r.status, contentType, text };
   } finally {
@@ -49,7 +51,7 @@ async function fetchTextWithTimeout(url, { method = "GET", headers = {}, body = 
 }
 
 function tryParseJson(text) {
-  const s = String(text || "").trim();
+  const s = String(text || '').trim();
   if (!s) return { ok: false, value: null };
   try {
     return { ok: true, value: JSON.parse(s) };
@@ -60,13 +62,13 @@ function tryParseJson(text) {
 
 function pickBoolean(...values) {
   for (const value of values) {
-    if (typeof value === "boolean") return value;
+    if (typeof value === 'boolean') return value;
   }
   return null;
 }
 
 function normalizeChecks(data, schemaRequested) {
-  const checks = data && typeof data.checks === "object" && data.checks ? { ...data.checks } : {};
+  const checks = data && typeof data.checks === 'object' && data.checks ? { ...data.checks } : {};
 
   const schemaValid = pickBoolean(
     checks.schema_valid,
@@ -108,15 +110,14 @@ function normalizeChecks(data, schemaRequested) {
 module.exports = async function handler(req, res) {
   respondNoStore(res);
 
-  // Basic CORS (no dependency)
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
-  res.setHeader("Access-Control-Allow-Methods", "POST,OPTIONS");
-  if (req.method === "OPTIONS") return res.status(204).end();
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Methods', 'POST,OPTIONS');
+  if (req.method === 'OPTIONS') return res.status(204).end();
 
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST,OPTIONS");
-    return res.status(405).end(JSON.stringify({ ok: false, error: "Method not allowed" }, null, 2));
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', 'POST,OPTIONS');
+    return res.status(405).end(JSON.stringify({ ok: false, error: 'Method not allowed' }, null, 2));
   }
 
   const RUNTIME_BASE = normalizeRuntimeBase(process.env.RUNTIME_BASE_URL);
@@ -125,8 +126,8 @@ module.exports = async function handler(req, res) {
       JSON.stringify(
         {
           ok: false,
-          error: "Missing RUNTIME_BASE_URL on Vercel",
-          hint: "Set env var RUNTIME_BASE_URL to https://runtime.commandlayer.org",
+          error: 'Missing RUNTIME_BASE_URL on Vercel',
+          hint: 'Set env var RUNTIME_BASE_URL to https://runtime.commandlayer.org',
         },
         null,
         2
@@ -135,44 +136,56 @@ module.exports = async function handler(req, res) {
   }
 
   const envelope = req.body;
-  if (!envelope || typeof envelope !== "object" || Array.isArray(envelope)) {
-    return res.status(400).end(JSON.stringify({ ok: false, error: "Invalid JSON receipt body" }, null, 2));
+  if (!envelope || typeof envelope !== 'object' || Array.isArray(envelope)) {
+    return res.status(400).end(JSON.stringify({ ok: false, error: 'Invalid JSON receipt body' }, null, 2));
   }
 
-  const receipt = envelope && typeof envelope.receipt === "object" ? envelope.receipt : envelope;
-
-  const ens = qflag(req.query?.ens, "0");
-  const refresh = qflag(req.query?.refresh, "0");
-  const schema = qflag(req.query?.schema, "0");
-
+  const normalized = normalizeCanonicalReceipt(envelope);
+  const bareReceipt = normalized.receipt || unwrapRuntimeReceipt(envelope);
+  const ens = qflag(req.query?.ens, '0');
+  const refresh = qflag(req.query?.refresh, '0');
+  const schema = qflag(req.query?.schema, '0');
   const verifyUrl = `${RUNTIME_BASE}/verify?ens=${ens}&refresh=${refresh}&schema=${schema}`;
+
+  console.log('[verify-receipt] runtime verify target', JSON.stringify({ runtime_url: verifyUrl }));
+  console.log('[verify-receipt] outgoing verify body', JSON.stringify({ body: bareReceipt }));
+  console.log('[verify-receipt] normalized receipt', JSON.stringify({ normalized_receipt: bareReceipt }));
 
   try {
     const upstream = await fetchTextWithTimeout(verifyUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(receipt),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(bareReceipt),
       timeoutMs: 15000,
     });
 
     const parsed = tryParseJson(upstream.text);
     const data = parsed.ok
       ? parsed.value
-      : { ok: false, error: "Non-JSON response from runtime /verify", raw: String(upstream.text || "").slice(0, 2000) };
-    const normalizedChecks = normalizeChecks(data, schema === "1");
+      : { ok: false, error: 'Non-JSON response from runtime /verify', raw: String(upstream.text || '').slice(0, 2000) };
+    const normalizedChecks = normalizeChecks(data, schema === '1');
 
-    // Preserve upstream status (200/4xx/5xx), but always include meta
+    console.log('[verify-receipt] raw verify response', JSON.stringify({ runtime_url: verifyUrl, body: data }));
+
     return res.status(upstream.status).end(
       JSON.stringify(
         {
           ...data,
           checks: normalizedChecks,
           meta: {
-            proxy: "vercel",
+            proxy: 'vercel',
             runtime: `${RUNTIME_BASE}/verify`,
             verify: { ens, refresh, schema },
             runtime_status: upstream.status,
             runtime_content_type: upstream.contentType,
+            normalized_receipt_used: bareReceipt,
+          },
+          logs: {
+            runtime_url: verifyUrl,
+            outgoing_request_body: bareReceipt,
+            raw_runtime_response_body: data,
+            normalized_receipt_chosen: bareReceipt,
+            canonical_validation_failure_reason: data?.error || null,
           },
         },
         null,
@@ -184,12 +197,20 @@ module.exports = async function handler(req, res) {
       JSON.stringify(
         {
           ok: false,
-          error: "verify proxy failed",
+          error: 'verify proxy failed',
           detail: e?.message || String(e),
           meta: {
-            proxy: "vercel",
+            proxy: 'vercel',
             runtime: `${RUNTIME_BASE}/verify`,
             verify: { ens, refresh, schema },
+            normalized_receipt_used: bareReceipt,
+          },
+          logs: {
+            runtime_url: verifyUrl,
+            outgoing_request_body: bareReceipt,
+            raw_runtime_response_body: null,
+            normalized_receipt_chosen: bareReceipt,
+            canonical_validation_failure_reason: e?.message || String(e),
           },
         },
         null,
@@ -197,4 +218,9 @@ module.exports = async function handler(req, res) {
       )
     );
   }
+};
+
+module.exports._private = {
+  normalizeChecks,
+  normalizeRuntimeBase,
 };
