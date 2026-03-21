@@ -6,7 +6,12 @@
 // This prevents UI "use previous result" from breaking when steps are skipped.
 
 const crypto = require("crypto");
-const { normalizeCanonicalReceipt, validateCanonicalReceipt, validateRuntimeMetadata } = require("./_receipt-model");
+const {
+  COMMONS_ENTRY,
+  normalizeCanonicalReceipt,
+  validateCanonicalReceipt,
+  validateRuntimeMetadata,
+} = require("./_receipt-model");
 
 const COMMON_VERBS = [
   "analyze",
@@ -47,8 +52,6 @@ function safeJsonParse(maybeJsonString) {
 }
 
 function normalizeInput(input) {
-  // UI should send input as an object/array already, but support legacy string input:
-  // "hello" => { content: "hello" }
   if (input == null) return null;
 
   if (typeof input === "string") {
@@ -59,48 +62,51 @@ function normalizeInput(input) {
     return { content: text };
   }
 
-  if (typeof input === "object") {
-    // object or array: accept as-is
-    return input;
-  }
-
-  // number/bool/etc: wrap
+  if (typeof input === "object") return input;
   return { content: String(input) };
 }
 
+function getReceiptResult(result) {
+  if (!result || typeof result !== "object") return {};
+  const payload = (result.final_receipt && typeof result.final_receipt === "object" && !Array.isArray(result.final_receipt))
+    ? result.final_receipt
+    : (result.receipt && typeof result.receipt === "object" && !Array.isArray(result.receipt))
+      ? result.receipt
+      : result;
+  if (payload.result && typeof payload.result === "object" && !Array.isArray(payload.result)) return payload.result;
+  return payload;
+}
 
 function pickBestTextFromResult(result) {
-  if (!result || typeof result !== "object") return "";
+  const payload = getReceiptResult(result);
+  if (!payload || typeof payload !== "object") return "";
 
   const candidates = [
-    result.summary,
-    result.cleaned_content,
-    result.formatted_content,
-    result.description,
-    result.explanation,
-    result.converted_content,
-    result.body_preview,
-    result.analysis,
-    result.content,
+    payload.summary,
+    payload.cleaned_content,
+    payload.formatted_content,
+    payload.description,
+    payload.explanation,
+    payload.converted_content,
+    payload.body_preview,
+    payload.analysis,
+    payload.content,
   ].filter(Boolean).map(String);
 
   if (candidates.length) return candidates[0];
 
-  if (Array.isArray(result.items) && result.items[0] && result.items[0].body_preview) {
-    return String(result.items[0].body_preview);
+  if (Array.isArray(payload.items) && payload.items[0] && payload.items[0].body_preview) {
+    return String(payload.items[0].body_preview);
   }
 
   try {
-    return JSON.stringify(result);
+    return JSON.stringify(payload);
   } catch {
-    return String(result);
+    return String(payload);
   }
 }
 
 function normalizeRuntimeBase(url) {
-  // You want canonical runtime.commandlayer.org
-  // - trim, remove trailing slash
-  // - force https
   let s = String(url || "").trim();
   if (!s) return "";
   s = s.replace(/\s+/g, "");
@@ -109,10 +115,8 @@ function normalizeRuntimeBase(url) {
   return s;
 }
 
-// safer curl: single quotes around JSON, and escape any single quotes inside payload
 function shellSingleQuote(str) {
-  // wraps in single quotes, escapes any single quote by closing/opening: 'foo'"'"'bar'
-  return `'${String(str).replace(/'/g, `'\"'\"'`)}'`;
+  return `'${String(str).replace(/'/g, `'"'"'`)}'`;
 }
 
 function buildCurl(runtimeUrl, runtimeReq) {
@@ -126,10 +130,11 @@ function buildCurl(runtimeUrl, runtimeReq) {
 
 function buildRuntimeRequest(verb, trace_id, inputObj, version) {
   return {
-    x402: {
-      entry: `x402://${verb}agent.eth/${verb}/v${version}`,
+    execution: {
+      entry: COMMONS_ENTRY,
       verb,
       version,
+      class: "commons",
     },
     actor: "composer.commandlayer.org",
     trace: { trace_id },
@@ -212,7 +217,7 @@ async function checkRuntimeHealth(runtimeBase) {
       ok: r.ok,
       status: r.status,
       content_type: r.contentType,
-      detail, // IMPORTANT: object, not string
+      detail,
     };
   } catch (e) {
     return {
@@ -248,7 +253,6 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  // Read env at request-time (avoids “baked empty string”)
   const RUNTIME_BASE = normalizeRuntimeBase(process.env.RUNTIME_BASE_URL);
 
   if (!RUNTIME_BASE) {
@@ -263,7 +267,6 @@ module.exports = async function handler(req, res) {
   const requestedVersion = String(body.version || DEFAULT_VERSION).trim();
   const version = SUPPORTED_VERSIONS.has(requestedVersion) ? requestedVersion : DEFAULT_VERSION;
 
-  // Sequenced indices: 0..N-1 in actual execution order (after filtering invalid steps)
   const steps = [];
   for (const s of incomingSteps) {
     const verb = String(s?.verb || "").trim();
@@ -295,12 +298,13 @@ module.exports = async function handler(req, res) {
   const responseSteps = [];
 
   for (const step of steps) {
-    const runtimeUrl = `${RUNTIME_BASE}/${step.verb}/v${version}`;
+    const runtimeUrl = `${RUNTIME_BASE}/execute`;
     let stepInput = step.input;
 
     if (step.use_previous_result) {
+      const previousSignedReceipt = responseSteps[responseSteps.length - 1]?.signed_receipt;
       const previousReceipt = responseSteps[responseSteps.length - 1]?.receipt;
-      const previousText = pickBestTextFromResult(previousReceipt).trim();
+      const previousText = pickBestTextFromResult(previousSignedReceipt || previousReceipt).trim();
       if (!previousText) {
         return res.status(400).json({
           error: "Previous step result unavailable for chained input",
@@ -345,8 +349,17 @@ module.exports = async function handler(req, res) {
     }
 
     const normalized = normalizeCanonicalReceipt(r.data);
-    const receiptValidation = validateCanonicalReceipt(normalized.receipt);
-    const runtimeMetadataValidation = validateRuntimeMetadata(normalized.runtime_metadata);
+    const receiptValidation = validateCanonicalReceipt(normalized.receipt, {
+      allowEntryClass: true,
+      expectedVerb: step.verb,
+      expectedVersion: version,
+      expectedClass: 'commons',
+      expectedEntry: COMMONS_ENTRY,
+    });
+    const runtimeMetadataValidation = validateRuntimeMetadata(normalized.runtime_metadata, {
+      requireProof: true,
+      expectedTraceId: trace_id,
+    });
 
     if (!receiptValidation.ok) {
       return res.status(500).json({
@@ -385,6 +398,7 @@ module.exports = async function handler(req, res) {
     responseSteps.push({
       index: step.index,
       verb: step.verb,
+      trace_id: normalized.trace_id || trace_id,
       runtime_url: runtimeUrl,
       version,
       request: runtimeReq,
@@ -407,6 +421,8 @@ module.exports = async function handler(req, res) {
     trace_id,
     steps: responseSteps,
     final_signed_receipt: responseSteps[responseSteps.length - 1]?.signed_receipt || null,
+    final_receipt: responseSteps[responseSteps.length - 1]?.receipt || null,
+    receipt: responseSteps[responseSteps.length - 1]?.receipt || null,
     meta: {
       mode: "runtime-backed",
       runtime_base: RUNTIME_BASE,
@@ -420,4 +436,11 @@ module.exports = async function handler(req, res) {
       curl: curlBlock,
     },
   });
+};
+
+module.exports._private = {
+  buildRuntimeRequest,
+  normalizeInput,
+  pickBestTextFromResult,
+  normalizeRuntimeBase,
 };
