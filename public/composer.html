@@ -421,7 +421,7 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
             </div>
           </section>
 
-          <div class="breadth-line">Additional Commons verbs are available for custom flows: parse, extract, convert, format, describe.</div>
+          <div class="breadth-line">Additional runtime verbs are available for custom flows: fetch, describe, format, clean, parse, summarize, convert, explain, analyze, classify.</div>
           <div class="actions">
             <button class="btn btn-primary" id="run-chain" type="button">Run Demo</button>
             <button class="btn" id="hero-build-custom" type="button">Create Custom Flow</button>
@@ -559,11 +559,43 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 
 <script>
 const RUNTIME_BASE = 'https://runtime.commandlayer.org';
-const FLOW_ENDPOINT = '/api/commons-flow';
-const VERIFY_ENDPOINT = '/api/verify-receipt?ens=1&refresh=1&schema=1';
 const RUNTIME_VERSION = '1.1.0';
 
 const SUPPORTED_COMMONS_VERBS = [
+  {
+    value: 'fetch',
+    label: 'fetch',
+    summary: 'Fetch remote content into the flow as the starting artifact.',
+    buildInput(text) {
+      return {
+        url: text,
+        response_format: 'text'
+      };
+    }
+  },
+  {
+    value: 'describe',
+    label: 'describe',
+    summary: 'Generate a short descriptive explanation of the input.',
+    buildInput(text) {
+      return {
+        content: text,
+        style: 'concise'
+      };
+    }
+  },
+  {
+    value: 'format',
+    label: 'format',
+    summary: 'Restyle text into a compact bullet-list surface.',
+    buildInput(text) {
+      return {
+        content: text,
+        target_style: 'bullet-list',
+        source_style: 'plain'
+      };
+    }
+  },
   {
     value: 'clean',
     label: 'clean',
@@ -584,17 +616,6 @@ const SUPPORTED_COMMONS_VERBS = [
         content: text,
         summary_style: 'exec_brief',
         format_hint: 'plain'
-      };
-    }
-  },
-  {
-    value: 'classify',
-    label: 'classify',
-    summary: 'Assign compact proof-oriented labels to the final result.',
-    buildInput(text) {
-      return {
-        content: text,
-        taxonomy: ['proof', 'artifact', 'receipt', 'verification', 'protocol']
       };
     }
   },
@@ -622,25 +643,35 @@ const SUPPORTED_COMMONS_VERBS = [
     }
   },
   {
-    value: 'format',
-    label: 'format',
-    summary: 'Restyle text into a compact bullet-list surface.',
+    value: 'explain',
+    label: 'explain',
+    summary: 'Explain the input in proof-oriented plain language.',
     buildInput(text) {
       return {
         content: text,
-        target_style: 'bullet-list',
-        source_style: 'plain'
+        style: 'plain_language'
       };
     }
   },
   {
-    value: 'describe',
-    label: 'describe',
-    summary: 'Generate a short descriptive explanation of the input.',
+    value: 'analyze',
+    label: 'analyze',
+    summary: 'Analyze the input and surface key observations.',
     buildInput(text) {
       return {
         content: text,
-        style: 'concise'
+        analysis_mode: 'key_findings'
+      };
+    }
+  },
+  {
+    value: 'classify',
+    label: 'classify',
+    summary: 'Assign compact proof-oriented labels to the final result.',
+    buildInput(text) {
+      return {
+        content: text,
+        taxonomy: ['proof', 'artifact', 'receipt', 'verification', 'protocol']
       };
     }
   }
@@ -981,12 +1012,12 @@ function getReceiptPayload(receipt) {
 
 function getReceiptVerb(receipt) {
   const payload = getReceiptPayload(receipt);
-  return payload?.x402?.verb || payload?.verb || null;
+  return payload?.verb || payload?.metadata?.verb || payload?.runtime_metadata?.verb || null;
 }
 
 function getReceiptVersion(receipt) {
   const payload = getReceiptPayload(receipt);
-  return payload?.x402?.version || payload?.schema_version || null;
+  return payload?.schema_version || payload?.version || payload?.metadata?.schema_version || null;
 }
 
 function getReceiptResult(receipt) {
@@ -1037,7 +1068,7 @@ function getTraceIdFromStep(step, fallbackTraceId = null) {
 function getStepAction(step, receipt) {
   const payload = getReceiptPayload(receipt) || {};
   const result = getReceiptResult(receipt);
-  return payload?.action || payload?.verb || payload?.x402?.verb || step?.verb || result?.action || 'executed';
+  return payload?.action || payload?.verb || step?.verb || result?.action || 'executed';
 }
 
 function escapeHtml(value) {
@@ -1049,22 +1080,20 @@ function escapeHtml(value) {
     .replace(/'/g, '&#39;');
 }
 
-function buildCompactVerifiedReceipt(receipt, signerEns, hash) {
+function buildCompactVerifiedReceipt(receipt, signerEns, hash, kid) {
   const payload = getReceiptPayload(receipt) || {};
   const labels = Array.isArray(payload?.result?.labels) ? payload.result.labels : [];
   return {
     status: payload?.status || receipt?.status || 'unknown',
-    x402: {
-      entry: payload?.x402?.entry || null,
-      verb: payload?.x402?.verb || payload?.verb || null,
-      version: payload?.x402?.version || payload?.schema_version || null
-    },
+    verb: payload?.verb || null,
+    schema_version: payload?.schema_version || payload?.version || null,
     result: {
       labels
     },
     metadata: {
       proof: {
         signer_id: signerEns || '—',
+        kid: kid || '—',
         hash_sha256: shorten(hash || '—', 14, 8)
       },
       receipt_id: shorten(getReceiptId(receipt) || '—', 14, 8)
@@ -1405,17 +1434,45 @@ function getSchemaWarmupState(verification) {
   return verification?.checks?.schema_valid === false && schemaErrors.includes('validator_not_warmed_yet');
 }
 
-async function verifySignedReceipt(signedReceipt, { retryOnWarmup = true } = {}) {
-  const verifyResponse = await fetch(VERIFY_ENDPOINT, {
+async function runVerb(verb, payload) {
+  const res = await fetch(`${RUNTIME_BASE}/${verb}/v${RUNTIME_VERSION}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(signedReceipt)
+    body: JSON.stringify(payload)
   });
 
-  const verification = await verifyResponse.json();
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    const detail = data?.error || data?.message || `Runtime ${verb} failed (${res.status})`;
+    throw new Error(detail);
+  }
+
+  return data;
+}
+
+async function verifyReceipt(receipt) {
+  const res = await fetch(`${RUNTIME_BASE}/verify?ens=1&strict_kid=1`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(receipt)
+  });
+
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    const detail = data?.error || data?.message || `Verify failed (${res.status})`;
+    throw new Error(detail);
+  }
+
+  return data;
+}
+
+async function verifySignedReceipt(signedReceipt, { retryOnWarmup = true } = {}) {
+  const verification = await verifyReceipt(signedReceipt);
   verification.transport = {
-    ok: verifyResponse.ok,
-    status: verifyResponse.status
+    ok: true,
+    status: 200
   };
 
   if (retryOnWarmup && getSchemaWarmupState(verification)) {
@@ -1438,30 +1495,29 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
   const checks = verification?.checks || {};
   const proof = getReceiptProof(signedReceipt);
 
-  const signerEns = proof.signer_id
-    || verification?.ens
-    || verification?.signer_ens
-    || verification?.signer_id
-    || verification?.values?.signer_id
-    || 'runtime.commandlayer.eth';
+  const signer =
+    verification?.signer_id ||
+    verification?.values?.signer_id ||
+    signedReceipt?.metadata?.proof?.signer_id ||
+    '—';
 
-  verifiedReceiptJson.textContent = JSON.stringify(buildCompactVerifiedReceipt(signedReceipt || compactReceipt || {}, signerEns, proof.hash_sha256
-    || verification?.hash_sha256
-    || verification?.values?.hash_sha256
-    || verification?.content_hash
-    || '—'), null, 2);
+  const kid =
+    verification?.kid ||
+    verification?.values?.kid ||
+    signedReceipt?.metadata?.proof?.kid ||
+    '—';
 
-  const kid = proof.kid
-    || verification?.kid
-    || verification?.values?.kid
-    || verification?.resolved_kid
-    || '—';
+  const hash =
+    verification?.hash_sha256 ||
+    verification?.values?.hash_sha256 ||
+    signedReceipt?.metadata?.proof?.hash_sha256 ||
+    '—';
 
-  const hash = proof.hash_sha256
-    || verification?.hash_sha256
-    || verification?.values?.hash_sha256
-    || verification?.content_hash
-    || '—';
+  const signerEns = signer === '—'
+    ? (proof.signer_ens || proof.signer_id || verification?.ens || verification?.signer_ens || 'runtime.commandlayer.eth')
+    : signer;
+
+  verifiedReceiptJson.textContent = JSON.stringify(buildCompactVerifiedReceipt(signedReceipt || compactReceipt || {}, signerEns, hash, kid), null, 2);
 
   const signaturePresent = !!proof.signature_b64;
   const signatureValid = checks.signature_valid === true;
@@ -1566,17 +1622,6 @@ function buildStepInput(verb, text) {
   return config ? config.buildInput(text) : { content: text };
 }
 
-function buildFlowRequest(verb, sourceText) {
-  return {
-    version: RUNTIME_VERSION,
-    ...(lastTraceId ? { trace_id: lastTraceId } : {}),
-    steps: [{
-      verb,
-      input: buildStepInput(verb, sourceText)
-    }]
-  };
-}
-
 function extractChainText(receipt) {
   if (!receipt || typeof receipt !== 'object') return '';
   const payload = getReceiptPayload(receipt) || receipt;
@@ -1659,30 +1704,19 @@ async function runChain() {
     const collectedSteps = [];
 
     for (const verb of chain.verbs) {
-      const response = await fetch(FLOW_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(buildFlowRequest(verb, chainInput))
-      });
+      const flowData = await runVerb(verb, buildStepInput(verb, chainInput));
 
-      const flowData = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        setExecutionError(flowData);
-        return;
-      }
-
-      lastTraceId = flowData.trace_id || lastTraceId;
-      const step = Array.isArray(flowData.steps) ? flowData.steps[0] : null;
-      finalReceipt = step?.receipt || null;
-      finalSignedReceipt = step?.signed_receipt || flowData.final_signed_receipt || null;
+      lastTraceId = flowData.trace_id || getReceiptTrace(flowData) || lastTraceId;
+      const stepReceipt = getReceiptPayload(flowData);
+      finalReceipt = stepReceipt || null;
+      finalSignedReceipt = flowData;
 
       if (!finalReceipt || !finalSignedReceipt) {
         setExecutionError({ error: 'No final signed receipt returned', detail: flowData });
         return;
       }
 
-      collectedSteps.push(step);
+      collectedSteps.push({ verb, signed_receipt: finalSignedReceipt, receipt: finalReceipt, trace_id: lastTraceId, status: finalReceipt?.status || flowData?.status });
       chainInput = extractChainText(finalSignedReceipt || finalReceipt);
     }
 
@@ -1729,7 +1763,9 @@ async function runChain() {
 
 function buildVerifyCurl(receipt) {
   const payload = JSON.stringify(receipt).replace(/'/g, "'\\''");
-  return `curl -sS -X POST "${RUNTIME_BASE}/verify?ens=1&refresh=1&schema=1" -H "Content-Type: application/json" --data-binary '${payload}'`;
+  return `curl -X POST "${RUNTIME_BASE}/verify?ens=1&strict_kid=1" \
+  -H "Content-Type: application/json" \
+  -d '${payload}'`;
 }
 
 function copyText(text, button, label) {
