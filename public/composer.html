@@ -143,14 +143,17 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 .fact-item .value.big{font-size:18px;letter-spacing:-.02em}
 .receipt-json-preview,.technical-pre{margin-top:12px;padding:12px 14px;border-radius:14px;background:#060a12;border:1px solid var(--line);overflow:auto;font-size:11px;line-height:1.55;color:#dce7ff;max-height:280px}
 .verification-column{position:relative;background:linear-gradient(180deg,rgba(12,22,20,.96),rgba(8,15,22,.98));border-color:rgba(99,230,168,.18);box-shadow:0 18px 60px rgba(0,0,0,.4),0 0 0 1px rgba(99,230,168,.06),0 0 32px rgba(99,230,168,.08)}
-.verdict-block{background:linear-gradient(180deg,rgba(24,66,49,.36),rgba(10,23,19,.48));border-color:rgba(99,230,168,.22);padding:18px}
-.verdict-title{display:flex;align-items:center;gap:12px;font-size:28px;font-weight:800;letter-spacing:-.04em}
-.verdict-icon{width:42px;height:42px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(99,230,168,.16);border:1px solid rgba(99,230,168,.24);color:var(--ok);font-size:24px}
-.verdict-subline{margin-top:8px;color:#e2fff2;font-size:15px;font-weight:700}
-.verdict-checks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.verdict-check{padding:12px;border-radius:14px;border:1px solid rgba(99,230,168,.18);background:rgba(255,255,255,.03)}
-.verdict-check strong{display:block;font-size:15px;letter-spacing:-.02em}
+.verdict-block{background:linear-gradient(180deg,rgba(34,93,66,.48),rgba(8,21,18,.7));border-color:rgba(99,230,168,.3);padding:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 20px 40px rgba(1,16,10,.24)}
+.verdict-title{display:flex;align-items:center;gap:14px;font-size:34px;font-weight:850;letter-spacing:-.05em;line-height:1.05}
+.verdict-icon{width:48px;height:48px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(99,230,168,.2);border:1px solid rgba(99,230,168,.34);color:var(--ok);font-size:28px;box-shadow:0 0 0 6px rgba(99,230,168,.08)}
+.verdict-subline{margin-top:10px;color:#ecfff5;font-size:16px;font-weight:750}
+.verdict-checks{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
+.verdict-check{padding:14px;border-radius:14px;border:1px solid rgba(99,230,168,.22);background:rgba(255,255,255,.04)}
+.verdict-check strong{display:block;font-size:16px;letter-spacing:-.02em}
 .verdict-check span{display:block;margin-top:6px;color:#a8e9c5;font-size:12px}
+.verdict-facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.verdict-fact{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 12px;border-radius:999px;border:1px solid rgba(99,230,168,.24);background:rgba(4,17,13,.42);font-size:12px;color:#dcffed}
+.verdict-fact strong{color:#8ee3b2;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
 .verify-status{margin-top:14px;display:grid;gap:10px}
 .verify-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
 .verify-row strong{font-size:12px}
@@ -369,6 +372,11 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
               <div class="verdict-check"><strong id="ens-verdict">ENS identity confirmed</strong><span id="ens-verdict-sub">runtime.commandlayer.eth</span></div>
               <div class="verdict-check"><strong id="schema-verdict">Schema valid</strong><span id="schema-verdict-sub">Awaiting validation</span></div>
             </div>
+            <div class="verdict-facts">
+              <div class="verdict-fact"><strong>Verified via</strong><span id="verdict-via">ENS</span></div>
+              <div class="verdict-fact"><strong>Signer</strong><span id="verdict-signer">runtime.commandlayer.eth</span></div>
+              <div class="verdict-fact"><strong>Final verb</strong><span id="verdict-final-verb">classify</span></div>
+            </div>
           </section>
 
           <div style="margin-top:12px;"><span class="badge pending" id="verify-badge">Pending</span></div>
@@ -377,12 +385,10 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
             <div class="fact-head">
               <div>
                 <strong>Verification facts</strong>
-                <div class="section-sub">Portable verification details surfaced above lower-level diagnostics.</div>
+                <div class="section-sub">Keep the hero focused on proof passed; inspect the lower-level evidence here only if needed.</div>
               </div>
             </div>
             <div class="fact-grid">
-              <div class="fact-item"><div class="label">Verified via</div><div class="value">ENS</div></div>
-              <div class="fact-item"><div class="label">Signer</div><div class="value big" id="artifact-signer">—</div></div>
               <div class="fact-item"><div class="label">KID</div><div class="value" id="artifact-kid">—</div></div>
               <div class="fact-item"><div class="label">Canonical form</div><div class="value">json.sorted_keys.v1</div></div>
               <div class="fact-item"><div class="label">Proof hash</div><div class="value" id="artifact-hash">—</div></div>
@@ -399,13 +405,8 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
           </div>
 
           <div class="summary-card">
-            <h3>Verification result</h3>
+            <h3>Verification verdict</h3>
             <p id="artifact-summary">Run a flow to generate a fresh final receipt and verification result.</p>
-          </div>
-
-          <div class="summary-card">
-            <h3>Verification payload</h3>
-            <p id="verify-payload-summary">Waiting for a final signed receipt from the live runtime.</p>
           </div>
 
           <div class="verify-actions">
@@ -430,6 +431,8 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
               <div class="kv"><div class="k">Runtime</div><div class="v">runtime.commandlayer.org</div></div>
               <div class="kv"><div class="k">Final verb</div><div class="v" id="execution-final-verb">—</div></div>
               <div class="kv"><div class="k">Mode</div><div class="v">Live runtime</div></div>
+              <div class="kv"><div class="k">Raw summary</div><div class="v" id="technical-summary">—</div></div>
+              <div class="kv"><div class="k">Verifier payload summary</div><div class="v" id="verify-payload-summary">Waiting for a final signed receipt from the live runtime.</div></div>
             </div>
 
             <div class="exec-steps" id="execution-steps">
@@ -621,7 +624,6 @@ const receiptSignature = document.getElementById('receipt-signature');
 const receiptSchema = document.getElementById('receipt-schema');
 const receiptId = document.getElementById('receipt-id');
 
-const artifactSigner = document.getElementById('artifact-signer');
 const artifactKid = document.getElementById('artifact-kid');
 const artifactHash = document.getElementById('artifact-hash');
 const artifactSchema = document.getElementById('artifact-schema');
@@ -629,6 +631,10 @@ const artifactSummary = document.getElementById('artifact-summary');
 const finalReceiptJson = document.getElementById('final-receipt-json');
 const verificationJson = document.getElementById('verification-json');
 const verifyPayloadSummary = document.getElementById('verify-payload-summary');
+const technicalSummary = document.getElementById('technical-summary');
+const verdictVia = document.getElementById('verdict-via');
+const verdictSigner = document.getElementById('verdict-signer');
+const verdictFinalVerb = document.getElementById('verdict-final-verb');
 
 const copyReceiptBtn = document.getElementById('copy-receipt');
 const copyVerificationBtn = document.getElementById('copy-verification');
@@ -772,7 +778,6 @@ function resetVerifySurface() {
   setRowState(verifyEnsRow, 'pending', 'Pending');
   setRowState(verifySchemaRow, 'pending', 'Pending');
   setRowState(verifyStatusRow, 'pending', 'Pending');
-  artifactSigner.textContent = '—';
   artifactKid.textContent = '—';
   artifactHash.textContent = '—';
   artifactSchema.textContent = '—';
@@ -787,7 +792,11 @@ function resetVerifySurface() {
   finalReceiptJson.textContent = JSON.stringify({ status: 'ready' }, null, 2);
   verificationJson.textContent = JSON.stringify({ status: 'pending' }, null, 2);
   artifactSummary.textContent = 'Run a flow to generate a fresh final receipt and verification result.';
+  technicalSummary.textContent = '—';
   verifyPayloadSummary.textContent = 'Waiting for a final signed receipt from the live runtime.';
+  verdictVia.textContent = 'ENS';
+  verdictSigner.textContent = 'runtime.commandlayer.eth';
+  verdictFinalVerb.textContent = 'classify';
   receiptChipStatus.textContent = 'Signed receipt returned';
   ensChipStatus.textContent = 'ENS-backed verification';
   schemaChipStatus.textContent = 'Schema validation passed';
@@ -943,7 +952,8 @@ function setExecutionError(errorPayload) {
   setRowState(verifyEnsRow, 'pending', 'Pending');
   setRowState(verifySchemaRow, 'pending', 'Pending');
   setRowState(verifyStatusRow, 'bad', 'Execution failed');
-  artifactSummary.textContent = summary;
+  artifactSummary.textContent = 'Independent verification blocked until a signed receipt is returned.';
+  technicalSummary.textContent = summary;
   receiptChipStatus.textContent = 'Signed receipt unavailable';
   ensChipStatus.textContent = 'ENS verification blocked';
   schemaChipStatus.textContent = 'Schema validation blocked';
@@ -1014,7 +1024,7 @@ async function verifySignedReceipt(signedReceipt, { retryOnWarmup = true } = {})
 function applyVerification(compactReceipt, signedReceipt, verification) {
   finalReceiptJson.textContent = JSON.stringify(signedReceipt || {}, null, 2);
   verificationJson.textContent = JSON.stringify(verification || {}, null, 2);
-  artifactSummary.textContent = 'Verification response received; evaluating signed receipt details.';
+  artifactSummary.textContent = 'Evaluating proof verdict.';
   verifyPayloadSummary.textContent = 'Verification completed; summarizing payload and checks.';
 
   const checks = verification?.checks || {};
@@ -1070,7 +1080,6 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
 
   setRowState(verifyStatusRow, overallValid ? (schemaValid ? 'ok' : 'pending') : 'bad', verificationMessages.join(' · '));
 
-  artifactSigner.textContent = signerEns;
   artifactKid.textContent = shorten(kid, 16, 10);
   artifactHash.textContent = shorten(hash, 18, 10);
   artifactSchema.textContent = getReceiptVersion(signedReceipt) || getReceiptVersion(compactReceipt) || RUNTIME_VERSION;
@@ -1084,11 +1093,12 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
   receiptBadge.className = receiptPresent ? 'badge ok' : 'badge bad';
   receiptBadge.textContent = receiptPresent ? 'Receipt ready' : 'Receipt missing';
 
-  artifactSummary.textContent = schemaValid
-    ? `Fresh final signed receipt verified after execution. ${summarizeReceipt(signedReceipt)}.`
+  technicalSummary.textContent = summarizeReceipt(signedReceipt);
+  artifactSummary.textContent = overallValid
+    ? 'All proof checks passed for the signed receipt.'
     : (validatorWarming && authenticityValid
-      ? `Signature, hash, and ENS signer checks passed for ${summarizeReceipt(signedReceipt)}. Schema validation is retryable because the validator is still warming.`
-      : `${summarizeReceipt(signedReceipt)}. ${verificationMessages.join(' · ')}`);
+      ? 'Signature, hash, and ENS identity checks passed. Schema validation is retryable while the validator warms.'
+      : 'Independent verification needs review before this proof can be trusted.');
 
   const proofAvailable = !!(proof.signature_b64 || proof.hash_sha256 || proof.signer_id || proof.kid);
   verifyPayloadSummary.textContent = cryptoValid
@@ -1097,11 +1107,15 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
       ? 'Verify used the exact final signed receipt object and found incomplete or failing proof checks; inspect metadata.proof and the verification response JSON.'
       : 'Verify used the exact final signed receipt object, but metadata.proof fields are missing; inspect the raw receipt JSON.');
 
+  verdictVia.textContent = 'ENS';
+  verdictSigner.textContent = signerEns;
+  verdictFinalVerb.textContent = getReceiptVerb(signedReceipt) || getReceiptVerb(compactReceipt) || '—';
+
   receiptChipStatus.textContent = receiptPresent ? 'Signed receipt returned' : 'Signed receipt unavailable';
   ensChipStatus.textContent = ensMatch ? 'ENS-backed verification' : 'ENS verification needs review';
   schemaChipStatus.textContent = schemaValid ? 'Schema validation passed' : (validatorWarming ? 'Schema validator warming' : 'Schema validation failed');
   setVerdictState({
-    title: overallValid ? 'Receipt verified' : 'Verification needs review',
+    title: overallValid ? 'Verification successful' : 'Verification needs review',
     signature: signatureValid ? 'Signature valid' : 'Signature invalid',
     hash: hashMatches ? 'Hash matches canonical receipt' : 'Hash mismatch detected',
     ens: ensMatch ? `ENS identity confirmed: ${signerEns}` : 'ENS identity not confirmed',
