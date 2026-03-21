@@ -70,12 +70,7 @@ code,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
 }
 h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-width:780px}
 .lead{margin:0;color:var(--muted);font-size:14px;line-height:1.55;max-width:760px}
-.hero{display:grid;grid-template-columns:minmax(0,1.45fr) 280px;gap:18px}
-.hero-note{
-  margin-top:18px;padding:14px 16px;border-radius:16px;border:1px solid rgba(107,160,255,.18);
-  background:linear-gradient(180deg,rgba(17,34,64,.48),rgba(9,18,35,.42));color:#d9ecff;font-size:14px;font-weight:600
-}
-.hero-note strong{display:block;font-size:15px;letter-spacing:-.02em;margin-bottom:4px}
+.hero{display:grid;grid-template-columns:minmax(0,1fr);gap:0}
 .hero-actions,.actions,.toggle-row,.receipt-actions,.verify-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
 .btn{
   height:40px;padding:0 16px;border-radius:999px;border:1px solid var(--line);
@@ -347,18 +342,6 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
         </div>
       </div>
 
-      <aside class="card">
-        <div class="card-inner">
-          <div class="eyebrow">Trust layer</div>
-          <h2 class="section-title" style="margin-top:12px;">Judge story in one glance.</h2>
-          <p class="section-sub">Run the default proof chain, inspect the signed artifact, then read the independent verdict anchored to <strong>runtime.commandlayer.eth</strong>.</p>
-          <div class="hero-note">
-            <strong>Run Flow → Signed Receipt → Independent Verification</strong>
-            This page is structured around proof of agent execution, not a generic builder.
-          </div>
-          <div class="helper-line">Runtime latency: <strong id="runtime-latency">—</strong></div>
-        </div>
-      </aside>
     </section>
 
     <section class="story-grid">
@@ -890,7 +873,9 @@ function setBusy(isBusy) {
 }
 
 function setRuntimeState(ok, latencyText) {
-  runtimeLatency.textContent = latencyText || '—';
+  if (runtimeLatency) {
+    runtimeLatency.textContent = latencyText || '—';
+  }
   runtimeStatusRow.innerHTML = ok
     ? '<span class="live-dot"></span><span>Live runtime reachable</span>'
     : '<span class="warn-dot"></span><span>Runtime unavailable</span>';
