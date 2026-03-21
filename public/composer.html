@@ -200,39 +200,31 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 .receipt-chain-card{margin-top:18px}
 .receipt-chain-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
 .receipt-chain-status{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
-.receipt-chain-list{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;align-items:stretch}
-.receipt-chain-item{position:relative;padding:16px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));display:flex;flex-direction:column;gap:12px;min-height:220px}
-.receipt-chain-item::after{content:'→';position:absolute;top:50%;right:-12px;transform:translate(50%,-50%);width:28px;height:28px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:#09111f;color:var(--muted);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(0,0,0,.24)}
-.receipt-chain-item.is-final{border-color:rgba(99,230,168,.38);box-shadow:0 0 0 1px rgba(99,230,168,.12),0 18px 40px rgba(3,22,14,.28);background:linear-gradient(180deg,rgba(35,91,68,.28),rgba(14,28,24,.9))}
-.receipt-chain-item.is-selected{border-color:rgba(120,196,255,.64);box-shadow:0 0 0 1px rgba(120,196,255,.20),0 18px 32px rgba(18,49,108,.26)}
-.receipt-chain-item:last-child::after{display:none}
-.receipt-chain-top,.receipt-chain-meta,.receipt-chain-footer,.receipt-chain-flow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.receipt-chain-top{align-items:center}
-.receipt-step-badge,.receipt-final-badge,.status-pill{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid var(--line)}
+.proof-path-strip{margin-top:16px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.proof-path-node,.proof-path-arrow{display:inline-flex;align-items:center;min-height:34px;border-radius:999px;font-size:12px;font-weight:700}
+.proof-path-node{padding:0 14px;border:1px solid var(--line);background:rgba(255,255,255,.04);color:#e7f2ff}
+.proof-path-node.is-final{border-color:rgba(99,230,168,.32);background:rgba(35,91,68,.22);color:#b8f6d7}
+.proof-path-arrow{color:var(--muted-2)}
+.receipt-chain-list{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;align-items:stretch}
+.receipt-chain-item{padding:14px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));display:flex;flex-direction:column;gap:12px;min-height:168px;cursor:pointer;transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease}
+.receipt-chain-item:hover{transform:translateY(-1px);border-color:rgba(120,196,255,.36)}
+.receipt-chain-item.is-final{border-color:rgba(99,230,168,.38);box-shadow:0 0 0 1px rgba(99,230,168,.12),0 18px 40px rgba(3,22,14,.22);background:linear-gradient(180deg,rgba(35,91,68,.24),rgba(14,28,24,.88))}
+.receipt-chain-item.is-selected{border-color:rgba(120,196,255,.64);box-shadow:0 0 0 1px rgba(120,196,255,.20),0 18px 32px rgba(18,49,108,.24)}
+.receipt-chain-top,.receipt-chain-actions{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.receipt-step-badge,.receipt-final-badge,.status-pill,.selection-pill{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid var(--line)}
 .receipt-step-badge{background:rgba(255,255,255,.05);color:#d8e8ff}
 .receipt-final-badge{background:rgba(99,230,168,.14);border-color:rgba(99,230,168,.28);color:#b8f6d7}
 .status-pill.ok{color:#b8f6d7;background:rgba(38,120,82,.18);border-color:rgba(99,230,168,.24)}
 .status-pill.pending{color:#ffe2a6;background:rgba(122,91,20,.18);border-color:rgba(255,204,102,.20)}
 .status-pill.bad{color:#ffd0d0;background:rgba(120,38,38,.18);border-color:rgba(255,141,141,.22)}
+.selection-pill{border-color:rgba(120,196,255,.24);background:rgba(38,84,180,.12);color:var(--blue-2)}
+.receipt-chain-body{display:grid;gap:4px}
 .receipt-chain-body strong{display:block;font-size:18px;letter-spacing:-.03em}
-.receipt-chain-body p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
-.receipt-chain-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.receipt-chain-kv{padding:10px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
-.receipt-chain-kv .label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
-.receipt-chain-kv .value{margin-top:6px;font-size:12px;font-weight:700;line-height:1.4;word-break:break-word}
-.receipt-chain-preview-line{padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.02);font-size:12px;color:#e7f1ff;line-height:1.5;min-height:62px}
-.receipt-chain-flow{align-items:center;color:var(--muted);font-size:12px}
-.receipt-chain-flow strong{color:#dceaff;font-size:12px}
-.receipt-chain-actions{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:auto;flex-wrap:wrap}
-.view-receipt-btn{min-height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(120,196,255,.28);background:rgba(38,84,180,.16);color:#e7f2ff;font-size:12px;font-weight:700;cursor:pointer}
-.view-receipt-btn:hover,.view-receipt-btn:focus-visible{border-color:rgba(147,212,255,.64);outline:none}
-.viewing-pill{color:var(--blue-2);font-size:11px;font-weight:700}
+.receipt-chain-id{font-size:12px;font-weight:700;color:#dbe8fb;letter-spacing:.01em}
+.receipt-chain-preview-line{font-size:12px;color:var(--muted);line-height:1.5}
 .receipt-chain-empty{margin-top:16px;padding:18px;border-radius:16px;border:1px dashed var(--line);background:rgba(255,255,255,.02);color:var(--muted);font-size:13px;line-height:1.6}
-@media (max-width:1120px){
-  .receipt-chain-item::after{content:'↓';top:auto;bottom:-16px;right:50%;transform:translate(50%,50%)}
-}
 @media (max-width:760px){
-  .receipt-chain-grid{grid-template-columns:1fr}
+  .receipt-chain-list{grid-template-columns:1fr}
 }
 .verified-receipt-head h3{margin:0;font-size:14px;letter-spacing:-.02em}
 .verified-receipt-head p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.5;max-width:560px}
@@ -476,10 +468,10 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
               <li>Verified via: <strong id="verdict-via">ENS</strong></li>
               <li>Signer: <strong id="verdict-signer">runtime.commandlayer.eth</strong></li>
               <li>Final verb: <strong id="verdict-final-verb">classify</strong></li>
-              <li>Final step in receipt chain: <strong id="verdict-chain-step">classify</strong></li>
+              <li>Final step in proof path: <strong id="verdict-chain-step">classify</strong></li>
               <li>Canonical form: <strong>json.sorted_keys.v1</strong></li>
             </ul>
-            <div class="chain-link"><span>↳</span><span><a href="#receipt-chain-section">View full receipt chain</a></span></div>
+            <div class="chain-link"><span>↳</span><span><a href="#receipt-chain-section">View proof path</a></span></div>
           </section>
 
           <div style="margin-top:12px;"><span class="badge pending" id="verify-badge">Pending</span></div>
@@ -542,17 +534,18 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 
     <section class="card receipt-chain-card" id="receipt-chain-section">
       <div class="card-inner">
-        <div class="eyebrow">Receipt Chain</div>
+        <div class="eyebrow">Proof Path</div>
         <div class="receipt-chain-head">
           <div>
-            <h2 class="section-title" style="margin-top:12px;">Receipt Chain</h2>
-            <p class="section-sub">Follow each step receipt from execution to the final verified artifact.</p>
+            <h2 class="section-title" style="margin-top:12px;">Proof Path</h2>
+            <p class="section-sub">The executed steps that produced the final verified receipt.</p>
           </div>
           <div class="receipt-chain-status" id="receipt-chain-status">
             <span class="warn-dot"></span>
-            <span>Run a flow to populate the visible receipt lineage.</span>
+            <span>Run a flow to populate the proof path.</span>
           </div>
         </div>
+        <div id="proof-path-strip" class="proof-path-strip" aria-label="Proof path"></div>
         <div id="receipt-chain" class="receipt-chain-empty">Run the proof flow to inspect each step receipt in order.</div>
       </div>
     </section>
@@ -779,6 +772,7 @@ const verdictSigner = document.getElementById('verdict-signer');
 const verdictFinalVerb = document.getElementById('verdict-final-verb');
 const verdictChainStep = document.getElementById('verdict-chain-step');
 const receiptChainStatus = document.getElementById('receipt-chain-status');
+const proofPathStrip = document.getElementById('proof-path-strip');
 const receiptChain = document.getElementById('receipt-chain');
 
 const copyReceiptBtn = document.getElementById('copy-receipt');
@@ -979,7 +973,7 @@ function setPendingState(message) {
   executionReceiptSummary.textContent = 'Waiting for final receipt…';
   executionJson.textContent = JSON.stringify({ status: 'running' }, null, 2);
   resetVerifySurface();
-  setReceiptChainStatus('pending', 'Capturing intermediate receipts from the live run…');
+  setReceiptChainStatus('pending', 'Capturing proof path from the live run…');
 }
 
 function normalizeContent(value) {
@@ -1107,9 +1101,16 @@ function getStepStatus(receipt, step) {
   return 'bad';
 }
 
-function getResultPreview(receipt) {
+function deriveStepPreview(receipt, verb) {
+  const result = getReceiptResult(receipt);
+  if (verb === 'clean') return 'Normalized input';
+  if (verb === 'summarize') return 'Short proof brief';
+  if (verb === 'classify') {
+    const labels = Array.isArray(result.labels) ? result.labels : [];
+    return labels.length ? `labels: ${labels.join(', ')}` : 'labels: pending';
+  }
   const preview = pickFinalOutput(receipt);
-  return String(preview || 'No result preview available.').replace(/\s+/g, ' ').trim();
+  return String(preview || 'Step output ready').replace(/\s+/g, ' ').trim().slice(0, 72);
 }
 
 function getReceiptHash(receipt) {
@@ -1121,18 +1122,17 @@ function normalizeReceiptChain(steps) {
   if (!Array.isArray(steps) || !steps.length) return [];
   return steps.map((step, index) => {
     const receipt = step?.signed_receipt || step?.receipt || {};
+    const verb = step?.verb || getReceiptVerb(receipt) || 'unknown';
     const receiptId = getReceiptId(receipt) || `step-${index + 1}`;
     return {
       stepIndex: index + 1,
-      verb: step?.verb || getReceiptVerb(receipt) || 'unknown',
+      verb,
       receipt,
       receiptId,
       hash: getReceiptHash(receipt) || '—',
       status: getStepStatus(receipt, step),
-      resultPreview: getResultPreview(receipt),
-      isFinal: index === steps.length - 1,
-      previousReceiptId: index > 0 ? (getReceiptId(steps[index - 1]?.signed_receipt || steps[index - 1]?.receipt) || `step-${index}`) : null,
-      nextReceiptId: index < steps.length - 1 ? (getReceiptId(steps[index + 1]?.signed_receipt || steps[index + 1]?.receipt) || `step-${index + 2}`) : null
+      resultPreview: deriveStepPreview(receipt, verb),
+      isFinal: index === steps.length - 1
     };
   });
 }
@@ -1164,47 +1164,56 @@ function selectReceiptChainStep(index) {
   renderReceiptViewer(lastReceiptChain[selectedReceiptChainIndex]);
 }
 
+function renderProofPathStrip() {
+  if (!lastReceiptChain.length) {
+    proofPathStrip.innerHTML = '';
+    return;
+  }
+  proofPathStrip.innerHTML = lastReceiptChain.map((node, index) => {
+    const cls = node.isFinal ? 'proof-path-node is-final' : 'proof-path-node';
+    const part = `<span class="${cls}">${node.verb}</span>`;
+    return index === 0 ? part : `<span class="proof-path-arrow">→</span>${part}`;
+  }).join('');
+}
+
 function renderReceiptChain() {
   if (!lastReceiptChain.length) {
+    proofPathStrip.innerHTML = '';
     receiptChain.className = 'receipt-chain-empty';
     receiptChain.innerHTML = 'Run the proof flow to inspect each step receipt in order.';
     return;
   }
 
+  renderProofPathStrip();
   receiptChain.className = 'receipt-chain-list';
   receiptChain.innerHTML = lastReceiptChain.map((node, index) => {
     const isSelected = index === selectedReceiptChainIndex;
-    const connectorLabel = node.isFinal
-      ? 'Final verified artifact'
-      : `${node.verb} output used by ${lastReceiptChain[index + 1]?.verb || 'next step'} input`;
     return `
-      <article class="receipt-chain-item ${node.isFinal ? 'is-final' : ''} ${isSelected ? 'is-selected' : ''}" data-chain-index="${index}">
+      <article class="receipt-chain-item ${node.isFinal ? 'is-final' : ''} ${isSelected ? 'is-selected' : ''}" data-chain-index="${index}" role="button" tabindex="0" aria-pressed="${isSelected}">
         <div class="receipt-chain-top">
           <span class="receipt-step-badge">Step ${node.stepIndex}</span>
-          ${node.isFinal ? '<span class="receipt-final-badge">Final verified receipt</span>' : `<span class="status-pill ${node.status}">${node.status}</span>`}
+          ${node.isFinal ? '<span class="receipt-final-badge">Verified final receipt</span>' : `<span class="status-pill ${node.status}">${node.status}</span>`}
         </div>
         <div class="receipt-chain-body">
           <strong>${node.verb}</strong>
-          <p>${node.isFinal ? 'Verified final artifact in the chain.' : 'Intermediate receipt preserved for inspection.'}</p>
-        </div>
-        <div class="receipt-chain-grid">
-          <div class="receipt-chain-kv"><div class="label">Receipt ID</div><div class="value">${shorten(node.receiptId, 12, 8)}</div></div>
-          <div class="receipt-chain-kv"><div class="label">Hash</div><div class="value">${shorten(node.hash, 12, 8)}</div></div>
+          <div class="receipt-chain-id">${shorten(node.receiptId, 10, 8)}</div>
         </div>
         <div class="receipt-chain-preview-line">${node.resultPreview}</div>
-        <div class="receipt-chain-flow">
-          <strong>${node.isFinal ? 'Final verified artifact' : 'Leads to next receipt'}</strong>
-          <span>${connectorLabel}</span>
-        </div>
         <div class="receipt-chain-actions">
-          <button class="view-receipt-btn" type="button" data-view-receipt="${index}">View receipt</button>
-          <span class="viewing-pill">${isSelected ? 'Viewing this receipt' : (node.isFinal ? 'Default verified receipt' : 'Inspectable step')}</span>
+          <span class="selection-pill">${isSelected ? 'Selected step' : 'Click to inspect'}</span>
         </div>
       </article>`;
   }).join('');
 
-  receiptChain.querySelectorAll('[data-view-receipt]').forEach((button) => {
-    button.addEventListener('click', () => selectReceiptChainStep(Number(button.dataset.viewReceipt)));
+  receiptChain.querySelectorAll('[data-chain-index]').forEach((tile) => {
+    const select = () => selectReceiptChainStep(Number(tile.dataset.chainIndex));
+    tile.addEventListener('click', select);
+    tile.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        select();
+      }
+    });
   });
 }
 
@@ -1213,7 +1222,7 @@ function syncReceiptChain(steps) {
   selectedReceiptChainIndex = lastReceiptChain.length ? lastReceiptChain.length - 1 : -1;
   renderReceiptChain();
   if (lastReceiptChain.length) {
-    setReceiptChainStatus('ok', `${lastReceiptChain.length} step receipts preserved in order. Final artifact stays verified above.`);
+    setReceiptChainStatus('ok', `${lastReceiptChain.length} executed steps ready to inspect.`);
     renderReceiptViewer(lastReceiptChain[selectedReceiptChainIndex]);
     verdictChainStep.textContent = lastReceiptChain[lastReceiptChain.length - 1].verb || '—';
   } else {
@@ -1225,7 +1234,7 @@ function resetReceiptChain() {
   lastReceiptChain = [];
   selectedReceiptChainIndex = -1;
   verdictChainStep.textContent = 'classify';
-  setReceiptChainStatus('pending', 'Run a flow to populate the visible receipt lineage.');
+  setReceiptChainStatus('pending', 'Run a flow to populate the proof path.');
   renderReceiptChain();
 }
 
