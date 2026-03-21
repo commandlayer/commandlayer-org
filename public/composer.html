@@ -144,6 +144,11 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 .receipt-json-preview,.technical-pre{margin-top:12px;padding:12px 14px;border-radius:14px;background:#060a12;border:1px solid var(--line);overflow:auto;font-size:11px;line-height:1.55;color:#dce7ff;max-height:280px}
 .verification-column{position:relative;background:linear-gradient(180deg,rgba(12,22,20,.96),rgba(8,15,22,.98));border-color:rgba(99,230,168,.18);box-shadow:0 18px 60px rgba(0,0,0,.4),0 0 0 1px rgba(99,230,168,.06),0 0 32px rgba(99,230,168,.08)}
 .verdict-block{background:linear-gradient(180deg,rgba(34,93,66,.48),rgba(8,21,18,.7));border-color:rgba(99,230,168,.3);padding:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 20px 40px rgba(1,16,10,.24)}
+.verified-receipt-block{margin-top:12px;padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)}
+.verified-receipt-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.verified-receipt-head h3{margin:0;font-size:14px;letter-spacing:-.02em}
+.verified-receipt-head p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.5;max-width:560px}
+.verified-receipt-json{margin:12px 0 0;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:#060a12;color:#dce7ff;font-size:11px;line-height:1.55;overflow:auto;max-height:320px}
 .verdict-title{display:flex;align-items:center;gap:14px;font-size:34px;font-weight:850;letter-spacing:-.05em;line-height:1.05}
 .verdict-icon{width:48px;height:48px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(99,230,168,.2);border:1px solid rgba(99,230,168,.34);color:var(--ok);font-size:28px;box-shadow:0 0 0 6px rgba(99,230,168,.08)}
 .verdict-subline{margin-top:10px;color:#ecfff5;font-size:16px;font-weight:750}
@@ -389,8 +394,20 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 
           <div style="margin-top:12px;"><span class="badge pending" id="verify-badge">Pending</span></div>
 
+          <section class="verified-receipt-block">
+            <div class="verified-receipt-head">
+              <div>
+                <h3>Verified receipt</h3>
+                <p>Compact, high-signal fields from the exact artifact that was independently verified.</p>
+              </div>
+            </div>
+            <pre class="verified-receipt-json" id="verified-receipt-json">{
+  "status": "pending"
+}</pre>
+          </section>
+
           <details class="details-block technical-meta">
-            <summary>View technical details</summary>
+            <summary>View full receipt JSON</summary>
             <section class="verification-facts">
               <div class="fact-grid">
                 <div class="fact-item"><div class="label">KID</div><div class="value" id="artifact-kid">—</div></div>
@@ -418,11 +435,12 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 
             <div class="verify-actions">
               <button class="btn" id="copy-verification" type="button">Copy Verification</button>
+              <button class="btn" id="copy-receipt-verified" type="button">Copy Receipt</button>
               <button class="btn" id="copy-curl" type="button" disabled>Copy Verify cURL</button>
             </div>
 
             <details class="details-block">
-              <summary>Raw verifier JSON</summary>
+              <summary>View technical details</summary>
               <pre id="verification-json-primary">{
   "status": "pending"
 }</pre>
@@ -640,6 +658,7 @@ const artifactHash = document.getElementById('artifact-hash');
 const artifactSchema = document.getElementById('artifact-schema');
 const artifactSummary = document.getElementById('artifact-summary');
 const finalReceiptJson = document.getElementById('final-receipt-json');
+const verifiedReceiptJson = document.getElementById('verified-receipt-json');
 const verificationJson = document.getElementById('verification-json-primary');
 const verificationJsonTechnical = document.getElementById('verification-json');
 const verifyPayloadSummary = document.getElementById('verify-payload-summary');
@@ -653,6 +672,7 @@ const verdictSigner = document.getElementById('verdict-signer');
 const verdictFinalVerb = document.getElementById('verdict-final-verb');
 
 const copyReceiptBtn = document.getElementById('copy-receipt');
+const copyReceiptVerifiedBtn = document.getElementById('copy-receipt-verified');
 const copyVerificationBtn = document.getElementById('copy-verification');
 const copyCurlBtn = document.getElementById('copy-curl');
 
@@ -806,6 +826,7 @@ function resetVerifySurface() {
   receiptBadge.className = 'badge pending';
   receiptBadge.textContent = 'Awaiting receipt';
   finalReceiptJson.textContent = JSON.stringify({ status: 'ready' }, null, 2);
+  verifiedReceiptJson.textContent = JSON.stringify({ status: 'pending' }, null, 2);
   verificationJson.textContent = JSON.stringify({ status: 'pending' }, null, 2);
   verificationJsonTechnical.textContent = verificationJson.textContent;
   artifactSummary.textContent = 'Run a flow to generate a fresh final receipt and verification result.';
@@ -891,6 +912,29 @@ function getReceiptTrace(receipt) {
 function getReceiptId(receipt) {
   const payload = getReceiptPayload(receipt);
   return payload?.receipt_id || payload?.id || payload?.metadata?.receipt_id || payload?.metadata?.id || null;
+}
+
+function buildCompactVerifiedReceipt(receipt, signerEns, hash) {
+  const payload = getReceiptPayload(receipt) || {};
+  const labels = Array.isArray(payload?.result?.labels) ? payload.result.labels : [];
+  return {
+    status: payload?.status || receipt?.status || 'unknown',
+    x402: {
+      entry: payload?.x402?.entry || null,
+      verb: payload?.x402?.verb || payload?.verb || null,
+      version: payload?.x402?.version || payload?.schema_version || null
+    },
+    result: {
+      labels
+    },
+    metadata: {
+      proof: {
+        signer_id: signerEns || '—',
+        hash_sha256: shorten(hash || '—', 14, 8)
+      },
+      receipt_id: shorten(getReceiptId(receipt) || '—', 14, 8)
+    }
+  };
 }
 
 function summarizeReceipt(receipt) {
@@ -1058,6 +1102,12 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
     || verification?.signer_id
     || verification?.values?.signer_id
     || 'runtime.commandlayer.eth';
+
+  verifiedReceiptJson.textContent = JSON.stringify(buildCompactVerifiedReceipt(signedReceipt || compactReceipt || {}, signerEns, proof.hash_sha256
+    || verification?.hash_sha256
+    || verification?.values?.hash_sha256
+    || verification?.content_hash
+    || '—'), null, 2);
 
   const kid = proof.kid
     || verification?.kid
@@ -1295,6 +1345,7 @@ async function runChain() {
     finalReceiptJson.textContent = JSON.stringify(finalSignedReceipt, null, 2);
     verificationJson.textContent = JSON.stringify({ status: 'verifying' }, null, 2);
     verificationJsonTechnical.textContent = verificationJson.textContent;
+    verifiedReceiptJson.textContent = JSON.stringify({ status: 'verifying' }, null, 2);
 
     setRowState(verifyRuntimeRow, 'pending', 'Full final signed receipt ready; verifying now…');
     setRowState(verifySignatureRow, 'pending', 'Checking signature + hash');
@@ -1351,6 +1402,7 @@ runChainBtn.addEventListener('click', runChain);
 resetBuilderBtn.addEventListener('click', resetBuilder);
 
 copyReceiptBtn.addEventListener('click', () => copyText(finalReceiptJson.textContent, copyReceiptBtn, 'Copy Receipt'));
+copyReceiptVerifiedBtn.addEventListener('click', () => copyText(finalReceiptJson.textContent, copyReceiptVerifiedBtn, 'Copy Receipt'));
 copyVerificationBtn.addEventListener('click', () => copyText(verificationJson.textContent, copyVerificationBtn, 'Copy Verification'));
 heroCopyCurl.addEventListener('click', () => lastSignedReceipt && copyText(buildVerifyCurl(lastSignedReceipt), heroCopyCurl, 'Copy Verify cURL'));
 copyCurlBtn.addEventListener('click', () => lastSignedReceipt && copyText(buildVerifyCurl(lastSignedReceipt), copyCurlBtn, 'Copy Verify cURL'));
