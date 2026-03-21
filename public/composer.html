@@ -195,6 +195,45 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 .verdict-block{background:linear-gradient(180deg,rgba(34,93,66,.48),rgba(8,21,18,.7));border-color:rgba(99,230,168,.3);padding:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.04),0 20px 40px rgba(1,16,10,.24)}
 .verified-receipt-block{margin-top:12px;padding:16px;border-radius:16px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03)}
 .verified-receipt-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.chain-link{display:inline-flex;align-items:center;gap:8px;color:#d8f5e5;font-size:12px;font-weight:700}
+.chain-link span:last-child{color:#92dcb2}
+.receipt-chain-card{margin-top:18px}
+.receipt-chain-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;flex-wrap:wrap}
+.receipt-chain-status{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px}
+.receipt-chain-list{margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;align-items:stretch}
+.receipt-chain-item{position:relative;padding:16px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));display:flex;flex-direction:column;gap:12px;min-height:220px}
+.receipt-chain-item::after{content:'→';position:absolute;top:50%;right:-12px;transform:translate(50%,-50%);width:28px;height:28px;border-radius:999px;border:1px solid rgba(255,255,255,.08);background:#09111f;color:var(--muted);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(0,0,0,.24)}
+.receipt-chain-item.is-final{border-color:rgba(99,230,168,.38);box-shadow:0 0 0 1px rgba(99,230,168,.12),0 18px 40px rgba(3,22,14,.28);background:linear-gradient(180deg,rgba(35,91,68,.28),rgba(14,28,24,.9))}
+.receipt-chain-item.is-selected{border-color:rgba(120,196,255,.64);box-shadow:0 0 0 1px rgba(120,196,255,.20),0 18px 32px rgba(18,49,108,.26)}
+.receipt-chain-item:last-child::after{display:none}
+.receipt-chain-top,.receipt-chain-meta,.receipt-chain-footer,.receipt-chain-flow{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.receipt-chain-top{align-items:center}
+.receipt-step-badge,.receipt-final-badge,.status-pill{display:inline-flex;align-items:center;min-height:28px;padding:0 10px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid var(--line)}
+.receipt-step-badge{background:rgba(255,255,255,.05);color:#d8e8ff}
+.receipt-final-badge{background:rgba(99,230,168,.14);border-color:rgba(99,230,168,.28);color:#b8f6d7}
+.status-pill.ok{color:#b8f6d7;background:rgba(38,120,82,.18);border-color:rgba(99,230,168,.24)}
+.status-pill.pending{color:#ffe2a6;background:rgba(122,91,20,.18);border-color:rgba(255,204,102,.20)}
+.status-pill.bad{color:#ffd0d0;background:rgba(120,38,38,.18);border-color:rgba(255,141,141,.22)}
+.receipt-chain-body strong{display:block;font-size:18px;letter-spacing:-.03em}
+.receipt-chain-body p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
+.receipt-chain-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.receipt-chain-kv{padding:10px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.receipt-chain-kv .label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
+.receipt-chain-kv .value{margin-top:6px;font-size:12px;font-weight:700;line-height:1.4;word-break:break-word}
+.receipt-chain-preview-line{padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.02);font-size:12px;color:#e7f1ff;line-height:1.5;min-height:62px}
+.receipt-chain-flow{align-items:center;color:var(--muted);font-size:12px}
+.receipt-chain-flow strong{color:#dceaff;font-size:12px}
+.receipt-chain-actions{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:auto;flex-wrap:wrap}
+.view-receipt-btn{min-height:34px;padding:0 14px;border-radius:999px;border:1px solid rgba(120,196,255,.28);background:rgba(38,84,180,.16);color:#e7f2ff;font-size:12px;font-weight:700;cursor:pointer}
+.view-receipt-btn:hover,.view-receipt-btn:focus-visible{border-color:rgba(147,212,255,.64);outline:none}
+.viewing-pill{color:var(--blue-2);font-size:11px;font-weight:700}
+.receipt-chain-empty{margin-top:16px;padding:18px;border-radius:16px;border:1px dashed var(--line);background:rgba(255,255,255,.02);color:var(--muted);font-size:13px;line-height:1.6}
+@media (max-width:1120px){
+  .receipt-chain-item::after{content:'↓';top:auto;bottom:-16px;right:50%;transform:translate(50%,50%)}
+}
+@media (max-width:760px){
+  .receipt-chain-grid{grid-template-columns:1fr}
+}
 .verified-receipt-head h3{margin:0;font-size:14px;letter-spacing:-.02em}
 .verified-receipt-head p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.5;max-width:560px}
 .verified-receipt-json{margin:12px 0 0;padding:14px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:#060a12;color:#dce7ff;font-size:11px;line-height:1.55;overflow:auto;max-height:320px}
@@ -437,8 +476,10 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
               <li>Verified via: <strong id="verdict-via">ENS</strong></li>
               <li>Signer: <strong id="verdict-signer">runtime.commandlayer.eth</strong></li>
               <li>Final verb: <strong id="verdict-final-verb">classify</strong></li>
+              <li>Final step in receipt chain: <strong id="verdict-chain-step">classify</strong></li>
               <li>Canonical form: <strong>json.sorted_keys.v1</strong></li>
             </ul>
+            <div class="chain-link"><span>↳</span><span><a href="#receipt-chain-section">View full receipt chain</a></span></div>
           </section>
 
           <div style="margin-top:12px;"><span class="badge pending" id="verify-badge">Pending</span></div>
@@ -497,6 +538,23 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
           </details>
         </div>
       </section>
+    </section>
+
+    <section class="card receipt-chain-card" id="receipt-chain-section">
+      <div class="card-inner">
+        <div class="eyebrow">Receipt Chain</div>
+        <div class="receipt-chain-head">
+          <div>
+            <h2 class="section-title" style="margin-top:12px;">Receipt Chain</h2>
+            <p class="section-sub">Follow each step receipt from execution to the final verified artifact.</p>
+          </div>
+          <div class="receipt-chain-status" id="receipt-chain-status">
+            <span class="warn-dot"></span>
+            <span>Run a flow to populate the visible receipt lineage.</span>
+          </div>
+        </div>
+        <div id="receipt-chain" class="receipt-chain-empty">Run the proof flow to inspect each step receipt in order.</div>
+      </div>
     </section>
 
     <section class="card" style="margin-top:18px;">
@@ -719,6 +777,9 @@ const technicalSummary = document.getElementById('technical-summary');
 const verdictVia = document.getElementById('verdict-via');
 const verdictSigner = document.getElementById('verdict-signer');
 const verdictFinalVerb = document.getElementById('verdict-final-verb');
+const verdictChainStep = document.getElementById('verdict-chain-step');
+const receiptChainStatus = document.getElementById('receipt-chain-status');
+const receiptChain = document.getElementById('receipt-chain');
 
 const copyReceiptBtn = document.getElementById('copy-receipt');
 const copyReceiptVerifiedBtn = document.getElementById('copy-receipt-verified');
@@ -730,6 +791,8 @@ let lastCompactReceipt = null;
 let lastSignedReceipt = null;
 let lastVerification = null;
 let lastTraceId = null;
+let lastReceiptChain = [];
+let selectedReceiptChainIndex = -1;
 
 function getVerbConfig(verb) {
   return SUPPORTED_COMMONS_VERBS.find((item) => item.value === verb);
@@ -888,6 +951,7 @@ function resetVerifySurface() {
   verdictVia.textContent = 'ENS';
   verdictSigner.textContent = 'runtime.commandlayer.eth';
   verdictFinalVerb.textContent = 'classify';
+  verdictChainStep.textContent = 'classify';
   receiptChipStatus.textContent = 'Signed receipt returned';
   ensChipStatus.textContent = 'ENS-backed verification';
   schemaChipStatus.textContent = 'Schema validation passed';
@@ -900,6 +964,7 @@ function resetVerifySurface() {
   });
   heroCopyCurl.disabled = true;
   copyCurlBtn.disabled = true;
+  resetReceiptChain();
 }
 
 function setPendingState(message) {
@@ -914,6 +979,7 @@ function setPendingState(message) {
   executionReceiptSummary.textContent = 'Waiting for final receipt…';
   executionJson.textContent = JSON.stringify({ status: 'running' }, null, 2);
   resetVerifySurface();
+  setReceiptChainStatus('pending', 'Capturing intermediate receipts from the live run…');
 }
 
 function normalizeContent(value) {
@@ -1033,6 +1099,136 @@ function buildExecutionSteps(steps) {
   }).join('');
 }
 
+function getStepStatus(receipt, step) {
+  const payload = getReceiptPayload(receipt) || {};
+  const status = payload?.status || receipt?.status || step?.status || 'success';
+  if (String(status).toLowerCase() === 'success') return 'ok';
+  if (String(status).toLowerCase() === 'pending') return 'pending';
+  return 'bad';
+}
+
+function getResultPreview(receipt) {
+  const preview = pickFinalOutput(receipt);
+  return String(preview || 'No result preview available.').replace(/\s+/g, ' ').trim();
+}
+
+function getReceiptHash(receipt) {
+  const proof = getReceiptProof(receipt);
+  return proof?.hash_sha256 || proof?.hash || proof?.content_hash || null;
+}
+
+function normalizeReceiptChain(steps) {
+  if (!Array.isArray(steps) || !steps.length) return [];
+  return steps.map((step, index) => {
+    const receipt = step?.signed_receipt || step?.receipt || {};
+    const receiptId = getReceiptId(receipt) || `step-${index + 1}`;
+    return {
+      stepIndex: index + 1,
+      verb: step?.verb || getReceiptVerb(receipt) || 'unknown',
+      receipt,
+      receiptId,
+      hash: getReceiptHash(receipt) || '—',
+      status: getStepStatus(receipt, step),
+      resultPreview: getResultPreview(receipt),
+      isFinal: index === steps.length - 1,
+      previousReceiptId: index > 0 ? (getReceiptId(steps[index - 1]?.signed_receipt || steps[index - 1]?.receipt) || `step-${index}`) : null,
+      nextReceiptId: index < steps.length - 1 ? (getReceiptId(steps[index + 1]?.signed_receipt || steps[index + 1]?.receipt) || `step-${index + 2}`) : null
+    };
+  });
+}
+
+function setReceiptChainStatus(tone, message) {
+  const dotClass = tone === 'ok' ? 'live-dot' : tone === 'bad' ? 'bad-dot' : 'warn-dot';
+  receiptChainStatus.innerHTML = `<span class="${dotClass}"></span><span>${message}</span>`;
+}
+
+function renderReceiptViewer(chainNode) {
+  if (!chainNode) return;
+  const receipt = chainNode.receipt || {};
+  finalReceiptJson.textContent = JSON.stringify(receipt, null, 2);
+  executionReceiptSummary.textContent = summarizeReceipt(receipt);
+  executionOutput.textContent = pickFinalOutput(receipt);
+  receiptFinalVerb.textContent = chainNode.verb || '—';
+  receiptHash.textContent = shorten(chainNode.hash || '—', 18, 10);
+  receiptId.textContent = shorten(chainNode.receiptId || '—', 12, 8);
+  receiptSignature.textContent = getReceiptProof(receipt)?.signature_b64 ? 'present' : (chainNode.isFinal ? 'present' : 'intermediate');
+  receiptSchema.textContent = getReceiptVersion(receipt) || RUNTIME_VERSION;
+  receiptBadge.className = `badge ${chainNode.status}`;
+  receiptBadge.textContent = chainNode.isFinal ? 'Final receipt ready' : 'Viewing step receipt';
+}
+
+function selectReceiptChainStep(index) {
+  if (!lastReceiptChain.length) return;
+  selectedReceiptChainIndex = Math.max(0, Math.min(index, lastReceiptChain.length - 1));
+  renderReceiptChain();
+  renderReceiptViewer(lastReceiptChain[selectedReceiptChainIndex]);
+}
+
+function renderReceiptChain() {
+  if (!lastReceiptChain.length) {
+    receiptChain.className = 'receipt-chain-empty';
+    receiptChain.innerHTML = 'Run the proof flow to inspect each step receipt in order.';
+    return;
+  }
+
+  receiptChain.className = 'receipt-chain-list';
+  receiptChain.innerHTML = lastReceiptChain.map((node, index) => {
+    const isSelected = index === selectedReceiptChainIndex;
+    const connectorLabel = node.isFinal
+      ? 'Final verified artifact'
+      : `${node.verb} output used by ${lastReceiptChain[index + 1]?.verb || 'next step'} input`;
+    return `
+      <article class="receipt-chain-item ${node.isFinal ? 'is-final' : ''} ${isSelected ? 'is-selected' : ''}" data-chain-index="${index}">
+        <div class="receipt-chain-top">
+          <span class="receipt-step-badge">Step ${node.stepIndex}</span>
+          ${node.isFinal ? '<span class="receipt-final-badge">Final verified receipt</span>' : `<span class="status-pill ${node.status}">${node.status}</span>`}
+        </div>
+        <div class="receipt-chain-body">
+          <strong>${node.verb}</strong>
+          <p>${node.isFinal ? 'Verified final artifact in the chain.' : 'Intermediate receipt preserved for inspection.'}</p>
+        </div>
+        <div class="receipt-chain-grid">
+          <div class="receipt-chain-kv"><div class="label">Receipt ID</div><div class="value">${shorten(node.receiptId, 12, 8)}</div></div>
+          <div class="receipt-chain-kv"><div class="label">Hash</div><div class="value">${shorten(node.hash, 12, 8)}</div></div>
+        </div>
+        <div class="receipt-chain-preview-line">${node.resultPreview}</div>
+        <div class="receipt-chain-flow">
+          <strong>${node.isFinal ? 'Final verified artifact' : 'Leads to next receipt'}</strong>
+          <span>${connectorLabel}</span>
+        </div>
+        <div class="receipt-chain-actions">
+          <button class="view-receipt-btn" type="button" data-view-receipt="${index}">View receipt</button>
+          <span class="viewing-pill">${isSelected ? 'Viewing this receipt' : (node.isFinal ? 'Default verified receipt' : 'Inspectable step')}</span>
+        </div>
+      </article>`;
+  }).join('');
+
+  receiptChain.querySelectorAll('[data-view-receipt]').forEach((button) => {
+    button.addEventListener('click', () => selectReceiptChainStep(Number(button.dataset.viewReceipt)));
+  });
+}
+
+function syncReceiptChain(steps) {
+  lastReceiptChain = normalizeReceiptChain(steps);
+  selectedReceiptChainIndex = lastReceiptChain.length ? lastReceiptChain.length - 1 : -1;
+  renderReceiptChain();
+  if (lastReceiptChain.length) {
+    setReceiptChainStatus('ok', `${lastReceiptChain.length} step receipts preserved in order. Final artifact stays verified above.`);
+    renderReceiptViewer(lastReceiptChain[selectedReceiptChainIndex]);
+    verdictChainStep.textContent = lastReceiptChain[lastReceiptChain.length - 1].verb || '—';
+  } else {
+    verdictChainStep.textContent = 'classify';
+  }
+}
+
+function resetReceiptChain() {
+  lastReceiptChain = [];
+  selectedReceiptChainIndex = -1;
+  verdictChainStep.textContent = 'classify';
+  setReceiptChainStatus('pending', 'Run a flow to populate the visible receipt lineage.');
+  renderReceiptChain();
+}
+
 function buildErrorSummary(errorPayload) {
   const receipt = errorPayload?.detail?.signed_receipt || errorPayload?.detail?.receipt || errorPayload?.receipt || errorPayload;
   const top = errorPayload?.error || (receipt?.status === 'error' ? 'Runtime returned an error receipt' : 'Runtime request failed');
@@ -1058,6 +1254,8 @@ function setExecutionError(errorPayload) {
   executionOutput.textContent = 'No successful final output.';
   executionReceiptSummary.textContent = summary;
   executionJson.textContent = JSON.stringify(errorPayload || { error: 'Unknown runtime error' }, null, 2);
+  resetReceiptChain();
+  setReceiptChainStatus('bad', 'Receipt chain unavailable because the run did not complete.');
 
   verifyBadge.className = 'badge bad';
   verifyBadge.textContent = 'Blocked';
@@ -1235,6 +1433,7 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
   verdictVia.textContent = 'ENS';
   verdictSigner.textContent = signerEns;
   verdictFinalVerb.textContent = getReceiptVerb(signedReceipt) || getReceiptVerb(compactReceipt) || '—';
+  verdictChainStep.textContent = getReceiptVerb(signedReceipt) || getReceiptVerb(compactReceipt) || '—';
 
   receiptChipStatus.textContent = receiptPresent ? 'Signed receipt returned' : 'Signed receipt unavailable';
   ensChipStatus.textContent = ensMatch ? 'ENS-backed verification' : 'ENS verification needs review';
@@ -1387,6 +1586,7 @@ async function runChain() {
     executionTrace.textContent = lastTraceId || getReceiptTrace(finalSignedReceipt) || getReceiptTrace(finalReceipt) || '—';
     executionFinalVerb.textContent = getReceiptVerb(finalSignedReceipt) || getReceiptVerb(finalReceipt) || '—';
     buildExecutionSteps(collectedSteps);
+    syncReceiptChain(collectedSteps);
     executionOutput.textContent = pickFinalOutput(finalSignedReceipt || finalReceipt);
     executionReceiptSummary.textContent = summarizeReceipt(finalSignedReceipt || finalReceipt);
     executionJson.textContent = JSON.stringify({ trace_id: lastTraceId, steps: collectedSteps }, null, 2);
