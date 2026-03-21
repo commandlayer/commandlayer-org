@@ -239,6 +239,7 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 .trace-step-action,.trace-step-summary,.trace-step-proof{margin-top:8px;font-size:12px;line-height:1.55;color:var(--muted)}
 .trace-step-proof strong{color:#dff2ff}
 .trace-step-summary{display:block}
+.trace-receipt-preview{margin-top:10px;padding:12px 14px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:#060a12;overflow:auto;font-size:11px;line-height:1.55;color:#dce7ff;max-width:100%}
 .trace-technical{margin-top:12px;border-radius:14px;border:1px solid var(--line);background:#060a12;overflow:hidden}
 .trace-technical summary{cursor:pointer;list-style:none;padding:12px 14px;font-size:12px;font-weight:700;color:#dbe8fb}
 .trace-technical summary::-webkit-details-marker{display:none}
@@ -1132,35 +1133,59 @@ function pickFinalOutput(receipt) {
   return candidates[0] || normalizeContent(payload);
 }
 
+function buildCompactTraceReceipt(node) {
+  const receipt = getReceiptPayload(node?.receipt) || {};
+  const result = getReceiptResult(receipt);
+  const proof = getReceiptProof(receipt);
+
+  return {
+    status: receipt.status || node?.status || 'unknown',
+    verb: receipt.verb || node?.verb || 'unknown',
+    schema_version: receipt.schema_version || receipt.version || RUNTIME_VERSION,
+    ...(Object.keys(result || {}).length ? { result } : {}),
+    metadata: {
+      proof: {
+        signer_id: proof.signer_id || proof.signer_ens || node?.signer || 'runtime.commandlayer.eth',
+        kid: proof.kid || '—',
+        hash_sha256: shorten(proof.hash_sha256 || proof.hash || node?.hash || '—', 16, 10)
+      },
+      receipt_id: shorten(receipt.metadata?.receipt_id || receipt.receipt_id || node?.receiptId || '—', 14, 8)
+    }
+  };
+}
+
 function buildExecutionSteps(steps) {
-  if (!Array.isArray(steps) || !steps.length) {
+  const nodes = Array.isArray(steps) && steps.length && steps[0]?.receipt && Object.prototype.hasOwnProperty.call(steps[0], 'stepIndex')
+    ? steps
+    : normalizeReceiptChain(steps);
+  if (!Array.isArray(nodes) || !nodes.length) {
     executionSteps.innerHTML = '<div class="exec-step"><strong>No steps</strong><span>Nothing executed.</span></div>';
     return;
   }
-  executionSteps.innerHTML = steps.map((step, index) => {
-    const receipt = step?.signed_receipt || step?.receipt || {};
-    const signer = getReceiptSigner(receipt) || 'Signer pending';
-    const receiptIdValue = getReceiptId(receipt) || '—';
-    const traceIdValue = getTraceIdFromStep(step, lastTraceId) || '—';
-    const verb = getReceiptVerb(receipt) || step?.verb || 'unknown';
-    const stepStatus = getStepStatus(receipt, step);
-    const summary = deriveStepPreview(receipt, verb);
-    const proofHash = getReceiptHash(receipt) || '—';
-    const signature = getReceiptSignature(receipt) ? 'present' : 'missing';
+  executionSteps.innerHTML = nodes.map((node, index) => {
+    const receipt = node?.receipt || {};
+    const signer = node?.signer || getReceiptSigner(receipt) || 'Signer pending';
+    const receiptIdValue = node?.receiptId || getReceiptId(receipt) || '—';
+    const traceIdValue = node?.traceId || getReceiptTrace(receipt) || lastTraceId || '—';
+    const stepStatus = node?.status || getStepStatus(receipt, node);
+    const summary = node?.resultPreview || deriveStepPreview(receipt, node?.verb || 'unknown');
+    const proofHash = node?.hash || getReceiptHash(receipt) || '—';
+    const signature = node?.signature || getReceiptSignature(receipt);
     const statusLabel = stepStatus === 'ok' ? 'ready' : stepStatus === 'pending' ? 'pending' : 'review';
+    const compactReceiptJson = JSON.stringify(buildCompactTraceReceipt(node), null, 2);
     return `
       <article class="trace-step-card">
         <div class="trace-step-head">
           <div class="trace-step-title">
-            <span class="receipt-step-badge">Step ${index + 1}</span>
+            <span class="receipt-step-badge">Step ${node?.stepIndex || index + 1}</span>
             <strong>${escapeHtml(signer)}</strong>
           </div>
-          ${index === steps.length - 1 ? '<span class="receipt-final-badge">Verified Receipt</span>' : `<span class="status-pill ${stepStatus}">${escapeHtml(statusLabel)}</span>`}
+          ${node?.isFinal ? '<span class="receipt-final-badge">Verified Receipt</span>' : `<span class="status-pill ${stepStatus}">${escapeHtml(statusLabel)}</span>`}
         </div>
         <div class="trace-step-meta">
           <div>
             <div class="label">Action</div>
-            <div class="trace-step-agent">${escapeHtml(getStepAction(step, receipt))}</div>
+            <div class="trace-step-agent">${escapeHtml(node?.action || node?.verb || 'executed')}</div>
           </div>
           <div>
             <div class="label">Receipt ID</div>
@@ -1168,7 +1193,8 @@ function buildExecutionSteps(steps) {
           </div>
         </div>
         <div class="trace-step-proof"><strong>Proof summary:</strong> ${escapeHtml(summary)}</div>
-        <div class="trace-step-summary">Trace ${escapeHtml(shorten(traceIdValue, 14, 10))} · Proof Hash ${escapeHtml(shorten(proofHash, 14, 10))} · Signature ${escapeHtml(signature)}</div>
+        <pre class="trace-receipt-preview">${escapeHtml(compactReceiptJson)}</pre>
+        <div class="trace-step-summary">Trace ${escapeHtml(shorten(traceIdValue, 14, 10))} · Proof Hash ${escapeHtml(shorten(proofHash, 14, 10))} · Signature ${escapeHtml(signature ? 'present' : 'missing')}</div>
         <details class="trace-technical">
           <summary>View Technical Details</summary>
           <div class="trace-technical-grid">
@@ -1176,7 +1202,7 @@ function buildExecutionSteps(steps) {
             <div class="trace-technical-item"><div class="label">Receipt ID</div><div class="value">${escapeHtml(receiptIdValue)}</div></div>
             <div class="trace-technical-item"><div class="label">Signer</div><div class="value">${escapeHtml(signer)}</div></div>
             <div class="trace-technical-item"><div class="label">Proof Hash</div><div class="value">${escapeHtml(proofHash)}</div></div>
-            <div class="trace-technical-item"><div class="label">Signature</div><div class="value">${escapeHtml(getReceiptSignature(receipt) || 'missing')}</div></div>
+            <div class="trace-technical-item"><div class="label">Signature</div><div class="value">${escapeHtml(signature || 'missing')}</div></div>
           </div>
           <pre>${escapeHtml(JSON.stringify(receipt, null, 2))}</pre>
         </details>
