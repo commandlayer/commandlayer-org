@@ -568,8 +568,7 @@ const SUPPORTED_COMMONS_VERBS = [
     summary: 'Fetch remote content into the flow as the starting artifact.',
     buildInput(text) {
       return {
-        url: text,
-        response_format: 'text'
+        source: text
       };
     }
   },
@@ -579,8 +578,8 @@ const SUPPORTED_COMMONS_VERBS = [
     summary: 'Generate a short descriptive explanation of the input.',
     buildInput(text) {
       return {
-        content: text,
-        style: 'concise'
+        subject: text,
+        detail_level: 'short'
       };
     }
   },
@@ -626,7 +625,7 @@ const SUPPORTED_COMMONS_VERBS = [
     buildInput(text) {
       return {
         content: text,
-        parse_mode: 'structured_notes'
+        mode: 'best_effort'
       };
     }
   },
@@ -648,8 +647,8 @@ const SUPPORTED_COMMONS_VERBS = [
     summary: 'Explain the input in proof-oriented plain language.',
     buildInput(text) {
       return {
-        content: text,
-        style: 'plain_language'
+        subject: text,
+        detail_level: 'short'
       };
     }
   },
@@ -658,10 +657,7 @@ const SUPPORTED_COMMONS_VERBS = [
     label: 'analyze',
     summary: 'Analyze the input and surface key observations.',
     buildInput(text) {
-      return {
-        content: text,
-        analysis_mode: 'key_findings'
-      };
+      return text;
     }
   },
   {
@@ -670,8 +666,7 @@ const SUPPORTED_COMMONS_VERBS = [
     summary: 'Assign compact proof-oriented labels to the final result.',
     buildInput(text) {
       return {
-        content: text,
-        taxonomy: ['proof', 'artifact', 'receipt', 'verification', 'protocol']
+        content: text
       };
     }
   }
@@ -1704,7 +1699,8 @@ async function runChain() {
     const collectedSteps = [];
 
     for (const verb of chain.verbs) {
-      const flowData = await runVerb(verb, buildStepInput(verb, chainInput));
+      const stepInput = buildStepInput(verb, chainInput);
+      const flowData = await runVerb(verb, { input: stepInput });
 
       lastTraceId = flowData.trace_id || getReceiptTrace(flowData) || lastTraceId;
       const stepReceipt = getReceiptPayload(flowData);
