@@ -154,6 +154,12 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 .verdict-facts{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
 .verdict-fact{display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 12px;border-radius:999px;border:1px solid rgba(99,230,168,.24);background:rgba(4,17,13,.42);font-size:12px;color:#dcffed}
 .verdict-fact strong{color:#8ee3b2;font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.verdict-list,.supporting-facts{margin:16px 0 0;padding:0 0 0 18px;color:#ecfff5}
+.verdict-list li,.supporting-facts li{margin:8px 0;font-size:14px;line-height:1.45}
+.verdict-list li::marker,.supporting-facts li::marker{color:rgba(142,227,178,.9)}
+.verdict-note{margin-top:18px;color:#ecfff5;font-size:18px;font-weight:780;letter-spacing:-.02em}
+.technical-meta{margin-top:14px}
+.technical-meta .fact-grid{grid-template-columns:1fr 1fr}
 .verify-status{margin-top:14px;display:grid;gap:10px}
 .verify-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
 .verify-row strong{font-size:12px}
@@ -365,54 +371,63 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 
           <section class="verdict-block">
             <div class="verdict-title"><span class="verdict-icon">✓</span><span id="verdict-title">Verification pending</span></div>
-            <div class="verdict-subline">Verified without trusting the runtime</div>
-            <div class="verdict-checks">
-              <div class="verdict-check"><strong id="signature-verdict">Signature valid</strong><span id="signature-verdict-sub">Waiting for receipt</span></div>
-              <div class="verdict-check"><strong id="hash-verdict">Hash matches</strong><span id="hash-verdict-sub">Waiting for receipt</span></div>
-              <div class="verdict-check"><strong id="ens-verdict">ENS identity confirmed</strong><span id="ens-verdict-sub">runtime.commandlayer.eth</span></div>
-              <div class="verdict-check"><strong id="schema-verdict">Schema valid</strong><span id="schema-verdict-sub">Awaiting validation</span></div>
-            </div>
-            <div class="verdict-facts">
-              <div class="verdict-fact"><strong>Verified via</strong><span id="verdict-via">ENS</span></div>
-              <div class="verdict-fact"><strong>Signer</strong><span id="verdict-signer">runtime.commandlayer.eth</span></div>
-              <div class="verdict-fact"><strong>Final verb</strong><span id="verdict-final-verb">classify</span></div>
-            </div>
+            <ul class="verdict-list">
+              <li id="signature-verdict">Waiting for receipt</li>
+              <li id="hash-verdict">Waiting for receipt</li>
+              <li id="ens-verdict">ENS identity pending</li>
+              <li id="schema-verdict">Schema validation pending</li>
+            </ul>
+            <div class="verdict-note">Verified without trusting the runtime</div>
+            <div class="verdict-subline">Supporting facts</div>
+            <ul class="supporting-facts">
+              <li>Verified via: <strong id="verdict-via">ENS</strong></li>
+              <li>Signer: <strong id="verdict-signer">runtime.commandlayer.eth</strong></li>
+              <li>Final verb: <strong id="verdict-final-verb">classify</strong></li>
+              <li>Canonical form: <strong>json.sorted_keys.v1</strong></li>
+            </ul>
           </section>
 
           <div style="margin-top:12px;"><span class="badge pending" id="verify-badge">Pending</span></div>
 
-          <section class="verification-facts">
-            <div class="fact-head">
-              <div>
-                <strong>Verification facts</strong>
-                <div class="section-sub">Keep the hero focused on proof passed; inspect the lower-level evidence here only if needed.</div>
+          <details class="details-block technical-meta">
+            <summary>View technical details</summary>
+            <section class="verification-facts">
+              <div class="fact-grid">
+                <div class="fact-item"><div class="label">KID</div><div class="value" id="artifact-kid">—</div></div>
+                <div class="fact-item"><div class="label">Full hash</div><div class="value" id="artifact-hash">—</div></div>
+                <div class="fact-item"><div class="label">Schema version</div><div class="value" id="artifact-schema">—</div></div>
+                <div class="fact-item"><div class="label">Trace metadata</div><div class="value" id="verification-trace-meta">Waiting for receipt</div></div>
+                <div class="fact-item"><div class="label">Provider metadata</div><div class="value" id="verification-provider-meta">runtime.commandlayer.org</div></div>
+                <div class="fact-item"><div class="label">Actor metadata</div><div class="value" id="verification-actor-meta">runtime.commandlayer.eth</div></div>
+                <div class="fact-item"><div class="label">Verifier payload summary</div><div class="value" id="verify-payload-summary">Waiting for a final signed receipt from the live runtime.</div></div>
               </div>
+            </section>
+
+            <div class="verify-status">
+              <div class="verify-row pending" id="verify-runtime-row"><strong>Receipt submission</strong><span>Waiting for receipt</span></div>
+              <div class="verify-row pending" id="verify-signature-row"><strong>Cryptographic verification</strong><span>Pending</span></div>
+              <div class="verify-row pending" id="verify-ens-row"><strong>ENS identity resolution</strong><span>Pending</span></div>
+              <div class="verify-row pending" id="verify-schema-row"><strong>Schema validation</strong><span>Pending</span></div>
+              <div class="verify-row pending" id="verify-status-row"><strong>Verification result</strong><span>Pending</span></div>
             </div>
-            <div class="fact-grid">
-              <div class="fact-item"><div class="label">KID</div><div class="value" id="artifact-kid">—</div></div>
-              <div class="fact-item"><div class="label">Canonical form</div><div class="value">json.sorted_keys.v1</div></div>
-              <div class="fact-item"><div class="label">Proof hash</div><div class="value" id="artifact-hash">—</div></div>
-              <div class="fact-item"><div class="label">Schema</div><div class="value" id="artifact-schema">—</div></div>
+
+            <div class="summary-card">
+              <h3>Verification verdict</h3>
+              <p id="artifact-summary">Run a flow to generate a fresh final receipt and verification result.</p>
             </div>
-          </section>
 
-          <div class="verify-status">
-            <div class="verify-row pending" id="verify-runtime-row"><strong>Receipt submission</strong><span>Waiting for receipt</span></div>
-            <div class="verify-row pending" id="verify-signature-row"><strong>Cryptographic verification</strong><span>Pending</span></div>
-            <div class="verify-row pending" id="verify-ens-row"><strong>ENS identity resolution</strong><span>Pending</span></div>
-            <div class="verify-row pending" id="verify-schema-row"><strong>Schema validation</strong><span>Pending</span></div>
-            <div class="verify-row pending" id="verify-status-row"><strong>Verification result</strong><span>Pending</span></div>
-          </div>
+            <div class="verify-actions">
+              <button class="btn" id="copy-verification" type="button">Copy Verification</button>
+              <button class="btn" id="copy-curl" type="button" disabled>Copy Verify cURL</button>
+            </div>
 
-          <div class="summary-card">
-            <h3>Verification verdict</h3>
-            <p id="artifact-summary">Run a flow to generate a fresh final receipt and verification result.</p>
-          </div>
-
-          <div class="verify-actions">
-            <button class="btn" id="copy-verification" type="button">Copy Verification</button>
-            <button class="btn" id="copy-curl" type="button" disabled>Copy Verify cURL</button>
-          </div>
+            <details class="details-block">
+              <summary>Raw verifier JSON</summary>
+              <pre id="verification-json-primary">{
+  "status": "pending"
+}</pre>
+            </details>
+          </details>
         </div>
       </section>
     </section>
@@ -432,7 +447,7 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
               <div class="kv"><div class="k">Final verb</div><div class="v" id="execution-final-verb">—</div></div>
               <div class="kv"><div class="k">Mode</div><div class="v">Live runtime</div></div>
               <div class="kv"><div class="k">Raw summary</div><div class="v" id="technical-summary">—</div></div>
-              <div class="kv"><div class="k">Verifier payload summary</div><div class="v" id="verify-payload-summary">Waiting for a final signed receipt from the live runtime.</div></div>
+              <div class="kv"><div class="k">Verifier payload summary</div><div class="v" id="verify-payload-summary-technical">Waiting for a final signed receipt from the live runtime.</div></div>
             </div>
 
             <div class="exec-steps" id="execution-steps">
@@ -612,10 +627,6 @@ const signatureVerdict = document.getElementById('signature-verdict');
 const hashVerdict = document.getElementById('hash-verdict');
 const ensVerdict = document.getElementById('ens-verdict');
 const schemaVerdict = document.getElementById('schema-verdict');
-const signatureVerdictSub = document.getElementById('signature-verdict-sub');
-const hashVerdictSub = document.getElementById('hash-verdict-sub');
-const ensVerdictSub = document.getElementById('ens-verdict-sub');
-const schemaVerdictSub = document.getElementById('schema-verdict-sub');
 
 const receiptSigner = document.getElementById('receipt-signer');
 const receiptFinalVerb = document.getElementById('receipt-final-verb');
@@ -629,8 +640,13 @@ const artifactHash = document.getElementById('artifact-hash');
 const artifactSchema = document.getElementById('artifact-schema');
 const artifactSummary = document.getElementById('artifact-summary');
 const finalReceiptJson = document.getElementById('final-receipt-json');
-const verificationJson = document.getElementById('verification-json');
+const verificationJson = document.getElementById('verification-json-primary');
+const verificationJsonTechnical = document.getElementById('verification-json');
 const verifyPayloadSummary = document.getElementById('verify-payload-summary');
+const verifyPayloadSummaryTechnical = document.getElementById('verify-payload-summary-technical');
+const verificationTraceMeta = document.getElementById('verification-trace-meta');
+const verificationProviderMeta = document.getElementById('verification-provider-meta');
+const verificationActorMeta = document.getElementById('verification-actor-meta');
 const technicalSummary = document.getElementById('technical-summary');
 const verdictVia = document.getElementById('verdict-via');
 const verdictSigner = document.getElementById('verdict-signer');
@@ -764,10 +780,10 @@ function shorten(value, start = 12, end = 8) {
 
 function setVerdictState({ title, signature, hash, ens, schema }) {
   verdictTitle.textContent = title;
-  signatureVerdictSub.textContent = signature;
-  hashVerdictSub.textContent = hash;
-  ensVerdictSub.textContent = ens;
-  schemaVerdictSub.textContent = schema;
+  signatureVerdict.textContent = signature;
+  hashVerdict.textContent = hash;
+  ensVerdict.textContent = ens;
+  schemaVerdict.textContent = schema;
 }
 
 function resetVerifySurface() {
@@ -791,9 +807,14 @@ function resetVerifySurface() {
   receiptBadge.textContent = 'Awaiting receipt';
   finalReceiptJson.textContent = JSON.stringify({ status: 'ready' }, null, 2);
   verificationJson.textContent = JSON.stringify({ status: 'pending' }, null, 2);
+  verificationJsonTechnical.textContent = verificationJson.textContent;
   artifactSummary.textContent = 'Run a flow to generate a fresh final receipt and verification result.';
   technicalSummary.textContent = '—';
   verifyPayloadSummary.textContent = 'Waiting for a final signed receipt from the live runtime.';
+  verifyPayloadSummaryTechnical.textContent = verifyPayloadSummary.textContent;
+  verificationTraceMeta.textContent = 'Waiting for receipt';
+  verificationProviderMeta.textContent = 'runtime.commandlayer.org';
+  verificationActorMeta.textContent = 'runtime.commandlayer.eth';
   verdictVia.textContent = 'ENS';
   verdictSigner.textContent = 'runtime.commandlayer.eth';
   verdictFinalVerb.textContent = 'classify';
@@ -1024,6 +1045,7 @@ async function verifySignedReceipt(signedReceipt, { retryOnWarmup = true } = {})
 function applyVerification(compactReceipt, signedReceipt, verification) {
   finalReceiptJson.textContent = JSON.stringify(signedReceipt || {}, null, 2);
   verificationJson.textContent = JSON.stringify(verification || {}, null, 2);
+  verificationJsonTechnical.textContent = JSON.stringify(verification || {}, null, 2);
   artifactSummary.textContent = 'Evaluating proof verdict.';
   verifyPayloadSummary.textContent = 'Verification completed; summarizing payload and checks.';
 
@@ -1080,8 +1102,8 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
 
   setRowState(verifyStatusRow, overallValid ? (schemaValid ? 'ok' : 'pending') : 'bad', verificationMessages.join(' · '));
 
-  artifactKid.textContent = shorten(kid, 16, 10);
-  artifactHash.textContent = shorten(hash, 18, 10);
+  artifactKid.textContent = kid;
+  artifactHash.textContent = hash;
   artifactSchema.textContent = getReceiptVersion(signedReceipt) || getReceiptVersion(compactReceipt) || RUNTIME_VERSION;
 
   receiptSigner.textContent = signerEns;
@@ -1106,6 +1128,10 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
     : (proofAvailable
       ? 'Verify used the exact final signed receipt object and found incomplete or failing proof checks; inspect metadata.proof and the verification response JSON.'
       : 'Verify used the exact final signed receipt object, but metadata.proof fields are missing; inspect the raw receipt JSON.');
+  verifyPayloadSummaryTechnical.textContent = verifyPayloadSummary.textContent;
+  verificationTraceMeta.textContent = getReceiptTrace(signedReceipt) || getReceiptTrace(compactReceipt) || 'No trace metadata returned';
+  verificationProviderMeta.textContent = verification?.provider || verification?.provider_id || verification?.values?.provider || 'runtime.commandlayer.org';
+  verificationActorMeta.textContent = verification?.actor || verification?.actor_id || verification?.values?.actor || signerEns;
 
   verdictVia.textContent = 'ENS';
   verdictSigner.textContent = signerEns;
@@ -1117,8 +1143,8 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
   setVerdictState({
     title: overallValid ? 'Verification successful' : 'Verification needs review',
     signature: signatureValid ? 'Signature valid' : 'Signature invalid',
-    hash: hashMatches ? 'Hash matches canonical receipt' : 'Hash mismatch detected',
-    ens: ensMatch ? `ENS identity confirmed: ${signerEns}` : 'ENS identity not confirmed',
+    hash: hashMatches ? 'Hash matches' : 'Hash mismatch detected',
+    ens: ensMatch ? 'ENS identity confirmed' : 'ENS identity not confirmed',
     schema: schemaValid ? 'Schema valid' : (validatorWarming ? 'Schema validator warming' : 'Schema validation failed')
   });
 
@@ -1268,6 +1294,7 @@ async function runChain() {
 
     finalReceiptJson.textContent = JSON.stringify(finalSignedReceipt, null, 2);
     verificationJson.textContent = JSON.stringify({ status: 'verifying' }, null, 2);
+    verificationJsonTechnical.textContent = verificationJson.textContent;
 
     setRowState(verifyRuntimeRow, 'pending', 'Full final signed receipt ready; verifying now…');
     setRowState(verifySignatureRow, 'pending', 'Checking signature + hash');
