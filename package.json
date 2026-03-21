@@ -4,7 +4,8 @@
   "private": true,
   "description": "CommandLayer static site + Vercel API demos",
   "scripts": {
-    "preview": "python3 -m http.server 4173 --directory public"
+    "preview": "python3 -m http.server 4173 --directory public",
+    "test": "node --test tests/*.test.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
