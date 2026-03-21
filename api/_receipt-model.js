@@ -106,7 +106,11 @@ function normalizeCanonicalReceipt(input) {
   }
 
   const verb = source.verb || source?.execution?.verb || null;
-  const schemaVersion = source.schema_version || source?.execution?.version || null;
+  const schemaVersion =
+    source.schema_version ||
+    source.version ||
+    source?.execution?.version ||
+    null;
   const status = source.status || null;
   const result = isObject(source.result) ? source.result : {};
 
