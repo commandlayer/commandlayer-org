@@ -1084,7 +1084,7 @@
 
               <div class="status-metric">
                 <strong>Backend</strong>
-                <span>/api/commercial-flow</span>
+                <span>https://runtime.commandlayer.org/&lt;verb&gt;/v1.1.0</span>
               </div>
 
               <div class="status-metric">
@@ -1356,9 +1356,13 @@
         trace_id: null,
         last_order_id: null,
         last_shipment_id: null,
+        last_receipt: null,
       };
 
+      const RUNTIME_BASE = "https://runtime.commandlayer.org";
+      const RUNTIME_VERSION = "1.1.0";
       const VERBS = ["authorize", "checkout", "purchase", "ship", "verify"];
+      const CHAINABLE_VERBS = ["authorize", "checkout", "purchase", "ship"];
       const ALLOWED = new Set(VERBS);
 
       let activeTab = "latest";
@@ -1366,11 +1370,11 @@
 
       const TAB_NOTES = {
         latest: "Latest step action and response summary.",
-        request: "The latest request body sent to the commercial flow backend.",
+        request: "The latest request body sent directly to the live commercial runtime.",
         receipt: "Canonical Commercial receipt only. This is the contract truth.",
         runtime: "Optional runtime_metadata only. This is trace / proof / orchestration context around the receipt.",
         verification: "Receipt verification fields extracted from the latest step.",
-        raw: "Raw wrapped response returned by the backend.",
+        raw: "Raw wrapped response assembled from the live runtime responses.",
         curl: "Reproduce the latest request with curl.",
       };
 
@@ -1393,6 +1397,163 @@
         return JSON.stringify(obj ?? {}, null, 2);
       }
 
+      function buildJsonError(prefix, text) {
+        const snippet = String(text || "").slice(0, 200).trim() || "(empty response)";
+        return new Error(`${prefix}: ${snippet}`);
+      }
+
+      async function parseJsonResponse(res, errorPrefix) {
+        const text = await res.text();
+        if (!text.trim().startsWith("{")) {
+          throw buildJsonError(errorPrefix, text);
+        }
+
+        try {
+          return JSON.parse(text);
+        } catch {
+          throw buildJsonError(errorPrefix, text);
+        }
+      }
+
+      function shellSingleQuote(value) {
+        return `'${String(value).replace(/'/g, `'"'"'`)}'`;
+      }
+
+      function buildCurlCommand(url, body) {
+        return [
+          `curl -sS -X POST ${shellSingleQuote(url)} \\`,
+          `  -H 'Content-Type: application/json' \\`,
+          `  --data-binary ${shellSingleQuote(JSON.stringify(body))}`,
+        ].join("\n");
+      }
+
+      function extractReceiptEnvelope(payload) {
+        return (
+          payload?.receipt ||
+          payload?.signed_receipt ||
+          payload?.result?.receipt ||
+          payload?.result?.signed_receipt ||
+          payload ||
+          null
+        );
+      }
+
+      function extractRuntimeMetadata(payload, runtimeUrl, verb) {
+        return (
+          payload?.runtime_metadata ||
+          payload?.metadata ||
+          payload?.result?.runtime_metadata ||
+          payload?.result?.metadata || {
+            runtime_url: runtimeUrl,
+            verb,
+          }
+        );
+      }
+
+      function extractTraceIdFromPayload(payload) {
+        return (
+          payload?.trace_id ||
+          safeGet(payload, "trace.trace_id") ||
+          safeGet(payload, "runtime_metadata.trace.trace_id") ||
+          safeGet(payload, "metadata.trace_id") ||
+          safeGet(payload, "receipt.trace_id") ||
+          null
+        );
+      }
+
+      function extractVerificationResult(payload) {
+        return payload?.verify || payload?.verification || payload?.checks || null;
+      }
+
+      function buildStepRecord({ verb, runtimeUrl, requestBody, responseBody, verification = null }) {
+        const receipt = extractReceiptEnvelope(responseBody);
+        const runtimeMetadata = extractRuntimeMetadata(responseBody, runtimeUrl, verb);
+        if (!runtimeMetadata.runtime_url) runtimeMetadata.runtime_url = runtimeUrl;
+        const validation = verification || responseBody?.validation || runtimeMetadata.validation || null;
+
+        return {
+          verb,
+          runtime_url: runtimeUrl,
+          request: requestBody,
+          response: responseBody,
+          receipt,
+          signed_receipt: receipt,
+          runtime_metadata: runtimeMetadata,
+          validation,
+          verification,
+          verify: verification || extractVerificationResult(responseBody),
+          curl: buildCurlCommand(runtimeUrl, requestBody),
+        };
+      }
+
+      async function runCommercialVerb(verb, payload) {
+        const runtimeUrl = `${RUNTIME_BASE}/${verb}/v${RUNTIME_VERSION}`;
+        const requestBody = { input: payload };
+        lastRequest = {
+          endpoint: runtimeUrl,
+          method: "POST",
+          body: requestBody,
+        };
+
+        const res = await fetch(runtimeUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestBody),
+        });
+
+        const data = await parseJsonResponse(res, `Non-JSON response from runtime ${verb}`);
+
+        if (!res.ok) {
+          const detail = data?.error || data?.message || `Runtime ${verb} failed (${res.status})`;
+          throw new Error(detail);
+        }
+
+        return {
+          runtimeUrl,
+          requestBody,
+          data,
+        };
+      }
+
+      async function verifyCommercialReceipt(receipt) {
+        const runtimeUrl = `${RUNTIME_BASE}/verify?ens=1&strict_kid=1`;
+        lastRequest = {
+          endpoint: runtimeUrl,
+          method: "POST",
+          body: receipt,
+        };
+
+        const res = await fetch(runtimeUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(receipt),
+        });
+
+        const data = await parseJsonResponse(res, "Non-JSON verify response");
+
+        if (!res.ok) {
+          const detail = data?.error || data?.message || `Verify failed (${res.status})`;
+          throw new Error(detail);
+        }
+
+        return {
+          runtimeUrl,
+          requestBody: receipt,
+          data,
+        };
+      }
+
+      async function probeCommercialRuntime() {
+        const started = performance.now();
+        try {
+          const res = await fetch(`${RUNTIME_BASE}/health`, { method: "GET" });
+          const latency = `${Math.round(performance.now() - started)} ms`;
+          return { ok: res.ok, latency };
+        } catch {
+          return { ok: false, latency: "offline" };
+        }
+      }
+
       function currentSteps() {
         return Array.isArray(last?.steps) ? last.steps : [];
       }
@@ -1403,7 +1564,16 @@
       }
 
       function currentReceipt(step = latestStep()) {
-        return step?.receipt || null;
+        return (
+          step?.receipt ||
+          step?.signed_receipt ||
+          step?.response?.receipt ||
+          step?.response?.signed_receipt ||
+          step?.response?.result?.receipt ||
+          step?.response?.result?.signed_receipt ||
+          step?.response ||
+          null
+        );
       }
 
       function currentRuntimeMetadata(step = latestStep()) {
@@ -1558,6 +1728,7 @@
           trace_id: null,
           last_order_id: null,
           last_shipment_id: null,
+          last_receipt: null,
         };
 
         $("trace_id").value = "";
@@ -1593,7 +1764,7 @@
         } else if (activeTab === "request") {
           out.textContent = prettify(lastRequest || { note: "No request captured yet." });
         } else if (activeTab === "curl") {
-          out.textContent = last?.meta?.curl || "# (no curl yet — run a step or full flow)";
+          out.textContent = latestStep()?.curl || last?.meta?.curl || "# (no curl yet — run a step or full flow)";
         } else if (activeTab === "receipt") {
           out.textContent = prettify(currentReceipt(step) || { note: "No canonical receipt returned yet." });
         } else if (activeTab === "runtime") {
@@ -1605,97 +1776,84 @@
         }
       }
 
-      async function callCommercialFlow(steps, trace_id) {
-        const body = {
-          steps,
-          trace_id: trace_id || undefined,
-        };
-
-        lastRequest = body;
-
-        const res = await fetch("/api/commercial-flow", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-
-        const text = await res.text();
-        let json;
-
-        try {
-          json = JSON.parse(text);
-        } catch {
-          json = {
-            ok: false,
-            error: "Non-JSON response",
-            raw: String(text || "").slice(0, 2000),
-          };
-        }
-
-        if (!res.ok) {
-          const msg = json?.error || `HTTP ${res.status}`;
-          const detail = json?.detail
-            ? typeof json.detail === "string"
-              ? json.detail
-              : JSON.stringify(json.detail)
-            : "";
-          throw new Error(detail ? `${msg}: ${detail}` : msg);
-        }
-
-        return json;
-      }
 
       function buildStepInput(verb, base) {
         const trace_id = effectiveTraceId() || undefined;
+        const order_id = state.last_order_id || base.order_id;
+        const shipment_id = state.last_shipment_id || "demo-shipment";
+        const previous_receipt = state.last_receipt || undefined;
 
         if (verb === "authorize") {
           return {
             trace_id,
             buyer: base.buyer,
             chain_id: base.chain_id,
+            order_id,
+            sku: base.sku,
+            qty: base.qty,
+            total_amount: base.total_amount,
+            currency: base.currency,
             amount: {
               value: base.total_amount,
               currency: base.currency,
             },
             payment_method: "demo",
+            address: base.address,
           };
         }
 
         if (verb === "checkout") {
           return {
             trace_id,
+            order_id,
+            buyer: base.buyer,
+            chain_id: base.chain_id,
             items: [{ sku: base.sku, qty: base.qty }],
+            sku: base.sku,
+            qty: base.qty,
             total_amount: base.total_amount,
             currency: base.currency,
+            address: base.address,
+            previous_receipt,
           };
         }
 
         if (verb === "purchase") {
           return {
             trace_id,
-            order_id: state.last_order_id || base.order_id,
+            order_id,
+            buyer: base.buyer,
+            chain_id: base.chain_id,
+            sku: base.sku,
+            qty: base.qty,
             total_amount: base.total_amount,
             currency: base.currency,
+            previous_receipt,
           };
         }
 
         if (verb === "ship") {
           return {
             trace_id,
-            order_id: state.last_order_id || base.order_id,
+            order_id,
+            buyer: base.buyer,
+            chain_id: base.chain_id,
             address: base.address,
+            shipment_id,
+            previous_receipt,
           };
         }
 
         if (verb === "verify") {
           return {
             trace_id,
-            order_id: state.last_order_id || base.order_id,
-            shipment_id: state.last_shipment_id || "demo-shipment",
+            order_id,
+            shipment_id,
+            previous_receipt,
           };
         }
 
-        return { trace_id, ...base };
+        return { trace_id, ...base, previous_receipt };
       }
 
       function captureIdsFromReceipt(receipt) {
@@ -1714,6 +1872,7 @@
 
         if (maybeOrder) state.last_order_id = String(maybeOrder);
         if (maybeShipment) state.last_shipment_id = String(maybeShipment);
+        state.last_receipt = receipt;
       }
 
       async function runStep(verb) {
@@ -1726,28 +1885,46 @@
           setPill($("net_pill"), $("net_text"), "warn", `Running ${verb}…`);
 
           const base = getBaseRequest();
-          const step = {
-            verb,
-            input: buildStepInput(verb, base),
-          };
-          const trace_id = effectiveTraceId();
+          let stepRecord;
 
-          const data = await callCommercialFlow([step], trace_id);
-          last = data;
+          if (verb === "verify") {
+            const receipt = state.last_receipt || currentReceipt();
+            if (!receipt) {
+              throw new Error("Run authorize, checkout, purchase, or ship before verifying the final receipt.");
+            }
 
-          const step0 = Array.isArray(data?.steps) ? data.steps[0] : null;
-          const receipt = currentReceipt(step0);
-
-          if (receipt) {
-            const t =
-              safeGet(currentRuntimeMetadata(step0), "trace.trace_id") ||
-              safeGet(currentRuntimeMetadata(step0), "trace_id") ||
-              null;
-            updateTrace(t);
-            captureIdsFromReceipt(receipt);
+            const verification = await verifyCommercialReceipt(receipt);
+            stepRecord = buildStepRecord({
+              verb,
+              runtimeUrl: verification.runtimeUrl,
+              requestBody: verification.requestBody,
+              responseBody: receipt,
+              verification: verification.data,
+            });
+          } else {
+            const payload = buildStepInput(verb, base);
+            const runtimeResult = await runCommercialVerb(verb, payload);
+            stepRecord = buildStepRecord({
+              verb,
+              runtimeUrl: runtimeResult.runtimeUrl,
+              requestBody: runtimeResult.requestBody,
+              responseBody: runtimeResult.data,
+            });
           }
 
-          renderMetaFromStep(step0);
+          const receipt = currentReceipt(stepRecord);
+          const traceId = extractTraceIdFromPayload(stepRecord.response) || extractTraceIdFromPayload(receipt);
+          if (traceId) updateTrace(traceId);
+          if (receipt) captureIdsFromReceipt(receipt);
+
+          last = {
+            ok: true,
+            trace_id: effectiveTraceId(),
+            steps: [stepRecord],
+            meta: { curl: stepRecord.curl },
+          };
+
+          renderMetaFromStep(stepRecord);
           renderOutput();
 
           syncSummaryStatus(`Runtime live · ${verb}`);
@@ -1773,32 +1950,49 @@
           const keepTrace = ($("trace_id").value || "").trim();
           state.last_order_id = null;
           state.last_shipment_id = null;
+          state.last_receipt = null;
           if (!keepTrace) state.trace_id = null;
 
           const base = getBaseRequest();
-          const steps = VERBS.map((v) => ({
-            verb: v,
-            input: buildStepInput(v, base),
-          }));
-          const trace_id = effectiveTraceId();
+          const collectedSteps = [];
 
-          const data = await callCommercialFlow(steps, trace_id);
-          last = data;
-
-          const stepsArr = currentSteps();
-          const firstReceipt = currentReceipt(stepsArr[0]);
-
-          if (firstReceipt) {
-            const t =
-              safeGet(currentRuntimeMetadata(stepsArr[0]), "trace.trace_id") ||
-              safeGet(currentRuntimeMetadata(stepsArr[0]), "trace_id") ||
-              null;
-            updateTrace(t);
+          for (const verb of CHAINABLE_VERBS) {
+            const payload = buildStepInput(verb, base);
+            const runtimeResult = await runCommercialVerb(verb, payload);
+            const stepRecord = buildStepRecord({
+              verb,
+              runtimeUrl: runtimeResult.runtimeUrl,
+              requestBody: runtimeResult.requestBody,
+              responseBody: runtimeResult.data,
+            });
+            const receipt = currentReceipt(stepRecord);
+            const traceId = extractTraceIdFromPayload(stepRecord.response) || extractTraceIdFromPayload(receipt);
+            if (traceId) updateTrace(traceId);
+            if (receipt) captureIdsFromReceipt(receipt);
+            collectedSteps.push(stepRecord);
           }
 
-          for (const s of stepsArr) {
-            captureIdsFromReceipt(currentReceipt(s));
+          const finalReceipt = state.last_receipt || currentReceipt(collectedSteps[collectedSteps.length - 1]);
+          if (!finalReceipt) {
+            throw new Error("Full flow completed without a final receipt to verify.");
           }
+
+          const verification = await verifyCommercialReceipt(finalReceipt);
+          const verifyStep = buildStepRecord({
+            verb: "verify",
+            runtimeUrl: verification.runtimeUrl,
+            requestBody: verification.requestBody,
+            responseBody: finalReceipt,
+            verification: verification.data,
+          });
+          collectedSteps.push(verifyStep);
+
+          last = {
+            ok: true,
+            trace_id: effectiveTraceId(),
+            steps: collectedSteps,
+            meta: { curl: verifyStep.curl },
+          };
 
           renderMetaFromStep(latestStep());
           renderOutput();
@@ -1817,8 +2011,9 @@
       }
 
       async function copyCurl() {
+
         try {
-          const curl = last?.meta?.curl;
+          const curl = latestStep()?.curl || last?.meta?.curl;
           if (!curl) throw new Error("No curl block available yet. Run a step or full flow first.");
           await navigator.clipboard.writeText(curl);
           setPill($("net_pill"), $("net_text"), "good", "Copied curl block.");
@@ -1839,12 +2034,24 @@
         }
       }
 
-      (function init() {
+      (async function init() {
         setPill($("net_pill"), $("net_text"), "warn", "Ready.");
         renderMetaFromStep(null);
         setActiveVerb(activeVerb);
-        syncSummaryStatus("Runtime live");
         setTab("latest");
+
+        const runtime = await probeCommercialRuntime();
+        const runtimePill = $("runtime_pill");
+        const runtimeText = $("runtime_text");
+        if (runtime.ok) {
+          runtimePill.className = "status-pill good";
+          runtimeText.textContent = `Runtime live · ${runtime.latency}`;
+          syncSummaryStatus(`Runtime live · ${runtime.latency}`);
+        } else {
+          runtimePill.className = "status-pill bad";
+          runtimeText.textContent = `Runtime offline · ${runtime.latency}`;
+          syncSummaryStatus("Runtime offline");
+        }
       })();
     </script>
   </body>
