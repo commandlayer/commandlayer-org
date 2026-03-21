@@ -148,7 +148,7 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
   border-color:rgba(99,230,168,.62);
   box-shadow:0 0 0 1px rgba(99,230,168,.14), 0 0 24px rgba(99,230,168,.16);
 }
-.chain-preview,.chain-builder,.source-preview,.receipt-facts,.verification-facts,.verdict-block,.technical-stack,.helper-box{
+.chain-preview,.chain-builder,.source-preview,.receipt-facts,.verification-facts,.verdict-block,.technical-stack,.helper-box,.trace-surface{
   margin-top:14px;padding:14px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.025)
 }
 .chain-preview-head,.source-head,.fact-head{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
@@ -223,8 +223,36 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 .receipt-chain-id{font-size:12px;font-weight:700;color:#dbe8fb;letter-spacing:.01em}
 .receipt-chain-preview-line{font-size:12px;color:var(--muted);line-height:1.5}
 .receipt-chain-empty{margin-top:16px;padding:18px;border-radius:16px;border:1px dashed var(--line);background:rgba(255,255,255,.02);color:var(--muted);font-size:13px;line-height:1.6}
+.trace-surface{background:linear-gradient(180deg,rgba(15,24,42,.65),rgba(8,14,24,.88))}
+.trace-surface-head,.trace-meta-row,.trace-step-head,.trace-step-meta,.trace-step-summary{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap}
+.trace-id-card{margin-top:12px;padding:14px;border-radius:16px;border:1px solid rgba(120,196,255,.2);background:rgba(9,18,35,.62)}
+.trace-id-card .label,.verified-fact .label,.trace-step-card .label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
+.trace-id-card .value,.verified-fact .value{margin-top:8px;font-size:13px;font-weight:700;word-break:break-word;line-height:1.45}
+.trace-id-card .value{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#dce9ff}
+.trace-caption{margin-top:8px;color:var(--muted);font-size:12px;line-height:1.55}
+.trace-step-list{margin-top:16px;display:grid;gap:12px}
+.trace-step-card{padding:14px;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.035),rgba(255,255,255,.02))}
+.trace-step-title{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.trace-step-title strong{font-size:16px;letter-spacing:-.02em}
+.trace-step-meta{margin-top:10px}
+.trace-step-agent{font-size:13px;font-weight:700;color:#e6f1ff}
+.trace-step-action,.trace-step-summary,.trace-step-proof{margin-top:8px;font-size:12px;line-height:1.55;color:var(--muted)}
+.trace-step-proof strong{color:#dff2ff}
+.trace-step-summary{display:block}
+.trace-technical{margin-top:12px;border-radius:14px;border:1px solid var(--line);background:#060a12;overflow:hidden}
+.trace-technical summary{cursor:pointer;list-style:none;padding:12px 14px;font-size:12px;font-weight:700;color:#dbe8fb}
+.trace-technical summary::-webkit-details-marker{display:none}
+.trace-technical[open] summary{border-bottom:1px solid var(--line)}
+.trace-technical-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 14px}
+.trace-technical-item{padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,.025)}
+.trace-technical-item .value{margin-top:6px;font-size:11px;line-height:1.55;color:#dce7ff;word-break:break-word}
+.trace-technical pre{margin:0;padding:0 14px 14px;font-size:11px;line-height:1.55;color:#dce7ff;overflow:auto;max-height:240px}
+.verified-facts-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}
+.verified-fact{padding:12px;border-radius:14px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025)}
+.verified-fact .value.is-verified{color:#b8f6d7}
 @media (max-width:760px){
   .receipt-chain-list{grid-template-columns:1fr}
+  .trace-technical-grid,.verified-facts-grid{grid-template-columns:1fr}
 }
 .verified-receipt-head h3{margin:0;font-size:14px;letter-spacing:-.02em}
 .verified-receipt-head p{margin:6px 0 0;color:var(--muted);font-size:12px;line-height:1.5;max-width:560px}
@@ -314,7 +342,7 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
             <div class="trust-chip"><span class="live-dot"></span><span id="ens-chip-status">ENS-backed verification</span></div>
             <div class="trust-chip"><span class="live-dot"></span><span id="schema-chip-status">Schema validation passed</span></div>
           </div>
-          <div class="protocol-line">Any runtime can emit the receipt. Any verifier can check it.</div>
+          <div class="protocol-line">One execution trace. One receipt per step. Final verification at the end.</div>
         </div>
       </div>
 
@@ -405,23 +433,42 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
         <div class="card-inner">
           <div class="eyebrow">2. Signed Receipt</div>
           <h2 class="section-title" style="margin-top:12px;">Signed Receipt</h2>
-          <p class="section-sub">The runtime returns a fresh signed receipt for the final step. This receipt is the artifact that gets verified.</p>
+          <p class="section-sub">The runtime keeps one execution trace across the flow, emits one receipt per step, and ends on a final verified artifact.</p>
+
+          <section class="trace-surface">
+            <div class="trace-surface-head">
+              <div>
+                <strong>Execution Trace</strong>
+                <div class="section-sub">Follow the ordered flow without dropping into raw JSON.</div>
+              </div>
+              <div class="badge pending" id="execution-badge-trace">Waiting for run</div>
+            </div>
+            <div class="trace-id-card">
+              <div class="label">Execution Trace</div>
+              <div class="value" id="execution-trace">—</div>
+              <div class="trace-caption" id="execution-trace-caption">Run the demo to capture one shared trace across every step receipt.</div>
+            </div>
+            <div class="proof-path-strip" id="proof-path-strip"></div>
+            <div class="trace-step-list" id="execution-steps"></div>
+          </section>
 
           <section class="receipt-facts">
             <div class="fact-head">
               <div>
-                <strong>Artifact facts</strong>
-                <div class="section-sub">High-signal fields first, before raw JSON or runtime metadata.</div>
+                <strong>Verified Receipt</strong>
+                <div class="section-sub">The final proof artifact is prioritized here before technical details.</div>
               </div>
               <div class="badge pending" id="receipt-badge">Awaiting receipt</div>
             </div>
             <div class="fact-grid">
-              <div class="fact-item"><div class="label">Signer ENS</div><div class="value big" id="receipt-signer">runtime.commandlayer.eth</div></div>
-              <div class="fact-item"><div class="label">Final verb</div><div class="value" id="receipt-final-verb">classify</div></div>
-              <div class="fact-item"><div class="label">Hash</div><div class="value" id="receipt-hash">—</div></div>
+              <div class="fact-item"><div class="label">Signer</div><div class="value big" id="receipt-signer">runtime.commandlayer.eth</div></div>
+              <div class="fact-item"><div class="label">Final step</div><div class="value" id="receipt-final-verb">classify</div></div>
+              <div class="fact-item"><div class="label">Proof Hash</div><div class="value" id="receipt-hash">—</div></div>
               <div class="fact-item"><div class="label">Signature</div><div class="value" id="receipt-signature">Present after run</div></div>
-              <div class="fact-item"><div class="label">Schema</div><div class="value" id="receipt-schema">1.1.0</div></div>
+              <div class="fact-item"><div class="label">Verified</div><div class="value" id="receipt-verified">Pending</div></div>
               <div class="fact-item"><div class="label">Receipt ID</div><div class="value" id="receipt-id">—</div></div>
+              <div class="fact-item"><div class="label">Execution Trace</div><div class="value" id="receipt-trace-link">—</div></div>
+              <div class="fact-item"><div class="label">Schema</div><div class="value" id="receipt-schema">1.1.0</div></div>
             </div>
           </section>
 
@@ -477,9 +524,17 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
           <section class="verified-receipt-block">
             <div class="verified-receipt-head">
               <div>
-                <h3>Verified receipt</h3>
-                <p>Compact, high-signal fields from the exact artifact that was independently verified.</p>
+                <h3>Verified Receipt</h3>
+                <p>The exact final artifact that verified successfully, with trace linkage and proof fields up front.</p>
               </div>
+            </div>
+            <div class="verified-facts-grid">
+              <div class="verified-fact"><div class="label">Verified Receipt</div><div class="value is-verified" id="verified-receipt-status">pending</div></div>
+              <div class="verified-fact"><div class="label">Signer</div><div class="value" id="verified-receipt-signer">runtime.commandlayer.eth</div></div>
+              <div class="verified-fact"><div class="label">Proof Hash</div><div class="value" id="verified-receipt-hash">—</div></div>
+              <div class="verified-fact"><div class="label">Signature</div><div class="value" id="verified-receipt-signature">pending</div></div>
+              <div class="verified-fact"><div class="label">Receipt ID</div><div class="value" id="verified-receipt-id">—</div></div>
+              <div class="verified-fact"><div class="label">Execution Trace</div><div class="value" id="verified-receipt-trace">—</div></div>
             </div>
             <pre class="verified-receipt-json" id="verified-receipt-json">{
   "status": "pending"
@@ -663,8 +718,18 @@ const receiptSigner = document.getElementById('receipt-signer');
 const receiptFinalVerb = document.getElementById('receipt-final-verb');
 const receiptHash = document.getElementById('receipt-hash');
 const receiptSignature = document.getElementById('receipt-signature');
+const receiptVerified = document.getElementById('receipt-verified');
 const receiptSchema = document.getElementById('receipt-schema');
 const receiptId = document.getElementById('receipt-id');
+const receiptTraceLink = document.getElementById('receipt-trace-link');
+const executionBadgeTrace = document.getElementById('execution-badge-trace');
+const executionTraceCaption = document.getElementById('execution-trace-caption');
+const verifiedReceiptStatus = document.getElementById('verified-receipt-status');
+const verifiedReceiptSigner = document.getElementById('verified-receipt-signer');
+const verifiedReceiptHash = document.getElementById('verified-receipt-hash');
+const verifiedReceiptSignature = document.getElementById('verified-receipt-signature');
+const verifiedReceiptId = document.getElementById('verified-receipt-id');
+const verifiedReceiptTrace = document.getElementById('verified-receipt-trace');
 
 const artifactKid = getOptionalElement('artifact-kid');
 const artifactHash = getOptionalElement('artifact-hash');
@@ -840,8 +905,12 @@ function resetVerifySurface() {
   receiptFinalVerb.textContent = 'classify';
   receiptHash.textContent = '—';
   receiptSignature.textContent = 'Present after run';
+  receiptVerified.textContent = 'Pending';
   receiptSchema.textContent = RUNTIME_VERSION;
   receiptId.textContent = '—';
+  receiptTraceLink.textContent = '—';
+  executionBadgeTrace.className = 'badge pending';
+  executionBadgeTrace.textContent = 'Waiting for run';
   receiptBadge.className = 'badge pending';
   receiptBadge.textContent = 'Awaiting receipt';
   finalReceiptJson.textContent = JSON.stringify({ status: 'ready' }, null, 2);
@@ -859,6 +928,12 @@ function resetVerifySurface() {
   verdictSigner.textContent = 'runtime.commandlayer.eth';
   verdictFinalVerb.textContent = 'classify';
   verdictChainStep.textContent = 'classify';
+  verifiedReceiptStatus.textContent = 'pending';
+  verifiedReceiptSigner.textContent = 'runtime.commandlayer.eth';
+  verifiedReceiptHash.textContent = '—';
+  verifiedReceiptSignature.textContent = 'pending';
+  verifiedReceiptId.textContent = '—';
+  verifiedReceiptTrace.textContent = '—';
   receiptChipStatus.textContent = 'Signed receipt returned';
   ensChipStatus.textContent = 'ENS-backed verification';
   schemaChipStatus.textContent = 'Schema validation passed';
@@ -877,9 +952,12 @@ function resetVerifySurface() {
 function setPendingState(message) {
   executionBadge.className = 'badge pending';
   executionBadge.textContent = 'Running';
+  executionBadgeTrace.className = 'badge pending';
+  executionBadgeTrace.textContent = 'Capturing trace';
   receiptBadge.className = 'badge pending';
   receiptBadge.textContent = 'Receipt pending';
   executionTrace.textContent = 'Starting…';
+  executionTraceCaption.textContent = message;
   executionFinalVerb.textContent = '—';
   executionSteps.innerHTML = `<div class="exec-step"><strong>Executing live flow</strong><span>${message}</span></div>`;
   executionOutput.textContent = 'Live runtime execution in progress…';
@@ -934,6 +1012,41 @@ function getReceiptTrace(receipt) {
 function getReceiptId(receipt) {
   const payload = getReceiptPayload(receipt);
   return payload?.receipt_id || payload?.id || payload?.metadata?.receipt_id || payload?.metadata?.id || null;
+}
+
+function getReceiptSigner(receipt) {
+  const payload = getReceiptPayload(receipt) || {};
+  const proof = payload?.metadata?.proof || {};
+  return proof?.signer_ens || proof?.signer_id || payload?.signer || payload?.signer_id || payload?.metadata?.signer_id || null;
+}
+
+function getReceiptSignature(receipt) {
+  const proof = getReceiptProof(receipt);
+  return proof?.signature_b64 || proof?.signature || null;
+}
+
+function getTraceIdFromStep(step, fallbackTraceId = null) {
+  return step?.trace_id
+    || step?.runtime_metadata?.trace?.trace_id
+    || step?.runtime_metadata?.trace_id
+    || getReceiptTrace(step?.signed_receipt || step?.receipt)
+    || fallbackTraceId
+    || null;
+}
+
+function getStepAction(step, receipt) {
+  const payload = getReceiptPayload(receipt) || {};
+  const result = getReceiptResult(receipt);
+  return payload?.action || payload?.verb || payload?.x402?.verb || step?.verb || result?.action || 'executed';
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
 function buildCompactVerifiedReceipt(receipt, signerEns, hash) {
@@ -1001,8 +1114,49 @@ function buildExecutionSteps(steps) {
     return;
   }
   executionSteps.innerHTML = steps.map((step, index) => {
-    const summary = summarizeReceipt(step.signed_receipt || step.receipt);
-    return `<div class="exec-step"><strong>Step ${index + 1} · ${step.verb}</strong><span>${summary}</span></div>`;
+    const receipt = step?.signed_receipt || step?.receipt || {};
+    const signer = getReceiptSigner(receipt) || 'Signer pending';
+    const receiptIdValue = getReceiptId(receipt) || '—';
+    const traceIdValue = getTraceIdFromStep(step, lastTraceId) || '—';
+    const verb = getReceiptVerb(receipt) || step?.verb || 'unknown';
+    const stepStatus = getStepStatus(receipt, step);
+    const summary = deriveStepPreview(receipt, verb);
+    const proofHash = getReceiptHash(receipt) || '—';
+    const signature = getReceiptSignature(receipt) ? 'present' : 'missing';
+    const statusLabel = stepStatus === 'ok' ? 'ready' : stepStatus === 'pending' ? 'pending' : 'review';
+    return `
+      <article class="trace-step-card">
+        <div class="trace-step-head">
+          <div class="trace-step-title">
+            <span class="receipt-step-badge">Step ${index + 1}</span>
+            <strong>${escapeHtml(signer)}</strong>
+          </div>
+          ${index === steps.length - 1 ? '<span class="receipt-final-badge">Verified Receipt</span>' : `<span class="status-pill ${stepStatus}">${escapeHtml(statusLabel)}</span>`}
+        </div>
+        <div class="trace-step-meta">
+          <div>
+            <div class="label">Action</div>
+            <div class="trace-step-agent">${escapeHtml(getStepAction(step, receipt))}</div>
+          </div>
+          <div>
+            <div class="label">Receipt ID</div>
+            <div class="trace-step-agent">${escapeHtml(shorten(receiptIdValue, 14, 10))}</div>
+          </div>
+        </div>
+        <div class="trace-step-proof"><strong>Proof summary:</strong> ${escapeHtml(summary)}</div>
+        <div class="trace-step-summary">Trace ${escapeHtml(shorten(traceIdValue, 14, 10))} · Proof Hash ${escapeHtml(shorten(proofHash, 14, 10))} · Signature ${escapeHtml(signature)}</div>
+        <details class="trace-technical">
+          <summary>View Technical Details</summary>
+          <div class="trace-technical-grid">
+            <div class="trace-technical-item"><div class="label">Execution Trace</div><div class="value">${escapeHtml(traceIdValue)}</div></div>
+            <div class="trace-technical-item"><div class="label">Receipt ID</div><div class="value">${escapeHtml(receiptIdValue)}</div></div>
+            <div class="trace-technical-item"><div class="label">Signer</div><div class="value">${escapeHtml(signer)}</div></div>
+            <div class="trace-technical-item"><div class="label">Proof Hash</div><div class="value">${escapeHtml(proofHash)}</div></div>
+            <div class="trace-technical-item"><div class="label">Signature</div><div class="value">${escapeHtml(getReceiptSignature(receipt) || 'missing')}</div></div>
+          </div>
+          <pre>${escapeHtml(JSON.stringify(receipt, null, 2))}</pre>
+        </details>
+      </article>`;
   }).join('');
 }
 
@@ -1036,13 +1190,16 @@ function normalizeReceiptChain(steps) {
   return steps.map((step, index) => {
     const receipt = step?.signed_receipt || step?.receipt || {};
     const verb = step?.verb || getReceiptVerb(receipt) || 'unknown';
-    const receiptId = getReceiptId(receipt) || `step-${index + 1}`;
     return {
       stepIndex: index + 1,
       verb,
       receipt,
-      receiptId,
+      signer: getReceiptSigner(receipt) || 'Signer pending',
+      action: getStepAction(step, receipt),
+      traceId: getTraceIdFromStep(step, lastTraceId),
+      receiptId: getReceiptId(receipt) || null,
       hash: getReceiptHash(receipt) || '—',
+      signature: getReceiptSignature(receipt),
       status: getStepStatus(receipt, step),
       resultPreview: deriveStepPreview(receipt, verb),
       isFinal: index === steps.length - 1
@@ -1061,13 +1218,16 @@ function renderReceiptViewer(chainNode) {
   finalReceiptJson.textContent = JSON.stringify(receipt, null, 2);
   executionReceiptSummary.textContent = summarizeReceipt(receipt);
   executionOutput.textContent = pickFinalOutput(receipt);
+  receiptSigner.textContent = chainNode.signer || '—';
   receiptFinalVerb.textContent = chainNode.verb || '—';
   receiptHash.textContent = shorten(chainNode.hash || '—', 18, 10);
-  receiptId.textContent = shorten(chainNode.receiptId || '—', 12, 8);
-  receiptSignature.textContent = getReceiptProof(receipt)?.signature_b64 ? 'present' : (chainNode.isFinal ? 'present' : 'intermediate');
+  receiptId.textContent = chainNode.receiptId ? shorten(chainNode.receiptId, 12, 8) : '—';
+  receiptTraceLink.textContent = chainNode.traceId ? shorten(chainNode.traceId, 14, 10) : '—';
+  receiptSignature.textContent = chainNode.signature ? 'present' : 'missing';
+  receiptVerified.textContent = chainNode.isFinal && lastVerification ? 'true' : (chainNode.isFinal ? 'pending' : 'step receipt');
   receiptSchema.textContent = getReceiptVersion(receipt) || RUNTIME_VERSION;
   receiptBadge.className = `badge ${chainNode.status}`;
-  receiptBadge.textContent = chainNode.isFinal ? 'Final receipt ready' : 'Viewing step receipt';
+  receiptBadge.textContent = chainNode.isFinal ? 'Verified Receipt ready' : 'Viewing step receipt';
 }
 
 function selectReceiptChainStep(index) {
@@ -1082,11 +1242,12 @@ function renderProofPathStrip() {
     proofPathStrip.innerHTML = '';
     return;
   }
-  proofPathStrip.innerHTML = lastReceiptChain.map((node, index) => {
+  proofPathStrip.innerHTML = `${lastReceiptChain.map((node, index) => {
     const cls = node.isFinal ? 'proof-path-node is-final' : 'proof-path-node';
-    const part = `<span class="${cls}">${node.verb}</span>`;
+    const label = escapeHtml(node.signer && node.signer !== 'Signer pending' ? node.signer : node.verb);
+    const part = `<span class="${cls}">${label}</span>`;
     return index === 0 ? part : `<span class="proof-path-arrow">→</span>${part}`;
-  }).join('');
+  }).join('')}<span class="proof-path-arrow">→</span><span class="proof-path-node is-final">verified</span>`;
 }
 
 function renderReceiptChain() {
@@ -1108,12 +1269,12 @@ function renderReceiptChain() {
           ${node.isFinal ? '<span class="receipt-final-badge">Verified final receipt</span>' : `<span class="status-pill ${node.status}">${node.status}</span>`}
         </div>
         <div class="receipt-chain-body">
-          <strong>${node.verb}</strong>
-          <div class="receipt-chain-id">${shorten(node.receiptId, 10, 8)}</div>
+          <strong>${escapeHtml(node.signer || node.verb)}</strong>
+          <div class="receipt-chain-id">${escapeHtml(node.receiptId ? shorten(node.receiptId, 10, 8) : 'Receipt ID pending')}</div>
         </div>
-        <div class="receipt-chain-preview-line">${node.resultPreview}</div>
+        <div class="receipt-chain-preview-line">${escapeHtml(node.action)} · ${escapeHtml(node.resultPreview)}</div>
         <div class="receipt-chain-actions">
-          <span class="selection-pill">${isSelected ? 'Selected step' : 'Click to inspect'}</span>
+          <span class="selection-pill">Inspect Receipt</span>
         </div>
       </article>`;
   }).join('');
@@ -1135,10 +1296,19 @@ function syncReceiptChain(steps) {
   selectedReceiptChainIndex = lastReceiptChain.length ? lastReceiptChain.length - 1 : -1;
   renderReceiptChain();
   if (lastReceiptChain.length) {
+    executionBadgeTrace.className = 'badge ok';
+    executionBadgeTrace.textContent = `${lastReceiptChain.length} steps`;
+    const sharedTraceId = lastReceiptChain.find((node) => node.traceId)?.traceId || lastTraceId;
+    executionTrace.textContent = sharedTraceId || '—';
+    executionTraceCaption.textContent = sharedTraceId
+      ? 'One shared execution trace links the run. Each step below has its own Receipt ID.'
+      : 'Execution completed. Inspect each step receipt for the exact trace and proof fields returned.';
     setReceiptChainStatus('ok', `${lastReceiptChain.length} executed steps ready to inspect.`);
     renderReceiptViewer(lastReceiptChain[selectedReceiptChainIndex]);
     verdictChainStep.textContent = lastReceiptChain[lastReceiptChain.length - 1].verb || '—';
   } else {
+    executionBadgeTrace.className = 'badge pending';
+    executionBadgeTrace.textContent = 'Waiting for run';
     verdictChainStep.textContent = 'classify';
   }
 }
@@ -1168,9 +1338,12 @@ function setExecutionError(errorPayload) {
   const summary = buildErrorSummary(errorPayload);
   executionBadge.className = 'badge bad';
   executionBadge.textContent = 'Run failed';
+  executionBadgeTrace.className = 'badge bad';
+  executionBadgeTrace.textContent = 'Trace unavailable';
   receiptBadge.className = 'badge bad';
   receiptBadge.textContent = 'No receipt';
   executionTrace.textContent = errorPayload?.trace_id || '—';
+  executionTraceCaption.textContent = 'The run did not complete, so the shared execution trace could not be fully inspected.';
   executionFinalVerb.textContent = errorPayload?.detail?.details?.verb || '—';
   executionSteps.innerHTML = `<div class="exec-step"><strong>Live flow failed</strong><span>${summary}</span></div>`;
   executionOutput.textContent = 'No successful final output.';
@@ -1325,14 +1498,26 @@ function applyVerification(compactReceipt, signedReceipt, verification) {
   artifactHash.textContent = hash;
   artifactSchema.textContent = getReceiptVersion(signedReceipt) || getReceiptVersion(compactReceipt) || RUNTIME_VERSION;
 
+  const finalTraceId = getReceiptTrace(signedReceipt) || getReceiptTrace(compactReceipt) || lastTraceId || '—';
+  const finalReceiptId = getReceiptId(signedReceipt) || getReceiptId(compactReceipt) || null;
+
   receiptSigner.textContent = signerEns;
   receiptFinalVerb.textContent = getReceiptVerb(signedReceipt) || getReceiptVerb(compactReceipt) || '—';
   receiptHash.textContent = shorten(hash, 18, 10);
   receiptSignature.textContent = signaturePresent ? 'present' : 'missing';
+  receiptVerified.textContent = overallValid ? 'true' : 'needs review';
   receiptSchema.textContent = getReceiptVersion(signedReceipt) || getReceiptVersion(compactReceipt) || RUNTIME_VERSION;
-  receiptId.textContent = shorten(getReceiptId(signedReceipt) || getReceiptId(compactReceipt) || lastTraceId || '—', 12, 8);
+  receiptId.textContent = finalReceiptId ? shorten(finalReceiptId, 12, 8) : '—';
+  receiptTraceLink.textContent = shorten(finalTraceId, 14, 10);
   receiptBadge.className = receiptPresent ? 'badge ok' : 'badge bad';
-  receiptBadge.textContent = receiptPresent ? 'Receipt ready' : 'Receipt missing';
+  receiptBadge.textContent = receiptPresent ? 'Verified Receipt ready' : 'Receipt missing';
+
+  verifiedReceiptStatus.textContent = overallValid ? 'verified: true' : 'verified: false';
+  verifiedReceiptSigner.textContent = signerEns;
+  verifiedReceiptHash.textContent = shorten(hash, 16, 10);
+  verifiedReceiptSignature.textContent = signaturePresent ? 'signature present' : 'signature missing';
+  verifiedReceiptId.textContent = finalReceiptId ? shorten(finalReceiptId, 12, 8) : '—';
+  verifiedReceiptTrace.textContent = shorten(finalTraceId, 14, 10);
 
   technicalSummary.textContent = summarizeReceipt(signedReceipt);
   artifactSummary.textContent = overallValid
