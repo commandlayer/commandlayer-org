@@ -2,9 +2,11 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const handler = require('../api/commons-flow');
+const verifyReceiptHandler = require('../api/verify-receipt');
 const {
   COMMONS_ENTRY,
   normalizeCanonicalReceipt,
+  unwrapRuntimeReceipt,
   validateCanonicalReceipt,
   validateRuntimeMetadata,
 } = require('../api/_receipt-model');
@@ -99,7 +101,7 @@ function createRuntimeReceipt({ verb, traceId, result, status = 'success' }) {
   };
 }
 
-function createReqRes(body) {
+function createReqRes(body, extras = {}) {
   const headers = {};
   const res = {
     statusCode: 200,
@@ -122,10 +124,10 @@ function createReqRes(body) {
     },
   };
 
-  return [{ method: 'POST', body }, res];
+  return [{ method: 'POST', body, query: {}, ...extras }, res];
 }
 
-test('wrapped Commons runtime responses normalize and validate', () => {
+test('wrapped runtime response normalizes correctly across final_receipt, receipt, and steps receipt', () => {
   const wrapped = createRuntimeReceipt({
     verb: 'clean',
     traceId: 'trace-wrap-1',
@@ -135,13 +137,29 @@ test('wrapped Commons runtime responses normalize and validate', () => {
     },
   });
 
+  assert.equal(unwrapRuntimeReceipt(wrapped).cleaned_content, undefined);
+  assert.equal(unwrapRuntimeReceipt(wrapped).verb, 'clean');
+  assert.equal(unwrapRuntimeReceipt({ receipt: wrapped.receipt }).verb, 'clean');
+  assert.equal(unwrapRuntimeReceipt({ steps: wrapped.steps }).verb, 'clean');
+
   const normalized = normalizeCanonicalReceipt(wrapped);
   assert.equal(normalized.receipt.entry, COMMONS_ENTRY);
   assert.equal(normalized.receipt.class, 'commons');
   assert.equal(normalized.receipt.cleaned_content, 'Normalized text');
   assert.equal(normalized.trace_id, 'trace-wrap-1');
+});
 
-  const receiptValidation = validateCanonicalReceipt(normalized.receipt, {
+test('canonical validation passes for wrapped Commons receipt with canonical or canonical_id proof', () => {
+  const wrapped = createRuntimeReceipt({
+    verb: 'clean',
+    traceId: 'trace-wrap-2',
+    result: {
+      cleaned_content: 'Normalized text',
+      operations_applied: ['trim_whitespace'],
+    },
+  });
+
+  const receiptValidation = validateCanonicalReceipt(wrapped, {
     allowEntryClass: true,
     expectedVerb: 'clean',
     expectedVersion: '1.1.0',
@@ -150,14 +168,14 @@ test('wrapped Commons runtime responses normalize and validate', () => {
   });
   assert.equal(receiptValidation.ok, true);
 
-  const metadataValidation = validateRuntimeMetadata(normalized.runtime_metadata, {
+  const metadataValidation = validateRuntimeMetadata(receiptValidation.normalized.runtime_metadata, {
     requireProof: true,
-    expectedTraceId: 'trace-wrap-1',
+    expectedTraceId: 'trace-wrap-2',
   });
   assert.equal(metadataValidation.ok, true);
 });
 
-test('legacy x402 Commons receipt assumptions are not required', () => {
+test('no x402 requirement remains for Commons receipts', () => {
   const wrapped = createRuntimeReceipt({
     verb: 'summarize',
     traceId: 'trace-sum-1',
@@ -167,7 +185,7 @@ test('legacy x402 Commons receipt assumptions are not required', () => {
   const normalized = normalizeCanonicalReceipt(wrapped);
   assert.equal(normalized.receipt.x402, undefined);
 
-  const receiptValidation = validateCanonicalReceipt(normalized.receipt, {
+  const receiptValidation = validateCanonicalReceipt(wrapped, {
     allowEntryClass: true,
     expectedVerb: 'summarize',
     expectedVersion: '1.1.0',
@@ -177,7 +195,7 @@ test('legacy x402 Commons receipt assumptions are not required', () => {
   assert.equal(receiptValidation.ok, true);
 });
 
-test('Commons flow posts each step to /execute with canonical execution metadata and preserves UI receipt fields', async () => {
+test('commons-flow uses /execute with canonical execution metadata and preserves receipt fields', async () => {
   process.env.RUNTIME_BASE_URL = 'https://runtime.commandlayer.org';
   const traceId = 'trace-flow-1';
   const calls = [];
@@ -244,6 +262,7 @@ test('Commons flow posts each step to /execute with canonical execution metadata
     assert.deepEqual(postedBodies.map((body) => body.execution.entry), [COMMONS_ENTRY, COMMONS_ENTRY, COMMONS_ENTRY]);
     assert.deepEqual(postedBodies.map((body) => body.execution.class), ['commons', 'commons', 'commons']);
     assert.deepEqual(postedBodies.map((body) => body.execution.verb), ['clean', 'summarize', 'classify']);
+    assert.deepEqual(postedBodies.map((body) => body.execution.version), ['1.1.0', '1.1.0', '1.1.0']);
     assert.deepEqual(postedBodies[0].input, { content: ' Messy example ' });
     assert.deepEqual(postedBodies[1].input, { content: 'Cleaned example' });
     assert.deepEqual(postedBodies[2].input, { content: 'Cleaned example' });
@@ -255,6 +274,52 @@ test('Commons flow posts each step to /execute with canonical execution metadata
     assert.equal(res.body.final_signed_receipt.final_receipt.verb, 'classify');
     assert.equal(res.body.steps[2].runtime_metadata.proof.alg, 'ed25519-sha256');
     assert.equal(res.body.steps[2].signed_receipt.final_receipt.entry, COMMONS_ENTRY);
+    assert.equal(res.body.steps[2].logs, undefined);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('verify route accepts wrapped response and bare receipt and forwards bare receipt to runtime /verify', async () => {
+  process.env.RUNTIME_BASE_URL = 'https://runtime.commandlayer.org';
+  const wrapped = createRuntimeReceipt({
+    verb: 'clean',
+    traceId: 'trace-verify-1',
+    result: { cleaned_content: 'verified text' },
+  });
+
+  const calls = [];
+  const originalFetch = global.fetch;
+  global.fetch = async (url, options = {}) => {
+    calls.push({ url, options });
+    return new Response(JSON.stringify({ ok: true, checks: { hash_matches: true, signature_valid: true } }), {
+      status: 200,
+      headers: { 'content-type': 'application/json' },
+    });
+  };
+
+  try {
+    const [wrappedReq, wrappedRes] = createReqRes(wrapped, { query: { schema: '1' } });
+    await verifyReceiptHandler(wrappedReq, wrappedRes);
+    const wrappedPostedBody = JSON.parse(calls[0].options.body);
+    assert.equal(calls[0].url, 'https://runtime.commandlayer.org/verify?ens=0&refresh=0&schema=1');
+    assert.equal(wrappedPostedBody.verb, 'clean');
+    assert.equal(wrappedPostedBody.entry, COMMONS_ENTRY);
+    assert.equal(wrappedPostedBody.class, 'commons');
+    assert.equal(wrappedPostedBody.cleaned_content, 'verified text');
+    assert.equal(wrappedPostedBody.final_receipt, undefined);
+
+    calls.length = 0;
+    const [bareReq, bareRes] = createReqRes(wrapped.receipt, { query: { ens: '1' } });
+    await verifyReceiptHandler(bareReq, bareRes);
+    const barePostedBody = JSON.parse(calls[0].options.body);
+    assert.equal(calls[0].url, 'https://runtime.commandlayer.org/verify?ens=1&refresh=0&schema=0');
+    assert.deepEqual(barePostedBody, normalizeCanonicalReceipt(wrapped.receipt).receipt);
+
+    const wrappedResponse = JSON.parse(wrappedRes.body);
+    const bareResponse = JSON.parse(bareRes.body);
+    assert.equal(wrappedResponse.meta.normalized_receipt_used.entry, COMMONS_ENTRY);
+    assert.equal(bareResponse.meta.normalized_receipt_used.entry, COMMONS_ENTRY);
   } finally {
     global.fetch = originalFetch;
   }
