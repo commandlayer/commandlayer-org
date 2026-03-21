@@ -468,10 +468,8 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
               <li>Verified via: <strong id="verdict-via">ENS</strong></li>
               <li>Signer: <strong id="verdict-signer">runtime.commandlayer.eth</strong></li>
               <li>Final verb: <strong id="verdict-final-verb">classify</strong></li>
-              <li>Final step in proof path: <strong id="verdict-chain-step">classify</strong></li>
               <li>Canonical form: <strong>json.sorted_keys.v1</strong></li>
             </ul>
-            <div class="chain-link"><span>↳</span><span><a href="#receipt-chain-section">View proof path</a></span></div>
           </section>
 
           <div style="margin-top:12px;"><span class="badge pending" id="verify-badge">Pending</span></div>
@@ -488,107 +486,10 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 }</pre>
           </section>
 
-          <details class="details-block technical-meta">
-            <summary>View full receipt JSON</summary>
-            <section class="verification-facts">
-              <div class="fact-grid">
-                <div class="fact-item"><div class="label">KID</div><div class="value" id="artifact-kid">—</div></div>
-                <div class="fact-item"><div class="label">Full hash</div><div class="value" id="artifact-hash">—</div></div>
-                <div class="fact-item"><div class="label">Schema version</div><div class="value" id="artifact-schema">—</div></div>
-                <div class="fact-item"><div class="label">Trace metadata</div><div class="value" id="verification-trace-meta">Waiting for receipt</div></div>
-                <div class="fact-item"><div class="label">Provider metadata</div><div class="value" id="verification-provider-meta">runtime.commandlayer.org</div></div>
-                <div class="fact-item"><div class="label">Actor metadata</div><div class="value" id="verification-actor-meta">runtime.commandlayer.eth</div></div>
-                <div class="fact-item"><div class="label">Verifier payload summary</div><div class="value" id="verify-payload-summary">Waiting for a final signed receipt from the live runtime.</div></div>
-              </div>
-            </section>
-
-            <div class="verify-status">
-              <div class="verify-row pending" id="verify-runtime-row"><strong>Receipt submission</strong><span>Waiting for receipt</span></div>
-              <div class="verify-row pending" id="verify-signature-row"><strong>Cryptographic verification</strong><span>Pending</span></div>
-              <div class="verify-row pending" id="verify-ens-row"><strong>ENS identity resolution</strong><span>Pending</span></div>
-              <div class="verify-row pending" id="verify-schema-row"><strong>Schema validation</strong><span>Pending</span></div>
-              <div class="verify-row pending" id="verify-status-row"><strong>Verification result</strong><span>Pending</span></div>
-            </div>
-
-            <div class="summary-card">
-              <h3>Verification verdict</h3>
-              <p id="artifact-summary">Run a flow to generate a fresh final receipt and verification result.</p>
-            </div>
-
-            <div class="verify-actions">
-              <button class="btn" id="copy-verification" type="button">Copy Verification</button>
-              <button class="btn" id="copy-receipt-verified" type="button">Copy Receipt</button>
-              <button class="btn" id="copy-curl" type="button" disabled>Copy Verify cURL</button>
-            </div>
-
-            <details class="details-block">
-              <summary>View technical details</summary>
-              <pre id="verification-json-primary">{
-  "status": "pending"
-}</pre>
-            </details>
-          </details>
         </div>
       </section>
     </section>
 
-    <section class="card receipt-chain-card" id="receipt-chain-section">
-      <div class="card-inner">
-        <div class="eyebrow">Proof Path</div>
-        <div class="receipt-chain-head">
-          <div>
-            <h2 class="section-title" style="margin-top:12px;">Proof Path</h2>
-            <p class="section-sub">The executed steps that produced the final verified receipt.</p>
-          </div>
-          <div class="receipt-chain-status" id="receipt-chain-status">
-            <span class="warn-dot"></span>
-            <span>Run a flow to populate the proof path.</span>
-          </div>
-        </div>
-        <div id="proof-path-strip" class="proof-path-strip" aria-label="Proof path"></div>
-        <div id="receipt-chain" class="receipt-chain-empty">Run the proof flow to inspect each step receipt in order.</div>
-      </div>
-    </section>
-
-    <section class="card" style="margin-top:18px;">
-      <div class="card-inner">
-        <div class="eyebrow">Technical Details</div>
-        <h2 class="section-title" style="margin-top:12px;">Technical Details</h2>
-        <p class="section-sub">Verbose metadata, trace information, and raw payloads are preserved here without competing with the proof narrative.</p>
-
-        <details class="details-block">
-          <summary>View technical details</summary>
-          <div class="technical-stack">
-            <div class="kv-grid">
-              <div class="kv"><div class="k">Trace ID</div><div class="v" id="execution-trace">—</div></div>
-              <div class="kv"><div class="k">Runtime</div><div class="v">runtime.commandlayer.org</div></div>
-              <div class="kv"><div class="k">Final verb</div><div class="v" id="execution-final-verb">—</div></div>
-              <div class="kv"><div class="k">Mode</div><div class="v">Live runtime</div></div>
-              <div class="kv"><div class="k">Raw summary</div><div class="v" id="technical-summary">—</div></div>
-              <div class="kv"><div class="k">Verifier payload summary</div><div class="v" id="verify-payload-summary-technical">Waiting for a final signed receipt from the live runtime.</div></div>
-            </div>
-
-            <div class="exec-steps" id="execution-steps">
-              <div class="exec-step"><strong>Awaiting run</strong><span>Run Demo to execute the default proof flow.</span></div>
-            </div>
-
-            <details class="details-block">
-              <summary>Runtime flow JSON</summary>
-              <pre id="execution-json">{
-  "status": "ready"
-}</pre>
-            </details>
-
-            <details class="details-block">
-              <summary>Independent verification JSON</summary>
-              <pre id="verification-json">{
-  "status": "pending"
-}</pre>
-            </details>
-          </div>
-        </details>
-      </div>
-    </section>
   </div>
 </main>
 
@@ -724,21 +625,33 @@ const defaultChainHelper = document.getElementById('default-chain-helper');
 const builderSource = document.getElementById('builder-source');
 const builderSelects = document.getElementById('builder-selects');
 
+function getOptionalElement(id, tagName = 'div') {
+  return document.getElementById(id) || document.createElement(tagName);
+}
+
+function getOptionalRow(id) {
+  const row = document.getElementById(id);
+  if (row) return row;
+  const fallback = document.createElement('div');
+  fallback.append(document.createElement('strong'), document.createElement('span'));
+  return fallback;
+}
+
 const executionBadge = document.getElementById('execution-badge');
 const receiptBadge = document.getElementById('receipt-badge');
-const executionTrace = document.getElementById('execution-trace');
-const executionFinalVerb = document.getElementById('execution-final-verb');
-const executionSteps = document.getElementById('execution-steps');
+const executionTrace = getOptionalElement('execution-trace');
+const executionFinalVerb = getOptionalElement('execution-final-verb');
+const executionSteps = getOptionalElement('execution-steps');
 const executionOutput = document.getElementById('execution-output');
 const executionReceiptSummary = document.getElementById('execution-receipt-summary');
-const executionJson = document.getElementById('execution-json');
+const executionJson = getOptionalElement('execution-json', 'pre');
 
 const verifyBadge = document.getElementById('verify-badge');
-const verifyRuntimeRow = document.getElementById('verify-runtime-row');
-const verifySignatureRow = document.getElementById('verify-signature-row');
-const verifyEnsRow = document.getElementById('verify-ens-row');
-const verifySchemaRow = document.getElementById('verify-schema-row');
-const verifyStatusRow = document.getElementById('verify-status-row');
+const verifyRuntimeRow = getOptionalRow('verify-runtime-row');
+const verifySignatureRow = getOptionalRow('verify-signature-row');
+const verifyEnsRow = getOptionalRow('verify-ens-row');
+const verifySchemaRow = getOptionalRow('verify-schema-row');
+const verifyStatusRow = getOptionalRow('verify-status-row');
 
 const verdictTitle = document.getElementById('verdict-title');
 const signatureVerdict = document.getElementById('signature-verdict');
@@ -753,32 +666,32 @@ const receiptSignature = document.getElementById('receipt-signature');
 const receiptSchema = document.getElementById('receipt-schema');
 const receiptId = document.getElementById('receipt-id');
 
-const artifactKid = document.getElementById('artifact-kid');
-const artifactHash = document.getElementById('artifact-hash');
-const artifactSchema = document.getElementById('artifact-schema');
-const artifactSummary = document.getElementById('artifact-summary');
+const artifactKid = getOptionalElement('artifact-kid');
+const artifactHash = getOptionalElement('artifact-hash');
+const artifactSchema = getOptionalElement('artifact-schema');
+const artifactSummary = getOptionalElement('artifact-summary');
 const finalReceiptJson = document.getElementById('final-receipt-json');
 const verifiedReceiptJson = document.getElementById('verified-receipt-json');
-const verificationJson = document.getElementById('verification-json-primary');
-const verificationJsonTechnical = document.getElementById('verification-json');
-const verifyPayloadSummary = document.getElementById('verify-payload-summary');
-const verifyPayloadSummaryTechnical = document.getElementById('verify-payload-summary-technical');
-const verificationTraceMeta = document.getElementById('verification-trace-meta');
-const verificationProviderMeta = document.getElementById('verification-provider-meta');
-const verificationActorMeta = document.getElementById('verification-actor-meta');
-const technicalSummary = document.getElementById('technical-summary');
+const verificationJson = getOptionalElement('verification-json-primary', 'pre');
+const verificationJsonTechnical = getOptionalElement('verification-json', 'pre');
+const verifyPayloadSummary = getOptionalElement('verify-payload-summary');
+const verifyPayloadSummaryTechnical = getOptionalElement('verify-payload-summary-technical');
+const verificationTraceMeta = getOptionalElement('verification-trace-meta');
+const verificationProviderMeta = getOptionalElement('verification-provider-meta');
+const verificationActorMeta = getOptionalElement('verification-actor-meta');
+const technicalSummary = getOptionalElement('technical-summary');
 const verdictVia = document.getElementById('verdict-via');
 const verdictSigner = document.getElementById('verdict-signer');
 const verdictFinalVerb = document.getElementById('verdict-final-verb');
-const verdictChainStep = document.getElementById('verdict-chain-step');
-const receiptChainStatus = document.getElementById('receipt-chain-status');
-const proofPathStrip = document.getElementById('proof-path-strip');
-const receiptChain = document.getElementById('receipt-chain');
+const verdictChainStep = getOptionalElement('verdict-chain-step');
+const receiptChainStatus = getOptionalElement('receipt-chain-status');
+const proofPathStrip = getOptionalElement('proof-path-strip');
+const receiptChain = getOptionalElement('receipt-chain');
 
 const copyReceiptBtn = document.getElementById('copy-receipt');
-const copyReceiptVerifiedBtn = document.getElementById('copy-receipt-verified');
-const copyVerificationBtn = document.getElementById('copy-verification');
-const copyCurlBtn = document.getElementById('copy-curl');
+const copyReceiptVerifiedBtn = getOptionalElement('copy-receipt-verified', 'button');
+const copyVerificationBtn = getOptionalElement('copy-verification', 'button');
+const copyCurlBtn = getOptionalElement('copy-curl', 'button');
 
 let currentMode = 'default';
 let lastCompactReceipt = null;
