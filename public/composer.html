@@ -274,17 +274,32 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
         <div class="card-inner">
           <div class="eyebrow">Step 4</div>
           <h2 class="section-title" style="margin-top:12px;">Proof Trail</h2>
-          <p class="section-sub">Receipts stack here in order, with the shared trace and final proof state.</p>
+          <p class="section-sub">Receipts stack here in order, with one final signed receipt kept primary and independently verified.</p>
 
           <div class="proof-trail-trace">
             <div class="label">Execution Trace</div>
             <div class="value" id="execution-trace">—</div>
           </div>
 
+          <div class="proof-trail-meta">
+            <div class="proof-mini">
+              <div class="label">Proof path</div>
+              <div class="value" id="proof-path-strip">—</div>
+            </div>
+            <div class="proof-mini">
+              <div class="label">Receipt chain</div>
+              <div class="value">
+                <select id="receipt-chain-selector" style="width:100%;margin-top:8px;">
+                  <option value="">No receipt chain yet</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
           <div class="proof-trail-stack" id="execution-steps">
             <div class="proof-trail-item">
               <strong>Run the demo</strong>
-              <span>Receipt summaries will appear here from Step 1 through Step 3.</span>
+              <span>Normalized step receipts will appear here from Step 1 through Step 3.</span>
             </div>
           </div>
 
@@ -306,7 +321,12 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 
             <div class="proof-mini">
               <div class="label">Signer</div>
-              <div class="value" id="receipt-signer">runtime.commandlayer.eth</div>
+              <div class="value" id="receipt-signer">—</div>
+            </div>
+
+            <div class="proof-mini">
+              <div class="label">KID</div>
+              <div class="value" id="receipt-kid">—</div>
             </div>
 
             <div class="proof-mini">
@@ -315,10 +335,29 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
             </div>
           </div>
 
+          <div class="actions">
+            <button class="btn" id="copy-receipt" type="button" disabled>Copy Receipt</button>
+            <button class="btn" id="copy-verify-curl" type="button" disabled>Copy Verify cURL</button>
+          </div>
+
           <details class="details-block">
-            <summary>Expand JSON preview</summary>
+            <summary>Signed Receipt JSON</summary>
             <pre class="receipt-json-preview" id="final-receipt-json">{
   "status": "ready"
+}</pre>
+          </details>
+
+          <details class="details-block">
+            <summary>Independent Verification</summary>
+            <pre class="receipt-json-preview" id="verification-json">{
+  "status": "pending"
+}</pre>
+          </details>
+
+          <details class="details-block">
+            <summary>Selected Trace Receipt</summary>
+            <pre class="receipt-json-preview" id="selected-step-json">{
+  "status": "pending"
 }</pre>
           </details>
         </div>
@@ -337,232 +376,531 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 </footer>
 
 <script>
-const RUNTIME_BASE = 'https://runtime.commandlayer.org';
+const RUNTIME_BASE = "https://runtime.commandlayer.org";
+const RUNTIME_VERSION = "1.1.0";
+const VERIFY_URL = `${RUNTIME_BASE}/verify?ens=1&strict_kid=1`;
 const SUPPORTED_COMMONS_VERBS = [
-  'analyze',
-  'classify',
-  'clean',
-  'convert',
-  'describe',
-  'explain',
-  'format',
-  'parse',
-  'summarize',
-  'fetch'
+  "fetch",
+  "describe",
+  "format",
+  "clean",
+  "parse",
+  "summarize",
+  "convert",
+  "explain",
+  "analyze",
+  "classify"
 ];
+const DEFAULT_FLOW = ["clean", "summarize", "classify"];
+const DEFAULT_INPUT = "Hackathon demo note: CommandLayer should show one live commons flow, one final signed receipt, and a proof path that is easy to verify independently.";
 
-const heroRunDefault = document.getElementById('hero-run-default');
-const runChainBtn = document.getElementById('run-chain');
-const resetBuilderBtn = document.getElementById('reset-builder');
+const heroRunDefault = document.getElementById("hero-run-default");
+const heroCopyCurl = document.getElementById("hero-copy-curl");
+const runChainBtn = document.getElementById("run-chain");
+const resetBuilderBtn = document.getElementById("reset-builder");
+const copyReceiptBtn = document.getElementById("copy-receipt");
+const copyVerifyCurlBtn = document.getElementById("copy-verify-curl");
 
-const step1Verb = document.getElementById('step-1-verb');
-const step2Verb = document.getElementById('step-2-verb');
-const step3Verb = document.getElementById('step-3-verb');
+const step1Verb = document.getElementById("step-1-verb");
+const step2Verb = document.getElementById("step-2-verb");
+const step3Verb = document.getElementById("step-3-verb");
 
-const step1Input = document.getElementById('step-1-input');
-const step2Input = document.getElementById('step-2-input');
-const step3Input = document.getElementById('step-3-input');
+const step1Input = document.getElementById("step-1-input");
+const step2Input = document.getElementById("step-2-input");
+const step3Input = document.getElementById("step-3-input");
 
-const executionTrace = document.getElementById('execution-trace');
-const executionSteps = document.getElementById('execution-steps');
-const receiptFinalVerb = document.getElementById('receipt-final-verb');
-const receiptId = document.getElementById('receipt-id');
-const receiptHash = document.getElementById('receipt-hash');
-const receiptSigner = document.getElementById('receipt-signer');
-const receiptVerified = document.getElementById('receipt-verified');
-const finalReceiptJson = document.getElementById('final-receipt-json');
-const runtimeStatusText = document.getElementById('runtime-status-text');
+const executionTrace = document.getElementById("execution-trace");
+const executionSteps = document.getElementById("execution-steps");
+const proofPathStrip = document.getElementById("proof-path-strip");
+const receiptChainSelector = document.getElementById("receipt-chain-selector");
+const receiptFinalVerb = document.getElementById("receipt-final-verb");
+const receiptId = document.getElementById("receipt-id");
+const receiptHash = document.getElementById("receipt-hash");
+const receiptSigner = document.getElementById("receipt-signer");
+const receiptKid = document.getElementById("receipt-kid");
+const receiptVerified = document.getElementById("receipt-verified");
+const finalReceiptJson = document.getElementById("final-receipt-json");
+const verificationJson = document.getElementById("verification-json");
+const selectedStepJson = document.getElementById("selected-step-json");
+const runtimeStatusText = document.getElementById("runtime-status-text");
+
+const state = {
+  normalizedChain: [],
+  signedReceipt: null,
+  verification: null,
+  traceId: null,
+  selectedReceiptIndex: 0,
+  lastError: null
+};
 
 function fillVerbSelect(select, allowBlank) {
-  select.innerHTML = '';
-  if (allowBlank) {
-    const blank = document.createElement('option');
-    blank.value = '';
-    blank.textContent = '-- none --';
-    select.appendChild(blank);
-  } else {
-    const starter = document.createElement('option');
-    starter.value = '';
-    starter.textContent = '-- choose --';
-    select.appendChild(starter);
-  }
+  select.innerHTML = "";
+  const starter = document.createElement("option");
+  starter.value = "";
+  starter.textContent = allowBlank ? "-- none --" : "-- choose --";
+  select.appendChild(starter);
 
   SUPPORTED_COMMONS_VERBS.forEach((verb) => {
-    const option = document.createElement('option');
+    const option = document.createElement("option");
     option.value = verb;
     option.textContent = verb;
     select.appendChild(option);
   });
 }
 
-fillVerbSelect(step1Verb, false);
-fillVerbSelect(step2Verb, true);
-fillVerbSelect(step3Verb, true);
+function safeJsonParse(text, label) {
+  const trimmed = String(text || "").trim();
+  if (!trimmed.startsWith("{")) {
+    throw new Error(`${label}: ${trimmed.slice(0, 200) || "(empty response)"}`);
+  }
+  try {
+    return JSON.parse(trimmed);
+  } catch {
+    throw new Error(`${label}: ${trimmed.slice(0, 200)}`);
+  }
+}
 
-function applyDefaultFlow() {
-  step1Verb.value = 'analyze';
-  step2Verb.value = 'summarize';
-  step3Verb.value = 'classify';
+async function runVerb(verb, payload) {
+  const res = await fetch(`${RUNTIME_BASE}/${verb}/v${RUNTIME_VERSION}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ input: payload })
+  });
 
-  step1Input.value = 'Hackathon demo note: CommandLayer should show a live flow run, a fresh signed receipt, and the final proof state in a clear judge-friendly flow.';
-  step2Input.value = '';
-  step3Input.value = '';
+  const text = await res.text();
+
+  if (!text.trim().startsWith("{")) {
+    throw new Error(`Non-JSON response from runtime ${verb}: ${text.slice(0, 200)}`);
+  }
+
+  const data = safeJsonParse(text, `Non-JSON response from runtime ${verb}`);
+
+  if (!res.ok) {
+    const detail = data?.error || data?.message || `Runtime ${verb} failed (${res.status})`;
+    throw new Error(detail);
+  }
+
+  return data;
+}
+
+async function verifyReceipt(receipt) {
+  const res = await fetch(`${RUNTIME_BASE}/verify?ens=1&strict_kid=1`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(receipt)
+  });
+
+  const text = await res.text();
+
+  if (!text.trim().startsWith("{")) {
+    throw new Error(`Non-JSON verify response: ${text.slice(0, 200)}`);
+  }
+
+  const data = safeJsonParse(text, "Non-JSON verify response");
+
+  if (!res.ok) {
+    const detail = data?.error || data?.message || `Verify failed (${res.status})`;
+    throw new Error(detail);
+  }
+
+  return data;
+}
+
+async function probeRuntimeHealth() {
+  try {
+    const res = await fetch(`${RUNTIME_BASE}/health`, { method: "GET" });
+    const text = await res.text();
+    const data = text.trim().startsWith("{") ? safeJsonParse(text, "Non-JSON health response") : null;
+    runtimeStatusText.textContent = res.ok
+      ? `Runtime healthy${data?.status ? ` · ${data.status}` : ""}`
+      : `Runtime health check failed (${res.status})`;
+  } catch (error) {
+    runtimeStatusText.textContent = `Runtime health unavailable: ${error?.message || error}`;
+  }
 }
 
 function shorten(value, start = 12, end = 8) {
-  if (!value || value === '—') return '—';
+  if (!value || value === "—") return "—";
   const text = String(value);
   if (text.length <= start + end + 1) return text;
   return `${text.slice(0, start)}…${text.slice(-end)}`;
 }
 
-function resetProofTrail() {
-  executionTrace.textContent = '—';
-  executionSteps.innerHTML = `
-    <div class="proof-trail-item">
-      <strong>Run the demo</strong>
-      <span>Receipt summaries will appear here from Step 1 through Step 3.</span>
-    </div>
-  `;
-  receiptFinalVerb.textContent = '—';
-  receiptId.textContent = '—';
-  receiptHash.textContent = '—';
-  receiptSigner.textContent = 'runtime.commandlayer.eth';
-  receiptVerified.textContent = 'Pending';
-  finalReceiptJson.textContent = JSON.stringify({ status: 'ready' }, null, 2);
+function shellSingleQuote(value) {
+  return `'${String(value).replace(/'/g, `'"'"'`)}'`;
 }
 
-function renderProofTrail(data) {
-  const traceId = data?.trace_id || '—';
-  const steps = Array.isArray(data?.steps) ? data.steps : [];
+function copyToClipboard(text) {
+  return navigator.clipboard.writeText(text);
+}
 
-  executionTrace.textContent = traceId;
+function renderError(message) {
+  state.lastError = message;
+  executionTrace.textContent = state.traceId || "Error";
+  executionSteps.insertAdjacentHTML("beforeend", `
+    <div class="proof-trail-item">
+      <strong>Runtime error</strong>
+      <span>${escapeHtml(message)}</span>
+    </div>
+  `);
+  receiptVerified.textContent = "Error";
+  verificationJson.textContent = JSON.stringify({ error: message }, null, 2);
+  selectedStepJson.textContent = JSON.stringify({ error: message }, null, 2);
+}
 
-  if (!steps.length) {
+function extractReceiptEnvelope(payload) {
+  return payload?.signed_receipt || payload?.receipt || payload?.result?.signed_receipt || payload?.result?.receipt || payload || null;
+}
+
+function extractTraceId(payload, receipt) {
+  return payload?.trace_id || payload?.runtime_metadata?.trace_id || payload?.runtime_metadata?.trace?.trace_id || receipt?.trace_id || receipt?.metadata?.trace_id || receipt?.metadata?.trace?.trace_id || null;
+}
+
+function extractResult(receipt, payload) {
+  return receipt?.result ?? payload?.result ?? payload?.output ?? payload?.value ?? null;
+}
+
+function summarizeResult(result) {
+  if (result == null) return "Result present";
+  if (typeof result === "string") return result;
+  if (typeof result === "number" || typeof result === "boolean") return String(result);
+  if (Array.isArray(result)) return result.join(", ");
+  if (typeof result === "object") {
+    return result.summary || result.cleaned_text || result.content || result.output || result.label || (Array.isArray(result.labels) ? `labels: ${result.labels.join(", ")}` : null) || JSON.stringify(result).slice(0, 160);
+  }
+  return String(result);
+}
+
+function compactReceiptView(entry) {
+  const receipt = entry?.receipt || {};
+  return {
+    status: receipt?.status || entry?.status || "unknown",
+    verb: receipt?.verb || entry?.verb || "unknown",
+    schema_version: receipt?.schema_version || "—",
+    result: extractResult(receipt, entry?.raw) || "—",
+    metadata: {
+      proof: {
+        signer_id: receipt?.metadata?.proof?.signer_id || "—",
+        kid: receipt?.metadata?.proof?.kid || "—",
+        hash_sha256: receipt?.metadata?.proof?.hash_sha256 || "—"
+      },
+      receipt_id: receipt?.metadata?.receipt_id || receipt?.receipt_id || "—"
+    }
+  };
+}
+
+function buildVerifyCurl(receipt) {
+  return [
+    `curl -sS -X POST ${shellSingleQuote(VERIFY_URL)} \\`,
+    `  -H 'Content-Type: application/json' \\`,
+    `  --data-binary ${shellSingleQuote(JSON.stringify(receipt))}`
+  ].join("\n");
+}
+
+function getReceiptOutputText(receipt) {
+  const result = receipt?.result;
+  if (typeof result === "string") return result;
+  if (result && typeof result === "object") {
+    return result.cleaned_text || result.summary || result.output || result.content || result.explanation || result.description || result.analysis || result.markdown || result.text || (Array.isArray(result.labels) ? result.labels.join(", ") : JSON.stringify(result));
+  }
+  return result == null ? "" : String(result);
+}
+
+function buildStepInput(verb, text) {
+  if (verb === "fetch") {
+    return { source: text };
+  }
+  if (verb === "describe") {
+    return { subject: text, detail_level: "short" };
+  }
+  if (verb === "format") {
+    return { content: text, target_style: "bullet-list", source_style: "plain" };
+  }
+  if (verb === "clean") {
+    return { content: text, operations: ["trim_whitespace", "collapse_blank_lines"] };
+  }
+  if (verb === "parse") {
+    return { content: text, mode: "best_effort" };
+  }
+  if (verb === "summarize") {
+    return { content: text, summary_style: "exec_brief", format_hint: "plain" };
+  }
+  if (verb === "convert") {
+    return { content: text, source_format: "text", target_format: "markdown" };
+  }
+  if (verb === "explain") {
+    return { subject: text, detail_level: "short" };
+  }
+  if (verb === "analyze") {
+    return { content: text };
+  }
+  if (verb === "classify") {
+    return { content: text };
+  }
+  throw new Error(`Unsupported verb: ${verb}`);
+}
+
+function collectConfiguredSteps() {
+  const initialText = step1Input.value.trim();
+  const stepConfigs = [
+    { verb: step1Verb.value, override: initialText, required: true },
+    { verb: step2Verb.value, override: step2Input.value.trim(), required: false },
+    { verb: step3Verb.value, override: step3Input.value.trim(), required: false }
+  ];
+
+  if (!stepConfigs[0].verb || !initialText) {
+    throw new Error("Choose Step 1 and provide input before running the flow.");
+  }
+
+  return stepConfigs.filter((step) => step.verb);
+}
+
+function renderReceiptChainSelector(chain) {
+  receiptChainSelector.innerHTML = "";
+  if (!chain.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = "No receipt chain yet";
+    receiptChainSelector.appendChild(option);
+    return;
+  }
+
+  chain.forEach((entry, index) => {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = `Step ${index + 1}: ${entry.verb}`;
+    receiptChainSelector.appendChild(option);
+  });
+
+  receiptChainSelector.value = String(Math.min(state.selectedReceiptIndex, chain.length - 1));
+}
+
+function renderTrace(chain) {
+  if (!chain.length) {
     executionSteps.innerHTML = `
       <div class="proof-trail-item">
         <strong>No receipts returned</strong>
-        <span>The runtime did not return any step receipts.</span>
+        <span>The runtime did not return any normalized step receipts.</span>
       </div>
     `;
-    finalReceiptJson.textContent = JSON.stringify(data || { status: 'empty' }, null, 2);
-    receiptFinalVerb.textContent = '—';
-    receiptId.textContent = '—';
-    receiptHash.textContent = '—';
-    receiptSigner.textContent = 'runtime.commandlayer.eth';
-    receiptVerified.textContent = 'Pending';
+    proofPathStrip.textContent = "—";
     return;
   }
 
-  executionSteps.innerHTML = steps.map((step, idx) => {
-    const receipt = step?.receipt || {};
-    const summary =
-      receipt?.result?.summary ||
-      (Array.isArray(receipt?.result?.labels) ? `labels: ${receipt.result.labels.join(', ')}` : null) ||
-      receipt?.verb ||
-      'Receipt ready';
-
+  proofPathStrip.textContent = chain.map((entry) => entry.verb).join(" → ");
+  executionSteps.innerHTML = chain.map((entry, index) => {
+    const compact = compactReceiptView(entry);
     return `
       <div class="proof-trail-item">
-        <strong>Receipt ${idx + 1} — ${step?.verb || receipt?.verb || 'unknown'} — ${receipt?.status || 'unknown'}</strong>
-        <span>${summary}</span>
+        <strong>Step ${index + 1} — ${entry.verb} — ${compact.status}</strong>
+        <span>${summarizeResult(compact.result)}</span>
+        <details class="details-block">
+          <summary>Technical details</summary>
+          <pre class="receipt-json-preview">${escapeHtml(JSON.stringify(compact, null, 2))}</pre>
+        </details>
       </div>
     `;
-  }).join('');
-
-  const finalStep = steps[steps.length - 1] || {};
-  const finalReceipt = finalStep.receipt || {};
-
-  receiptFinalVerb.textContent = finalReceipt.verb || finalStep.verb || '—';
-  receiptId.textContent = shorten(finalReceipt.receipt_id || finalReceipt.id || '—', 14, 8);
-  receiptHash.textContent = shorten(finalReceipt?.metadata?.proof?.hash_sha256 || finalReceipt?.metadata?.proof?.hash || '—', 14, 8);
-  receiptSigner.textContent = finalReceipt?.metadata?.proof?.signer_ens || 'runtime.commandlayer.eth';
-  receiptVerified.textContent = finalReceipt?.status === 'ok' ? 'Ready' : 'Pending';
-  finalReceiptJson.textContent = JSON.stringify(finalReceipt, null, 2);
+  }).join("");
 }
 
-function buildStepsPayload() {
-  const steps = [];
+function renderSelectedStepReceipt() {
+  const entry = state.normalizedChain[state.selectedReceiptIndex];
+  selectedStepJson.textContent = entry ? JSON.stringify(compactReceiptView(entry), null, 2) : JSON.stringify({ status: "pending" }, null, 2);
+}
 
-  if (step1Verb.value && step1Input.value.trim()) {
-    steps.push({ verb: step1Verb.value, input: step1Input.value.trim() });
+function updatePrimaryReceipt() {
+  const signedReceipt = state.signedReceipt;
+  const verification = state.verification;
+
+  if (!signedReceipt) {
+    receiptFinalVerb.textContent = "—";
+    receiptId.textContent = "—";
+    receiptHash.textContent = "—";
+    receiptSigner.textContent = "—";
+    receiptKid.textContent = "—";
+    receiptVerified.textContent = "Pending";
+    finalReceiptJson.textContent = JSON.stringify({ status: "ready" }, null, 2);
+    verificationJson.textContent = JSON.stringify(verification || { status: "pending" }, null, 2);
+    heroCopyCurl.disabled = true;
+    copyVerifyCurlBtn.disabled = true;
+    copyReceiptBtn.disabled = true;
+    return;
   }
 
-  if (step2Verb.value) {
-    steps.push({ verb: step2Verb.value, input: step2Input.value.trim() || step1Input.value.trim() });
-  }
+  const signer =
+    verification?.signer_id ||
+    verification?.values?.signer_id ||
+    signedReceipt?.metadata?.proof?.signer_id ||
+    "—";
 
-  if (step3Verb.value) {
-    steps.push({ verb: step3Verb.value, input: step3Input.value.trim() || step2Input.value.trim() || step1Input.value.trim() });
-  }
+  const kid =
+    verification?.kid ||
+    verification?.values?.kid ||
+    signedReceipt?.metadata?.proof?.kid ||
+    "—";
 
-  return steps;
+  const hash =
+    verification?.hash_sha256 ||
+    verification?.values?.hash_sha256 ||
+    signedReceipt?.metadata?.proof?.hash_sha256 ||
+    "—";
+
+  receiptFinalVerb.textContent = signedReceipt?.verb || "—";
+  receiptId.textContent = shorten(signedReceipt?.metadata?.receipt_id || signedReceipt?.receipt_id || "—", 14, 8);
+  receiptHash.textContent = shorten(hash, 14, 8);
+  receiptSigner.textContent = signer;
+  receiptKid.textContent = shorten(kid, 16, 8);
+  receiptVerified.textContent = verification ? "Verified" : "Pending";
+  finalReceiptJson.textContent = JSON.stringify(signedReceipt, null, 2);
+  verificationJson.textContent = JSON.stringify(verification || { status: "pending" }, null, 2);
+  heroCopyCurl.disabled = false;
+  copyVerifyCurlBtn.disabled = false;
+  copyReceiptBtn.disabled = false;
+}
+
+function normalizeStep({ verb, payload, response }) {
+  const receipt = extractReceiptEnvelope(response);
+  return {
+    verb,
+    payload,
+    raw: response,
+    receipt,
+    status: receipt?.status || response?.status || "ok",
+    trace_id: extractTraceId(response, receipt),
+    resultText: getReceiptOutputText(receipt)
+  };
+}
+
+function resetProofTrail() {
+  state.normalizedChain = [];
+  state.signedReceipt = null;
+  state.verification = null;
+  state.traceId = null;
+  state.selectedReceiptIndex = 0;
+  state.lastError = null;
+  executionTrace.textContent = "—";
+  proofPathStrip.textContent = "—";
+  executionSteps.innerHTML = `
+    <div class="proof-trail-item">
+      <strong>Run the demo</strong>
+      <span>Normalized step receipts will appear here from Step 1 through Step 3.</span>
+    </div>
+  `;
+  renderReceiptChainSelector([]);
+  renderSelectedStepReceipt();
+  updatePrimaryReceipt();
+}
+
+function applyDefaultFlow() {
+  step1Verb.value = DEFAULT_FLOW[0];
+  step2Verb.value = DEFAULT_FLOW[1];
+  step3Verb.value = DEFAULT_FLOW[2];
+  step1Input.value = DEFAULT_INPUT;
+  step2Input.value = "";
+  step3Input.value = "";
+}
+
+function escapeHtml(text) {
+  return String(text)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
 }
 
 async function runDemo() {
-  const steps = buildStepsPayload();
-
-  if (!steps.length) {
-    executionTrace.textContent = 'Missing input';
-    executionSteps.innerHTML = `
-      <div class="proof-trail-item">
-        <strong>Missing flow</strong>
-        <span>Choose at least Step 1 and provide input.</span>
-      </div>
-    `;
-    return;
-  }
-
-  runtimeStatusText.textContent = 'Running live flow against runtime';
-  executionTrace.textContent = 'Starting…';
-  executionSteps.innerHTML = `
-    <div class="proof-trail-item">
-      <strong>Running live flow</strong>
-      <span>Capturing ordered receipts from the runtime.</span>
-    </div>
-  `;
+  resetProofTrail();
+  let chain = [];
 
   try {
-    const response = await fetch(`${RUNTIME_BASE}/api/commons-flow`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ steps })
-    });
+    const configuredSteps = collectConfiguredSteps();
+    runtimeStatusText.textContent = "Running live commons flow against runtime";
+    executionTrace.textContent = "Starting…";
 
-    if (!response.ok) {
-      throw new Error(`Runtime returned ${response.status}`);
+    let currentText = configuredSteps[0].override;
+
+    for (const [index, step] of configuredSteps.entries()) {
+      if (index > 0) {
+        currentText = step.override || currentText;
+      }
+      if (!currentText) {
+        throw new Error(`Step ${index + 1} (${step.verb}) has no input to send.`);
+      }
+
+      const payload = buildStepInput(step.verb, currentText);
+      const response = await runVerb(step.verb, payload);
+      const normalized = normalizeStep({ verb: step.verb, payload, response });
+      chain.push(normalized);
+      state.normalizedChain = chain;
+      state.selectedReceiptIndex = chain.length - 1;
+      state.traceId = normalized.trace_id || state.traceId;
+      executionTrace.textContent = state.traceId || `Flow step ${chain.length}`;
+      renderTrace(chain);
+      renderReceiptChainSelector(chain);
+      renderSelectedStepReceipt();
+      currentText = normalized.resultText || currentText;
     }
 
-    const data = await response.json();
-    runtimeStatusText.textContent = 'Runtime returned live proof trail';
-    renderProofTrail(data);
+    state.signedReceipt = chain[chain.length - 1]?.receipt || null;
+    if (!state.signedReceipt) {
+      throw new Error("The runtime completed but did not return a final signed receipt.");
+    }
+
+    runtimeStatusText.textContent = "Final signed receipt returned; verifying independently";
+    state.verification = await verifyReceipt(state.signedReceipt);
+    updatePrimaryReceipt();
+    runtimeStatusText.textContent = "Runtime flow complete and independently verified";
   } catch (error) {
-    runtimeStatusText.textContent = 'Runtime request failed';
-    executionTrace.textContent = 'Error';
-    executionSteps.innerHTML = `
-      <div class="proof-trail-item">
-        <strong>Runtime error</strong>
-        <span>${String(error?.message || error)}</span>
-      </div>
-    `;
+    if (chain.length && !state.signedReceipt) {
+      state.signedReceipt = chain[chain.length - 1]?.receipt || null;
+    }
+    runtimeStatusText.textContent = "Runtime request failed";
+    renderTrace(chain);
+    renderReceiptChainSelector(chain);
+    renderSelectedStepReceipt();
+    updatePrimaryReceipt();
+    renderError(error?.message || String(error));
   }
 }
 
-heroRunDefault.addEventListener('click', () => {
+receiptChainSelector.addEventListener("change", (event) => {
+  state.selectedReceiptIndex = Number(event.target.value || 0);
+  renderSelectedStepReceipt();
+});
+
+heroRunDefault.addEventListener("click", () => {
   applyDefaultFlow();
   runDemo();
 });
 
-runChainBtn.addEventListener('click', runDemo);
+runChainBtn.addEventListener("click", runDemo);
 
-resetBuilderBtn.addEventListener('click', () => {
+resetBuilderBtn.addEventListener("click", () => {
   applyDefaultFlow();
-  runtimeStatusText.textContent = 'Runtime ready for live flow runs';
+  runtimeStatusText.textContent = "Runtime ready for live flow runs";
   resetProofTrail();
 });
 
+copyReceiptBtn.addEventListener("click", async () => {
+  if (!state.signedReceipt) return;
+  await copyToClipboard(JSON.stringify(state.signedReceipt, null, 2));
+});
+
+async function copyVerifyCurl() {
+  if (!state.signedReceipt) return;
+  await copyToClipboard(buildVerifyCurl(state.signedReceipt));
+}
+
+copyVerifyCurlBtn.addEventListener("click", copyVerifyCurl);
+heroCopyCurl.addEventListener("click", copyVerifyCurl);
+
+fillVerbSelect(step1Verb, false);
+fillVerbSelect(step2Verb, true);
+fillVerbSelect(step3Verb, true);
 applyDefaultFlow();
 resetProofTrail();
+probeRuntimeHealth();
 </script>
 </body>
 </html>
