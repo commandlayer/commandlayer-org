@@ -1,916 +1,258 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Commons — CommandLayer</title>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <meta
-      name="description"
-      content="CommandLayer Commons — the canonical public-goods layer that defines the minimum verifiable receipt. Verbs and schemas stay stable while runtimes add optional execution metadata separately."
-    />
-
-    <style>
-      :root {
-        --bg: #05060a;
-        --bg-elevated: #0a0c14;
-        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
-        --border-soft: rgba(255, 255, 255, 0.06);
-        --border-strong: rgba(255, 255, 255, 0.18);
-        --accent: #c5cbe0;
-        --accent-strong: #e3e7ff;
-        --accent-muted: #8f96b5;
-        --text-main: #f7f8ff;
-        --text-muted: #9ca3c7;
-        --text-soft: #6b7280;
-        --radius-lg: 16px;
-        --radius-xl: 24px;
-        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
-        --max-width: 1120px;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-          "Inter", sans-serif;
-        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
-        color: var(--text-main);
-      }
-
-      body {
-        min-height: 100vh;
-      }
-
-      .page-shell {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .page-main {
-        flex: 1;
-      }
-
-      .container {
-        width: 100%;
-        max-width: var(--max-width);
-        margin: 0 auto;
-        padding: 0 1.5rem;
-      }
-
-      /* Header */
-      .site-header {
-        background: var(--bg-header);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        backdrop-filter: blur(18px);
-      }
-
-      .site-header__inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.9rem 1.5rem;
-      }
-
-      .site-header__brand {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-decoration: none;
-        color: inherit;
-      }
-
-      .site-header__logo-img {
-        width: 28px;
-        height: 28px;
-        object-fit: contain;
-        display: block;
-        border-radius: 6px;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
-          0 14px 40px rgba(0, 0, 0, 0.9);
-      }
-
-      .site-header__text {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .site-header__title {
-        font-size: 0.98rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-      }
-
-      .site-header__subtitle {
-        font-size: 0.78rem;
-        color: var(--text-muted);
-      }
-
-      .site-header__nav {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .site-header__link {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        text-decoration: none;
-        color: var(--text-muted);
-        border: 1px solid transparent;
-        white-space: nowrap;
-      }
-
-      .site-header__link:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__link--active {
-        color: #020617;
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        border-color: rgba(255, 255, 255, 0.25);
-      }
-
-      /* Docs dropdown */
-      .site-header__dropdown {
-        position: relative;
-      }
-
-      .site-header__dropdown-btn {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: var(--text-muted);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        cursor: pointer;
-      }
-
-      .site-header__dropdown-btn:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__dropdown-btn--active {
-        color: #020617;
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        border-color: rgba(255, 255, 255, 0.25);
-      }
-
-      .site-header__dropdown-menu {
-        position: absolute;
-        top: 2.3rem;
-        right: 0;
-        background: rgba(15, 23, 42, 0.98);
-        border-radius: 14px;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        padding: 0.5rem 0.4rem;
-        min-width: 210px;
-        display: none;
-      }
-
-      .site-header__dropdown-menu a {
-        display: block;
-        padding: 0.35rem 0.7rem;
-        font-size: 0.82rem;
-        text-decoration: none;
-        color: var(--text-muted);
-        border-radius: 999px;
-      }
-
-      .site-header__dropdown-menu a:hover {
-        color: var(--accent-strong);
-        background: rgba(31, 41, 55, 0.95);
-      }
-
-      .site-header--docs-open .site-header__dropdown-menu {
-        display: block;
-      }
-
-      /* Mobile toggle */
-      .site-header__toggle {
-        display: none;
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.7);
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--text-main);
-        padding: 0.25rem 0.6rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-      }
-
-      .site-header__toggle:hover {
-        background: rgba(15, 23, 42, 1);
-      }
-
-      /* Subhero */
-      .subhero {
-        padding: 2.8rem 0 2.1rem;
-        border-bottom: 1px solid var(--border-soft);
-        background: radial-gradient(circle at 0 0, #111827, #020308);
-      }
-
-      .subhero__inner {
-        display: flex;
-        justify-content: space-between;
-        gap: 2rem;
-        align-items: flex-end;
-      }
-
-      .subhero__eyebrow {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--accent-muted);
-        margin-bottom: 0.5rem;
-      }
-
-      .subhero__title {
-        margin: 0 0 0.6rem;
-        font-size: 2rem;
-      }
-
-      .subhero__subtitle {
-        margin: 0;
-        color: var(--text-muted);
-        max-width: 40rem;
-        font-size: 0.96rem;
-        line-height: 1.6;
-      }
-
-      .subhero__subtitle strong {
-        color: var(--accent-strong);
-      }
-
-      .subhero__meta {
-        font-size: 0.85rem;
-        color: var(--text-soft);
-        text-align: right;
-      }
-
-      .subhero__meta code {
-        background: rgba(15, 23, 42, 0.9);
-        padding: 0.2rem 0.4rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-      }
-
-      /* Sections */
-      .section {
-        padding: 2.5rem 0;
-      }
-
-      .section--muted {
-        background: rgb(6, 9, 18);
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      }
-
-      .section__header {
-        max-width: 40rem;
-        margin-bottom: 1.4rem;
-      }
-
-      .section__header h2 {
-        margin: 0 0 0.5rem;
-        font-size: 1.4rem;
-      }
-
-      .section__header p {
-        margin: 0;
-        font-size: 0.95rem;
-        color: var(--text-muted);
-      }
-
-      .grid {
-        display: grid;
-        gap: 1.2rem;
-      }
-
-      .grid--3 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .info-card {
-        background: rgba(15, 23, 42, 0.95);
-        padding: 1.1rem;
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--border-soft);
-        font-size: 0.9rem;
-      }
-
-      .info-card h3 {
-        margin: 0 0 0.45rem;
-        font-size: 1rem;
-      }
-
-      .info-card p {
-        margin: 0;
-        color: var(--text-muted);
-      }
-
-      /* Card block (for tables / notes) */
-      .card-block {
-        background: rgba(15, 23, 42, 0.95);
-        border-radius: var(--radius-xl);
-        padding: 1.4rem 1.4rem 1.6rem;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-      }
-
-      .card-block__title {
-        margin: 0 0 0.4rem;
-        font-size: 1.1rem;
-      }
-
-      .card-block__subtitle {
-        margin: 0 0 1rem;
-        font-size: 0.9rem;
-        color: var(--text-muted);
-      }
-
-      /* Tables */
-      .table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-      }
-
-      .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9rem;
-        min-width: 720px;
-      }
-
-      .data-table thead {
-        background: rgba(15, 23, 42, 0.95);
-      }
-
-      .data-table th,
-      .data-table td {
-        padding: 0.7rem 0.7rem;
-        text-align: left;
-        border-bottom: 1px solid var(--border-soft);
-      }
-
-      .data-table th {
-        font-weight: 500;
-        color: var(--accent-muted);
-        border-bottom: 1px solid var(--border-strong);
-      }
-
-      .data-table tbody tr:hover td {
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .data-table code {
-        background: rgba(15, 23, 42, 0.9);
-        padding: 0.15rem 0.35rem;
-        border-radius: 4px;
-        font-size: 0.85rem;
-      }
-
-      .data-table a {
-        color: var(--accent-strong);
-        text-decoration: none;
-      }
-
-      .data-table a:hover {
-        text-decoration: underline;
-      }
-
-      /* Footer */
-      .site-footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        background: #020308;
-      }
-
-      .site-footer__inner {
-        padding: 1.8rem 1.5rem 2rem;
-        font-size: 0.78rem;
-        color: var(--text-soft);
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-      }
-
-      .site-footer__row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 2rem;
-      }
-
-      .site-footer__col {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-      }
-
-      .site-footer__col-title {
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--text-soft);
-        margin-bottom: 0.2rem;
-      }
-
-      .site-footer__cid {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        font-size: 0.72rem;
-        color: var(--accent-muted);
-        word-break: break-all;
-      }
-
-      .site-footer__links {
-        display: flex;
-        gap: 0.8rem;
-        margin-top: 0.8rem;
-        padding-top: 0.8rem;
-        border-top: 1px solid var(--border-soft);
-      }
-
-      .site-footer__links a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-
-      .site-footer__links a:hover {
-        text-decoration: underline;
-      }
-
-      /* Mobile */
-      @media (max-width: 880px) {
-        .site-header__inner {
-          padding-inline: 1rem;
-        }
-
-        .site-header__toggle {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .site-header__nav {
-          display: none;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
-          margin-top: 0.8rem;
-        }
-
-        .site-header.site-header--open .site-header__nav {
-          display: flex;
-        }
-
-        .subhero__inner {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        .subhero__meta {
-          text-align: left;
-        }
-
-        .grid--3 {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .site-footer__row {
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        .site-footer__inner {
-          padding-inline: 1rem;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="page-shell">
-      <!-- HEADER -->
-      <header class="site-header">
-        <div class="site-header__inner container">
-          <a href="/" class="site-header__brand">
-            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-            <div class="site-header__text">
-              <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
-            </div>
-          </a>
-
-          <!-- Mobile toggle -->
-          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
-            ☰
-          </button>
-
-          <nav class="site-header__nav">
-            <a href="/" class="site-header__link">Home</a>
-            <a href="/composer.html" class="site-header__link">Demo</a>
-            <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-
-            <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn site-header__dropdown-btn--active" type="button">
-              Docs &#9662;
-              </button>
-              <div class="site-header__dropdown-menu">
-              <a href="/commons.html">Commons</a>
-              <a href="/commercial.html">Commercial</a>
-              <a href="/agent-cards.html">Agent Cards</a>
-              <a href="/runtime.html">Runtime</a>
-              </div>
-            </div>
-
-            <a
-            href="https://github.com/commandlayer"
-            class="site-header__link"
-            target="_blank"
-            rel="noopener noreferrer"
-            >
-            GitHub
-            </a>
-          </nav>
-        </div>
-      </header>
-
-      <main class="page-main">
-        <!-- SUBHERO -->
-        <section class="subhero">
-          <div class="container subhero__inner">
-            <div>
-              <div class="subhero__eyebrow">Commons</div>
-              <h1 class="subhero__title">Commons is the shared contract behind every signed receipt.</h1>
-              <p class="subhero__subtitle">
-                Commons answers one question: what contract does CommandLayer follow? It defines the shared action and receipt model that every runtime executes and every verifier checks. Runtime can add execution evidence around that receipt, but Commons defines the canonical shape.
-              </p>
-              <p style="margin:0.9rem 0 0;font-size:0.94rem;font-weight:500;color:var(--accent-strong);letter-spacing:0.01em;">
-                Agents can act. CommandLayer proves they acted.
-              </p>
-              <p class="subhero__subtitle" style="margin-top: 0.75rem; font-size: 0.92rem;">
-                Every verb execution produces a signed, verifiable receipt. Free.
-              </p>
-              <p class="subhero__subtitle" style="margin-top: 0.75rem; font-size: 0.92rem;">
-                <strong>Why it matters:</strong> learn Commons first, because it is the smallest truthful explanation of CommandLayer: agents execute actions, Commons shapes the receipt, and verification stays portable across runtimes.
-              </p>
-            </div>
-            <div class="subhero__meta">
-              <div>CommandLayer Commons v1.1.0</div>
-              <div>MIT licensed · ERC-8004 registered · Schemas always free</div>
-              <div style="margin-top: 0.55rem;"><a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">View ERC-8004 registration on Base</a></div>
-              <div style="margin-top: 0.3rem">
-                Path pattern:<br />
-                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/&lt;verb&gt;.request.schema.json</code><br />
-                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/&lt;verb&gt;.receipt.schema.json</code><br />
-                <span style="color: var(--text-muted);">Self-contained schemas. No <code>/_shared/</code> references.</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- EXPLAINER -->
-        <section class="section">
-          <div class="container">
-            <div class="section__header">
-              <h2>What the Commons layer is</h2>
-              <p>
-                Commons is CommandLayer’s small, stable core: a shared language for machine intent and the
-                minimum verifiable receipt. Commons and Commercial share the same contract-first philosophy, but Commons is the canonical model builders should learn before discovery, runtime metadata, or commercial compatibility details enter the picture.
-              </p>
-            </div>
-
-            <div class="grid grid--3">
-              <article class="info-card">
-                <h3>Canonical verbs</h3>
-                <p>
-                  10 verbs that cover core agent behaviors like analysis, summarization, formatting,
-                  description, and retrieval — without dictating how any particular execution engine is implemented.
-                </p>
-              </article>
-
-              <article class="info-card">
-                <h3>Flat canonical contracts</h3>
-                <p>
-                  Every verb ships a self-contained <code>*.request</code> and <code>*.receipt</code> schema with no shared-schema dependency chain. Requests stay flat, signed receipts stay flat, and runtime proof or trace fields can layer on later without redefining the canonical contract.
-                </p>
-              </article>
-
-              <article class="info-card">
-                <h3>Transport-agnostic by default</h3>
-                <p>
-                  Commons defines the request and receipt semantics directly. Discovery and transport layers can point at these schemas, but the canonical v1.1.0 contracts no longer depend on shared x402 envelope fields or nested wrapper folders.
-                </p>
-              </article>
-            </div>
-            <p style="margin:1.15rem 0 0; color: var(--text-muted); line-height: 1.7;">
-              Commons and Commercial define contract surfaces; Agent Cards define discovery; Runtime defines execution. Receipt verification and runtime proof can layer on top of Commons receipts without changing Commons semantics.
-            </p>
-          </div>
-        </section>
-
-        <!-- COMMONS TABLE -->
-        <section class="section section--muted">
-          <div class="container">
-            <div class="section__header">
-              <h2>Commons verbs — registry (v1.1.0)</h2>
-              <p>
-                Each row is a universal verb with its purpose and direct links to the
-                <strong>request</strong> and <strong>receipt</strong> JSON Schemas under
-                <code>https://commandlayer.org</code>. These schemas are pinned, verifiable, and free to use.
-              </p>
-            </div>
-
-            <div class="card-block">
-              <h3 class="card-block__title">Commons schema index</h3>
-              <p class="card-block__subtitle">
-                These links are stable for v1.1.0. Older published paths remain available for compatibility and verification. Future major versions will ship under
-                <code>/schemas/vX.Y.Z/...</code> without breaking v1.1.0 for current builders.
-              </p>
-
-              <div class="table-wrapper">
-                <table class="data-table">
-                  <thead>
-                    <tr>
-                      <th>Verb</th>
-                      <th>Purpose</th>
-                      <th>Request schema</th>
-                      <th>Receipt schema</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td><code>analyze</code></td>
-                      <td>Inspect content for patterns, signals, or properties.</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><code>classify</code></td>
-                      <td>Assign labels or categories from a taxonomy.</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/classify/classify.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/classify/classify.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><code>fetch</code></td>
-                      <td>Retrieve external data, documents, or resources.</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><code>format</code></td>
-                      <td>Reformat content without changing the meaning.</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/format/format.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/format/format.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><code>parse</code></td>
-                      <td>Turn unstructured content into structured output.</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/parse/parse.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/parse/parse.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><code>summarize</code></td>
-                      <td>Compress content while preserving key information.</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><code>clean</code></td>
-                      <td>Remove noise, normalize, and sanitize content.</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><code>convert</code></td>
-                      <td>Change representation or format (with rules).</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><code>describe</code></td>
-                      <td>Produce neutral, human-readable descriptions.</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/describe/describe.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/describe/describe.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td><code>explain</code></td>
-                      <td>Provide reasoning, rationale, or clarification.</td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/explain/explain.request.schema.json"
-                          target="_blank"
-                          >request</a
-                        >
-                      </td>
-                      <td>
-                        <a
-                          href="https://commandlayer.org/schemas/v1.1.0/commons/explain/explain.receipt.schema.json"
-                          target="_blank"
-                          >receipt</a
-                        >
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- GOVERNANCE / STABILITY NOTE -->
-        <section class="section">
-          <div class="container">
-            <div class="card-block">
-              <h3 class="card-block__title">Stability &amp; governance</h3>
-              <p class="card-block__subtitle">
-                Commons v1.1.0 is intentionally small and stable. Changes happen in new versions
-                (<code>v1.1.0</code>, <code>v2.0.0</code>) so agents can rely on these schemas long-term.
-              </p>
-              <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">
-                Commons and Commercial define contract surfaces; Agent Cards define discovery; Runtime defines execution.
-                In the v1.1.0 cycle, the Commons set is curated under a single-maintainer model to keep the
-                command language coherent and predictable for early builders. As the ecosystem grows, broader
-                participation and formal governance can layer on without breaking this version — the Commons verbs
-                are treated as semantic public goods for the agent economy.
-              </p>
-              <p style="font-size:0.9rem;color:var(--text-muted);margin:0.6rem 0 0;">
-                Receipt verification and runtime proof can layer on top of Commons receipts without changing Commons semantics.
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer class="site-footer">
-        <div class="container site-footer__inner" style="align-items: center; text-align: center;">
-          <div class="site-footer__cid">Commons v1.1.0 &middot; Commercial v1.1.0 &middot; Agent Cards v1.1.0 &middot; ERC-8004 registered</div>
-          <div class="site-footer__links" style="justify-content: center;">
-            <a href="/docs.html">Docs</a>
-            <a href="/repositories.html">Repositories</a>
-            <a href="/faq.html">FAQ</a>
-            <a href="/about.html">About</a>
-            <a href="/licensing.html">Licensing</a>
-          </div>
-        </div>
-      </footer>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CommandLayer — Commons is the shared contract behind every signed receipt.</title>
+<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:       #07090d;
+  --surface:  #0b0f18;
+  --panel:    #101828;
+  --border:   #1b2a3b;
+  --border-hi:#273d54;
+  --text:     #c8d8ea;
+  --dim:      #476080;
+  --dimmer:   #253040;
+  --accent:   #00d4ff;
+  --accent2:  #0099cc;
+  --green:    #00e676;
+  --gold:     #ffd54f;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Syne', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 13px; line-height: 1.6; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(0,212,255,0.022) 79px, rgba(0,212,255,0.022) 80px); }
+
+/* NAV */
+nav { position: sticky; top: 0; z-index: 100; background: rgba(7,9,13,0.93); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 54px; }
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-family: var(--sans); font-weight: 800; font-size: 15px; letter-spacing: -0.02em; }
+.nav-brand img { width: 26px; height: 26px; }
+.nav-center { display: flex; align-items: center; gap: 4px; list-style: none; }
+.nav-center a { color: var(--dim); text-decoration: none; font-size: 12px; padding: 5px 10px; border-radius: 4px; transition: all 0.15s; }
+.nav-center a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.nav-center a.active { color: var(--accent); }
+.nav-dropdown { position: relative; }
+.nav-dropdown-toggle { color: var(--dim); font-size: 12px; font-family: var(--mono); padding: 5px 10px; border-radius: 4px; cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 4px; transition: color 0.15s; }
+.nav-dropdown-toggle:hover { color: var(--text); }
+.nav-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; min-width: 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 6px; margin-top: 4px; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.nav-dropdown:hover .nav-dropdown-menu { display: flex; flex-direction: column; }
+.nav-dropdown-menu a { color: var(--dim); text-decoration: none; font-size: 12px; padding: 6px 10px; border-radius: 3px; transition: all 0.12s; }
+.nav-dropdown-menu a:hover { color: var(--accent); background: rgba(0,212,255,0.06); }
+.nav-dropdown-menu a.active { color: var(--accent); }
+.nav-right { display: flex; align-items: center; }
+.nav-github { color: var(--dim); text-decoration: none; font-size: 12px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; transition: all 0.15s; }
+.nav-github:hover { border-color: var(--accent); color: var(--accent); }
+
+/* PAGE */
+.page-wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 60px 32px 80px; }
+
+/* HEADER */
+.doc-eyebrow { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+.doc-h1 { font-family: var(--sans); font-size: clamp(26px, 4vw, 46px); font-weight: 800; letter-spacing: -0.04em; color: #fff; line-height: 1.05; margin-bottom: 18px; }
+.doc-h1 em { color: var(--accent); font-style: normal; }
+.doc-lead { font-size: 15px; color: var(--dim); line-height: 1.75; max-width: 640px; margin-bottom: 32px; }
+.doc-lead strong { color: var(--text); font-weight: 500; }
+
+/* VERSION BADGE ROW */
+.badge-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; }
+.v-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 3px; font-size: 11px; border: 1px solid var(--border); color: var(--dim); background: var(--surface); }
+.v-badge.accent { border-color: rgba(0,212,255,0.3); color: var(--accent); background: rgba(0,212,255,0.06); }
+.v-badge.green  { border-color: rgba(0,230,118,0.3); color: var(--green); background: rgba(0,230,118,0.06); }
+.v-badge a { color: inherit; text-decoration: none; }
+.v-badge a:hover { text-decoration: underline; }
+
+/* PATH BLOCK */
+.path-block { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 0 4px 4px 0; padding: 12px 16px; margin-bottom: 40px; font-size: 12px; color: var(--dim); line-height: 1.9; }
+.path-block code { color: var(--accent); }
+
+/* SECTION */
+.doc-section { margin-bottom: 48px; }
+.doc-h2 { font-family: var(--sans); font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: #fff; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.doc-h3 { font-family: var(--sans); font-size: 15px; font-weight: 700; color: var(--text); margin: 20px 0 10px; }
+.doc-p { font-size: 13px; color: var(--dim); line-height: 1.8; margin-bottom: 14px; }
+.doc-p strong { color: var(--text); font-weight: 500; }
+.doc-p code { color: var(--green); font-size: 12px; }
+.doc-p a { color: var(--accent); text-decoration: none; }
+.doc-p a:hover { text-decoration: underline; }
+
+/* FEATURE CELLS */
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 24px; }
+.feature-cell { background: var(--surface); padding: 20px; transition: background 0.2s; }
+.feature-cell:hover { background: var(--panel); }
+.fc-title { font-family: var(--sans); font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.fc-body  { font-size: 12px; color: var(--dim); line-height: 1.65; }
+.fc-body code { color: var(--green); }
+
+/* DIVIDER */
+.doc-divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+/* TABLE */
+.schema-table-wrap { overflow-x: auto; margin-bottom: 24px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead tr { border-bottom: 1px solid var(--border-hi); }
+th { padding: 9px 12px; text-align: left; font-family: var(--sans); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; line-height: 1.5; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+td code { color: var(--accent); font-size: 11px; }
+td a { color: var(--accent2); text-decoration: none; font-size: 11px; }
+td a:hover { color: var(--accent); text-decoration: underline; }
+.td-dim { color: var(--dim); }
+
+/* CALLOUT */
+.callout { border-radius: 4px; padding: 12px 16px; font-size: 12px; line-height: 1.7; margin-bottom: 20px; display: flex; gap: 10px; }
+.callout.info { background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.2); color: var(--text); }
+.callout.green { background: rgba(0,230,118,0.06); border: 1px solid rgba(0,230,118,0.2); color: var(--text); }
+.callout-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.callout a { color: var(--accent); text-decoration: none; }
+.callout a:hover { text-decoration: underline; }
+
+/* FOOTER */
+footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--dimmer); flex-wrap: wrap; gap: 10px; }
+footer a { color: var(--dim); text-decoration: none; transition: color 0.15s; }
+footer a:hover { color: var(--accent); }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://www.commandlayer.org/" class="nav-brand">
+    <img src="https://www.commandlayer.org/icon2.png" alt="CommandLayer" />
+    CommandLayer
+  </a>
+  <ul class="nav-center">
+    <li><a href="https://www.commandlayer.org/">Home</a></li>
+    <li><a href="https://www.commandlayer.org/composer.html">Demo</a></li>
+    <li><a href="https://www.commandlayer.org/quickstart.html">Quickstart</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle">Docs ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="https://www.commandlayer.org/commons.html" class="active">Commons</a>
+        <a href="https://www.commandlayer.org/commercial.html">Commercial</a>
+        <a href="https://www.commandlayer.org/agent-cards.html">Agent Cards</a>
+        <a href="https://www.commandlayer.org/runtime.html">Runtime</a>
+      </div>
+    </li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="doc-eyebrow">▸ docs / commons</div>
+  <h1 class="doc-h1">Commons is the shared contract<br />behind every <em>signed receipt.</em></h1>
+  <p class="doc-lead">Commons answers one question: what contract does CommandLayer follow? It defines the shared action and receipt model that every runtime executes and every verifier checks. Runtime can add execution evidence around that receipt, but Commons defines the canonical shape.</p>
+  <p class="doc-lead" style="margin-top:-16px;"><strong>Agents can act. CommandLayer proves they acted.</strong> Every verb execution produces a signed, verifiable receipt. Free.</p>
+
+  <div class="badge-row">
+    <span class="v-badge accent">CommandLayer Commons v1.1.0</span>
+    <span class="v-badge green">MIT licensed</span>
+    <span class="v-badge green">ERC-8004 registered</span>
+    <span class="v-badge">Schemas always free</span>
+    <span class="v-badge"><a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener">View ERC-8004 on Base ↗</a></span>
+  </div>
+
+  <div class="path-block">
+    <code>/schemas/v1.1.0/commons/&lt;verb&gt;/&lt;verb&gt;.request.schema.json</code><br />
+    <code>/schemas/v1.1.0/commons/&lt;verb&gt;/&lt;verb&gt;.receipt.schema.json</code><br />
+    Self-contained schemas. No <code>/_shared/</code> references.
+  </div>
+
+  <hr class="doc-divider" />
+
+  <div class="doc-section">
+    <h2 class="doc-h2">What the Commons layer is</h2>
+    <p class="doc-p">Commons is CommandLayer's small, stable core: a shared language for machine intent and the minimum verifiable receipt. Commons and Commercial share the same contract-first philosophy, but Commons is the canonical model builders should learn before discovery, runtime metadata, or commercial compatibility details enter the picture.</p>
+
+    <div class="feature-grid">
+      <div class="feature-cell">
+        <div class="fc-title">Canonical verbs</div>
+        <div class="fc-body">10 verbs that cover core agent behaviors like analysis, summarization, formatting, description, and retrieval — without dictating how any particular execution engine is implemented.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Flat canonical contracts</div>
+        <div class="fc-body">Every verb ships a self-contained <code>*.request</code> and <code>*.receipt</code> schema with no shared-schema dependency chain. Requests stay flat, signed receipts stay flat.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Transport-agnostic by default</div>
+        <div class="fc-body">Commons defines request and receipt semantics directly. Discovery and transport layers can point at these schemas without depending on shared x402 envelope fields or nested wrapper folders.</div>
+      </div>
     </div>
 
-    <script>
-      (function () {
-        const header = document.querySelector(".site-header");
-        const toggle = document.querySelector(".site-header__toggle");
-        const docsBtn = document.querySelector(".site-header__dropdown-btn");
+    <div class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <span>Commons and Commercial define contract surfaces; Agent Cards define discovery; Runtime defines execution. Receipt verification and runtime proof can layer on top of Commons receipts without changing Commons semantics.</span>
+    </div>
+  </div>
 
-        if (toggle && header) {
-          toggle.addEventListener("click", () => {
-            const isOpen = header.classList.toggle("site-header--open");
-            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-          });
-        }
+  <hr class="doc-divider" />
 
-        if (docsBtn && header) {
-          docsBtn.addEventListener("click", () => {
-            header.classList.toggle("site-header--docs-open");
-          });
-        }
-      })();
-    </script>
-  </body>
+  <div class="doc-section">
+    <h2 class="doc-h2">Commons verbs — registry (v1.1.0)</h2>
+    <p class="doc-p">Each row is a universal verb with its purpose and direct links to the <strong>request</strong> and <strong>receipt</strong> JSON Schemas under <code>https://commandlayer.org</code>. These schemas are pinned, verifiable, and free to use.</p>
+
+    <h3 class="doc-h3">Commons schema index</h3>
+    <p class="doc-p">These links are stable for v1.1.0. Older published paths remain available for compatibility and verification. Future major versions will ship under <code>/schemas/vX.Y.Z/...</code> without breaking v1.1.0 for current builders.</p>
+
+    <div class="schema-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Verb</th>
+            <th>Purpose</th>
+            <th>Request schema</th>
+            <th>Receipt schema</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>analyze</code></td><td class="td-dim">Inspect content for patterns, signals, or properties.</td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.request.schema.json" target="_blank">request ↗</a></td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.receipt.schema.json" target="_blank">receipt ↗</a></td></tr>
+          <tr><td><code>classify</code></td><td class="td-dim">Assign labels or categories from a taxonomy.</td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/classify/classify.request.schema.json" target="_blank">request ↗</a></td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/classify/classify.receipt.schema.json" target="_blank">receipt ↗</a></td></tr>
+          <tr><td><code>fetch</code></td><td class="td-dim">Retrieve external data, documents, or resources.</td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.request.schema.json" target="_blank">request ↗</a></td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.receipt.schema.json" target="_blank">receipt ↗</a></td></tr>
+          <tr><td><code>format</code></td><td class="td-dim">Reformat content without changing the meaning.</td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/format/format.request.schema.json" target="_blank">request ↗</a></td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/format/format.receipt.schema.json" target="_blank">receipt ↗</a></td></tr>
+          <tr><td><code>parse</code></td><td class="td-dim">Turn unstructured content into structured output.</td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/parse/parse.request.schema.json" target="_blank">request ↗</a></td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/parse/parse.receipt.schema.json" target="_blank">receipt ↗</a></td></tr>
+          <tr><td><code>summarize</code></td><td class="td-dim">Compress content while preserving key information.</td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json" target="_blank">request ↗</a></td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json" target="_blank">receipt ↗</a></td></tr>
+          <tr><td><code>clean</code></td><td class="td-dim">Remove noise, normalize, and sanitize content.</td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.request.schema.json" target="_blank">request ↗</a></td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.receipt.schema.json" target="_blank">receipt ↗</a></td></tr>
+          <tr><td><code>convert</code></td><td class="td-dim">Change representation or format (with rules).</td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.request.schema.json" target="_blank">request ↗</a></td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.receipt.schema.json" target="_blank">receipt ↗</a></td></tr>
+          <tr><td><code>describe</code></td><td class="td-dim">Produce neutral, human-readable descriptions.</td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/describe/describe.request.schema.json" target="_blank">request ↗</a></td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/describe/describe.receipt.schema.json" target="_blank">receipt ↗</a></td></tr>
+          <tr><td><code>explain</code></td><td class="td-dim">Provide reasoning, rationale, or clarification.</td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/explain/explain.request.schema.json" target="_blank">request ↗</a></td><td><a href="https://commandlayer.org/schemas/v1.1.0/commons/explain/explain.receipt.schema.json" target="_blank">receipt ↗</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="doc-h3">Stability &amp; governance</h3>
+    <p class="doc-p">Commons v1.1.0 is intentionally small and stable. Changes happen in new versions (<code>v1.1.0</code>, <code>v2.0.0</code>) so agents can rely on these schemas long-term.</p>
+    <p class="doc-p">Commons and Commercial define contract surfaces; Agent Cards define discovery; Runtime defines execution. In the v1.1.0 cycle, the Commons set is curated under a single-maintainer model to keep the command language coherent and predictable for early builders. As the ecosystem grows, broader participation and formal governance can layer on without breaking this version — the Commons verbs are treated as semantic public goods for the agent economy.</p>
+
+    <div class="callout green">
+      <span class="callout-icon">✓</span>
+      <span>Receipt verification and runtime proof can layer on top of Commons receipts without changing Commons semantics.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
+  <nav class="footer-links">
+    <a href="https://www.commandlayer.org/docs.html">Docs</a>
+    <a href="https://www.commandlayer.org/repositories.html">Repositories</a>
+    <a href="https://www.commandlayer.org/faq.html">FAQ</a>
+    <a href="https://www.commandlayer.org/about.html">About</a>
+    <a href="https://www.commandlayer.org/licensing.html">Licensing</a>
+  </nav>
+</footer>
+</body>
 </html>
