@@ -538,24 +538,28 @@ footer a:hover { color: var(--accent); }
       </div>
       <div class="rc-body">
         <div class="rc-field">
-          <div class="rc-label">status</div>
-          <div class="rc-value green">Ed25519 signature valid</div>
+          <div class="rc-label">verb · status</div>
+          <div class="rc-value green">summarize · success</div>
         </div>
         <div class="rc-field">
           <div class="rc-label">signer</div>
-          <div class="rc-value accent">checkoutagent.eth · ENS resolved</div>
+          <div class="rc-value accent">runtime.commandlayer.eth · ENS resolved</div>
+        </div>
+        <div class="rc-field">
+          <div class="rc-label">schema</div>
+          <div class="rc-value dim">commons/summarize/v1.1.0</div>
         </div>
         <div class="rc-hash-row">
           <div class="rc-hash-label">proof hash (sha256)</div>
-          <div class="rc-hash-val">9fa31c4d7b2a6c91f4d8e3b7a52c18d6f09e4b2a7c3f1d8e5b9c4a2f7e1d3c8...e18f72</div>
+          <div class="rc-hash-val">138f6c2789bebcac5385ba1f3817210fe21da81dcb2a0926b83aecff92c94739</div>
         </div>
         <div class="rc-field">
-          <div class="rc-label">contract</div>
-          <div class="rc-value dim">commercial.verify.receipt v1.1.0</div>
+          <div class="rc-label">receipt id</div>
+          <div class="rc-value dim">clrcpt_e012dd58b610488a8e7113750517e978</div>
         </div>
         <div class="rc-field">
-          <div class="rc-label">execution trace</div>
-          <div class="rc-value accent">trace_demo_checkout_7f3c</div>
+          <div class="rc-label">Ed25519 signature</div>
+          <div class="rc-value accent">Omz1vpSavmcal9QqZpRiQVngUrVZMpV/MVJeTXSojLNMPFXy8g2A2CHkHKn5bhWjwfUEdzPqZFfmALNiCDWyBw==</div>
         </div>
       </div>
       <div class="rc-footer">
@@ -612,17 +616,17 @@ footer a:hover { color: var(--accent); }
 
     <div class="agent-flow" style="margin-top:48px;">
       <div class="agent-node">
-        <div class="agent-ens">checkoutagent.eth</div>
-        <div class="agent-role">charges the buyer</div>
+        <div class="agent-ens">fetchagent.eth</div>
+        <div class="agent-role">retrieves the data</div>
         <span class="agent-badge">receipt signed</span>
       </div>
       <div class="agent-arrow">
         <div class="agent-arrow-line"></div>
-        <div class="agent-arrow-label">hands task</div>
+        <div class="agent-arrow-label">hands output</div>
       </div>
       <div class="agent-node">
-        <div class="agent-ens">shipagent.eth</div>
-        <div class="agent-role">executes shipment</div>
+        <div class="agent-ens">summarizeagent.eth</div>
+        <div class="agent-role">compresses & shapes</div>
         <span class="agent-badge">receipt signed</span>
       </div>
       <div class="agent-arrow">
@@ -707,7 +711,7 @@ footer a:hover { color: var(--accent); }
         <div class="pa-body">
           <div class="pa-row">
             <span class="pa-key">verb</span>
-            <span class="pa-val accent">verify</span>
+            <span class="pa-val accent">summarize</span>
           </div>
           <div class="pa-row">
             <span class="pa-key">schema_version</span>
@@ -722,16 +726,20 @@ footer a:hover { color: var(--accent); }
             <span class="pa-val accent">runtime.commandlayer.eth</span>
           </div>
           <div class="pa-row">
+            <span class="pa-key">receipt_id</span>
+            <span class="pa-val">clrcpt_e012dd58…7e978</span>
+          </div>
+          <div class="pa-row">
             <span class="pa-key">hash_sha256</span>
-            <span class="pa-val accent">9fa31c4d…e18f72</span>
+            <span class="pa-val accent">138f6c27…94739</span>
           </div>
           <div class="pa-row">
             <span class="pa-key">signature_b64</span>
-            <span class="pa-val accent">YWdlbnQu…Zg==</span>
+            <span class="pa-val accent">Omz1vpSa…DWyBw==</span>
           </div>
           <div class="pa-row">
-            <span class="pa-key">trace_id</span>
-            <span class="pa-val">trace_demo_7f3c</span>
+            <span class="pa-key">execution_ms</span>
+            <span class="pa-val">124ms</span>
           </div>
           <div class="pa-row">
             <span class="pa-key">verified</span>
