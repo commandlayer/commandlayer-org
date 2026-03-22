@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://commandlayer.org/agent-cards/schemas/v1.0.0/agent.card.schema.json",
+  "title": "agent.card.schema",
+  "description": "Hosted compatibility alias for the CommandLayer Agent Card base schema.",
+  "allOf": [
+    {
+      "$ref": "https://commandlayer.org/agent-cards/schemas/v1.0.0/_shared/agent.card.base.schema.json"
+    }
+  ]
+}

@@ -728,7 +728,7 @@
               <li>Call <code>POST /clean/v1.1.0</code> with the pinned Commons request shape.</li>
               <li>Inspect <code>receipt</code> first: <code>verb</code>, <code>schema_version</code>, <code>status</code>, and the verb-specific output fields.</li>
               <li>Then inspect <code>runtime_metadata</code> only if your executor adds it.</li>
-              <li>Resolve: use ENS TXT records to discover schema URLs &amp; entry.</li>
+              <li>Resolve: use ENS TXT records to discover schema URLs &amp; entry. Commons currently resolves to HTTP runtime execution; Commercial remains the payment-aware line.</li>
             </ol>
 
             <div class="mini-example">
@@ -884,7 +884,7 @@
             <h2>Step 3 — Resolve schemas, entry, and keys via ENS</h2>
             <p>
               Each agent publishes machine-readable TXT records. That’s how discovery tools and clients find
-              the canonical entrypoint, schema URLs, and (optionally) receipt verification keys.
+              the canonical entrypoint, schema URLs, and (optionally) receipt verification keys. For Commons v1.1.0, that entry is currently the shared HTTP execute surface rather than an x402 URI.
             </p>
           </div>
 
@@ -896,7 +896,7 @@
                 <button class="copy-btn" type="button" data-copy="cl.verb                    clean
 cl.version                 1.1.0
 cl.class                   commons
-cl.entry                   x402://cleanagent.eth/clean/v1.1.0
+cl.entry                   https://runtime.commandlayer.org/execute
 cl.schema.request          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.request.schema.json
 cl.schema.receipt          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.receipt.schema.json
 cl.cid.schemas             bafy...
@@ -912,7 +912,7 @@ cl.receipt.pubkey_b64      ...">📋 Copy</button>
               <pre>cl.verb                    clean
 cl.version                 1.1.0
 cl.class                   commons
-cl.entry                   x402://cleanagent.eth/clean/v1.1.0
+cl.entry                   https://runtime.commandlayer.org/execute
 cl.schema.request          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.request.schema.json
 cl.schema.receipt          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.receipt.schema.json
 cl.cid.schemas             bafy...

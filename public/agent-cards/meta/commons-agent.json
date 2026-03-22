@@ -1,7 +1,7 @@
 {
-  "id": "x402://commandlayer.eth/commons-agent/v1.1.0",
+  "id": "https://commandlayer.org/agent-cards/meta/commons-agent.json",
   "name": "CommandLayer Commons Agent Registry",
-  "description": "Registry descriptor pointer for CommandLayer Commons Agent Cards v1.1.0 release-candidate repository bindings.",
+  "description": "Registry descriptor pointer for CommandLayer Commons Agent Cards v1.1.0 current release bindings.",
   "owner": "commandlayer.eth",
   "ens": "commandlayer.eth",
   "version": "1.1.0",
@@ -26,8 +26,12 @@
     "agent_cards_version": "1.1.0",
     "current_release": "v1.1.0",
     "legacy_release": "v1.0.0 (archival compatibility only)",
-    "publish_state": "release_candidate_pending_validation",
+    "publish_state": "published_current_line",
     "license": "Apache-2.0",
-    "surface_role": "registry descriptor pointer"
+    "surface_role": "registry descriptor pointer",
+    "notes": [
+      "Commons v1.1.0 cards are discovery artifacts for the non-x402 current line.",
+      "Commons routing currently uses the shared HTTP runtime execute surface."
+    ]
   }
 }

@@ -9,7 +9,7 @@
     />
     <meta
       name="description"
-      content="CommandLayer Agent Cards — canonical JSON descriptors that bind ENS names to verbs, schema versions, and x402 entrypoints so registries and clients can discover and route to agents."
+      content="CommandLayer Agent Cards — canonical JSON descriptors that bind ENS names to verbs, schema versions, and current-line entrypoints so registries and clients can discover and route to agents."
     />
 
     <!-- Same metallic layout system as homepage / Commons / Commercial -->
@@ -603,8 +603,8 @@
               <article class="info-card">
                 <h3>Execution entrypoints</h3>
                 <p>
-                  One or more <strong>x402 entry</strong> URIs and metadata for where to send
-                  <code>*.request</code> payloads. Routing decisions can be made by registries and
+                  One or more execution entrypoints and metadata for where to send
+                  <code>*.request</code> payloads. In the current line, Commons cards point at the shared HTTP execute surface while Commercial cards remain x402-style. Routing decisions can be made by registries and
                   clients without hardcoding URLs.
                 </p>
               </article>
@@ -629,7 +629,7 @@
   <p class="card-block__subtitle">
     Stable, MIT-backed semantics with <strong>Apache-2.0 Agent Cards</strong>. Each card
     binds a Commons verb like <code>summarize</code> or <code>analyze</code> to a
-    concrete ENS identity and x402 entrypoints.
+    concrete ENS identity and the shared HTTP execute entrypoint.
   </p>
 
   <div class="table-wrapper">
@@ -777,7 +777,7 @@
     <p>
       These agents implement the first <strong>Commercial verbs</strong> for economic
       flows: authorization, checkout, purchase, shipping, and verification. Cards align
-      with x402-style payment flows and can be indexed by ERC-8004 registries.
+      with payment-aware routing and can be indexed by ERC-8004 registries.
     </p>
   </div>
 
@@ -882,7 +882,7 @@
               <ul style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem 1.1rem;padding:0;">
                 <li>Registry or client looks up Agent Cards for a given verb (e.g. <code>summarize</code>).</li>
                 <li>Filters by network, limits, or metadata in the card.</li>
-                <li>Selects an x402 <code>entry</code> URI and sends a validated <code>*.request</code> payload.</li>
+                <li>Selects the card's advertised <code>entry</code> and sends a validated <code>*.request</code> payload. Commons cards currently advertise HTTP execute; Commercial cards advertise x402-style routes.</li>
                 <li>Receives a <code>*.receipt</code> shaped by the same Commons or Commercial schemas.</li>
               </ul>
               <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">

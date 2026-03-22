@@ -40,7 +40,7 @@ That is the architectural trust story: open semantics, competitive execution.
 
 ## Commercial note
 
-Commercial currently preserves a commerce-oriented compatibility shape, while Commons is the cleaner canonical model. That structural asymmetry should be understood as a compatibility-preserving product reality, not as a contradiction in the stack.
+Commercial currently preserves a commerce-oriented, payment-aware compatibility shape, while Commons v1.1.0 is the cleaner non-x402 canonical model. That structural asymmetry should be understood as a compatibility-preserving product reality, not as a contradiction in the stack.
 
 ## Related references
 

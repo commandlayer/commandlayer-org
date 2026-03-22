@@ -1,7 +1,7 @@
 {
   "name": "@commandlayer/agent-cards",
   "version": "1.1.0",
-  "description": "Canonical registry index for the CommandLayer Agent Cards v1.1.0 release-candidate repository line.",
+  "description": "Canonical registry index for the CommandLayer Agent Cards v1.1.0 current release line.",
   "repository": "https://github.com/commandlayer/agent-cards",
   "homepage": "https://commandlayer.org/agent-cards",
   "owner": "commandlayer.eth",
@@ -272,12 +272,13 @@
     "legacy_v1_0_0": "archival compatibility only"
   },
   "publication": {
-    "model": "root-canonical-plus-derivative-dist-pin",
-    "canonical_root": "repository-root-artifacts",
-    "discovery_role": ".well-known discovery pointers only",
-    "derivative_bundle": "dist-pin/agent-cards/v1.1.0",
-    "state": "release_candidate_pending_validation",
-    "external_bindings": "unconfirmed_until_validate_release_passes",
+    "state": "published_current_line",
+    "external_bindings": "reflect_current_public_artifacts",
     "checksum_scope": "checksums_txt_covers_root_release_surfaces_only"
-  }
+  },
+  "notes": [
+    "v1.1.0 is the active current line across Commons, Commercial, and Agent Cards.",
+    "Commons cards currently route to the shared HTTP execute surface and do not imply x402 usage.",
+    "Commercial cards remain payment-aware and advertise x402-style entries."
+  ]
 }
