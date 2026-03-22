@@ -1,1288 +1,853 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>CommandLayer Quickstart — Call agents, verify receipts</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta
-    name="description"
-    content="CommandLayer Quickstart: call a live agent runtime, get a signed receipt, and verify it independently. ENS-bound verbs, pinned schemas, reproducible curls."
-  />
-
-  <style>
-    :root {
-      --bg: #05060a;
-      --bg-elevated: #0a0c14;
-      --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
-      --border-soft: rgba(255, 255, 255, 0.06);
-      --border-strong: rgba(255, 255, 255, 0.18);
-      --accent: #c5cbe0;
-      --accent-strong: #e3e7ff;
-      --accent-muted: #8f96b5;
-      --text-main: #f7f8ff;
-      --text-muted: #9ca3c7;
-      --text-soft: #6b7280;
-      --radius-lg: 16px;
-      --radius-xl: 24px;
-      --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
-      --max-width: 1120px;
-
-      /* Extra */
-      --success: rgba(34, 197, 94, 0.9);
-      --warning: rgba(251, 191, 36, 0.95);
-      --danger: rgba(239, 68, 68, 0.9);
-      --panel: rgba(15, 23, 42, 0.95);
-      --panel-2: rgba(2, 6, 23, 0.45);
-      --kbd: rgba(255, 255, 255, 0.08);
-    }
-
-    * { box-sizing: border-box; }
-
-    html, body {
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
-      background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
-      color: var(--text-main);
-    }
-
-    body { min-height: 100vh; }
-
-    a { color: inherit; }
-
-    .page-shell { min-height: 100vh; display: flex; flex-direction: column; }
-    .page-main { flex: 1; }
-
-    .container {
-      width: 100%;
-      max-width: var(--max-width);
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }
-
-    /* Header */
-    .site-header {
-      background: var(--bg-header);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      backdrop-filter: blur(18px);
-    }
-
-    .site-header__inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.9rem 1.5rem;
-      gap: 1rem;
-    }
-
-    .site-header__brand {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      text-decoration: none;
-      color: inherit;
-      min-width: 220px;
-    }
-
-    .site-header__logo-img {
-      width: 28px;
-      height: 28px;
-      object-fit: contain;
-      display: block;
-      border-radius: 6px;
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
-    }
-
-    .site-header__text { display: flex; flex-direction: column; }
-    .site-header__title { font-size: 0.98rem; font-weight: 600; letter-spacing: 0.03em; }
-    .site-header__subtitle { font-size: 0.78rem; color: var(--text-muted); }
-
-    .site-header__nav { display: flex; gap: 1rem; align-items: center; }
-
-    .site-header__link {
-      font-size: 0.86rem;
-      padding: 0.35rem 0.8rem;
-      border-radius: 999px;
-      text-decoration: none;
-      color: var(--text-muted);
-      border: 1px solid transparent;
-      white-space: nowrap;
-    }
-    .site-header__link:hover {
-      color: var(--accent-strong);
-      border-color: rgba(255, 255, 255, 0.18);
-      background: rgba(15, 23, 42, 0.7);
-    }
-    .site-header__link--active {
-      color: #020617;
-      background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-      border-color: rgba(255, 255, 255, 0.25);
-    }
-
-    /* Docs dropdown */
-    .site-header__dropdown { position: relative; }
-    .site-header__dropdown-btn {
-      font-size: 0.86rem;
-      padding: 0.35rem 0.8rem;
-      border-radius: 999px;
-      border: 1px solid transparent;
-      background: transparent;
-      color: var(--text-muted);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      cursor: pointer;
-    }
-    .site-header__dropdown-btn:hover {
-      color: var(--accent-strong);
-      border-color: rgba(255, 255, 255, 0.18);
-      background: rgba(15, 23, 42, 0.7);
-    }
-
-    .site-header__dropdown-menu {
-      position: absolute;
-      top: 2.3rem;
-      right: 0;
-      background: rgba(15, 23, 42, 0.98);
-      border-radius: 14px;
-      border: 1px solid var(--border-soft);
-      box-shadow: var(--shadow-soft);
-      padding: 0.5rem 0.4rem;
-      min-width: 210px;
-      display: none;
-    }
-    .site-header__dropdown-menu a {
-      display: block;
-      padding: 0.35rem 0.7rem;
-      font-size: 0.82rem;
-      text-decoration: none;
-      color: var(--text-muted);
-      border-radius: 999px;
-    }
-    .site-header__dropdown-menu a:hover {
-      color: var(--accent-strong);
-      background: rgba(31, 41, 55, 0.95);
-    }
-    .site-header--docs-open .site-header__dropdown-menu { display: block; }
-
-    /* Mobile toggle */
-    .site-header__toggle {
-      display: none;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.7);
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--text-main);
-      padding: 0.25rem 0.6rem;
-      font-size: 0.9rem;
-      cursor: pointer;
-    }
-    .site-header__toggle:hover { background: rgba(15, 23, 42, 1); }
-
-    /* Hero */
-    .hero {
-      padding: 3.2rem 0 2.8rem;
-      border-bottom: 1px solid var(--border-soft);
-      background: radial-gradient(circle at 0 0, #111827, #020308);
-    }
-
-    .hero__inner {
-      display: grid;
-      grid-template-columns: minmax(0, 1.7fr) minmax(0, 1.1fr);
-      align-items: start;
-      gap: 2.5rem;
-    }
-
-    .hero__eyebrow {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      letter-spacing: 0.14em;
-      color: var(--accent-muted);
-      margin-bottom: 0.8rem;
-    }
-
-    .hero__title {
-      margin: 0 0 0.8rem;
-      font-size: 2.4rem;
-      line-height: 1.1;
-    }
-
-    .hero__title span { display: block; }
-
-    .hero__title-em {
-      background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-
-    .hero__subtitle {
-      margin: 0 0 0.55rem;
-      color: var(--text-muted);
-      font-size: 0.98rem;
-      max-width: 40rem;
-      line-height: 1.7;
-    }
-
-    .hero__tldr {
-      margin: 0.4rem 0 0.9rem;
-      font-size: 0.92rem;
-      color: var(--accent-strong);
-      opacity: 0.95;
-    }
-    .hero__tldr code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.9em;
-    }
-
-    .hero__list {
-      margin: 0.4rem 0 0;
-      padding-left: 1.1rem;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    .hero__cta-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.8rem;
-      margin-top: 1.6rem;
-    }
-
-    .hero__meta {
-      margin-top: 1.3rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.6rem;
-      font-size: 0.8rem;
-      color: var(--text-soft);
-    }
-
-    .hero__meta-pill {
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      padding: 0.18rem 0.55rem;
-    }
-
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.45rem;
-      padding: 0.6rem 1.1rem;
-      border-radius: 999px;
-      font-size: 0.9rem;
-      text-decoration: none;
-      border: 1px solid transparent;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .btn--primary {
-      background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-      color: #020617;
-      border-color: rgba(255, 255, 255, 0.3);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
-    }
-    .btn--primary:hover { filter: brightness(1.03); }
-
-    .btn--ghost {
-      background: rgba(15, 23, 42, 0.9);
-      color: var(--accent-strong);
-      border-color: rgba(148, 163, 184, 0.6);
-    }
-    .btn--ghost:hover { background: rgba(15, 23, 42, 1); }
-
-    .btn__icon { font-size: 1rem; }
-
-    .btn--mini {
-      padding: 0.45rem 0.85rem;
-      font-size: 0.86rem;
-    }
-
-    .hero__card {
-      background: var(--panel);
-      border-radius: var(--radius-xl);
-      padding: 1.4rem 1.4rem 1.6rem;
-      border: 1px solid var(--border-soft);
-      box-shadow: var(--shadow-soft);
-    }
-
-    .hero__card-title {
-      margin: 0 0 0.5rem;
-      font-size: 1.3rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
-    }
-
-    .hero__card-body { margin: 0; font-size: 0.95rem; color: var(--text-main); margin-left: 0.1rem; }
-
-    .hero__card-list {
-      margin: 0.9rem 0 0;
-      padding-left: 1.15rem;
-      font-size: 0.86rem;
-      color: var(--text-muted);
-    }
-
-    /* Sections */
-    .section { padding: 2.8rem 0; }
-
-    .section--muted {
-      background: rgb(6, 9, 18);
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    }
-
-    .section__header { max-width: 52rem; margin-bottom: 1.6rem; }
-    .section__header h2 { margin: 0 0 0.5rem; font-size: 1.4rem; }
-    .section__header p { margin: 0; font-size: 0.95rem; color: var(--text-muted); }
-
-    .grid { display: grid; gap: 1.2rem; }
-    .grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-
-    .info-card {
-      background: var(--panel);
-      padding: 1.1rem;
-      border-radius: var(--radius-lg);
-      border: 1px solid var(--border-soft);
-      font-size: 0.9rem;
-    }
-
-    .info-card h3 { margin: 0 0 0.45rem; font-size: 1rem; }
-    .info-card p { margin: 0; color: var(--text-muted); }
-
-    .info-card code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.86em;
-    }
-
-    .info-card a { color: var(--accent-strong); text-decoration: none; }
-    .info-card a:hover { text-decoration: underline; }
-
-    .divider {
-      margin: 1.1rem 0;
-      border: 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-    }
-
-    /* Mini example */
-    .mini-example {
-      font-size: 0.85rem;
-      background: rgba(15, 23, 42, 0.9);
-      border: 1px solid var(--border-soft);
-      padding: 1rem;
-      border-radius: var(--radius-lg);
-      margin-top: 1.1rem;
-    }
-
-    .mini-example__row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.55rem;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 0.55rem;
-    }
-
-    .mini-example__label { opacity: 0.9; }
-    .mini-example pre {
-      margin: 0;
-      white-space: pre;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.82rem;
-      overflow-x: auto;
-      line-height: 1.45;
-    }
-
-    .mini-example__note {
-      opacity: 0.9;
-      margin-top: 0.7rem;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-    }
-
-    .callouts {
-      margin-top: 1.1rem;
-      display: grid;
-      gap: 0.8rem;
-    }
-
-    .callout {
-      background: var(--panel-2);
-      border: 1px solid rgba(255, 255, 255, 0.09);
-      border-radius: 14px;
-      padding: 0.9rem 0.9rem;
-      font-size: 0.88rem;
-    }
-    .callout strong { color: var(--accent-strong); }
-    .callout code {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 0.86em;
-    }
-
-    .callout--success { border-color: rgba(34, 197, 94, 0.25); }
-    .callout--warning { border-color: rgba(251, 191, 36, 0.22); }
-    .callout--danger  { border-color: rgba(239, 68, 68, 0.22); }
-
-    /* Always-blue links */
-    .cl-blue-link { color: #7ca8ff !important; text-decoration: none; }
-    .cl-blue-link:hover { text-decoration: underline; }
-    .cl-blue-link:visited { color: #7ca8ff !important; }
-
-    /* Sticky mini nav */
-    .quick-nav {
-      position: sticky;
-      top: 64px;
-      z-index: 10;
-      margin-top: -1px;
-      border-top: 1px solid rgba(255, 255, 255, 0.06);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      background: rgba(2, 3, 8, 0.72);
-      backdrop-filter: blur(16px);
-    }
-    .quick-nav__inner {
-      display: flex;
-      gap: 0.55rem;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.65rem 0;
-      flex-wrap: wrap;
-    }
-    .quick-nav__left {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-    .quick-nav__pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.4rem;
-      padding: 0.35rem 0.65rem;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: var(--text-muted);
-      font-size: 0.82rem;
-      text-decoration: none;
-      background: rgba(15, 23, 42, 0.55);
-    }
-    .quick-nav__pill:hover {
-      border-color: rgba(255, 255, 255, 0.22);
-      color: var(--accent-strong);
-      background: rgba(15, 23, 42, 0.75);
-    }
-    .quick-nav__right {
-      display: flex;
-      gap: 0.55rem;
-      flex-wrap: wrap;
-      align-items: center;
-    }
-
-    /* Copy button */
-    .copy-btn {
-      background: rgba(15, 23, 42, 0.85);
-      color: var(--accent-strong);
-      border: 1px solid rgba(148, 163, 184, 0.6);
-      border-radius: 999px;
-      padding: 0.42rem 0.75rem;
-      font-size: 0.82rem;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-    }
-    .copy-btn:hover { background: rgba(15, 23, 42, 1); }
-    .copy-btn:active { transform: translateY(1px); }
-    .copy-btn[disabled] { opacity: 0.6; cursor: not-allowed; }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.35rem;
-      padding: 0.25rem 0.55rem;
-      border-radius: 999px;
-      border: 1px solid rgba(255, 255, 255, 0.14);
-      color: var(--text-muted);
-      font-size: 0.78rem;
-      background: rgba(15, 23, 42, 0.55);
-    }
-    .badge__dot {
-      width: 8px; height: 8px;
-      border-radius: 999px;
-      background: rgba(148, 163, 184, 0.9);
-    }
-    .badge--ok .badge__dot { background: var(--success); }
-    .badge--warn .badge__dot { background: var(--warning); }
-    .badge--err .badge__dot { background: var(--danger); }
-
-    .kbd {
-      display: inline-block;
-      padding: 0.12rem 0.35rem;
-      border-radius: 8px;
-      background: var(--kbd);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono","Courier New", monospace;
-      font-size: 0.82em;
-      color: var(--accent-strong);
-    }
-
-    /* Footer */
-    .site-footer {
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      background: #020308;
-    }
-
-    .site-footer__inner {
-      padding: 1.8rem 1.5rem 2rem;
-      font-size: 0.78rem;
-      color: var(--text-soft);
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-    }
-
-    .site-footer__row {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 2rem;
-    }
-
-    .site-footer__col {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-
-    .site-footer__col-title {
-      font-size: 0.72rem;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-soft);
-      margin-bottom: 0.2rem;
-    }
-
-    .site-footer__cid {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.72rem;
-      color: var(--accent-muted);
-      word-break: break-all;
-    }
-
-    .site-footer__links {
-      display: flex;
-      gap: 0.8rem;
-      margin-top: 0.8rem;
-      padding-top: 0.8rem;
-      border-top: 1px solid var(--border-soft);
-    }
-
-    .site-footer__links a {
-      color: var(--accent);
-      text-decoration: none;
-    }
-
-    .site-footer__links a:hover {
-      text-decoration: underline;
-    }
-
-    /* Mobile */
-    @media (max-width: 880px) {
-      .site-header__inner { padding-inline: 1rem; }
-      .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
-      .site-header__nav {
-        display: none;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-        margin-top: 0.8rem;
-        width: 100%;
-      }
-      .site-header.site-header--open .site-header__nav { display: flex; }
-      .hero__inner { grid-template-columns: minmax(0, 1fr); }
-      .hero__card { margin-top: 1.5rem; }
-      .site-footer__inner { padding-inline: 1rem; }
-      .grid--3 { grid-template-columns: minmax(0, 1fr); }
-
-      .quick-nav { top: 56px; }
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CommandLayer — Quickstart: call an agent, get a receipt, verify it.</title>
+<meta name="description" content="In under 5 minutes: call a live CommandLayer verb endpoint, receive a signed receipt, and verify it cryptographically." />
+<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:       #07090d;
+  --surface:  #0b0f18;
+  --panel:    #101828;
+  --border:   #1b2a3b;
+  --border-hi:#273d54;
+  --text:     #c8d8ea;
+  --dim:      #476080;
+  --dimmer:   #253040;
+  --accent:   #00d4ff;
+  --accent2:  #0099cc;
+  --green:    #00e676;
+  --gold:     #ffd54f;
+  --amber:    #ffb300;
+  --red:      #ff5555;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Syne', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* faint horizontal rule lines across body */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background-image: repeating-linear-gradient(
+    0deg, transparent, transparent 79px, rgba(0,212,255,0.025) 79px, rgba(0,212,255,0.025) 80px
+  );
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,9,13,0.93);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 54px;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text);
+  font-family: var(--sans); font-weight: 800; font-size: 15px; letter-spacing: -0.02em;
+}
+.nav-brand img { width: 26px; height: 26px; }
+.nav-center { display: flex; align-items: center; gap: 4px; list-style: none; }
+.nav-center a {
+  color: var(--dim); text-decoration: none; font-size: 12px;
+  padding: 5px 10px; border-radius: 4px; transition: all 0.15s;
+}
+.nav-center a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.nav-center a.active { color: var(--accent); }
+.nav-dropdown { position: relative; }
+.nav-dropdown-toggle {
+  color: var(--dim); font-size: 12px; font-family: var(--mono);
+  padding: 5px 10px; border-radius: 4px; cursor: pointer;
+  background: none; border: none; display: flex; align-items: center; gap: 4px; transition: color 0.15s;
+}
+.nav-dropdown-toggle:hover { color: var(--text); }
+.nav-dropdown-menu {
+  display: none; position: absolute; top: 100%; left: 0; min-width: 150px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 5px;
+  padding: 6px; margin-top: 4px; z-index: 200;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.nav-dropdown:hover .nav-dropdown-menu { display: flex; flex-direction: column; }
+.nav-dropdown-menu a {
+  color: var(--dim); text-decoration: none; font-size: 12px;
+  padding: 6px 10px; border-radius: 3px; transition: all 0.12s;
+}
+.nav-dropdown-menu a:hover { color: var(--accent); background: rgba(0,212,255,0.06); }
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.nav-github {
+  color: var(--dim); text-decoration: none; font-size: 12px;
+  padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; transition: all 0.15s;
+}
+.nav-github:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── PAGE LAYOUT ── */
+.page-wrap {
+  position: relative; z-index: 1;
+  max-width: 900px; margin: 0 auto;
+  padding: 60px 32px 80px;
+}
+
+/* ── PROGRESS NAV ── */
+.step-nav {
+  display: flex; gap: 0; margin-bottom: 52px;
+  border: 1px solid var(--border); border-radius: 5px; overflow: hidden;
+  background: var(--surface);
+}
+.step-nav-item {
+  flex: 1; padding: 10px 14px; text-align: center; text-decoration: none;
+  font-size: 11px; color: var(--dimmer); border-right: 1px solid var(--border);
+  transition: all 0.15s;
+  display: flex; flex-direction: column; gap: 2px; align-items: center;
+}
+.step-nav-item:last-child { border-right: none; }
+.step-nav-item:hover { background: var(--panel); color: var(--text); }
+.step-nav-item.active { background: rgba(0,212,255,0.07); color: var(--accent); }
+.step-nav-num { font-size: 10px; color: var(--dimmer); }
+.step-nav-item.active .step-nav-num { color: var(--accent); }
+
+/* ── HEADER ── */
+.qs-header { margin-bottom: 48px; }
+.qs-eyebrow {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.runtime-badge {
+  padding: 2px 8px; border-radius: 3px; font-size: 10px;
+  background: rgba(0,230,118,0.1); color: var(--green);
+  border: 1px solid rgba(0,230,118,0.25);
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.runtime-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+.qs-h1 {
+  font-family: var(--sans); font-size: clamp(28px, 4vw, 48px);
+  font-weight: 800; letter-spacing: -0.04em; color: #fff;
+  line-height: 1.05; margin-bottom: 18px;
+}
+.qs-h1 em { color: var(--accent); font-style: normal; }
+
+.qs-sub { font-size: 15px; color: var(--dim); line-height: 1.75; max-width: 600px; margin-bottom: 24px; }
+
+.qs-tldr {
+  background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+  border-radius: 0 4px 4px 0; padding: 12px 16px;
+  font-size: 12px; color: var(--text); line-height: 1.7;
+}
+.qs-tldr code { color: var(--green); }
+
+/* ── STEP SECTIONS ── */
+.qs-step { margin-bottom: 56px; scroll-margin-top: 80px; }
+
+.step-heading {
+  display: flex; align-items: flex-start; gap: 16px;
+  margin-bottom: 20px;
+}
+.step-number {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--sans); font-size: 14px; font-weight: 800;
+  border: 1px solid var(--accent); color: var(--accent);
+  background: rgba(0,212,255,0.07); margin-top: 2px;
+}
+.step-title-wrap {}
+.step-title { font-family: var(--sans); font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: #fff; margin-bottom: 4px; }
+.step-subtitle { font-size: 12px; color: var(--dim); }
+
+.step-body { font-size: 14px; color: var(--dim); line-height: 1.8; margin-bottom: 20px; }
+.step-body strong { color: var(--text); font-weight: 500; }
+.step-body code { color: var(--green); font-size: 12px; }
+.step-body a { color: var(--accent); text-decoration: none; }
+.step-body a:hover { text-decoration: underline; }
+
+/* ── CODE BLOCKS ── */
+.code-block {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 5px; overflow: hidden; margin-bottom: 20px;
+}
+.code-header {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 8px 14px; display: flex; align-items: center; justify-content: space-between;
+}
+.code-lang { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--dimmer); }
+.code-filename { font-size: 11px; color: var(--dim); }
+.btn-copy-code {
+  background: transparent; border: 1px solid var(--border); border-radius: 3px;
+  color: var(--dimmer); font-family: var(--mono); font-size: 10px;
+  padding: 3px 9px; cursor: pointer; transition: all 0.15s;
+}
+.btn-copy-code:hover { border-color: var(--accent); color: var(--accent); }
+.btn-copy-code.copied { border-color: var(--green); color: var(--green); }
+
+pre.code-pre {
+  padding: 16px; font-size: 12px; line-height: 1.75;
+  overflow-x: auto; color: var(--dim);
+}
+pre.code-pre .cmd   { color: var(--green); }
+pre.code-pre .flag  { color: var(--amber); }
+pre.code-pre .url   { color: var(--accent); }
+pre.code-pre .str   { color: #a8d8a8; }
+pre.code-pre .key   { color: var(--accent2); }
+pre.code-pre .val   { color: #ffcc80; }
+pre.code-pre .bool  { color: var(--green); }
+pre.code-pre .cmt   { color: var(--dimmer); }
+pre.code-pre .kw    { color: var(--amber); }
+
+/* ── LIVE RUNNER ── */
+.live-runner {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 5px; overflow: hidden; margin-bottom: 20px;
+}
+.runner-header {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+}
+.runner-title { font-size: 11px; color: var(--dim); }
+.runner-status { font-size: 11px; display: flex; align-items: center; gap: 6px; color: var(--dimmer); }
+.runner-status.running { color: var(--amber); }
+.runner-status.ok      { color: var(--green); }
+.runner-status.err     { color: var(--red); }
+
+.runner-verb-row {
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.verb-label { font-size: 11px; color: var(--dimmer); }
+.verb-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+.verb-pill {
+  padding: 4px 11px; border-radius: 3px; font-size: 11px;
+  border: 1px solid var(--border); color: var(--dim);
+  cursor: pointer; transition: all 0.15s; background: none;
+  font-family: var(--mono);
+}
+.verb-pill:hover { border-color: var(--accent); color: var(--accent); }
+.verb-pill.active { border-color: var(--accent); color: var(--accent); background: rgba(0,212,255,0.08); }
+
+.runner-body { padding: 12px 14px; }
+.runner-input-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
+.runner-input {
+  flex: 1; background: var(--bg); border: 1px solid var(--border); border-radius: 3px;
+  color: var(--text); font-family: var(--mono); font-size: 12px; padding: 8px 10px;
+  outline: none; transition: border-color 0.15s; resize: vertical; min-height: 48px;
+}
+.runner-input:focus { border-color: var(--accent); }
+.runner-input::placeholder { color: var(--dimmer); }
+
+.btn-run {
+  background: var(--accent); color: #06090e; font-family: var(--mono);
+  font-size: 12px; font-weight: 700; padding: 8px 16px; border: none;
+  border-radius: 3px; cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.btn-run:hover { background: #00bcde; }
+.btn-run:disabled { background: var(--dimmer); color: var(--dim); cursor: not-allowed; }
+
+.runner-output {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 3px;
+  padding: 12px; font-size: 11px; color: var(--dimmer);
+  min-height: 60px; white-space: pre-wrap; word-break: break-word; line-height: 1.7;
+  max-height: 280px; overflow-y: auto;
+}
+.runner-output.has-data { color: var(--text); }
+.runner-output .k { color: var(--accent2); }
+.runner-output .s { color: #a8d8a8; }
+.runner-output .n { color: #ffcc80; }
+.runner-output .b { color: var(--green); }
+
+.spin { display: inline-block; width: 10px; height: 10px; border: 1.5px solid var(--dimmer); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── NOTE / CALLOUT ── */
+.callout {
+  border-radius: 4px; padding: 12px 16px;
+  font-size: 12px; line-height: 1.7; margin-bottom: 20px;
+  display: flex; gap: 10px;
+}
+.callout.info { background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.2); color: var(--text); }
+.callout.warn { background: rgba(255,179,0,0.06); border: 1px solid rgba(255,179,0,0.2); color: var(--text); }
+.callout.tip  { background: rgba(0,230,118,0.06); border: 1px solid rgba(0,230,118,0.2); color: var(--text); }
+.callout-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── RECEIPT ANATOMY ── */
+.receipt-anatomy {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 5px; overflow: hidden; margin-bottom: 20px;
+}
+.ra-header {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 8px 14px; display: flex; align-items: center; justify-content: space-between;
+}
+.ra-title { font-size: 11px; color: var(--dim); }
+.ra-badge { font-size: 10px; padding: 2px 8px; border-radius: 3px; background: rgba(0,230,118,0.1); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+.ra-body  { padding: 14px; display: flex; flex-direction: column; gap: 6px; }
+.ra-row   { display: grid; grid-template-columns: 160px 1fr; gap: 8px; align-items: baseline; padding: 5px 0; border-bottom: 1px solid rgba(27,42,59,0.6); }
+.ra-row:last-child { border-bottom: none; }
+.ra-key  { font-size: 11px; color: var(--accent2); }
+.ra-val  { font-size: 11px; color: var(--text); }
+.ra-val.green  { color: var(--green); }
+.ra-val.accent { color: var(--accent); }
+.ra-val.dim    { color: var(--dim); word-break: break-all; }
+.ra-note { font-size: 10px; color: var(--dimmer); margin-top: 2px; }
+
+/* ── DIVIDER ── */
+.section-divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+
+/* ── NEXT STEPS ── */
+.next-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-top: 24px; }
+.next-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 5px;
+  padding: 18px; text-decoration: none; transition: all 0.2s; display: block;
+}
+.next-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.nc-label { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--accent); margin-bottom: 6px; }
+.nc-title { font-family: var(--sans); font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+.nc-body  { font-size: 11px; color: var(--dim); line-height: 1.6; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border); padding: 20px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: var(--dimmer); flex-wrap: wrap; gap: 10px;
+}
+footer a { color: var(--dim); text-decoration: none; transition: color 0.15s; }
+footer a:hover { color: var(--accent); }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+</style>
 </head>
-
 <body>
-  <div class="page-shell">
-    <!-- HEADER -->
-    <header class="site-header" role="banner">
-      <div class="site-header__inner container">
-        <a href="/" class="site-header__brand">
-          <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-          <div class="site-header__text">
-            <span class="site-header__title">CommandLayer</span>
-            <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
-          </div>
-        </a>
 
-        <!-- Mobile toggle -->
-        <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-
-        <nav class="site-header__nav">
-          <a href="/" class="site-header__link">Home</a>
-          <a href="/composer.html" class="site-header__link">Demo</a>
-          <a href="/quickstart.html" class="site-header__link site-header__link--active">Quickstart</a>
-
-          <div class="site-header__dropdown">
-            <button class="site-header__dropdown-btn" type="button">
-            Docs &#9662;
-            </button>
-            <div class="site-header__dropdown-menu">
-            <a href="/commons.html">Commons</a>
-            <a href="/commercial.html">Commercial</a>
-            <a href="/agent-cards.html">Agent Cards</a>
-            <a href="/runtime.html">Runtime</a>
-            </div>
-          </div>
-
-          <a
-          href="https://github.com/commandlayer"
-          class="site-header__link"
-          target="_blank"
-          rel="noopener noreferrer"
-          >
-          GitHub
-          </a>
-        </nav>
+<!-- NAV -->
+<nav>
+  <a href="https://www.commandlayer.org/" class="nav-brand">
+    <img src="https://www.commandlayer.org/icon2.png" alt="CommandLayer logo" />
+    CommandLayer
+  </a>
+  <ul class="nav-center">
+    <li><a href="https://www.commandlayer.org/">Home</a></li>
+    <li><a href="https://www.commandlayer.org/composer.html">Demo</a></li>
+    <li><a href="https://www.commandlayer.org/quickstart.html" class="active">Quickstart</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle">Docs ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="https://www.commandlayer.org/commons.html">Commons</a>
+        <a href="https://www.commandlayer.org/commercial.html">Commercial</a>
+        <a href="https://www.commandlayer.org/agent-cards.html">Agent Cards</a>
+        <a href="https://www.commandlayer.org/runtime.html">Runtime</a>
       </div>
-    </header>
+    </li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a>
+  </div>
+</nav>
 
-    <!-- Sticky mini nav (fast scanning) -->
-    <div class="quick-nav" role="navigation" aria-label="Quickstart sections">
-      <div class="container quick-nav__inner">
-        <div class="quick-nav__left">
-          <a class="quick-nav__pill" href="#call">⚡ Call</a>
-          <a class="quick-nav__pill" href="#receipt">🧾 Receipt</a>
-          <a class="quick-nav__pill" href="#resolve">🔎 Resolve</a>
-          <a class="quick-nav__pill" href="#verify">✅ Verify</a>
-          <a class="quick-nav__pill" href="#download">⬇️ Download</a>
-        </div>
+<!-- MAIN -->
+<div class="page-wrap">
 
-        <div class="quick-nav__right">
-          <span class="badge" id="healthBadge" title="Runtime health (best-effort)">
-            <span class="badge__dot"></span>
-            <span id="healthText">Runtime: checking…</span>
-          </span>
-          <a class="btn btn--ghost btn--mini" href="/composer.html"><span class="btn__icon">🧩</span><span>Flow demo</span></a>
-        </div>
+  <!-- STEP NAV -->
+  <div class="step-nav">
+    <a href="#call"     class="step-nav-item active"><span class="step-nav-num">01</span>Call</a>
+    <a href="#receipt"  class="step-nav-item"><span class="step-nav-num">02</span>Receipt</a>
+    <a href="#resolve"  class="step-nav-item"><span class="step-nav-num">03</span>Resolve</a>
+    <a href="#verify"   class="step-nav-item"><span class="step-nav-num">04</span>Verify</a>
+    <a href="#nextsteps" class="step-nav-item"><span class="step-nav-num">→</span>Next</a>
+  </div>
+
+  <!-- HEADER -->
+  <div class="qs-header">
+    <div class="qs-eyebrow">
+      ▸ quickstart
+      <span class="runtime-badge"><span class="runtime-dot"></span><span id="runtimeLabel">checking runtime…</span></span>
+    </div>
+    <h1 class="qs-h1">Call an agent.<br />Get a receipt.<br /><em>Verify it.</em></h1>
+    <p class="qs-sub">
+      Under 5 minutes. Live runtime. Real Ed25519 signatures. CommandLayer standardizes <em>what agents do</em> by pinning request/receipt schemas to canonical ENS names. You keep the same contract as runtimes, facilitators, and payment rails evolve.
+    </p>
+    <div class="qs-tldr">
+      <strong>TL;DR:</strong> call <code>POST /clean/v1.1.0</code> → get <code>{ receipt, runtime_metadata? }</code> → treat <code>receipt</code> as the canonical contract and <code>runtime_metadata</code> as optional.
+    </div>
+  </div>
+
+  <!-- STEP 1: CALL -->
+  <div class="qs-step" id="call">
+    <div class="step-heading">
+      <div class="step-number">1</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Call a live agent runtime</div>
+        <div class="step-subtitle">POST to a Commons verb endpoint and get back a signed receipt</div>
       </div>
     </div>
 
-    <main class="page-main">
-      <!-- HERO -->
-      <section class="hero">
-        <div class="container hero__inner">
-          <div>
-            <div class="hero__eyebrow">5 minutes · live runtime · verifiable receipts</div>
-            <h1 class="hero__title">
-              <span>Quickstart:</span>
-              <span class="hero__title-em">call an agent, get a receipt, verify it.</span>
-            </h1>
+    <p class="step-body">
+      This is a <strong>real runtime endpoint.</strong> Send the pinned Commons request shape and get back a canonical receipt. Start with <code>clean</code> — it's deterministic, making verification feel real on the first run.
+    </p>
 
-            <p class="hero__subtitle">
-              CommandLayer standardizes <em>what agents do</em> by pinning request/receipt schemas to canonical ENS names.
-              You keep the same contract as runtimes, facilitators, and payment rails evolve.
-            </p>
+    <div class="callout tip">
+      <span class="callout-icon">💡</span>
+      <span><strong>Why <code>clean</code> first?</strong> It's deterministic. The output is predictable so you can confirm the hash, the signature, and the receipt shape without chasing AI output variance. Try <code>summarize</code> or <code>analyze</code> after your first verified receipt.</span>
+    </div>
 
-            <p class="hero__tldr">
-              TL;DR: call <code>POST /clean/v1.1.0</code> → get <code>{ receipt, runtime_metadata? }</code> → treat <code>receipt</code> as the canonical contract and <code>runtime_metadata</code> as optional.
-            </p>
-
-            <ul class="hero__list">
-              <li>Pick a verb (start with deterministic <code>clean</code>), call the runtime endpoint.</li>
-              <li>Receive <code>receipt</code> as the canonical Commons receipt: top-level verb identity, status, and verb-specific output fields. Treat <code>runtime_metadata</code> as optional and separate.</li>
-              <li>Verify: hash → signature (full verification adds schema + key resolution).</li>
-            </ul>
-
-            <div class="hero__cta-row">
-              <a href="#call" class="btn btn--primary"><span class="btn__icon">⚡</span><span>Run the curl</span></a>
-              <a href="#verify" class="btn btn--ghost"><span class="btn__icon">✅</span><span>Verify cryptographically</span></a>
-              <a href="#download" class="btn btn--ghost"><span class="btn__icon">⬇️</span><span>Download</span></a>
-            </div>
-
-            <div class="hero__meta">
-              <span class="hero__meta-pill">Commons v1.1.0 is the builder default</span>
-              <span class="hero__meta-pill">ENS-bound verbs</span>
-              <span class="hero__meta-pill">Schemas pinned to IPFS + checksums</span>
-              <span class="hero__meta-pill">Runtime live: runtime.commandlayer.org</span>
-              <span class="hero__meta-pill">Receipts: Ed25519 + SHA-256</span>
-            </div>
-          </div>
-
-          <aside class="hero__card">
-            <h2 class="hero__card-title">What you’ll accomplish</h2>
-            <p class="hero__card-body">
-              In under 5 minutes you’ll make a real request to a CommandLayer runtime, receive a signed receipt,
-              and confirm the receipt is valid.
-            </p>
-            <ol class="hero__card-list">
-              <li>Call <code>POST /clean/v1.1.0</code> with the pinned Commons request shape.</li>
-              <li>Inspect <code>receipt</code> first: <code>verb</code>, <code>schema_version</code>, <code>status</code>, and the verb-specific output fields.</li>
-              <li>Then inspect <code>runtime_metadata</code> only if your executor adds it.</li>
-              <li>Resolve: use ENS TXT records to discover schema URLs &amp; entry. Commons currently resolves to HTTP runtime execution; Commercial remains the payment-aware line.</li>
-            </ol>
-
-            <div class="mini-example">
-              <div class="mini-example__row">
-                <div class="mini-example__label">// live health check</div>
-                <button class="copy-btn" type="button" data-copy="curl -sS https://runtime.commandlayer.org/health">📋 Copy</button>
-              </div>
-              <pre>curl -sS https://runtime.commandlayer.org/health</pre>
-              <div class="mini-example__note">
-                Want to see the flow composer? <a class="cl-blue-link" href="/composer.html">Live demo →</a>
-              </div>
-            </div>
-
-            <div class="callouts" aria-label="Quickstart notes">
-              <div class="callout callout--success">
-                <strong>Why <code>clean</code> first?</strong><br/>
-                It’s deterministic. That makes verification feel real on the first run.
-              </div>
-              <div class="callout callout--warning">
-                <strong>Want AI output?</strong><br/>
-                Try <code>summarize</code> or <code>analyze</code> after you’ve verified one deterministic receipt.
-              </div>
-              <div class="callout">
-                <strong>Threat model (important):</strong><br/>
-                This proves <em>the runtime</em> produced <em>this receipt</em> for <em>this request</em> — it does not prove the result is “true,” only that it is attributable.
-              </div>
-            </div>
-          </aside>
+    <!-- Live runner -->
+    <div class="live-runner">
+      <div class="runner-header">
+        <span class="runner-title">▶ Live Runtime Runner</span>
+        <span class="runner-status" id="runnerStatus">idle</span>
+      </div>
+      <div class="runner-verb-row">
+        <span class="verb-label">verb:</span>
+        <div class="verb-pills">
+          <button class="verb-pill active" onclick="selectVerb('clean', this)">clean</button>
+          <button class="verb-pill" onclick="selectVerb('summarize', this)">summarize</button>
+          <button class="verb-pill" onclick="selectVerb('analyze', this)">analyze</button>
+          <button class="verb-pill" onclick="selectVerb('classify', this)">classify</button>
+          <button class="verb-pill" onclick="selectVerb('format', this)">format</button>
+          <button class="verb-pill" onclick="selectVerb('parse', this)">parse</button>
         </div>
-      </section>
+      </div>
+      <div class="runner-body">
+        <div class="runner-input-row">
+          <textarea class="runner-input" id="runnerInput" placeholder="Input text…">   hello   world   this is CommandLayer   </textarea>
+          <button class="btn-run" id="runnerBtn" onclick="runVerb()">Run →</button>
+        </div>
+        <div class="runner-output" id="runnerOutput">// click Run → to execute against the live runtime</div>
+      </div>
+    </div>
 
-      <!-- STEP 1 -->
-      <section class="section section--muted" id="call">
-        <div class="container">
-          <div class="section__header">
-            <h2>Step 1 — Call a live agent runtime</h2>
-            <p>
-              This is a real runtime endpoint. You send the pinned Commons request shape and get back a receipt that should still teach the Commons minimum contract first. Runtime-specific execution metadata may be attached on top.
-            </p>
-          </div>
-
-          <article class="info-card">
-            <h3>Copy/paste curl</h3>
-            <p style="margin-top:0.4rem;">
-              Start with: <code>clean</code> (Commons v1.1.0, deterministic)
-            </p>
-
-            <div class="mini-example" id="curlBox">
-              <div class="mini-example__row">
-                <div class="mini-example__label">// request</div>
-                <button class="copy-btn" type="button" id="copyCurlBtn">📋 Copy curl</button>
-              </div>
-              <pre id="curlPre">curl -sS --max-time 20 \
-  -X POST 'https://runtime.commandlayer.org/clean/v1.1.0' \
-  -H 'Content-Type: application/json' \
-  --data-binary '{
+    <!-- cURL equivalent -->
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">shell</span>
+        <span class="code-filename">copy/paste cURL</span>
+        <button class="btn-copy-code" onclick="copyCode('curl1', this)">copy</button>
+      </div>
+      <pre class="code-pre" id="curl1"><span class="cmd">curl</span> <span class="flag">-sS --max-time 20</span> \
+  <span class="flag">-X</span> POST <span class="url">'https://runtime.commandlayer.org/clean/v1.1.0'</span> \
+  <span class="flag">-H</span> <span class="str">'Content-Type: application/json'</span> \
+  <span class="flag">--data-binary</span> <span class="str">'{
     "verb": "clean",
     "schema_version": "1.1.0",
     "content": "   hello   world  ",
     "operations": ["collapse_whitespace", "trim"]
-  }'</pre>
-              <div class="mini-example__note">
-                Tip: start with the flat canonical request body above. If your runtime later adds <code>runtime_metadata</code> for tracing or proof, treat that as execution context rather than part of the Commons contract.
-              </div>
-            </div>
+  }'</span></pre>
+    </div>
 
-            <p style="margin-top:0.7rem;">
-              After you’ve verified one deterministic receipt, try something more interpretive (e.g. <code>summarize</code> or <code>analyze</code>).
-              See the Commons list: <a class="cl-blue-link" href="/commons.html">Commons →</a>
-            </p>
-
-            <div class="callouts">
-              <div class="callout callout--warning">
-                <strong>If you see a 503</strong>, retry. The runtime may be warming or rate-limiting.<br/>
-                Tip: run the health check first: <code>curl -sS https://runtime.commandlayer.org/health</code>
-              </div>
-              <div class="callout callout--danger">
-                <strong>If you get “schema mismatch”</strong>, your body doesn’t match the pinned request schema for that verb/version.
-                Use a verb you know is enabled (start with <code>clean</code> or <code>parse</code>).
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <!-- STEP 2 -->
-      <section class="section" id="receipt">
-        <div class="container">
-          <div class="section__header">
-            <h2>Step 2 — Understand the receipt</h2>
-            <p>
-              Commons defines the minimum verifiable receipt contract. Start with <code>receipt</code>, then treat <code>runtime_metadata</code> as an optional execution layer.
-            </p>
-          </div>
-
-          <div class="grid grid--3">
-            <article class="info-card">
-              <h3>Identity</h3>
-              <p>
-                Canonical receipts carry their own top-level identity such as <code>verb</code>, <code>schema_version</code>, and <code>status</code> so callers can validate the contract without learning any runtime wrapper first.
-              </p>
-            </article>
-
-            <article class="info-card">
-              <h3>Runtime details</h3>
-              <p>
-                Runtimes may attach orchestration data such as <code>trace</code>, timing, or provider labels. That helps with chaining and observability, but it is runtime-specific context rather than the first thing to learn from the Commons contract.
-              </p>
-            </article>
-
-            <article class="info-card">
-              <h3>Optional proof layer</h3>
-              <p>
-                Some runtimes attach detached proof material under <code>runtime_metadata.proof</code>. That evidence is useful, but it is optional and does not change the canonical Commons receipt.
-              </p>
-            </article>
-          </div>
-
-          <article class="info-card" style="margin-top:1.2rem;">
-            <h3>Canonical Commons receipt (first shape to learn)</h3>
-            <div class="mini-example">
-              <div class="mini-example__row">
-                <div class="mini-example__label">// canonical Commons receipt</div>
-                <button class="copy-btn" type="button" data-copy='{"verb":"clean","schema_version":"1.1.0","status":"success","cleaned_content":"hello world","operations_applied":["collapse_whitespace","trim"]}'>📋 Copy</button>
-              </div>
-              <pre>{
-  "verb": "clean",
-  "schema_version": "1.1.0",
-  "status": "success",
-  "cleaned_content": "hello world",
-  "operations_applied": ["collapse_whitespace", "trim"]
-}</pre>
-            </div>
-
-            <div class="callouts">
-              <div class="callout callout--success">
-                <strong>Layering note:</strong> the JSON above is the minimum receipt model this quickstart should teach first. If your runtime returns <code>runtime_metadata</code>, treat it as optional execution-layer context around the receipt.
-              </div>
-            </div>
-
-            <p style="margin-top:0.7rem;">
-              Receipt schemas are public and pinned:
-              <a class="cl-blue-link" href="/commons.html">Schemas index →</a>
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <!-- STEP 3 -->
-      <section class="section section--muted" id="resolve">
-        <div class="container">
-          <div class="section__header">
-            <h2>Step 3 — Resolve schemas, entry, and keys via ENS</h2>
-            <p>
-              Each agent publishes machine-readable TXT records. That’s how discovery tools and clients find
-              the canonical entrypoint, schema URLs, and (optionally) receipt verification keys. For Commons v1.1.0, that entry is currently the shared HTTP execute surface rather than an x402 URI.
-            </p>
-          </div>
-
-          <article class="info-card">
-            <h3>Example ENS TXT records (typical)</h3>
-            <div class="mini-example">
-              <div class="mini-example__row">
-                <div class="mini-example__label">// TXT records</div>
-                <button class="copy-btn" type="button" data-copy="cl.verb                    clean
-cl.version                 1.1.0
-cl.class                   commons
-cl.entry                   https://runtime.commandlayer.org/execute
-cl.schema.request          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.request.schema.json
-cl.schema.receipt          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.receipt.schema.json
-cl.cid.schemas             bafy...
-cl.schemas.mirror.ipfs     ipfs://bafy...
-cl.schemas.checksums.ipfs  ipfs://.../schemas.v1.1.0.checksums.txt
-cl.agentcard               https://commandlayer.org/agent-cards/agents/v1.1.0/...
-cl.cid.agentcards          bafy...
-cl.owner                   commandlayer.eth
-cl.receipt.alg             ed25519
-cl.receipt.signer_id       runtime.commandlayer.eth
-cl.receipt.pubkey_b64      ...">📋 Copy</button>
-              </div>
-              <pre>cl.verb                    clean
-cl.version                 1.1.0
-cl.class                   commons
-cl.entry                   https://runtime.commandlayer.org/execute
-cl.schema.request          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.request.schema.json
-cl.schema.receipt          https://commandlayer.org/schemas/v1.1.0/commons/clean/clean.receipt.schema.json
-cl.cid.schemas             bafy...
-cl.schemas.mirror.ipfs     ipfs://bafy...
-cl.schemas.checksums.ipfs  ipfs://.../schemas.v1.1.0.checksums.txt
-cl.agentcard               https://commandlayer.org/agent-cards/agents/v1.1.0/...
-cl.cid.agentcards          bafy...
-cl.owner                   commandlayer.eth
-cl.receipt.alg             ed25519
-cl.receipt.signer_id       runtime.commandlayer.eth
-cl.receipt.pubkey_b64      ...</pre>
-            </div>
-
-            <p style="margin-top:0.7rem;">
-              Agent Cards provide a higher-level descriptor (capabilities + schema set + routing hints):
-              <a class="cl-blue-link" href="/agent-cards.html">Agent Cards →</a>
-            </p>
-
-            <div class="callouts">
-              <div class="callout callout--success">
-                <strong>Key discovery:</strong> your verifier needs a public key. Publish it in ENS TXT
-                (e.g. <code>cl.receipt.pubkey_b64</code>) or in the Agent Card, as long as it’s stable and owned by the ENS name.
-              </div>
-              <div class="callout callout--warning">
-                <strong>Reality check:</strong> if you don’t publish keys yet, don’t claim “independent verification” without saying where the key comes from.
-                Publish the key, then make the claim.
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <!-- STEP 4 -->
-      <section class="section" id="verify">
-        <div class="container">
-          <div class="section__header">
-            <h2>Step 4 — Verify a receipt (Node.js)</h2>
-            <p>
-              If your runtime includes a proof block, verification should be boring and deterministic: <strong>hash → signature</strong>. Full verification adds: <strong>schema validation</strong> + <strong>key resolution</strong>.
-            </p>
-          </div>
-
-          <article class="info-card">
-            <h3>Install dependencies</h3>
-            <p style="margin-top:0.25rem; color: var(--text-muted);">
-              Lightweight crypto primitives for Ed25519 verification (no blockchain dependency).
-            </p>
-            <div class="mini-example">
-              <div class="mini-example__row">
-                <div class="mini-example__label">// npm</div>
-                <button class="copy-btn" type="button" data-copy="npm install tweetnacl tweetnacl-util">📋 Copy</button>
-              </div>
-              <pre>npm install tweetnacl tweetnacl-util</pre>
-            </div>
-
-            <hr class="divider" />
-
-            <h3>Verify code (minimal: hash → signature)</h3>
-            <div class="mini-example">
-              <div class="mini-example__row">
-                <div class="mini-example__label">// verifyReceiptMinimal.js</div>
-                <button class="copy-btn" type="button" id="copyVerifyBtn">📋 Copy code</button>
-              </div>
-              <pre id="verifyPre">import nacl from "tweetnacl";
-import { decodeBase64 } from "tweetnacl-util";
-import crypto from "crypto";
-
-function canonicalize(value) {
-  if (Array.isArray(value)) return `[${value.map(canonicalize).join(",")}]`;
-  if (value && typeof value === "object") {
-    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalize(value[key])}`).join(",")}}`;
-  }
-  return JSON.stringify(value);
-}
-
-/**
- * Minimal receipt verification:
- * 1) take the canonical receipt from envelope.receipt
- * 2) canonicalize receipt bytes deterministically
- * 3) hash sha256 over those canonical bytes
- * 4) verify the detached Ed25519 signature from runtime_metadata.proof
- */
-export function verifyReceiptMinimal(envelope, publicKeyBytes) {
-  const receipt = envelope?.receipt || envelope;
-  const proof = envelope?.runtime_metadata?.proof;
-  if (!proof?.signature_b64 || !proof?.hash_sha256) return { ok: false, reason: "missing detached proof" };
-
-  const canonical = canonicalize(receipt);
-  const hashHex = crypto.createHash("sha256").update(canonical, "utf8").digest("hex");
-  if (hashHex !== proof.hash_sha256) return { ok: false, reason: "hash mismatch" };
-
-  const hashBytes = Buffer.from(proof.hash_sha256, "hex");
-  const sigBytes = decodeBase64(proof.signature_b64);
-  const ok = nacl.sign.detached.verify(hashBytes, sigBytes, publicKeyBytes);
-  return ok ? { ok: true } : { ok: false, reason: "signature invalid" };
-}</pre>
-            </div>
-
-            <p style="margin-top:0.7rem;">
-              Full verifier (schema validation + ENS/Agent Card key resolution):
-              <a class="cl-blue-link" href="/runtime.html">Runtime →</a>
-            </p>
-
-            <div class="callouts">
-              <div class="callout callout--success">
-                <strong>Canonicalization note:</strong> the digest is computed from the canonical receipt only. Runtime metadata stays outside the hash so detached proof never changes receipt meaning.
-              </div>
-              <div class="callout">
-                <strong>Schema validation:</strong> if you want “schema → hash → signature” as a single script,
-                link a reference verifier file (Node) that uses AJV + your published schema URLs.
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <!-- NEXT -->
-      <section class="section section--muted" id="next">
-        <div class="container">
-          <div class="section__header">
-            <h2>Next steps</h2>
-            <p>
-              Once you can call one verb and verify one receipt, you can scale to flows and registries.
-              The contract stays stable; execution changes.
-            </p>
-          </div>
-
-          <div class="grid grid--3">
-            <article class="info-card">
-              <h3>Try a flow</h3>
-              <p>
-                Compose multiple verbs and inspect receipts per-step.
-                <a class="cl-blue-link" href="/composer.html">Live Demo →</a>
-              </p>
-            </article>
-
-            <article class="info-card">
-              <h3>Browse schemas</h3>
-              <p>
-                All schemas are pinned, checksummed, and public.
-                <a class="cl-blue-link" href="/commons.html">Schemas →</a>
-              </p>
-            </article>
-
-            <article class="info-card">
-              <h3>Publish an Agent Card</h3>
-              <p>
-                Describe capabilities so discovery tools can route to you.
-                <a class="cl-blue-link" href="/agent-cards.html">Agent Cards →</a>
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <!-- DOWNLOAD -->
-      <section class="section" id="download">
-        <div class="container">
-          <div class="section__header">
-            <h2>Download</h2>
-            <p>
-              If you want builders to download this quickstart (and you to share a stable file),
-              publish it as a static asset with a direct link.
-            </p>
-          </div>
-
-          <article class="info-card">
-            <h3>Recommended downloads</h3>
-            <p style="margin-top:0.4rem;">
-              1) HTML (this page) — easy to mirror and share<br/>
-              2) Sample receipt JSON — gives skeptics something real to diff &amp; verify
-            </p>
-
-            <div class="mini-example">
-              <div class="mini-example__row">
-                <div class="mini-example__label">// direct download links (you will host these)</div>
-                <button class="copy-btn" type="button" data-copy="HTML:          https://commandlayer.org/quickstart.html
-Sample receipt: https://commandlayer.org/assets/receipts/clean.quickstart.v1.1.0.json">📋 Copy</button>
-              </div>
-              <pre>HTML:          https://commandlayer.org/quickstart.html
-Sample receipt: https://commandlayer.org/assets/receipts/clean.quickstart.v1.1.0.json</pre>
-            </div>
-
-            <p style="margin-top:0.7rem;">
-              If you want the browser to force a download, you can also provide an anchor with the
-              <code>download</code> attribute (works best for same-origin files).
-            </p>
-
-            <div class="mini-example">
-              <div class="mini-example__row">
-                <div class="mini-example__label">// download anchors</div>
-                <button class="copy-btn" type="button" data-copy='<a class="cl-blue-link" href="/quickstart.html" download>Download Quickstart (HTML)</a>
-<a class="cl-blue-link" href="/assets/receipts/clean.quickstart.v1.1.0.json" download>Download Sample Receipt (JSON)</a>'>📋 Copy</button>
-              </div>
-              <pre>&lt;a class="cl-blue-link" href="/quickstart.html" download&gt;Download Quickstart (HTML)&lt;/a&gt;
-&lt;a class="cl-blue-link" href="/assets/receipts/clean.quickstart.v1.1.0.json" download&gt;Download Sample Receipt (JSON)&lt;/a&gt;</pre>
-            </div>
-
-            <p style="margin-top:0.7rem; color: var(--text-muted);">
-              For PDFs: generate once, commit it, and serve it as a static file. Don’t generate PDFs dynamically.
-            </p>
-          </article>
-        </div>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-        <div class="container site-footer__inner" style="align-items: center; text-align: center;">
-          <div class="site-footer__cid">Commons v1.1.0 &middot; Commercial v1.1.0 &middot; Agent Cards v1.1.0 &middot; ERC-8004 registered</div>
-          <div class="site-footer__links" style="justify-content: center;">
-            <a href="/docs.html">Docs</a>
-            <a href="/repositories.html">Repositories</a>
-            <a href="/faq.html">FAQ</a>
-            <a href="/about.html">About</a>
-            <a href="/licensing.html">Licensing</a>
-          </div>
-        </div>
-      </footer>
+    <div class="callout warn">
+      <span class="callout-icon">⚠</span>
+      <span>If you see a <strong>503</strong>, retry — the runtime may be warming. Run <code>curl https://runtime.commandlayer.org/health</code> first to confirm availability.</span>
+    </div>
   </div>
 
-  <script>
-    (function () {
-      const header = document.querySelector(".site-header");
-      const toggle = document.querySelector(".site-header__toggle");
-      const docsBtn = document.querySelector(".site-header__dropdown-btn");
-      const dropdown = document.querySelector(".site-header__dropdown");
-      const nav = document.querySelector(".site-header__nav");
+  <hr class="section-divider" />
 
-      const healthBadge = document.getElementById("healthBadge");
-      const healthText = document.getElementById("healthText");
+  <!-- STEP 2: RECEIPT -->
+  <div class="qs-step" id="receipt">
+    <div class="step-heading">
+      <div class="step-number">2</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Understand the receipt</div>
+        <div class="step-subtitle">The canonical contract — learn this shape before anything else</div>
+      </div>
+    </div>
 
-      function setDocsOpen(open) {
-        if (!header || !docsBtn) return;
-        header.classList.toggle("site-header--docs-open", !!open);
-        docsBtn.setAttribute("aria-expanded", open ? "true" : "false");
-      }
+    <p class="step-body">
+      Commons defines the <strong>minimum verifiable receipt contract.</strong> Start with <code>receipt</code> first. Treat <code>runtime_metadata</code> as optional execution context that never changes the canonical shape.
+    </p>
 
-      function setNavOpen(open) {
-        if (!header || !toggle) return;
-        header.classList.toggle("site-header--open", !!open);
-        toggle.setAttribute("aria-expanded", open ? "true" : "false");
-      }
+    <div class="receipt-anatomy">
+      <div class="ra-header">
+        <span class="ra-title">canonical Commons receipt · clean v1.1.0</span>
+        <span class="ra-badge">first shape to learn</span>
+      </div>
+      <div class="ra-body">
+        <div class="ra-row">
+          <span class="ra-key">"verb"</span>
+          <div>
+            <div class="ra-val accent">"clean"</div>
+            <div class="ra-note">verb identity — always present, always first</div>
+          </div>
+        </div>
+        <div class="ra-row">
+          <span class="ra-key">"schema_version"</span>
+          <div>
+            <div class="ra-val">"1.1.0"</div>
+            <div class="ra-note">pinned contract version — stable across runtimes</div>
+          </div>
+        </div>
+        <div class="ra-row">
+          <span class="ra-key">"status"</span>
+          <div>
+            <div class="ra-val green">"success"</div>
+            <div class="ra-note">execution result — validate this before trusting output</div>
+          </div>
+        </div>
+        <div class="ra-row">
+          <span class="ra-key">"cleaned_content"</span>
+          <div>
+            <div class="ra-val">"hello world"</div>
+            <div class="ra-note">verb-specific output field — unique to each verb</div>
+          </div>
+        </div>
+        <div class="ra-row">
+          <span class="ra-key">"operations_applied"</span>
+          <div>
+            <div class="ra-val dim">["collapse_whitespace", "trim"]</div>
+            <div class="ra-note">echoed back so you can verify what ran</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-      // Mobile nav toggle
-      if (toggle && header) {
-        toggle.addEventListener("click", () => {
-          const isOpen = header.classList.toggle("site-header--open");
-          toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-          if (isOpen) setDocsOpen(false);
-        });
-      }
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">json</span>
+        <span class="code-filename">canonical receipt (what you read first)</span>
+        <button class="btn-copy-code" onclick="copyCode('receipt1', this)">copy</button>
+      </div>
+      <pre class="code-pre" id="receipt1">{
+  <span class="key">"verb"</span>: <span class="str">"clean"</span>,
+  <span class="key">"schema_version"</span>: <span class="str">"1.1.0"</span>,
+  <span class="key">"status"</span>: <span class="str">"success"</span>,
+  <span class="key">"cleaned_content"</span>: <span class="str">"hello world"</span>,
+  <span class="key">"operations_applied"</span>: [<span class="str">"collapse_whitespace"</span>, <span class="str">"trim"</span>]
+}</pre>
+    </div>
 
-      // Docs dropdown toggle
-      if (docsBtn && header) {
-        docsBtn.addEventListener("click", (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          const willOpen = !header.classList.contains("site-header--docs-open");
-          setDocsOpen(willOpen);
-        });
-      }
+    <div class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <span><strong>Layering note:</strong> if your runtime returns <code>runtime_metadata</code>, treat it as optional execution-layer context around the receipt. The canonical receipt above is the only shape you need to validate the Commons contract.</span>
+    </div>
+  </div>
 
-      // Close docs dropdown on outside click
-      document.addEventListener("click", (e) => {
-        const isOpen = header?.classList.contains("site-header--docs-open");
-        if (!isOpen) return;
-        if (dropdown && dropdown.contains(e.target)) return;
-        setDocsOpen(false);
+  <hr class="section-divider" />
+
+  <!-- STEP 3: RESOLVE -->
+  <div class="qs-step" id="resolve">
+    <div class="step-heading">
+      <div class="step-number">3</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Resolve via ENS</div>
+        <div class="step-subtitle">Discover schemas, entrypoints, and signing keys — live example: fetchagent.eth</div>
+      </div>
+    </div>
+
+    <p class="step-body">
+      Each agent publishes machine-readable ENS TXT records. That's how discovery tools and clients find the canonical entrypoint, schema URLs, and receipt verification keys. For Commons v1.1.0, entry is the shared HTTP execute surface.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">ens · etherscan</span>
+        <span class="code-filename">ENS TXT records · fetchagent.eth (live on Etherscan)</span>
+        <button class="btn-copy-code" onclick="copyCode('ens1', this)">copy</button>
+      </div>
+      <pre class="code-pre" id="ens1"><span class="cmt"># live ENS records · fetchagent.eth (15 TXT + 1 address)</span>
+
+<span class="cmt"># verb identity</span>
+<span class="key">cl.verb</span>                        <span class="str">fetch</span>
+<span class="key">cl.version</span>                     <span class="str">1.1.0</span>
+<span class="key">cl.class</span>                       <span class="str">commons</span>
+
+<span class="cmt"># entrypoint</span>
+<span class="key">cl.entry</span>                       <span class="url">https://runtime.commandlayer.org/execute</span>
+
+<span class="cmt"># schemas (HTTP mirror)</span>
+<span class="key">cl.schema.request</span>              <span class="url">https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.request.schema.json</span>
+<span class="key">cl.schema.receipt</span>              <span class="url">https://commandlayer.org/schemas/v1.1.0/commons/fetch/fetch.receipt.schema.json</span>
+
+<span class="cmt"># schemas (IPFS — immutable, content-addressed)</span>
+<span class="key">cl.cid.schemas</span>                 <span class="str">bafybeifp4oxgofktbqh5tua2xrpsb5gfrktrtesqxq67i2tefavqxjpxb4</span>
+<span class="key">cl.schemas.mirror.ipfs</span>         <span class="url">ipfs://bafybeifp4oxgofktbqh5tua2xrpsb5gfrktrtesqxq67i2tefavqxjpxb4</span>
+<span class="key">cl.schemas.checksums.ipfs</span>      <span class="url">ipfs://bafybeifp4oxgofktbqh5tua2xrpsb5gfrktrtesqxq67i2tefavqxjpxb4/checksums.txt</span>
+
+<span class="cmt"># agent card</span>
+<span class="key">cl.agentcard</span>                   <span class="url">https://commandlayer.org/agent-cards/agents/v1.1.0/commons/fetchagent.eth.json</span>
+<span class="key">cl.cid.agentcards</span>              <span class="str">bafybeiht6qske34o3te5kfd6d3qspneiagb2nxaneae5s66vr7hda4kzr4</span>
+<span class="key">cl.agentcards.checksums.ipfs</span>   <span class="url">ipfs://bafybeiht6qske34o3te5kfd6d3qspneiagb2nxaneae5s66vr7hda4kzr4/checksums.txt</span>
+
+<span class="cmt"># ownership &amp; signing</span>
+<span class="key">cl.owner</span>                       <span class="str">commandlayer.eth</span>
+<span class="key">cl.receipt.alg</span>                 <span class="str">ed25519</span>
+<span class="key">cl.receipt.signer_id</span>           <span class="str">runtime.commandlayer.eth</span>
+
+<span class="cmt"># address record</span>
+<span class="key">eth</span>                            <span class="str">0x298A01ec0c6234406622494ae96AA6A20c12AE90</span></pre>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">⬡</span>
+      <span><strong>Live on Etherscan:</strong> <a href="https://app.ens.domains/fetchagent.eth" target="_blank" rel="noopener">fetchagent.eth</a> has 15 TXT records and 1 address record — fully resolvable today. <strong>Agent Cards</strong> provide a higher-level descriptor: capabilities, schema set, and routing hints in a single JSON document. <a href="https://www.commandlayer.org/agent-cards.html">Browse Agent Cards →</a></span>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- STEP 4: VERIFY -->
+  <div class="qs-step" id="verify">
+    <div class="step-heading">
+      <div class="step-number">4</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Verify the receipt</div>
+        <div class="step-subtitle">Hash → signature — boring, deterministic, portable</div>
+      </div>
+    </div>
+
+    <p class="step-body">
+      If your runtime includes a proof block, verification is intentionally boring: <strong>hash → signature.</strong> Full verification adds: schema validation + ENS key resolution. The digest is computed from the canonical receipt only — runtime metadata stays outside the hash.
+    </p>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">shell</span>
+        <span class="code-filename">install dependencies</span>
+        <button class="btn-copy-code" onclick="copyCode('npm1', this)">copy</button>
+      </div>
+      <pre class="code-pre" id="npm1"><span class="cmd">npm</span> install tweetnacl tweetnacl-util</pre>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">javascript</span>
+        <span class="code-filename">verifyReceiptMinimal.js</span>
+        <button class="btn-copy-code" onclick="copyCode('verify1', this)">copy</button>
+      </div>
+      <pre class="code-pre" id="verify1"><span class="kw">import</span> nacl <span class="kw">from</span> <span class="str">"tweetnacl"</span>;
+<span class="kw">import</span> { decodeBase64 } <span class="kw">from</span> <span class="str">"tweetnacl-util"</span>;
+<span class="kw">import</span> crypto <span class="kw">from</span> <span class="str">"crypto"</span>;
+
+<span class="cmt">// Deterministic canonicalization — sort keys, no spaces</span>
+<span class="kw">function</span> <span class="cmd">canonicalize</span>(value) {
+  <span class="kw">if</span> (Array.isArray(value))
+    <span class="kw">return</span> <span class="str">`[${value.map(canonicalize).join(",")}]`</span>;
+  <span class="kw">if</span> (value &amp;&amp; <span class="kw">typeof</span> value === <span class="str">"object"</span>)
+    <span class="kw">return</span> <span class="str">`{${Object.keys(value).sort()
+      .map(k =&gt; `${JSON.stringify(k)}:${canonicalize(value[k])}`)
+      .join(",")}}`</span>;
+  <span class="kw">return</span> JSON.stringify(value);
+}
+
+<span class="cmt">/**
+ * Minimal receipt verification:
+ * 1) canonicalize receipt bytes deterministically
+ * 2) sha256 over canonical bytes
+ * 3) verify detached Ed25519 signature from runtime_metadata.proof
+ */</span>
+<span class="kw">export function</span> <span class="cmd">verifyReceiptMinimal</span>(envelope, publicKeyBytes) {
+  <span class="kw">const</span> receipt = envelope?.receipt || envelope;
+  <span class="kw">const</span> proof   = envelope?.runtime_metadata?.proof;
+
+  <span class="kw">if</span> (!proof?.signature_b64 || !proof?.hash_sha256)
+    <span class="kw">return</span> { ok: <span class="bool">false</span>, reason: <span class="str">"missing detached proof"</span> };
+
+  <span class="kw">const</span> canonical = <span class="cmd">canonicalize</span>(receipt);
+  <span class="kw">const</span> hashHex   = crypto.createHash(<span class="str">"sha256"</span>)
+    .update(canonical, <span class="str">"utf8"</span>).digest(<span class="str">"hex"</span>);
+
+  <span class="kw">if</span> (hashHex !== proof.hash_sha256)
+    <span class="kw">return</span> { ok: <span class="bool">false</span>, reason: <span class="str">"hash mismatch"</span> };
+
+  <span class="kw">const</span> hashBytes = Buffer.from(proof.hash_sha256, <span class="str">"hex"</span>);
+  <span class="kw">const</span> sigBytes  = <span class="cmd">decodeBase64</span>(proof.signature_b64);
+  <span class="kw">const</span> ok        = nacl.sign.detached.verify(hashBytes, sigBytes, publicKeyBytes);
+
+  <span class="kw">return</span> ok
+    ? { ok: <span class="bool">true</span> }
+    : { ok: <span class="bool">false</span>, reason: <span class="str">"signature invalid"</span> };
+}</pre>
+    </div>
+
+    <div class="callout tip">
+      <span class="callout-icon">✓</span>
+      <span><strong>Threat model:</strong> this proves <em>the runtime</em> produced <em>this receipt</em> for <em>this request</em> — it does not prove the result is "true," only that it is attributable to the named signer. Publish the key in ENS TXT, then make the claim.</span>
+    </div>
+  </div>
+
+  <hr class="section-divider" />
+
+  <!-- NEXT STEPS -->
+  <div class="qs-step" id="nextsteps">
+    <div class="step-heading">
+      <div class="step-number">→</div>
+      <div class="step-title-wrap">
+        <div class="step-title">Next steps</div>
+        <div class="step-subtitle">Once you can call one verb and verify one receipt, scale to flows and registries</div>
+      </div>
+    </div>
+
+    <div class="next-grid">
+      <a href="https://www.commandlayer.org/composer.html" class="next-card">
+        <div class="nc-label">Commons Demo</div>
+        <div class="nc-title">Flow Composer</div>
+        <div class="nc-body">Compose multiple verbs, watch receipts stack per-step, verify with one cURL.</div>
+      </a>
+      <a href="https://www.commandlayer.org/commons.html" class="next-card">
+        <div class="nc-label">Schemas</div>
+        <div class="nc-title">Browse Commons</div>
+        <div class="nc-body">All 10 verb schemas — pinned, checksummed, IPFS-mirrored, free.</div>
+      </a>
+      <a href="https://www.commandlayer.org/agent-cards.html" class="next-card">
+        <div class="nc-label">Discovery</div>
+        <div class="nc-title">Publish an Agent Card</div>
+        <div class="nc-body">Describe capabilities so discovery tools can route to your agent.</div>
+      </a>
+      <a href="https://www.commandlayer.org/demo-inner.html" class="next-card">
+        <div class="nc-label">Commercial</div>
+        <div class="nc-title">Commerce Flow</div>
+        <div class="nc-body">Run authorize → checkout → purchase → ship → verify. x402-ready.</div>
+      </a>
+    </div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<!-- FOOTER -->
+<footer>
+  <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
+  <nav class="footer-links">
+    <a href="https://www.commandlayer.org/docs.html">Docs</a>
+    <a href="https://www.commandlayer.org/repositories.html">Repositories</a>
+    <a href="https://www.commandlayer.org/faq.html">FAQ</a>
+    <a href="https://www.commandlayer.org/about.html">About</a>
+    <a href="https://www.commandlayer.org/licensing.html">Licensing</a>
+  </nav>
+</footer>
+
+<script>
+const RUNTIME = 'https://runtime.commandlayer.org';
+let selectedVerb = 'clean';
+
+// runtime health
+async function checkRuntime() {
+  try {
+    const r = await fetch(`${RUNTIME}/health`, { signal: AbortSignal.timeout(5000) });
+    const el = document.getElementById('runtimeLabel');
+    if (r.ok) { el.textContent = 'runtime live'; el.parentElement.style.background = 'rgba(0,230,118,0.1)'; el.parentElement.style.color = 'var(--green)'; el.parentElement.style.borderColor = 'rgba(0,230,118,0.25)'; }
+    else { el.textContent = 'runtime error'; }
+  } catch { document.getElementById('runtimeLabel').textContent = 'runtime unreachable'; }
+}
+
+function selectVerb(verb, btn) {
+  selectedVerb = verb;
+  document.querySelectorAll('.verb-pill').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+
+  // update default input
+  const defaults = {
+    clean:     '   hello   world   this is CommandLayer   ',
+    summarize: 'CommandLayer provides verifiable execution receipts for autonomous agents. Each action is signed with Ed25519, bound to an ENS name, and registered on Base via ERC-8004. Schemas are pinned to IPFS and freely available.',
+    analyze:   'CommandLayer sits at the intersection of ENS, ERC-8004, and x402 to create a semantic verb layer for the agent economy.',
+    classify:  'CommandLayer is a protocol infrastructure layer for autonomous agents that spend money, call services, and coordinate with each other.',
+    format:    'commandlayer is infrastructure for agents. it uses ens identity and ed25519 signatures. every action returns a verifiable receipt.',
+    parse:     'name: CommandLayer\ntype: protocol infrastructure\nverbs: commons, commercial\nidentity: ENS\nproof: Ed25519\nchain: Base',
+  };
+  if (defaults[verb]) document.getElementById('runnerInput').value = defaults[verb];
+}
+
+function buildBody(verb, content) {
+  const base = { verb, schema_version: '1.1.0' };
+  switch (verb) {
+    case 'clean':     return { ...base, content, operations: ['collapse_whitespace', 'trim'] };
+    case 'summarize': return { ...base, content };
+    case 'analyze':   return { ...base, content };
+    case 'classify':  return { ...base, content, taxonomy: ['infrastructure','agent','protocol','identity','payment','other'] };
+    case 'format':    return { ...base, content, target_format: 'plain' };
+    case 'parse':     return { ...base, content, output_schema: 'key_value' };
+    default:          return { ...base, content };
+  }
+}
+
+function hl(json) {
+  return json
+    .replace(/("[\w_$]+"):/g, '<span class="k">$1</span>:')
+    .replace(/: ("(?:[^"\\]|\\.)*")/g, ': <span class="s">$1</span>')
+    .replace(/: (true|false)/g, ': <span class="b">$1</span>')
+    .replace(/: (-?\d+(?:\.\d+)?)/g, ': <span class="n">$1</span>');
+}
+
+async function runVerb() {
+  const btn    = document.getElementById('runnerBtn');
+  const out    = document.getElementById('runnerOutput');
+  const status = document.getElementById('runnerStatus');
+  const content = document.getElementById('runnerInput').value;
+
+  btn.disabled = true;
+  btn.textContent = '…';
+  out.className = 'runner-output';
+  out.innerHTML = '<span class="spin"></span>  calling runtime…';
+  status.textContent = 'running';
+  status.className = 'runner-status running';
+
+  try {
+    const body = buildBody(selectedVerb, content);
+    const resp = await fetch(`${RUNTIME}/${selectedVerb}/v1.1.0`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(20000),
+    });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const data = await resp.json();
+    out.innerHTML = hl(JSON.stringify(data, null, 2));
+    out.className = 'runner-output has-data';
+    status.textContent = '✓ receipt received';
+    status.className = 'runner-status ok';
+  } catch (err) {
+    out.textContent = `Error: ${err.message}`;
+    out.className = 'runner-output';
+    status.textContent = 'error';
+    status.className = 'runner-status err';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Run →';
+}
+
+function copyCode(id, btn) {
+  const text = document.getElementById(id).textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'copied ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+// highlight active step nav on scroll
+const steps = ['call','receipt','resolve','verify','nextsteps'];
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      document.querySelectorAll('.step-nav-item').forEach((el, i) => {
+        el.classList.toggle('active', steps[i] === id);
       });
+    }
+  });
+}, { threshold: 0.4 });
+steps.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
 
-      // Close on Escape
-      document.addEventListener("keydown", (e) => {
-        if (e.key !== "Escape") return;
-        setDocsOpen(false);
-        setNavOpen(false);
-      });
-
-      // Close menus on navigation click (mobile UX)
-      if (nav) {
-        nav.addEventListener("click", (e) => {
-          const a = e.target?.closest?.("a");
-          if (!a) return;
-          setDocsOpen(false);
-          setNavOpen(false);
-        });
-      }
-
-      // Copy-to-clipboard helpers
-      async function copyText(text, btn) {
-        try {
-          await navigator.clipboard.writeText(text);
-          if (btn) {
-            const prev = btn.textContent;
-            btn.textContent = "✅ Copied";
-            btn.disabled = true;
-            setTimeout(() => {
-              btn.textContent = prev;
-              btn.disabled = false;
-            }, 1100);
-          }
-        } catch (err) {
-          // fallback
-          try {
-            const ta = document.createElement("textarea");
-            ta.value = text;
-            ta.style.position = "fixed";
-            ta.style.top = "-9999px";
-            document.body.appendChild(ta);
-            ta.focus();
-            ta.select();
-            document.execCommand("copy");
-            document.body.removeChild(ta);
-            if (btn) {
-              const prev = btn.textContent;
-              btn.textContent = "✅ Copied";
-              btn.disabled = true;
-              setTimeout(() => {
-                btn.textContent = prev;
-                btn.disabled = false;
-              }, 1100);
-            }
-          } catch (e) {
-            if (btn) btn.textContent = "❌ Copy failed";
-          }
-        }
-      }
-
-      // Bind copy buttons
-      document.querySelectorAll("[data-copy]").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          copyText(btn.getAttribute("data-copy") || "", btn);
-        });
-      });
-
-      const copyCurlBtn = document.getElementById("copyCurlBtn");
-      const curlPre = document.getElementById("curlPre");
-      if (copyCurlBtn && curlPre) {
-        copyCurlBtn.addEventListener("click", () => copyText(curlPre.textContent || "", copyCurlBtn));
-      }
-
-      const copyVerifyBtn = document.getElementById("copyVerifyBtn");
-      const verifyPre = document.getElementById("verifyPre");
-      if (copyVerifyBtn && verifyPre) {
-        copyVerifyBtn.addEventListener("click", () => copyText(verifyPre.textContent || "", copyVerifyBtn));
-      }
-
-      // Runtime health badge (best-effort)
-      async function checkHealth() {
-        if (!healthBadge || !healthText) return;
-        try {
-          const res = await fetch("https://runtime.commandlayer.org/health", { method: "GET" });
-          if (!res.ok) throw new Error("non-200");
-          // Try parse JSON, but don't require it
-          let ok = true;
-          try {
-            const data = await res.clone().json();
-            ok = !!data?.ok;
-          } catch (_) {}
-          healthBadge.classList.remove("badge--ok", "badge--warn", "badge--err");
-          healthBadge.classList.add(ok ? "badge--ok" : "badge--warn");
-          healthText.textContent = ok ? "Runtime: ok" : "Runtime: up (nonstandard)";
-        } catch (e) {
-          healthBadge.classList.remove("badge--ok", "badge--warn");
-          healthBadge.classList.add("badge--err");
-          healthText.textContent = "Runtime: unreachable";
-        }
-      }
-
-      checkHealth();
-    })();
-  </script>
+checkRuntime();
+</script>
 </body>
 </html>
