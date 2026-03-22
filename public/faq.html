@@ -1,999 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>FAQ — CommandLayer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta
-      name="description"
-      content="CommandLayer FAQ — what it is, how it works, why schemas are free, how commercial execution is taxed, and how ENS names anchor meaning, validation, and receipts."
-    />
-
-    <style>
-      :root {
-        --bg: #05060a;
-        --bg-elevated: #0a0c14;
-        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
-        --border-soft: rgba(255, 255, 255, 0.06);
-        --border-strong: rgba(255, 255, 255, 0.18);
-        --accent: #c5cbe0;
-        --accent-strong: #e3e7ff;
-        --accent-muted: #8f96b5;
-        --text-main: #f7f8ff;
-        --text-muted: #9ca3c7;
-        --text-soft: #6b7280;
-        --radius-lg: 16px;
-        --radius-xl: 24px;
-        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
-        --max-width: 1120px;
-      }
-
-      * { box-sizing: border-box; }
-
-      html, body {
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
-        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
-        color: var(--text-main);
-      }
-
-      body { min-height: 100vh; }
-
-      .page-shell {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .page-main { flex: 1; }
-
-      .container {
-        width: 100%;
-        max-width: var(--max-width);
-        margin: 0 auto;
-        padding: 0 1.5rem;
-      }
-
-      /* Header */
-      .site-header {
-        background: var(--bg-header);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        backdrop-filter: blur(18px);
-      }
-
-      .site-header__inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.9rem 1.5rem;
-      }
-
-      .site-header__brand {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-decoration: none;
-        color: inherit;
-      }
-
-      .site-header__logo-img {
-        width: 28px;
-        height: 28px;
-        object-fit: contain;
-        display: block;
-        border-radius: 6px;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
-      }
-
-      .site-header__text { display: flex; flex-direction: column; }
-
-      .site-header__title {
-        font-size: 0.98rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-      }
-
-      .site-header__subtitle {
-        font-size: 0.78rem;
-        color: var(--text-muted);
-      }
-
-      .site-header__nav {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .site-header__link {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        text-decoration: none;
-        color: var(--text-muted);
-        border: 1px solid transparent;
-        white-space: nowrap;
-      }
-
-      .site-header__link:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__link--active {
-        color: #020617;
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        border-color: rgba(255, 255, 255, 0.25);
-      }
-
-      /* Docs dropdown */
-      .site-header__dropdown { position: relative; }
-
-      .site-header__dropdown-btn {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: var(--text-muted);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        cursor: pointer;
-      }
-
-      .site-header__dropdown-btn:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__dropdown-menu {
-        position: absolute;
-        top: 2.3rem;
-        right: 0;
-        background: rgba(15, 23, 42, 0.98);
-        border-radius: 14px;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        padding: 0.5rem 0.4rem;
-        min-width: 210px;
-        display: none;
-      }
-
-      .site-header__dropdown-menu a {
-        display: block;
-        padding: 0.35rem 0.7rem;
-        font-size: 0.82rem;
-        text-decoration: none;
-        color: var(--text-muted);
-        border-radius: 999px;
-      }
-
-      .site-header__dropdown-menu a:hover {
-        color: var(--accent-strong);
-        background: rgba(31, 41, 55, 0.95);
-      }
-
-      .site-header--docs-open .site-header__dropdown-menu { display: block; }
-
-      /* Mobile toggle */
-      .site-header__toggle {
-        display: none;
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.7);
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--text-main);
-        padding: 0.25rem 0.6rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-      }
-
-      .site-header__toggle:hover { background: rgba(15, 23, 42, 1); }
-
-      /* Hero */
-      .hero {
-        padding: 3.1rem 0 2.4rem;
-        border-bottom: 1px solid var(--border-soft);
-        background: radial-gradient(circle at 0 0, #111827, #020308);
-      }
-
-      .hero__inner {
-        display: grid;
-        grid-template-columns: minmax(0, 1.65fr) minmax(0, 1.1fr);
-        gap: 2.4rem;
-        align-items: start;
-      }
-
-      .hero__eyebrow {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--accent-muted);
-        margin-bottom: 0.8rem;
-      }
-
-      .hero__title {
-        margin: 0 0 0.8rem;
-        font-size: 2.15rem;
-        line-height: 1.12;
-      }
-
-      .hero__title-em {
-        background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
-
-      .hero__subtitle {
-        margin: 0;
-        color: var(--text-muted);
-        font-size: 0.98rem;
-        line-height: 1.75;
-        max-width: 44rem;
-      }
-
-      .hero__pill-row {
-        margin-top: 1.2rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.55rem;
-        color: var(--text-soft);
-        font-size: 0.8rem;
-      }
-
-      .hero__pill {
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.6);
-        padding: 0.18rem 0.55rem;
-      }
-
-      .card {
-        background: rgba(15, 23, 42, 0.95);
-        border-radius: var(--radius-xl);
-        padding: 1.4rem 1.4rem 1.6rem;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-      }
-
-      .card h2 {
-        margin: 0 0 0.6rem;
-        font-size: 1.05rem;
-      }
-
-      .card p {
-        margin: 0;
-        color: var(--text-muted);
-        line-height: 1.7;
-        font-size: 0.92rem;
-      }
-
-      .card .legend {
-        margin-top: 0.95rem;
-        display: grid;
-        gap: 0.55rem;
-      }
-
-      .legend__row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.55rem;
-        align-items: baseline;
-        color: var(--text-muted);
-        line-height: 1.6;
-        font-size: 0.92rem;
-      }
-
-      .legend__tag {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 999px;
-        padding: 0.15rem 0.6rem;
-        border: 1px solid rgba(148, 163, 184, 0.55);
-        background: rgba(2, 6, 23, 0.45);
-        color: var(--accent-strong);
-        font-size: 0.78rem;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-        white-space: nowrap;
-      }
-
-      /* Sections */
-      .section { padding: 2.7rem 0; }
-
-      .section--muted {
-        background: rgb(6, 9, 18);
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      }
-
-      .section__header {
-        max-width: 58rem;
-        margin-bottom: 1.25rem;
-      }
-
-      .section__header h2 {
-        margin: 0 0 0.55rem;
-        font-size: 1.55rem;
-      }
-
-      .section__header p {
-        margin: 0;
-        font-size: 0.98rem;
-        color: var(--text-muted);
-        line-height: 1.75;
-      }
-
-      /* FAQ layout */
-      .faq-shell {
-        display: grid;
-        grid-template-columns: 320px minmax(0, 1fr);
-        gap: 1.2rem;
-        align-items: start;
-      }
-
-      .faq-nav {
-        position: sticky;
-        top: 90px;
-        background: rgba(15, 23, 42, 0.95);
-        border-radius: var(--radius-xl);
-        padding: 1.0rem 1.0rem 1.05rem;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-      }
-
-      .faq-nav h3 {
-        margin: 0 0 0.6rem;
-        font-size: 0.95rem;
-        color: var(--accent-strong);
-      }
-
-      .faq-nav a {
-        display: block;
-        padding: 0.42rem 0.55rem;
-        border-radius: 10px;
-        text-decoration: none;
-        color: var(--text-muted);
-        font-size: 0.9rem;
-      }
-
-      .faq-nav a:hover {
-        color: var(--accent-strong);
-        background: rgba(2, 6, 23, 0.45);
-      }
-
-      .faq-list { display: grid; gap: 0.9rem; }
-
-      details.faq {
-        background: rgba(15, 23, 42, 0.95);
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--border-soft);
-        overflow: hidden;
-      }
-
-      details.faq[open] {
-        border-color: rgba(148, 163, 184, 0.35);
-      }
-
-      details.faq summary {
-        list-style: none;
-        cursor: pointer;
-        padding: 1.0rem 1.1rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        color: var(--accent-strong);
-        font-size: 0.98rem;
-        font-weight: 600;
-      }
-
-      details.faq summary::-webkit-details-marker { display: none; }
-
-      .faq__chev {
-        width: 28px;
-        height: 28px;
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.55);
-        background: rgba(2, 6, 23, 0.45);
-        display: grid;
-        place-items: center;
-        color: var(--accent-strong);
-        flex: 0 0 auto;
-        transition: transform 160ms ease;
-        font-size: 0.95rem;
-      }
-
-      details.faq[open] .faq__chev { transform: rotate(180deg); }
-
-      .faq__body {
-        padding: 0 1.1rem 1.05rem;
-        color: var(--text-muted);
-        line-height: 1.75;
-        font-size: 0.95rem;
-      }
-
-      .faq__body p { margin: 0.65rem 0 0; }
-      .faq__body p:first-child { margin-top: 0; }
-
-      .faq__body ul {
-        margin: 0.65rem 0 0;
-        padding-left: 1.15rem;
-      }
-
-      .faq__body li { margin-bottom: 0.35rem; }
-
-      .faq__body code {
-        background: rgba(2, 6, 23, 0.6);
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        padding: 0.08rem 0.35rem;
-        border-radius: 6px;
-        font-size: 0.88em;
-        color: #e5e7eb;
-      }
-
-      .note {
-        margin-top: 0.75rem;
-        padding: 0.85rem 0.95rem;
-        border-radius: 14px;
-        background: rgba(2, 6, 23, 0.5);
-        border: 1px solid rgba(148, 163, 184, 0.18);
-        color: var(--text-muted);
-        font-size: 0.92rem;
-      }
-
-      .note strong { color: var(--accent-strong); }
-
-      .cta-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 1rem;
-      }
-
-      .cta-card {
-        display: grid;
-        gap: 0.45rem;
-        padding: 1.15rem 1.2rem;
-        border-radius: 20px;
-        border: 1px solid var(--border-soft);
-        background: rgba(15, 23, 42, 0.95);
-        box-shadow: var(--shadow-soft);
-        text-decoration: none;
-        color: inherit;
-        transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
-      }
-
-      .cta-card strong {
-        color: var(--accent-strong);
-        font-size: 1rem;
-      }
-
-      .cta-card span {
-        color: var(--text-muted);
-        line-height: 1.6;
-        font-size: 0.92rem;
-      }
-
-      .cta-card:hover,
-      .cta-card:focus-visible {
-        transform: translateY(-1px);
-        border-color: rgba(148, 163, 184, 0.34);
-        background: rgba(19, 28, 48, 0.95);
-        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
-        outline: none;
-      }
-
-      /* Footer */
-      .site-footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        background: #020308;
-      }
-
-      .site-footer__inner {
-  display: grid;
-  gap: 1.1rem;
-}
-.site-footer__row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-.site-footer__col {
-  border-radius: 18px;
-  padding: 1rem;
-  background: rgba(10, 12, 20, 0.88);
-  border: 1px solid var(--border-soft);
-}
-.site-footer__col-title {
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent-muted, var(--text-muted));
-  margin-bottom: 0.45rem;
-}
-.site-footer__cid {
-  color: var(--text-muted);
-  line-height: 1.6;
-  font-size: 0.84rem;
-}
-.site-footer__inner {
-        padding: 1.4rem 1.5rem 1.8rem;
-        font-size: 0.78rem;
-        color: var(--text-soft);
-        display: flex;
-        flex-direction: column;
-        gap: 0.4rem;
-        align-items: center;
-        text-align: center;
-      }
-
-      .site-footer__links {
-        display: flex;
-        gap: 0.8rem;
-        justify-content: center;
-        margin-top: 0.2rem;
-      }
-
-      .site-footer__links a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-
-      .site-footer__links a:hover { text-decoration: underline; }
-@media (max-width: 920px) { .site-footer__row { grid-template-columns: minmax(0, 1fr); } }
-
-      /* Mobile */
-      @media (max-width: 980px) {
-        .faq-shell { grid-template-columns: minmax(0, 1fr); }
-        .faq-nav { position: relative; top: 0; }
-      }
-
-      @media (max-width: 880px) {
-        .site-header__inner { padding-inline: 1rem; }
-        .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
-
-        .site-header__nav {
-          display: none;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
-          margin-top: 0.8rem;
-        }
-
-        .site-header.site-header--open .site-header__nav { display: flex; }
-
-        .hero__inner { grid-template-columns: minmax(0, 1fr); }
-        .card { margin-top: 1.2rem; }
-        .cta-grid { grid-template-columns: minmax(0, 1fr); }
-        .site-footer__inner { padding-inline: 1rem; }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="page-shell">
-      <!-- HEADER -->
-      <header class="site-header">
-        <div class="site-header__inner container">
-          <a href="/" class="site-header__brand">
-            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-            <div class="site-header__text">
-              <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
-            </div>
-          </a>
-
-          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-
-          <nav class="site-header__nav">
-            <a href="/" class="site-header__link">Home</a>
-            <a href="/composer.html" class="site-header__link">Demo</a>
-            <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-
-            <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button" aria-haspopup="menu" aria-expanded="false">Docs &#9662;</button>
-              <div class="site-header__dropdown-menu">
-              <a href="/commons.html">Commons</a>
-              <a href="/commercial.html">Commercial</a>
-              <a href="/agent-cards.html">Agent Cards</a>
-              <a href="/runtime.html">Runtime</a>
-              </div>
-            </div>
-
-            <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
-          </nav>
-        </div>
-      </header>
-
-      <main class="page-main">
-        <section class="hero">
-          <div class="container hero__inner">
-            <div>
-              <div class="hero__eyebrow">FAQ</div>
-              <h1 class="hero__title">
-                Objections handled fast.<br />
-                <span class="hero__title-em">Protocol truth, no drift.</span>
-              </h1>
-              <p class="hero__subtitle">
-                CommandLayer is a protocol stack, not a pile of pages. <strong>Commons and Commercial define the contract.</strong>
-                <strong>Agent Cards define discovery.</strong> <strong>Runtime defines execution.</strong> This FAQ exists to remove the
-                common misunderstandings in one pass.
-              </p>
-              <div class="hero__pill-row">
-                <span class="hero__pill">Canonical receipt first</span>
-                <span class="hero__pill">Runtime details second</span>
-                <span class="hero__pill">Schemas stay public and portable</span>
-                <span class="hero__pill">Execution can be metered</span>
-              </div>
-            </div>
-
-            <aside class="card" aria-label="Stack summary">
-              <h2>CommandLayer in one minute</h2>
-              <div class="legend">
-                <div class="legend__row"><span class="legend__tag">CONTRACT</span><span>Commons and Commercial define the contract.</span></div>
-                <div class="legend__row"><span class="legend__tag">DISCOVERY</span><span>Agent Cards define discovery and routing.</span></div>
-                <div class="legend__row"><span class="legend__tag">EXECUTION</span><span>Runtime defines execution, proof, guarantees, and metering.</span></div>
-                <div class="legend__row"><span class="legend__tag">RULE</span><span>The contract stays public. Execution becomes infrastructure.</span></div>
-              </div>
-            </aside>
-          </div>
-        </section>
-
-        <section class="section section--muted">
-          <div class="container">
-            <div class="section__header">
-              <h2>FAQ</h2>
-              <p>
-                Start here if you need the clean version: what CommandLayer is, what is free, what is monetized,
-                how ENS and Agent Cards fit, what a receipt actually is, and how to start building without guessing.
-              </p>
-            </div>
-
-            <div class="faq-shell">
-              <aside class="faq-nav" aria-label="FAQ navigation">
-                <h3>Jump to</h3>
-                <a href="#q-what-is">What is CommandLayer?</a>
-                <a href="#q-why-exists">Why does it exist?</a>
-                <a href="#q-free-vs-tax">What is free vs monetized?</a>
-                <a href="#q-ens-anchor">How do ENS, Agent Cards, Runtime, and receipts fit?</a>
-                <a href="#q-agent-cards">What are Agent Cards?</a>
-                <a href="#q-receipts">What is a receipt?</a>
-                <a href="#q-validate">How do I validate?</a>
-                <a href="#q-runtime">What is Runtime?</a>
-                <a href="#q-others-run">Can others run runtimes?</a>
-                <a href="#q-versioning">How does versioning work?</a>
-                <a href="#q-commercial-verbs">What are Commercial verbs?</a>
-                <a href="#q-not-compete">Does this compete with x402 / ERC-8004?</a>
-                <a href="#q-open-core">Is this open core?</a>
-                <a href="#q-get-started">How should builders start?</a>
-              </aside>
-
-              <div class="faq-list">
-                <details class="faq" id="q-what-is" open>
-                  <summary>What is CommandLayer?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      CommandLayer is the trust layer for agent execution: canonical verbs, strict JSON Schemas,
-                      machine-readable discovery, and verifiable receipts.
-                    </p>
-                    <p>
-                      <strong>Commons and Commercial define the contract. Agent Cards define discovery. Runtime defines execution.</strong>
-                      That split is the architecture.
-                    </p>
-                    <div class="note"><strong>One line:</strong> The contract stays public. Execution becomes infrastructure.</div>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-why-exists">
-                  <summary>Why does it exist?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      Because most agent integrations still depend on private prompt formats, undocumented payloads,
-                      and vendor-specific runtime assumptions. That is not interoperability.
-                    </p>
-                    <p>
-                      CommandLayer gives builders a public contract surface so they can swap runtimes, vendors,
-                      and payment rails without losing meaning or breaking validation.
-                    </p>
-                    <ul>
-                      <li>Canonical schemas instead of prompt folklore.</li>
-                      <li>Published versions instead of implicit breaking changes.</li>
-                      <li>Receipts you can validate across runtimes.</li>
-                    </ul>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-free-vs-tax">
-                  <summary>What is free vs what is monetized?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      CommandLayer never charges for semantics, schemas, or validation. <strong>Schemas stay public and portable.</strong>
-                    </p>
-                    <ul>
-                      <li><strong>Open:</strong> Commons schemas, Commercial schemas, Agent Cards, validation, interoperability.</li>
-                      <li><strong>Metered:</strong> runtime execution, routing, throughput, guarantees, policy enforcement, commercial service surfaces.</li>
-                      <li><strong>Protocol rule:</strong> meaning, validation, and interoperability are never paywalled.</li>
-                    </ul>
-                    <div class="note">CommandLayer does not charge for semantics. Monetization lives in execution, guarantees, and commercial service surfaces.</div>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-ens-anchor">
-                  <summary>How do ENS, Agent Cards, Runtime, and receipts fit together?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      ENS is the human-readable anchor. Agent Cards are the machine-readable identity and routing document.
-                      Runtime executes requests against published schemas. Receipts are the standardized result contract returned after execution.
-                    </p>
-                    <ul>
-                      <li><strong>ENS:</strong> naming and continuity.</li>
-                      <li><strong>Agent Cards:</strong> discovery, declared capabilities, routing targets, schema versions.</li>
-                      <li><strong>Runtime:</strong> execution, policy, proof, metering, guarantees.</li>
-                      <li><strong>Receipts:</strong> canonical result surface for independent verification.</li>
-                    </ul>
-                    <div class="note">Canonical receipt first, runtime metadata second.</div>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-agent-cards">
-                  <summary>What are Agent Cards?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      Agent Cards are open JSON descriptors that tell clients what an agent is, what verbs it supports,
-                      which schema versions it speaks, and where requests should be routed.
-                    </p>
-                    <p>
-                      They are the discovery layer. They do not replace schemas and they do not redefine receipts.
-                    </p>
-                    <div class="note">Agent Cards define discovery and routing. They keep capability lookup public and machine-readable.</div>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-receipts">
-                  <summary>What is a receipt, and why is it important?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      A receipt is the standardized result contract for an execution.
-                      It is the canonical surface a client validates after a request completes.
-                    </p>
-                    <p>
-                      Runtimes may attach trace, proof, or orchestration metadata on top of that canonical receipt,
-                      but those execution-layer additions do not redefine the receipt contract itself.
-                    </p>
-                    <ul>
-                      <li>Canonical receipt first.</li>
-                      <li>Runtime details, proof, or execution class second.</li>
-                      <li>Independent validation remains possible across runtimes.</li>
-                    </ul>
-                    <div class="note">Receipts are evidence of contract-conforming execution, not a dumping ground for runtime internals.</div>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-validate">
-                  <summary>How do I validate requests and receipts?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      Validate both sides against the published JSON Schemas. That is the point of a protocol-grade contract.
-                    </p>
-                    <ul>
-                      <li>Validate the request before execution.</li>
-                      <li>Validate the receipt after execution.</li>
-                      <li>Pin to published versions and CIDs when you need immutability.</li>
-                      <li>If validation fails, interoperability fails.</li>
-                    </ul>
-                    <div class="note">If you cannot validate independently, you do not have a standard. You have a private integration.</div>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-runtime">
-                  <summary>What is Runtime in CommandLayer?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      Runtime is the execution layer. It takes published Commons and Commercial contracts,
-                      enforces policy, routes execution, meters usage, and can emit proof and trace data alongside the canonical receipt.
-                    </p>
-                    <p>
-                      Runtime is live today as a reference proving surface. The roadmap expands hardening, guarantees,
-                      multi-runtime support, and commercial operations around that live base.
-                    </p>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-others-run">
-                  <summary>Can other people run runtimes, or is it centralized?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      Others can run runtimes because the contract surface is public. That is the point.
-                    </p>
-                    <p>
-                      Competition should happen in execution quality: reliability, routing, latency, guarantees,
-                      certification, policy, and cost. The meaning layer stays shared.
-                    </p>
-                    <div class="note">Open semantics, competitive execution.</div>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-versioning">
-                  <summary>How does versioning work?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      Versions are explicit and published. Commons v1.1.0, Commercial v1.1.0, and Agent Cards v1.1.0 are concrete contract surfaces,
-                      not hand-wavy references.
-                    </p>
-                    <p>
-                      Builders target versioned schemas and can pin to canonical artifacts. New behavior should arrive in new versions,
-                      not as silent drift.
-                    </p>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-commercial-verbs">
-                  <summary>What are Commercial verbs?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      Commercial verbs are the economic contract layer for payments, checkout, fulfillment, shipping,
-                      verification, and adjacent business flows.
-                    </p>
-                    <p>
-                      They use the same protocol discipline as Commons: public schemas, strict validation, portable receipts.
-                      Commercial currently preserves a commerce-oriented compatibility shape while Commons remains the cleaner canonical model. Monetization still lives in execution, not in the meaning of the verbs.
-                    </p>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-not-compete">
-                  <summary>Does this compete with x402 or ERC-8004?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      No. x402 handles payment and transport patterns. ERC-8004 handles discovery and agent registry patterns.
-                      CommandLayer defines the contract those systems move and discover.
-                    </p>
-                    <div class="note">x402 moves money. ERC-8004 helps find agents. CommandLayer defines what the request and receipt mean.</div>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-open-core">
-                  <summary>Is this “open core”?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      No. Open core usually paywalls capabilities inside the standard itself. CommandLayer does the opposite.
-                    </p>
-                    <p>
-                      The contract layer stays open: semantics, schemas, validation, and interoperability. Monetization lives in execution,
-                      guarantees, routing, and commercial service surfaces.
-                    </p>
-                  </div>
-                </details>
-
-                <details class="faq" id="q-get-started">
-                  <summary>How should builders start?<span class="faq__chev">▾</span></summary>
-                  <div class="faq__body">
-                    <p>
-                      Start with one published schema, not the whole universe. Build against Commons or Commercial today — not against reserved Manifest verbs.
-                    </p>
-                    <ul>
-                      <li>Pick one live verb.</li>
-                      <li>Validate a <code>*.request</code> payload against the published schema.</li>
-                      <li>Execute through your runtime of choice.</li>
-                      <li>Validate the canonical <code>*.receipt</code>.</li>
-                      <li>Add an Agent Card when you want discovery and routing.</li>
-                    </ul>
-                    <div class="note">The fastest path is still one verb, one request schema, one receipt schema, one Agent Card.</div>
-                  </div>
-                </details>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="container">
-            <div class="section__header">
-              <h2>Next stop</h2>
-              <p>
-                Read Commons and Commercial for the actual contract surface, Agent Cards for discovery,
-                and Runtime for execution policy, proof, and guarantees.
-              </p>
-            </div>
-            <div class="cta-grid">
-              <a class="cta-card" href="/commons.html"><strong>Commons</strong><span>Canonical public contract surface.</span></a>
-              <a class="cta-card" href="/commercial.html"><strong>Commercial</strong><span>Economic contracts on the same schema discipline.</span></a>
-              <a class="cta-card" href="/runtime.html"><strong>Runtime</strong><span>Execution, metering, policy, and proof.</span></a>
-            </div>
-          </div>
-        </section>
-      </main>
-
-
-      <footer class="site-footer">
-        <div class="container site-footer__inner" style="align-items: center; text-align: center;">
-          <div class="site-footer__cid">Commons v1.1.0 &middot; Commercial v1.1.0 &middot; Agent Cards v1.1.0 &middot; ERC-8004 registered</div>
-          <div class="site-footer__links" style="justify-content: center;">
-            <a href="/docs.html">Docs</a>
-            <a href="/repositories.html">Repositories</a>
-            <a href="/faq.html">FAQ</a>
-            <a href="/about.html">About</a>
-            <a href="/licensing.html">Licensing</a>
-          </div>
-        </div>
-      </footer>
-    </div>
-
-    <script>
-      (function () {
-        const header = document.querySelector(".site-header");
-        const toggle = document.querySelector(".site-header__toggle");
-        const docsBtn = document.querySelector(".site-header__dropdown-btn");
-        const dropdown = document.querySelector(".site-header__dropdown");
-        const nav = document.querySelector(".site-header__nav");
-
-        function setDocsOpen(open) {
-          if (!header || !docsBtn) return;
-          header.classList.toggle("site-header--docs-open", !!open);
-          docsBtn.setAttribute("aria-expanded", open ? "true" : "false");
-        }
-
-        function setNavOpen(open) {
-          if (!header || !toggle) return;
-          header.classList.toggle("site-header--open", !!open);
-          toggle.setAttribute("aria-expanded", open ? "true" : "false");
-        }
-
-        if (toggle && header) {
-          toggle.addEventListener("click", () => {
-            const isOpen = header.classList.toggle("site-header--open");
-            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-            if (isOpen) setDocsOpen(false);
-          });
-        }
-
-        if (docsBtn && header) {
-          docsBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const willOpen = !header.classList.contains("site-header--docs-open");
-            setDocsOpen(willOpen);
-          });
-        }
-
-        document.addEventListener("click", (e) => {
-          const isOpen = header?.classList.contains("site-header--docs-open");
-          if (!isOpen) return;
-          if (dropdown && dropdown.contains(e.target)) return;
-          setDocsOpen(false);
-        });
-
-        document.addEventListener("keydown", (e) => {
-          if (e.key !== "Escape") return;
-          setDocsOpen(false);
-          setNavOpen(false);
-        });
-
-        if (nav) {
-          nav.addEventListener("click", (e) => {
-            const a = e.target?.closest?.("a");
-            if (!a) return;
-            setDocsOpen(false);
-            setNavOpen(false);
-          });
-        }
-
-        function openFromHash() {
-          const id = (location.hash || "").replace("#", "");
-          if (!id) return;
-          const el = document.getElementById(id);
-          if (!el) return;
-          if (el.tagName.toLowerCase() === "details") el.open = true;
-        }
-        window.addEventListener("hashchange", openFromHash);
-        openFromHash();
-      })();
-    </script>
-  </body>
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>CommandLayer — Objections handled fast. Protocol truth, no drift.</title>
+<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{--bg:#07090d;--surface:#0b0f18;--panel:#101828;--border:#1b2a3b;--border-hi:#273d54;--text:#c8d8ea;--dim:#476080;--dimmer:#253040;--accent:#00d4ff;--green:#00e676;--gold:#ffd54f;--mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.6;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(0,212,255,.022) 79px,rgba(0,212,255,.022) 80px);}
+nav{position:sticky;top:0;z-index:100;background:rgba(7,9,13,.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:54px;}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-family:var(--sans);font-weight:800;font-size:15px;letter-spacing:-.02em;}
+.nav-brand img{width:26px;height:26px;}
+.nav-center{display:flex;align-items:center;gap:4px;list-style:none;}
+.nav-center a{color:var(--dim);text-decoration:none;font-size:12px;padding:5px 10px;border-radius:4px;transition:all .15s;}
+.nav-center a:hover{color:var(--text);background:rgba(255,255,255,.04);}
+.nav-dropdown{position:relative;}
+.nav-dropdown-toggle{color:var(--dim);font-size:12px;font-family:var(--mono);padding:5px 10px;border-radius:4px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:4px;transition:color .15s;}
+.nav-dropdown-toggle:hover{color:var(--text);}
+.nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;min-width:150px;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:6px;margin-top:4px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.nav-dropdown:hover .nav-dropdown-menu{display:flex;flex-direction:column;}
+.nav-dropdown-menu a{color:var(--dim);text-decoration:none;font-size:12px;padding:6px 10px;border-radius:3px;transition:all .12s;}
+.nav-dropdown-menu a:hover{color:var(--accent);background:rgba(0,212,255,.06);}
+.nav-right{display:flex;align-items:center;}
+.nav-github{color:var(--dim);text-decoration:none;font-size:12px;padding:5px 12px;border:1px solid var(--border);border-radius:4px;transition:all .15s;}
+.nav-github:hover{border-color:var(--accent);color:var(--accent);}
+.page-wrap{position:relative;z-index:1;max-width:860px;margin:0 auto;padding:60px 32px 80px;}
+.doc-eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+.doc-h1{font-family:var(--sans);font-size:clamp(26px,4vw,46px);font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1.05;margin-bottom:18px;}
+.doc-lead{font-size:15px;color:var(--dim);line-height:1.75;max-width:640px;margin-bottom:32px;}
+.doc-lead strong{color:var(--text);font-weight:500;}
+.doc-divider{border:none;border-top:1px solid var(--border);margin:40px 0;}
+.doc-h2{font-family:var(--sans);font-size:22px;font-weight:800;letter-spacing:-.02em;color:#fff;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+/* layer summary */
+.layer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:5px;overflow:hidden;margin-bottom:32px;}
+.layer-cell{background:var(--surface);padding:16px 18px;}
+.layer-tag{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.layer-tag.contract{color:var(--accent);}
+.layer-tag.discovery{color:var(--gold);}
+.layer-tag.execution{color:var(--green);}
+.layer-tag.rule{color:var(--dim);}
+.layer-body{font-size:12px;color:var(--dim);line-height:1.6;}
+.layer-body strong{color:var(--text);}
+/* accordion */
+.faq-group{margin-bottom:8px;}
+details{background:var(--surface);border:1px solid var(--border);border-radius:5px;overflow:hidden;transition:border-color .2s;}
+details[open]{border-color:var(--border-hi);}
+details[open] summary{border-bottom:1px solid var(--border);}
+summary{padding:14px 18px;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:var(--text);font-weight:500;user-select:none;transition:background .15s;}
+summary:hover{background:var(--panel);}
+summary::-webkit-details-marker{display:none;}
+.summary-q{flex:1;line-height:1.5;}
+.summary-arrow{font-size:11px;color:var(--dim);flex-shrink:0;transition:transform .2s;}
+details[open] .summary-arrow{transform:rotate(90deg);color:var(--accent);}
+.faq-body{padding:16px 18px;font-size:13px;color:var(--dim);line-height:1.8;}
+.faq-body strong{color:var(--text);font-weight:500;}
+.faq-body code{color:var(--green);font-size:12px;}
+.faq-body a{color:var(--accent);text-decoration:none;}
+.faq-body a:hover{text-decoration:underline;}
+.faq-body ul{display:flex;flex-direction:column;gap:4px;padding-left:14px;margin:8px 0;}
+.faq-body ul li{color:var(--dim);}
+.faq-body ul li::marker{color:var(--accent);}
+/* next cards */
+.next-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px;}
+.next-card{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:18px;text-decoration:none;transition:all .2s;display:block;}
+.next-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.nc-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:6px;}
+.nc-title{font-family:var(--sans);font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;}
+.nc-body{font-size:11px;color:var(--dim);line-height:1.6;}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--dimmer);flex-wrap:wrap;gap:10px;}
+footer a{color:var(--dim);text-decoration:none;transition:color .15s;}
+footer a:hover{color:var(--accent);}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+</style>
+</head>
+<body>
+<nav>
+  <a href="https://www.commandlayer.org/" class="nav-brand"><img src="https://www.commandlayer.org/icon2.png" alt="CommandLayer" />CommandLayer</a>
+  <ul class="nav-center">
+    <li><a href="https://www.commandlayer.org/">Home</a></li>
+    <li><a href="https://www.commandlayer.org/composer.html">Demo</a></li>
+    <li><a href="https://www.commandlayer.org/quickstart.html">Quickstart</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle">Docs ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="https://www.commandlayer.org/commons.html">Commons</a>
+        <a href="https://www.commandlayer.org/commercial.html">Commercial</a>
+        <a href="https://www.commandlayer.org/agent-cards.html">Agent Cards</a>
+        <a href="https://www.commandlayer.org/runtime.html">Runtime</a>
+      </div>
+    </li>
+  </ul>
+  <div class="nav-right"><a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a></div>
+</nav>
+
+<div class="page-wrap">
+  <div class="doc-eyebrow">▸ faq</div>
+  <h1 class="doc-h1">Objections handled fast.<br />Protocol truth, no drift.</h1>
+  <p class="doc-lead">CommandLayer is a protocol stack, not a pile of pages. <strong>Commons and Commercial define the contract. Agent Cards define discovery. Runtime defines execution.</strong> This FAQ removes the common misunderstandings in one pass.</p>
+
+  <div class="layer-grid">
+    <div class="layer-cell"><div class="layer-tag contract">Contract</div><div class="layer-body"><strong>Commons and Commercial</strong> define the contract.</div></div>
+    <div class="layer-cell"><div class="layer-tag discovery">Discovery</div><div class="layer-body"><strong>Agent Cards</strong> define discovery and routing.</div></div>
+    <div class="layer-cell"><div class="layer-tag execution">Execution</div><div class="layer-body"><strong>Runtime</strong> defines execution, proof, guarantees, and metering.</div></div>
+    <div class="layer-cell"><div class="layer-tag rule">Rule</div><div class="layer-body">The contract stays public. Execution becomes infrastructure.</div></div>
+  </div>
+
+  <hr class="doc-divider" />
+  <h2 class="doc-h2">FAQ</h2>
+
+  <details open>
+    <summary><span class="summary-q">What is CommandLayer?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">CommandLayer is the trust layer for agent execution: canonical verbs, strict JSON Schemas, machine-readable discovery, and verifiable receipts.<br /><br /><strong>Commons and Commercial define the contract. Agent Cards define discovery. Runtime defines execution.</strong> That split is the architecture.<br /><br /><strong>One line:</strong> The contract stays public. Execution becomes infrastructure.</div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">Why does it exist?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">Because most agent integrations still depend on private prompt formats, undocumented payloads, and vendor-specific runtime assumptions. That is not interoperability.<br /><br />CommandLayer gives builders a public contract surface so they can swap runtimes, vendors, and payment rails without losing meaning or breaking validation.<ul><li>Canonical schemas instead of prompt folklore.</li><li>Published versions instead of implicit breaking changes.</li><li>Receipts you can validate across runtimes.</li></ul></div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">What is free vs what is monetized?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">CommandLayer never charges for semantics, schemas, or validation. <strong>Schemas stay public and portable.</strong><ul><li><strong>Open:</strong> Commons schemas, Commercial schemas, Agent Cards, validation, interoperability.</li><li><strong>Metered:</strong> runtime execution, routing, throughput, guarantees, policy enforcement, commercial service surfaces.</li><li><strong>Protocol rule:</strong> meaning, validation, and interoperability are never paywalled.</li></ul></div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">How do ENS, Agent Cards, Runtime, and receipts fit together?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">ENS is the human-readable anchor. Agent Cards are the machine-readable identity and routing document. Runtime executes requests against published schemas. Receipts are the standardized result contract returned after execution.<ul><li><strong>ENS:</strong> naming and continuity.</li><li><strong>Agent Cards:</strong> discovery, declared capabilities, routing targets, schema versions.</li><li><strong>Runtime:</strong> execution, policy, proof, metering, guarantees.</li><li><strong>Receipts:</strong> canonical result surface for independent verification.</li></ul>Canonical receipt first, runtime metadata second.</div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">What are Agent Cards?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">Agent Cards are open JSON descriptors that tell clients what an agent is, what verbs it supports, which schema versions it speaks, and where requests should be routed.<br /><br />They are the discovery layer. They do not replace schemas and they do not redefine receipts. Agent Cards define discovery and routing — they keep capability lookup public and machine-readable.</div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">What is a receipt, and why is it important?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">A receipt is the standardized result contract for an execution — the canonical surface a client validates after a request completes.<br /><br />Runtimes may attach trace, proof, or orchestration metadata on top of that canonical receipt, but those execution-layer additions do not redefine the receipt contract itself.<ul><li>Canonical receipt first.</li><li>Runtime details, proof, or execution class second.</li><li>Independent validation remains possible across runtimes.</li></ul>Receipts are evidence of contract-conforming execution, not a dumping ground for runtime internals.</div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">How do I validate requests and receipts?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">Validate both sides against the published JSON Schemas. That is the point of a protocol-grade contract.<ul><li>Validate the request before execution.</li><li>Validate the receipt after execution.</li><li>Pin to published versions and CIDs when you need immutability.</li><li>If validation fails, interoperability fails.</li></ul>If you cannot validate independently, you do not have a standard. You have a private integration.</div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">What is Runtime in CommandLayer?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">Runtime is the execution layer. It takes published Commons and Commercial contracts, enforces policy, routes execution, meters usage, and can emit proof and trace data alongside the canonical receipt.<br /><br />Runtime is live today as a reference proving surface. The roadmap expands hardening, guarantees, multi-runtime support, and commercial operations around that live base.</div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">Can other people run runtimes, or is it centralized?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">Others can run runtimes because the contract surface is public. That is the point.<br /><br />Competition should happen in execution quality: reliability, routing, latency, guarantees, certification, policy, and cost. The meaning layer stays shared.<br /><br /><strong>Open semantics, competitive execution.</strong></div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">How does versioning work?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">Versions are explicit and published. Commons v1.1.0, Commercial v1.1.0, and Agent Cards v1.1.0 are concrete contract surfaces, not hand-wavy references.<br /><br />Builders target versioned schemas and can pin to canonical artifacts. New behavior should arrive in new versions, not as silent drift.</div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">What are Commercial verbs?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">Commercial verbs are the economic contract layer for payments, checkout, fulfillment, shipping, verification, and adjacent business flows.<br /><br />They use the same protocol discipline as Commons: public schemas, strict validation, portable receipts. Commercial currently preserves a commerce-oriented compatibility shape while Commons remains the cleaner canonical model. Monetization still lives in execution, not in the meaning of the verbs.</div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">Does this compete with x402 or ERC-8004?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">No. x402 handles payment and transport patterns. ERC-8004 handles discovery and agent registry patterns. CommandLayer defines the contract those systems move and discover.<br /><br /><strong>x402 moves money. ERC-8004 helps find agents. CommandLayer defines what the request and receipt mean.</strong></div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">Is this "open core"?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">No. Open core usually paywalls capabilities inside the standard itself. CommandLayer does the opposite.<br /><br />The contract layer stays open: semantics, schemas, validation, and interoperability. Monetization lives in execution, guarantees, routing, and commercial service surfaces.</div>
+  </details>
+
+  <details>
+    <summary><span class="summary-q">How should builders start?</span><span class="summary-arrow">›</span></summary>
+    <div class="faq-body">Start with one published schema, not the whole universe. Build against Commons or Commercial today.<ul><li>Pick one live verb.</li><li>Validate a <code>*.request</code> payload against the published schema.</li><li>Execute through your runtime of choice.</li><li>Validate the canonical <code>*.receipt</code>.</li><li>Add an Agent Card when you want discovery and routing.</li></ul>The fastest path is still one verb, one request schema, one receipt schema, one Agent Card.</div>
+  </details>
+
+  <hr class="doc-divider" />
+
+  <h2 class="doc-h2">Next stop</h2>
+  <div class="next-grid">
+    <a href="https://www.commandlayer.org/commons.html" class="next-card"><div class="nc-label">Contract</div><div class="nc-title">Commons</div><div class="nc-body">Canonical public contract surface.</div></a>
+    <a href="https://www.commandlayer.org/commercial.html" class="next-card"><div class="nc-label">Economic</div><div class="nc-title">Commercial</div><div class="nc-body">Economic contracts on the same schema discipline.</div></a>
+    <a href="https://www.commandlayer.org/runtime.html" class="next-card"><div class="nc-label">Execution</div><div class="nc-title">Runtime</div><div class="nc-body">Execution, metering, policy, and proof.</div></a>
+  </div>
+</div>
+
+<footer>
+  <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
+  <nav class="footer-links">
+    <a href="https://www.commandlayer.org/docs.html">Docs</a>
+    <a href="https://www.commandlayer.org/repositories.html">Repositories</a>
+    <a href="https://www.commandlayer.org/faq.html">FAQ</a>
+    <a href="https://www.commandlayer.org/about.html">About</a>
+    <a href="https://www.commandlayer.org/licensing.html">Licensing</a>
+  </nav>
+</footer>
+</body>
 </html>
