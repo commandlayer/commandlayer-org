@@ -16,7 +16,17 @@ This repo intentionally has two documentation surfaces with different roles:
 - **Primary public docs:** the website pages in `public/`, especially `public/docs.html`, `public/commons.html`, `public/commercial.html`, `public/runtime.html`, and `public/repositories.html`
 - **Secondary repo reference:** the concise Markdown notes in `docs/` for contributors and reviewers
 
-If the two ever drift, the site copy and published schema artifacts should be treated as the product-facing source of truth and corrected first.
+Those surfaces explain CommandLayer, but they do **not** own the protocol itself.
+
+### Source-of-truth hierarchy
+
+1. **Protocol repos own protocol truth.** `protocol-commons`, `protocol-commercial`, and `agent-cards` define the canonical contract, extension, and discovery artifacts.
+2. **Published schema artifacts in this repo are mirrors/publishing outputs.** They should match the canonical upstream protocol repos exactly and should never become an independent authority.
+3. **Runtime repos own execution behavior, not contract meaning.** `runtime-core` and runtime implementations may validate, serialize, sign, and prove receipts, but they must not redefine schema semantics.
+4. **SDKs own client ergonomics, not protocol truth.** They consume pinned artifacts and verification rules from the protocol layer.
+5. **Website copy is the public explanation layer.** It should teach the stack faithfully, but if it drifts from the protocol repos, the protocol repos win and the site must be updated to mirror them.
+
+If drift is discovered, fix the canonical protocol/discovery repo first when the contract itself is wrong, then immediately update this repo's published schemas and site copy so the public mirror becomes accurate again.
 
 ## What this repo contains
 
