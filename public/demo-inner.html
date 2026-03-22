@@ -74,9 +74,19 @@ nav {
 }
 .nav-brand img { width: 24px; height: 24px; }
 .nav-links { display: flex; align-items: center; gap: 20px; list-style: none; }
-.nav-links a { color: var(--dim); text-decoration: none; font-size: 12px; transition: color 0.15s; }
+.nav-links a { color: var(--text); text-decoration: none; font-size: 12px; transition: color 0.15s; }
 .nav-links a:hover { color: var(--accent); }
 .nav-links a.active { color: var(--gold); }
+.nav-dropdown { position: relative; }
+.nav-dropdown-toggle { color: var(--text); font-size: 12px; font-family: var(--mono); padding: 5px 10px; border-radius: 4px; cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 4px; transition: color .15s; }
+.nav-dropdown-toggle:hover { color: var(--gold); }
+.nav-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; min-width: 155px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 6px; margin-top: 4px; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+.nav-dropdown:hover .nav-dropdown-menu { display: flex; flex-direction: column; }
+.nav-dropdown-menu a { color: var(--text); text-decoration: none; font-size: 12px; padding: 6px 10px; border-radius: 3px; transition: all .12s; }
+.nav-dropdown-menu a:hover { color: var(--gold); background: rgba(255,213,79,.06); }
+.nav-dropdown-menu a.active { color: var(--gold); }
+.nav-github { color: var(--text); text-decoration: none; font-size: 12px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; transition: all .15s; }
+.nav-github:hover { border-color: var(--gold); color: var(--gold); }
 .nav-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--dim); }
 .status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dimmer); transition: background 0.3s; }
 .status-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); animation: blink 2s infinite; }
@@ -439,12 +449,18 @@ footer {
   display: flex; align-items: center; justify-content: space-between;
   font-size: 11px; color: var(--dimmer); flex-wrap: wrap; gap: 8px;
 }
-footer a { color: var(--dim); text-decoration: none; }
+footer a { color: var(--text); text-decoration: none; }
 footer a:hover { color: var(--gold); }
 
 .empty-state { padding: 28px 14px; text-align: center; color: var(--dimmer); font-size: 12px; line-height: 1.8; }
 .empty-state .big { font-size: 24px; margin-bottom: 6px; }
 </style>
+<meta property="og:title" content="CommandLayer — Commercial Flow Demo" />
+<meta property="og:description" content="CommandLayer: verifiable agent execution with signed receipts, ENS identity, and ERC-8004 proof on Base." />
+<meta property="og:image" content="https://www.commandlayer.org/icon2.png" />
+<meta property="og:url" content="https://www.commandlayer.org/demo-inner.html" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
 </head>
 <body>
 
@@ -456,15 +472,24 @@ footer a:hover { color: var(--gold); }
   </a>
   <ul class="nav-links">
     <li><a href="https://www.commandlayer.org/">Home</a></li>
-    <li><a href="https://www.commandlayer.org/composer.html">Commons Demo</a></li>
-    <li><a href="https://www.commandlayer.org/demo-inner.html" class="active">Commercial</a></li>
+    <li><a href="https://www.commandlayer.org/composer.html">Demo</a></li>
     <li><a href="https://www.commandlayer.org/quickstart.html">Quickstart</a></li>
-    <li><a href="https://www.commandlayer.org/commercial.html">Docs</a></li>
-    <li><a href="https://github.com/commandlayer">GitHub</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle">Docs ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="https://www.commandlayer.org/commons.html">Commons</a>
+        <a href="https://www.commandlayer.org/commercial.html" class="active">Commercial</a>
+        <a href="https://www.commandlayer.org/agent-cards.html">Agent Cards</a>
+        <a href="https://www.commandlayer.org/runtime.html">Runtime</a>
+      </div>
+    </li>
   </ul>
-  <div class="nav-status">
-    <div class="status-dot" id="navDot"></div>
-    <span id="navStatusText">checking runtime…</span>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a>
+    <div class="nav-status">
+      <div class="status-dot" id="navDot"></div>
+      <span id="navStatusText">checking runtime…</span>
+    </div>
   </div>
 </nav>
 
