@@ -1004,11 +1004,9 @@ function getSignerFromNormalized(normalized) {
 }
 
 function getReceiptIdFromNormalized(normalized) {
-  return normalized?.receipt?.receipt_id
-    || normalized?.receipt?.metadata?.receipt_id
+  return normalized?.receipt?.metadata?.receipt_id
     || normalized?.receipt?.metadata?.proof?.receipt_id
-    || normalized?.runtime_metadata?.receipt_id
-    || `rcpt_${Date.now().toString(36)}`;
+    || null;
 }
 
 function buildBody(verb) {
@@ -1063,10 +1061,19 @@ function renderVerifyCurl(receipt) {
     return `<span style="color:var(--dimmer);"># verify cURL available after a receipt is returned</span>`;
   }
 
+  const verifyUrl = `${RUNTIME_BASE}/verify?ens=1&strict_kid=1`;
+  const body = JSON.stringify(receipt, null, 2)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "'\\''");
+  const htmlBody = body
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
   return `<span class="cmd">curl</span> -sS --max-time 20 \
-  -X POST <span class="url">'https://commercial-runtime.commandlayer.org/verify/v1.1.0?ens=1&amp;strict_kid=1'</span> \
+  -X POST <span class="url">'${verifyUrl.replace(/&/g, '&amp;')}'</span> \
   <span class="flag">-H</span> 'Content-Type: application/json' \
-  <span class="flag">--data-binary</span> '${JSON.stringify(receipt)}'`;
+  <span class="flag">--data-binary</span> '${htmlBody}'`;
 }
 
 function completeSettledState() {
@@ -1190,7 +1197,7 @@ function updateProofPanel(i) {
     || receipt.signature
     || receipt?.metadata?.proof?.signature_b64
     || null;
-  const rid = getReceiptIdFromNormalized(data);
+  const rid = getReceiptIdFromNormalized(data) || '—';
   const chain = document.getElementById('fChain').options[document.getElementById('fChain').selectedIndex].text;
 
   setMeta('mVerb', verb, 'gold');
