@@ -92,7 +92,7 @@
   }
 
   .nav-links a {
-    color: var(--dim);
+    color: var(--text);
     text-decoration: none;
     font-size: 12px;
     transition: color 0.15s;
@@ -100,6 +100,15 @@
 
   .nav-links a:hover { color: var(--accent); }
   .nav-links a.active { color: var(--accent); }
+  .nav-dropdown { position: relative; }
+  .nav-dropdown-toggle { color: var(--text); font-size: 12px; font-family: var(--mono); padding: 5px 10px; border-radius: 4px; cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 4px; transition: color .15s; }
+  .nav-dropdown-toggle:hover { color: var(--accent); }
+  .nav-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; min-width: 155px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 6px; margin-top: 4px; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,.4); }
+  .nav-dropdown:hover .nav-dropdown-menu { display: flex; flex-direction: column; }
+  .nav-dropdown-menu a { color: var(--text); text-decoration: none; font-size: 12px; padding: 6px 10px; border-radius: 3px; transition: all .12s; }
+  .nav-dropdown-menu a:hover { color: var(--accent); background: rgba(0,212,255,.06); }
+  .nav-github { color: var(--text); text-decoration: none; font-size: 12px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; transition: all .15s; }
+  .nav-github:hover { border-color: var(--accent); color: var(--accent); }
 
   .nav-status {
     display: flex;
@@ -371,41 +380,6 @@
   }
   .step-output-mini.visible { display: block; }
   .step-output-mini.has-data { color: var(--text); }
-
-  .step-receipt-row {
-    display: none;
-    margin-top: 10px;
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    background: var(--bg);
-    overflow: hidden;
-  }
-
-  .step-receipt-row.visible {
-    display: block;
-  }
-
-  .step-receipt-label {
-    padding: 8px 10px 0;
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    color: var(--dim);
-  }
-
-  .step-receipt-json {
-    margin: 0;
-    padding: 8px 10px 10px;
-    font-family: var(--mono);
-    font-size: 10.5px;
-    line-height: 1.55;
-    color: var(--text);
-    white-space: pre-wrap;
-    word-break: break-word;
-    max-height: 220px;
-    overflow: auto;
-    background: transparent;
-  }
 
   /* ── FLOW CONTROLS ── */
   .flow-controls {
@@ -684,7 +658,7 @@
     flex-wrap: wrap;
     gap: 8px;
   }
-  footer a { color: var(--dim); text-decoration: none; }
+  footer a { color: var(--text); text-decoration: none; }
   footer a:hover { color: var(--accent); }
 
   /* ── AUTO-RUN BANNER ── */
@@ -739,6 +713,12 @@
   }
   .empty-state .big { font-size: 28px; margin-bottom: 8px; }
 </style>
+<meta property="og:title" content="CommandLayer — Run a flow. Prove what happened." />
+<meta property="og:description" content="CommandLayer: verifiable agent execution with signed receipts, ENS identity, and ERC-8004 proof on Base." />
+<meta property="og:image" content="https://www.commandlayer.org/icon2.png" />
+<meta property="og:url" content="https://www.commandlayer.org/composer.html" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
 </head>
 <body>
 
@@ -752,13 +732,22 @@
     <li><a href="https://www.commandlayer.org/">Home</a></li>
     <li><a href="https://www.commandlayer.org/composer.html" class="active">Demo</a></li>
     <li><a href="https://www.commandlayer.org/quickstart.html">Quickstart</a></li>
-    <li><a href="https://www.commandlayer.org/commons.html">Commons</a></li>
-    <li><a href="https://www.commandlayer.org/runtime.html">Runtime</a></li>
-    <li><a href="https://github.com/commandlayer">GitHub</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle">Docs ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="https://www.commandlayer.org/commons.html">Commons</a>
+        <a href="https://www.commandlayer.org/commercial.html">Commercial</a>
+        <a href="https://www.commandlayer.org/agent-cards.html">Agent Cards</a>
+        <a href="https://www.commandlayer.org/runtime.html">Runtime</a>
+      </div>
+    </li>
   </ul>
-  <div class="nav-status">
-    <div class="status-dot" id="navDot"></div>
-    <span id="navStatusText">checking runtime…</span>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a>
+    <div class="nav-status">
+      <div class="status-dot" id="navDot"></div>
+      <span id="navStatusText">checking runtime…</span>
+    </div>
   </div>
 </nav>
 
@@ -832,10 +821,6 @@
         </div>
         <textarea class="step-input" id="input0" placeholder="Input text for this step…">CommandLayer provides verifiable execution receipts for autonomous agents. Each action is signed with Ed25519, bound to an ENS identity, and registered on Base via ERC-8004.</textarea>
         <div class="step-output-mini" id="output0"></div>
-        <div class="step-receipt-row" id="receiptRow0" style="display:none;">
-          <div class="step-receipt-label">Receipt</div>
-          <pre class="step-receipt-json" id="receipt0"></pre>
-        </div>
         <div class="step-status" id="status0">awaiting run</div>
       </div>
     </div>
@@ -863,10 +848,6 @@
         <textarea class="step-input" id="input1" placeholder="Leave blank to chain from Step 1 output…"></textarea>
         <div class="chain-connector" id="chain1" style="display:none;">using Step 1 output</div>
         <div class="step-output-mini" id="output1"></div>
-        <div class="step-receipt-row" id="receiptRow1" style="display:none;">
-          <div class="step-receipt-label">Receipt</div>
-          <pre class="step-receipt-json" id="receipt1"></pre>
-        </div>
         <div class="step-status" id="status1">awaiting step 1</div>
       </div>
     </div>
@@ -894,10 +875,6 @@
         <textarea class="step-input" id="input2" placeholder="Leave blank to chain from Step 2 output…"></textarea>
         <div class="chain-connector" id="chain2" style="display:none;">using Step 2 output</div>
         <div class="step-output-mini" id="output2"></div>
-        <div class="step-receipt-row" id="receiptRow2" style="display:none;">
-          <div class="step-receipt-label">Receipt</div>
-          <pre class="step-receipt-json" id="receipt2"></pre>
-        </div>
         <div class="step-status" id="status2">awaiting step 2</div>
       </div>
     </div>
@@ -1048,10 +1025,6 @@ let lastRaw = null;
 let lastReceipt = null;
 let verifyCurlCmd = null;
 
-function getReceiptTraceId(receipt) {
-  return receipt?.metadata?.trace_id || receipt?.metadata?.proof?.trace_id || receipt?.runtime_metadata?.trace_id || receipt?.runtime_metadata?.proof?.trace_id || null;
-}
-
 // ── RUNTIME HEALTH ───────────────────────────────────────────────────────────
 async function checkRuntime() {
   try {
@@ -1125,120 +1098,35 @@ function showOutput(i, text) {
   el.className = `step-output-mini visible${text ? ' has-data' : ''}`;
 }
 
-function buildStepReceiptView(step) {
-  const receipt = step?.receipt || {};
-  const metadata = receipt?.metadata || receipt?.runtime_metadata || {};
-  const proof = metadata?.proof || receipt?.runtime_metadata?.proof || {};
-  const receiptTraceId = getReceiptTraceId(receipt);
-
-  return {
-    status: receipt?.status || 'unknown',
-    entry: receipt?.entry || 'https://runtime.commandlayer.org/execute',
-    verb: receipt?.verb || step?.verb || 'unknown',
-    version: receipt?.version || receipt?.schema_version || '1.1.0',
-    class: receipt?.class || 'commons',
-    result: receipt?.result || {},
-    metadata: {
-      trace_id: receiptTraceId,
-      proof: {
-        alg: proof?.alg || null,
-        canonical: proof?.canonical || null,
-        signer_id: proof?.signer_id || null,
-        kid: proof?.kid || null,
-        hash_sha256: proof?.hash_sha256 || null,
-        signature_b64: proof?.signature_b64 || null,
-        canonical_id: proof?.canonical_id || null,
-        receipt_id: proof?.receipt_id || metadata?.receipt_id || null,
-        trace_id: receiptTraceId
-      },
-      receipt_id: metadata?.receipt_id || proof?.receipt_id || null
-    }
-  };
-}
-
-function renderStepReceipt(index, step) {
-  const row = document.getElementById(`receiptRow${index}`);
-  const pre = document.getElementById(`receipt${index}`);
-  if (!row || !pre) return;
-
-  const receipt = step?.receipt;
-  if (!receipt) {
-    row.classList.remove('visible');
-    row.style.display = 'none';
-    pre.textContent = '';
-    return;
-  }
-
-  const visibleReceipt = buildStepReceiptView(step);
-  pre.textContent = JSON.stringify(visibleReceipt, null, 2);
-  row.style.display = 'block';
-  row.classList.add('visible');
-}
-
 // ── BUILD REQUEST BODY ────────────────────────────────────────────────────────
-function buildBody(verb, content) {
+function buildBody(verb, content, stepIndex) {
   const conf = VERB_FIELDS[verb] || { field: 'content', ops: {} };
-  return {
+  const body = {
+    verb,
+    schema_version: '1.1.0',
     [conf.field]: content,
+    trace_id: traceId,
     ...conf.ops
   };
-}
-
-function buildExecuteRequest(verb, content) {
-  return {
-    actor: 'composer.commandlayer.org',
-    input: buildBody(verb, content),
-    trace: { trace_id: traceId },
-    execution: {
-      entry: `${RUNTIME}/execute`,
-      class: 'commons',
-      verb,
-      version: '1.1.0'
-    }
-  };
+  return body;
 }
 
 // ── EXTRACT OUTPUT FROM RECEIPT ──────────────────────────────────────────────
 function extractOutput(verb, data) {
-  const receipt = data?.receipt || data || {};
-  const result = receipt?.result || {};
-
-  if (verb === 'clean') {
-    return result.cleaned_content || JSON.stringify(result, null, 2);
-  }
-
-  if (verb === 'summarize') {
-    return result.summary || JSON.stringify(result, null, 2);
-  }
-
-  if (verb === 'classify') {
-    if (Array.isArray(result.labels)) {
-      return `labels: ${result.labels.join(', ')}`;
+  const r = data.receipt || data;
+  // try common output field names
+  for (const key of ['cleaned_content','summary','analysis','classification','formatted_content','parsed_output','description','explanation','result','output']) {
+    if (r[key] !== undefined) {
+      const v = r[key];
+      if (typeof v === 'string') return v;
+      if (typeof v === 'object') return JSON.stringify(v, null, 2);
     }
-    return JSON.stringify(result, null, 2);
   }
-
-  if (verb === 'format') {
-    return result.formatted_content || JSON.stringify(result, null, 2);
+  // fallback: find any non-standard string field
+  for (const [k, v] of Object.entries(r)) {
+    if (!['verb','schema_version','status','receipt_id','signer','timestamp'].includes(k) && typeof v === 'string' && v.length > 2) return v;
   }
-
-  if (verb === 'parse') {
-    return result.parsed_output || JSON.stringify(result, null, 2);
-  }
-
-  if (verb === 'describe') {
-    return result.description || JSON.stringify(result, null, 2);
-  }
-
-  if (verb === 'explain') {
-    return result.explanation || JSON.stringify(result, null, 2);
-  }
-
-  if (verb === 'analyze') {
-    return result.analysis || JSON.stringify(result, null, 2);
-  }
-
-  return JSON.stringify(result, null, 2);
+  return r.status || 'success';
 }
 
 // ── SYNTAX HIGHLIGHT JSON ─────────────────────────────────────────────────────
@@ -1281,11 +1169,8 @@ function addTrailItem(verb, receipt, stepIndex) {
 
   document.getElementById('trailBadge').style.display = '';
 
-  const normalizedReceipt = receipt?.receipt || receipt || {};
-  const metadata = normalizedReceipt?.metadata || normalizedReceipt?.runtime_metadata || {};
-  const proof = metadata?.proof || normalizedReceipt?.runtime_metadata?.proof || {};
-  const hash = proof?.hash_sha256 || normalizedReceipt?.hash_sha256 || '';
-  const signer = proof?.signer_id || metadata?.signer || normalizedReceipt?.signer || 'runtime.commandlayer.eth';
+  const hash = receipt?.runtime_metadata?.proof?.hash_sha256 || receipt?.hash_sha256 || '';
+  const signer = receipt?.runtime_metadata?.signer || receipt?.signer || 'runtime.commandlayer.eth';
   const shortHash = hash ? hash.slice(0, 24) + '…' : '—';
 
   const item = document.createElement('div');
@@ -1309,7 +1194,7 @@ function addTrailItem(verb, receipt, stepIndex) {
 // ── EXECUTE A SINGLE STEP ─────────────────────────────────────────────────────
 async function executeStep(stepIndex, inputOverride) {
   const verb = document.getElementById(`verb${stepIndex}`).value;
-  const rawInput = typeof inputOverride === 'string' ? inputOverride : (document.getElementById(`input${stepIndex}`).value || '');
+  const rawInput = inputOverride || document.getElementById(`input${stepIndex}`).value || '';
 
   // show chain indicator if chaining
   if (stepIndex > 0 && !document.getElementById(`input${stepIndex}`).value.trim()) {
@@ -1319,14 +1204,14 @@ async function executeStep(stepIndex, inputOverride) {
   setStepState(stepIndex, 'running');
   document.getElementById(`trace${stepIndex}`).textContent = verb;
 
-  const requestBody = buildExecuteRequest(verb, rawInput);
+  const body = buildBody(verb, rawInput, stepIndex);
   const t0 = Date.now();
 
   try {
-    const resp = await fetch(`${RUNTIME}/execute`, {
+    const resp = await fetch(`${RUNTIME}/${verb}/v1.1.0`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody),
+      body: JSON.stringify(body),
       signal: AbortSignal.timeout(20000)
     });
 
@@ -1337,7 +1222,7 @@ async function executeStep(stepIndex, inputOverride) {
 
     const data = await resp.json();
     const elapsed = Date.now() - t0;
-    stepResults[stepIndex] = { data, verb, elapsed, requestBody };
+    stepResults[stepIndex] = { data, verb, elapsed };
     lastRaw = data;
 
     const receipt = data.receipt || data;
@@ -1345,8 +1230,7 @@ async function executeStep(stepIndex, inputOverride) {
 
     setStepState(stepIndex, 'done', `${verb} · ${elapsed}ms`);
     showOutput(stepIndex, output);
-    renderStepReceipt(stepIndex, { ...stepResults[stepIndex], receipt, verb });
-    addTrailItem(verb, receipt, stepIndex);
+    addTrailItem(verb, data, stepIndex);
 
     // update proof panel with final step
     updateProofPanel(verb, data, elapsed);
@@ -1360,15 +1244,13 @@ async function executeStep(stepIndex, inputOverride) {
 
 // ── UPDATE PROOF PANEL ────────────────────────────────────────────────────────
 function updateProofPanel(verb, data, elapsed) {
-  const receipt = data?.receipt || data || {};
-  const metadata = receipt?.metadata || receipt?.runtime_metadata || {};
-  const proof = metadata?.proof || receipt?.runtime_metadata?.proof || {};
-  const signer = proof?.signer_id || 'runtime.commandlayer.eth';
-  const hash = proof?.hash_sha256 || '—';
-  const sig = proof?.signature_b64 || null;
-  const receiptId = metadata?.receipt_id || proof?.receipt_id || '—';
-  const traceIdValue = getReceiptTraceId(receipt) || traceId || '—';
-  const schema = receipt?.version || receipt?.schema_version || '—';
+  const receipt = data.receipt || data;
+  const proof = data.runtime_metadata?.proof || {};
+  const signer = data.runtime_metadata?.signer || receipt.signer || 'runtime.commandlayer.eth';
+  const hash = proof.hash_sha256 || '—';
+  const sig = proof.signature_b64 || receipt.signature || null;
+  const receiptId = receipt.receipt_id || data.runtime_metadata?.receipt_id || `rcpt_${Date.now().toString(36)}`;
+  const schema = `commons/${verb}/v1.1.0`;
 
   lastReceipt = receipt;
 
@@ -1380,13 +1262,12 @@ function updateProofPanel(verb, data, elapsed) {
   setMeta('mHash', hash !== '—' ? hash : '—', 'hash');
   setMeta('mReceiptId', receiptId, 'dim');
   setMeta('mTime', `${elapsed}ms`, 'dim');
-  document.getElementById('traceIdDisplay').textContent = traceIdValue;
 
   // signature animation
   if (sig) {
     animateSig(sig);
   } else {
-    document.getElementById('sigDisplay').textContent = '—';
+    document.getElementById('sigDisplay').textContent = '[signature in runtime_metadata.proof]';
     document.getElementById('sigDisplay').className = 'sig-value dim';
   }
 
@@ -1407,44 +1288,26 @@ function updateProofPanel(verb, data, elapsed) {
   document.getElementById('rawJson').innerHTML = hl(JSON.stringify(data, null, 2));
 
   // verify cURL
-  const curlVerify = buildVerifyCurl(receipt);
+  const curlVerify = buildVerifyCurl(verb, receipt, proof);
   verifyCurlCmd = curlVerify;
-  document.getElementById('curlDisplay').textContent = curlVerify;
+  document.getElementById('curlDisplay').innerHTML = curlVerify;
 }
 
 // ── BUILD VERIFY CURL ─────────────────────────────────────────────────────────
+function buildVerifyCurl(verb, receipt, proof) {
+  const hash = proof?.hash_sha256 || '';
+  const sig = proof?.signature_b64 || '';
+  const snippet = JSON.stringify({ verb, status: receipt.status || 'success' });
+  return `<span class="cmd">curl</span> -sS --max-time 20 \\
+  -X POST <span class="url">'${RUNTIME}/${verb}/v1.1.0'</span> \\
+  <span class="flag">-H</span> 'Content-Type: application/json' \\
+  <span class="flag">--data-binary</span> '${snippet}'
 
-function assertTraceContinuity() {
-  const receipts = stepResults.map(step => step?.data?.receipt || step?.data || step?.receipt || null);
-  const comparedTraceIds = [
-    traceId,
-    ...receipts.map(getReceiptTraceId),
-    getReceiptTraceId(lastReceipt)
-  ];
-  const hasMissingTraceId = comparedTraceIds.some(value => !value);
-  const uniqueTraceIds = [...new Set(comparedTraceIds)];
+<span style="color:var(--dimmer);"># verify Ed25519 detached signature:</span>
+<span style="color:var(--dimmer);"># hash: ${hash.slice(0,32)}…</span>
+<span style="color:var(--dimmer);"># sig:  ${sig.slice(0,32)}…</span>
 
-  if (receipts.some(receipt => !receipt) || hasMissingTraceId || uniqueTraceIds.length !== 1 || uniqueTraceIds[0] !== traceId) {
-    const errEl = document.getElementById('errorMsg');
-    errEl.textContent = 'Trace continuity failed: step receipts do not share one trace_id.';
-    errEl.className = 'error-msg visible';
-    document.getElementById('traceIdDisplay').textContent = traceId || '—';
-    return false;
-  }
-
-  document.getElementById('traceIdDisplay').textContent = uniqueTraceIds[0];
-  return true;
-}
-
-function buildVerifyCurl(receipt) {
-  const body = JSON.stringify(receipt, null, 2)
-    .replace(/\\/g, '\\\\')
-    .replace(/'/g, "'\\''");
-
-  return `curl -sS --max-time 20 \
-  -X POST "https://runtime.commandlayer.org/verify?ens=1&strict_kid=1" \
-  -H "Content-Type: application/json" \
-  --data-binary '${body}'`;
+<span class="cmd">curl</span> -sS <span class="url">'${RUNTIME}/health'</span>`;
 }
 
 // ── RUN FULL FLOW ─────────────────────────────────────────────────────────────
@@ -1456,14 +1319,13 @@ async function runFlow() {
   btn.disabled = true;
   btn.textContent = '⏳ Running…';
 
-  traceId = `cltrace_${Date.now().toString(36)}`;
+  traceId = `trace_demo_${Date.now().toString(36)}`;
   document.getElementById('traceIdDisplay').textContent = traceId;
 
   // reset state
   for (let i = 0; i < 3; i++) {
     setStepState(i, 'pending', i === 0 ? 'awaiting run' : `awaiting step ${i}`);
     document.getElementById(`output${i}`).className = 'step-output-mini';
-    renderStepReceipt(i, null);
     if (i > 0) document.getElementById(`chain${i}`).style.display = 'none';
   }
   document.getElementById('proofTrail').innerHTML = `<div class="empty-state"><div class="big">◎</div>Executing…</div>`;
@@ -1498,14 +1360,9 @@ async function runFlow() {
     const input3 = document.getElementById('input2').value.trim() || out2;
     await executeStep(2, input3);
 
-    if (!assertTraceContinuity()) {
-      throw new Error('Trace continuity failed: step receipts do not share one trace_id.');
-    }
-
   } catch (err) {
     const errEl = document.getElementById('errorMsg');
-    const message = String(err?.message || err || 'Unknown runtime error');
-    errEl.textContent = message.startsWith('Trace continuity failed:') ? message : `Runtime error: ${message}`;
+    errEl.textContent = `Runtime error: ${err.message}`;
     errEl.className = 'error-msg visible';
   }
 
@@ -1521,7 +1378,6 @@ function resetFlow() {
   for (let i = 0; i < 3; i++) {
     setStepState(i, 'pending', i === 0 ? 'awaiting run' : `awaiting step ${i}`);
     document.getElementById(`output${i}`).className = 'step-output-mini';
-    renderStepReceipt(i, null);
     if (i > 0) document.getElementById(`chain${i}`).style.display = 'none';
     document.getElementById(`trace${i}`).textContent = '—';
     document.getElementById(`trace${i}`).className = 'trace-verb pending';
@@ -1546,10 +1402,6 @@ function resetFlow() {
   document.getElementById('curlDisplay').innerHTML = `<span style="color:var(--dimmer);">// run a flow to generate the verify cURL command</span>`;
   document.getElementById('autorunBar').classList.remove('hidden');
   stepResults = [null, null, null];
-  lastReceipt = null;
-  lastRaw = null;
-  verifyCurlCmd = null;
-  traceId = null;
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
