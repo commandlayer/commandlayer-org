@@ -20,6 +20,7 @@ This `docs/` tree is the lightweight repo-facing companion:
 
 ## Authority model
 
-- The site is the primary public explanation surface.
+- The site is the primary **public explanation** surface.
 - The Markdown docs in this repo are short reference notes for contributors, reviewers, and source control readers.
-- Versioned JSON Schemas under published `/schemas/...` paths remain the contract authority for requests and receipts.
+- The canonical **contract authority** lives in the upstream protocol repos; published `/schemas/...` paths in this repo are mirrors of those versioned artifacts, not a separate source of protocol truth.
+- Runtime and SDK repos should implement and consume those artifacts without becoming competing authorities over contract meaning.
