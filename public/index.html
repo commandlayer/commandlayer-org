@@ -2,1181 +2,770 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<title>CommandLayer — Verifiable agent execution with signed receipts, ENS identity, and ERC-8004 proof.</title>
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1, viewport-fit=cover"
-/>
-<meta
-  name="description"
-  content="Run multi-step agent flows, generate signed receipts, and verify execution through ENS identity and ERC-8004-registered proof."
-/>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CommandLayer — Agents Can Act. CommandLayer Proves They Acted.</title>
+<meta name="description" content="CommandLayer is infrastructure for agents that spend money, call services, and coordinate with other agents. Signed receipts, ENS identity, ERC-8004 proof." />
+<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <style>
 :root {
-  --bg: #05060a;
-  --bg-elevated: rgba(10, 14, 26, 0.9);
-  --bg-panel: rgba(10, 14, 26, 0.82);
-  --bg-panel-strong: rgba(8, 12, 24, 0.96);
-  --bg-header: radial-gradient(circle at 0% 0%, #4f5c86 0, #1a2238 42%, #05060a 100%);
-  --border-soft: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(76, 201, 240, 0.24);
-  --text-main: #f8faff;
-  --text-muted: #a6b1cc;
-  --text-soft: #78829d;
-  --accent-blue: #4cc9f0;
-  --accent-blue-strong: #2f7cf6;
-  --accent-green: #22c55e;
-  --accent-green-soft: rgba(34, 197, 94, 0.16);
-  --shadow-soft: 0 20px 60px rgba(0, 0, 0, 0.45);
-  --shadow-blue: 0 0 0 1px rgba(76, 201, 240, 0.16), 0 28px 70px rgba(22, 78, 168, 0.22);
-  --radius-lg: 18px;
-  --radius-xl: 28px;
-  --max-width: 1140px;
+  --bg:       #07090d;
+  --surface:  #0b0f18;
+  --panel:    #101828;
+  --border:   #1b2a3b;
+  --border-hi:#273d54;
+  --text:     #c8d8ea;
+  --dim:      #476080;
+  --dimmer:   #253040;
+  --accent:   #00d4ff;
+  --accent2:  #0099cc;
+  --green:    #00e676;
+  --gold:     #ffd54f;
+  --amber:    #ffb300;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Syne', sans-serif;
 }
 
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(47, 124, 246, 0.14), transparent 28%),
-    radial-gradient(circle at top right, rgba(76, 201, 240, 0.08), transparent 22%),
-    linear-gradient(180deg, #06070d 0%, #03050a 100%);
-  color: var(--text-main);
-}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
 
 body {
-  min-height: 100vh;
-}
-
-.page-shell {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.page-main {
-  flex: 1;
-}
-
-.container {
-  width: 100%;
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 1.5rem;
-}
-
-.site-header {
-  background: var(--bg-header);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  position: sticky;
-  top: 0;
-  z-index: 20;
-  backdrop-filter: blur(18px);
-}
-
-.site-header__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.9rem 1.5rem;
-}
-
-.site-header__brand {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  text-decoration: none;
-  color: inherit;
-}
-
-.site-header__logo-img {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  display: block;
-  border-radius: 6px;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
-}
-
-.site-header__text {
-  display: flex;
-  flex-direction: column;
-}
-
-.site-header__title {
-  font-size: 0.98rem;
-  font-weight: 600;
-  letter-spacing: 0.03em;
-}
-
-.site-header__subtitle {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-.site-header__nav {
-  display: flex;
-  gap: 1rem;
-  align-items: center;
-}
-
-.site-header__link {
-  font-size: 0.86rem;
-  padding: 0.35rem 0.8rem;
-  border-radius: 999px;
-  text-decoration: none;
-  color: var(--text-muted);
-  border: 1px solid transparent;
-  white-space: nowrap;
-}
-
-.site-header__link:hover {
-  color: var(--text-main);
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(15, 23, 42, 0.7);
-}
-
-.site-header__link--active {
-  color: #08101e;
-  background: linear-gradient(135deg, #ecf3ff, #bfe9f6);
-  border-color: rgba(255, 255, 255, 0.25);
-}
-
-.site-header__dropdown {
-  position: relative;
-}
-
-.site-header__dropdown-btn {
-  font-size: 0.86rem;
-  padding: 0.35rem 0.8rem;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  background: transparent;
-  color: var(--text-muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  cursor: pointer;
-}
-
-.site-header__dropdown-btn:hover {
-  color: var(--text-main);
-  border-color: rgba(255, 255, 255, 0.18);
-  background: rgba(15, 23, 42, 0.7);
-}
-
-.site-header__dropdown-menu {
-  position: absolute;
-  top: 2.3rem;
-  right: 0;
-  background: rgba(15, 23, 42, 0.98);
-  border-radius: 14px;
-  border: 1px solid var(--border-soft);
-  box-shadow: var(--shadow-soft);
-  padding: 0.5rem 0.4rem;
-  min-width: 210px;
-  display: none;
-}
-
-.site-header__dropdown-menu a {
-  display: block;
-  padding: 0.35rem 0.7rem;
-  font-size: 0.82rem;
-  text-decoration: none;
-  color: var(--text-muted);
-  border-radius: 999px;
-}
-
-.site-header__dropdown-menu a:hover {
-  color: var(--text-main);
-  background: rgba(31, 41, 55, 0.95);
-}
-
-.site-header--docs-open .site-header__dropdown-menu {
-  display: block;
-}
-
-.site-header__toggle {
-  display: none;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.7);
-  background: rgba(15, 23, 42, 0.9);
-  color: var(--text-main);
-  padding: 0.25rem 0.6rem;
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.hero {
-  padding: 3.6rem 0 2rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.hero__layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
-  gap: 1.6rem;
-  align-items: flex-start;
-}
-
-.eyebrow {
-  margin: 0 0 0.7rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.32rem 0.68rem;
-  border-radius: 999px;
-  border: 1px solid rgba(76, 201, 240, 0.22);
-  background: rgba(10, 18, 30, 0.72);
-  color: #b7dfff;
-  font-size: 0.74rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.hero__title {
-  margin: 0;
-  max-width: 10ch;
-  font-size: clamp(3rem, 6vw, 5.1rem);
-  line-height: 0.96;
-  letter-spacing: -0.06em;
-}
-
-.hero__title-accent {
-  color: var(--accent-blue);
-}
-
-.hero__subtitle {
-  margin: 1rem 0 0;
-  max-width: 36rem;
-  color: var(--text-main);
-  font-size: 1.08rem;
-  line-height: 1.58;
-}
-
-.hero__supporting {
-  margin: 0.8rem 0 0;
-  max-width: 34rem;
-  color: var(--text-muted);
-  font-size: 0.94rem;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
-.hero__actions {
-  margin-top: 1.4rem;
+/* ── BACKGROUND GEOMETRY ── */
+.bg-geo {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden;
 }
+.bg-geo svg { width: 100%; height: 100%; opacity: 0.045; }
 
-.hero__cta-row,
-.hero__proof-row {
-  display: flex;
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(7,9,13,0.93);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 32px; height: 54px;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text);
+  font-family: var(--sans); font-weight: 800; font-size: 15px; letter-spacing: -0.02em;
+}
+.nav-brand img { width: 26px; height: 26px; }
+
+.nav-center { display: flex; align-items: center; gap: 4px; list-style: none; }
+.nav-center a {
+  color: var(--dim); text-decoration: none; font-size: 12px;
+  padding: 5px 10px; border-radius: 4px; transition: all 0.15s;
+}
+.nav-center a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.nav-center a.active { color: var(--accent); }
+
+.nav-dropdown { position: relative; }
+.nav-dropdown-toggle {
+  color: var(--dim); font-size: 12px; font-family: var(--mono);
+  padding: 5px 10px; border-radius: 4px; cursor: pointer;
+  background: none; border: none; display: flex; align-items: center; gap: 4px;
+  transition: color 0.15s;
+}
+.nav-dropdown-toggle:hover { color: var(--text); }
+.nav-dropdown-menu {
+  display: none; position: absolute; top: 100%; left: 0; min-width: 150px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 5px;
+  padding: 6px; margin-top: 4px; z-index: 200;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+.nav-dropdown:hover .nav-dropdown-menu { display: flex; flex-direction: column; }
+.nav-dropdown-menu a {
+  color: var(--dim); text-decoration: none; font-size: 12px;
+  padding: 6px 10px; border-radius: 3px; transition: all 0.12s;
+}
+.nav-dropdown-menu a:hover { color: var(--accent); background: rgba(0,212,255,0.06); }
+
+.nav-right { display: flex; align-items: center; gap: 10px; }
+.nav-github {
+  color: var(--dim); text-decoration: none; font-size: 12px;
+  padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px;
+  transition: all 0.15s;
+}
+.nav-github:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  min-height: 88vh;
+  display: grid;
+  grid-template-columns: 1fr 480px;
+  gap: 40px;
   align-items: center;
-  gap: 0.75rem;
-  width: 100%;
-  max-width: 100%;
-  flex-wrap: nowrap;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 80px 32px 60px;
+}
+@media (max-width: 1000px) { .hero { grid-template-columns: 1fr; } .hero-receipt { display: none; } }
+
+.hero-left { display: flex; flex-direction: column; gap: 0; }
+
+.hero-kicker {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 24px;
+  opacity: 0; animation: fade-up 0.6s 0.1s ease both;
+}
+.hero-kicker-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); box-shadow: 0 0 8px var(--green); animation: pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+.hero-h1 {
+  font-family: var(--sans); font-weight: 800;
+  font-size: clamp(36px, 5.5vw, 72px);
+  letter-spacing: -0.04em; line-height: 1.0;
+  color: #fff; margin-bottom: 28px;
+  opacity: 0; animation: fade-up 0.7s 0.2s ease both;
+}
+.hero-h1 .line2 { color: var(--accent); display: block; }
+
+.hero-body {
+  font-size: 15px; color: var(--dim); line-height: 1.75;
+  max-width: 560px; margin-bottom: 36px;
+  opacity: 0; animation: fade-up 0.7s 0.35s ease both;
+}
+.hero-body strong { color: var(--text); font-weight: 400; }
+
+.hero-ctas {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  opacity: 0; animation: fade-up 0.7s 0.45s ease both;
 }
 
-.hero__cta-row > *,
-.hero__proof-row > * {
-  flex: 0 0 auto;
-  width: auto;
-  max-width: 100%;
-  white-space: nowrap;
+.hero-proof {
+  display: flex; align-items: center; gap: 16px; margin-top: 48px; flex-wrap: wrap;
+  opacity: 0; animation: fade-up 0.6s 0.6s ease both;
+}
+.proof-pill {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--dim);
+  padding: 5px 12px; border: 1px solid var(--border); border-radius: 20px;
+  transition: all 0.2s;
+}
+.proof-pill:hover { border-color: var(--accent); color: var(--accent); }
+.proof-pill-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
+/* ── BUTTONS ── */
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.45rem;
-  padding: 0.8rem 1.05rem;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  text-decoration: none;
-  border: 1px solid transparent;
-  white-space: nowrap;
-  width: auto;
-  flex: 0 0 auto;
-  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 11px 22px; border-radius: 4px;
+  font-family: var(--mono); font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none; transition: all 0.15s;
+  text-decoration: none; white-space: nowrap;
 }
+.btn-primary { background: var(--accent); color: #06090e; font-weight: 700; }
+.btn-primary:hover { background: #00bcde; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,212,255,0.25); }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.btn-sm { padding: 7px 14px; font-size: 12px; }
 
-.btn:hover {
-  transform: translateY(-1px);
-}
-
-.btn--primary {
-  color: #f8fcff;
-  background: linear-gradient(135deg, #2f7cf6, #4cc9f0);
-  border-color: rgba(76, 201, 240, 0.35);
-  box-shadow: 0 18px 40px rgba(47, 124, 246, 0.26);
-}
-
-.btn--ghost {
-  background: rgba(10, 14, 26, 0.84);
-  color: var(--text-main);
-  border-color: rgba(255, 255, 255, 0.14);
-}
-
-.btn--ghost:hover {
-  border-color: rgba(76, 201, 240, 0.4);
-  background: rgba(10, 18, 30, 0.96);
-}
-
-.btn--commerce {
-  color: #f4fff7;
-  background: linear-gradient(135deg, #1f9d55, #34d399);
-  border-color: rgba(52, 211, 153, 0.34);
-  box-shadow: 0 16px 34px rgba(31, 157, 85, 0.18);
-}
-
-.btn--commerce:hover {
-  border-color: rgba(74, 222, 128, 0.44);
-  box-shadow: 0 18px 36px rgba(31, 157, 85, 0.22);
-}
-
-.hero__pills {
-  margin-top: 1.15rem;
-}
-
-.hero__trust-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  margin-top: 0.95rem;
-  color: #a9dfff;
-  font-size: 0.8rem;
-  text-decoration: none;
-}
-
-.hero__trust-link:hover {
-  color: #d9f2ff;
-}
-
-.trust-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.58rem 0.8rem;
-  border-radius: 999px;
-  background: rgba(10, 14, 26, 0.78);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #d5deef;
-  font-size: 0.8rem;
-  width: auto;
-  flex: 0 0 auto;
-  white-space: nowrap;
-}
-
-.trust-pill__dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--accent-blue);
-  box-shadow: 0 0 12px rgba(76, 201, 240, 0.65);
+/* ── HERO RECEIPT ARTIFACT ── */
+.hero-receipt {
+  opacity: 0; animation: fade-up 0.8s 0.5s ease both;
 }
 
 .receipt-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px; overflow: hidden;
+  box-shadow: 0 0 60px rgba(0,212,255,0.06), 0 24px 60px rgba(0,0,0,0.5);
   position: relative;
-  margin-top: 1.55rem;
-  overflow: hidden;
-  padding: 1.35rem;
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-strong);
-  background:
-    radial-gradient(circle at top right, rgba(76, 201, 240, 0.14), transparent 28%),
-    linear-gradient(180deg, rgba(9, 14, 26, 0.96), rgba(7, 11, 21, 0.98));
-  box-shadow: var(--shadow-blue);
 }
 
-.receipt-card::after {
-  content: "";
-  position: absolute;
-  inset: auto -18% -28% auto;
-  width: 220px;
-  height: 220px;
-  border-radius: 999px;
-  background: radial-gradient(circle, rgba(47, 124, 246, 0.2), rgba(47, 124, 246, 0));
-  pointer-events: none;
+/* glow ring */
+.receipt-card::before {
+  content: '';
+  position: absolute; inset: -1px; border-radius: 8px;
+  background: linear-gradient(135deg, rgba(0,212,255,0.3), transparent 50%, rgba(0,230,118,0.15));
+  z-index: -1;
 }
 
-.receipt-card__header {
+.rc-header {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+}
+.rc-dots { display: flex; gap: 6px; }
+.rc-dot { width: 10px; height: 10px; border-radius: 50%; }
+.rc-dot:nth-child(1) { background: #ff5f56; }
+.rc-dot:nth-child(2) { background: #ffbd2e; }
+.rc-dot:nth-child(3) { background: #27c93f; }
+.rc-title { font-size: 11px; color: var(--dim); letter-spacing: 0.06em; }
+
+.rc-verified {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(0,230,118,0.12); border: 1px solid rgba(0,230,118,0.3);
+  color: var(--green); padding: 3px 10px; border-radius: 20px;
+  font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: 0.08em;
+  animation: verified-pulse 3s infinite;
+}
+@keyframes verified-pulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(0,230,118,0); }
+  50%      { box-shadow: 0 0 12px 2px rgba(0,230,118,0.2); }
+}
+
+.rc-body { padding: 18px; }
+
+.rc-field { margin-bottom: 12px; }
+.rc-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--dimmer); margin-bottom: 3px; }
+.rc-value { font-size: 12px; color: var(--text); }
+.rc-value.green  { color: var(--green); }
+.rc-value.accent { color: var(--accent); font-size: 11px; word-break: break-all; }
+.rc-value.dim    { color: var(--dim); }
+
+.rc-hash-row {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 10px 12px; margin-bottom: 12px;
+}
+.rc-hash-label { font-size: 10px; color: var(--dimmer); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+.rc-hash-val   { font-size: 11px; color: var(--accent); word-break: break-all; line-height: 1.5; }
+
+.rc-footer {
+  border-top: 1px solid var(--border); padding: 10px 18px;
+  font-size: 10px; color: var(--dimmer); line-height: 1.5;
+}
+
+/* ── SECTION LAYOUT ── */
+section { position: relative; z-index: 1; }
+
+.section-inner {
+  max-width: 1320px; margin: 0 auto; padding: 80px 32px;
+}
+
+.section-label {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--accent); margin-bottom: 16px;
+}
+
+.section-h2 {
+  font-family: var(--sans); font-size: clamp(26px, 3.5vw, 44px);
+  font-weight: 800; letter-spacing: -0.03em; color: #fff;
+  line-height: 1.1; margin-bottom: 16px;
+}
+.section-h2 em { color: var(--accent); font-style: normal; }
+
+.section-body { font-size: 15px; color: var(--dim); max-width: 540px; line-height: 1.75; }
+
+/* ── FEATURE GRID ── */
+.feature-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1px; background: var(--border);
+  border: 1px solid var(--border); border-radius: 6px; overflow: hidden;
+  margin-top: 56px;
+}
+.feature-cell {
+  background: var(--surface); padding: 28px;
+  transition: background 0.2s;
+}
+.feature-cell:hover { background: var(--panel); }
+
+.feat-icon {
+  width: 38px; height: 38px; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; margin-bottom: 16px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+.feat-icon.cyan   { border-color: rgba(0,212,255,0.3); }
+.feat-icon.green  { border-color: rgba(0,230,118,0.3); }
+.feat-icon.gold   { border-color: rgba(255,213,79,0.3); }
+.feat-icon.purple { border-color: rgba(179,157,219,0.3); }
+
+.feat-title { font-family: var(--sans); font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.feat-body  { font-size: 12px; color: var(--dim); line-height: 1.7; }
+
+/* ── CROSS-AGENT SECTION ── */
+.agent-flow {
+  display: flex; align-items: center; gap: 0;
+  margin: 48px 0; flex-wrap: wrap;
+}
+.agent-node {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 16px 20px; min-width: 160px;
+  transition: border-color 0.2s;
+}
+.agent-node:hover { border-color: var(--accent); }
+.agent-ens  { font-size: 13px; color: var(--accent); font-weight: 500; margin-bottom: 4px; }
+.agent-role { font-size: 11px; color: var(--dimmer); }
+.agent-badge {
+  display: inline-block; margin-top: 6px; font-size: 10px;
+  padding: 2px 7px; border-radius: 3px;
+  background: rgba(0,230,118,0.1); color: var(--green); border: 1px solid rgba(0,230,118,0.25);
+}
+
+.agent-arrow {
+  flex: 1; min-width: 40px; display: flex; flex-direction: column;
+  align-items: center; gap: 4px; padding: 0 8px;
+}
+.agent-arrow-line {
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, var(--border), var(--accent), var(--border));
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
 }
-
-.receipt-card__header--stacked {
-  align-items: flex-start;
-}
-
-.receipt-card__kicker {
-  color: #7fdcff;
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  margin-bottom: 0.4rem;
-}
-
-.receipt-card__title {
-  font-size: 1.08rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-}
-
-.receipt-card__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45rem;
-  padding: 0.36rem 0.64rem;
-  border-radius: 999px;
-  background: var(--accent-green-soft);
-  color: #d8ffe6;
-  border: 1px solid rgba(34, 197, 94, 0.28);
-  font-size: 0.78rem;
-  font-weight: 700;
-}
-
-.receipt-card__badge--strong {
-  padding: 0.5rem 0.82rem;
-  font-size: 0.82rem;
-  letter-spacing: 0.12em;
-  box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.18), 0 16px 36px rgba(34, 197, 94, 0.14);
-}
-
-.receipt-card__badge-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent-green);
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.7);
-}
-
-.receipt-card__rows {
-  position: relative;
-  display: grid;
-  gap: 0;
-}
-
-.receipt-card__row {
-  display: grid;
-  grid-template-columns: 92px 1fr;
-  gap: 0.75rem;
-  padding: 0.72rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.receipt-card__row--primary,
-.receipt-card__row--secondary,
-.receipt-card__row--hash {
-  border-radius: 14px;
-  padding: 0.82rem 0.9rem;
-  margin-bottom: 0.45rem;
-  grid-template-columns: 82px 1fr;
-}
-
-.receipt-card__row--primary {
-  background: linear-gradient(135deg, rgba(24, 60, 38, 0.9), rgba(10, 18, 30, 0.98));
-  border: 1px solid rgba(34, 197, 94, 0.24);
-}
-
-.receipt-card__row--secondary {
-  background: rgba(10, 20, 36, 0.88);
-  border: 1px solid rgba(76, 201, 240, 0.14);
-}
-
-.receipt-card__row--hash {
-  background: rgba(10, 14, 26, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.receipt-card__row:last-child {
-  border-bottom: none;
-}
-
-.receipt-card__label,
-.receipt-card__footer,
-.footer-links a,
-.site-footer__cid,
-.site-footer__meta,
-code,
-.mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.receipt-card__label {
-  color: var(--text-soft);
-  font-size: 0.77rem;
-  letter-spacing: 0.02em;
-  text-transform: lowercase;
-}
-
-.receipt-card__value {
-  color: var(--text-main);
-  text-align: right;
-  font-size: 0.84rem;
-  line-height: 1.55;
-  word-break: break-word;
-}
-
-.receipt-card__value--primary {
-  font-size: 1rem;
-}
-
-.receipt-card__value--identity {
-  font-size: 0.94rem;
-  color: #dff3ff;
-}
-
-.receipt-card__value--hash {
-  font-size: 0.9rem;
-  color: #bfe9f6;
-}
-
-.receipt-card__value--ok {
-  color: #7ef0a7;
-  font-weight: 700;
-}
-
-.receipt-card__value--muted {
-  color: #9fdcf4;
-}
-
-.receipt-card__footer {
-  position: relative;
-  margin-top: 0.9rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  color: #8b99b8;
-  font-size: 0.74rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.section {
-  padding: 1.5rem 0;
-}
-
-.section--muted {
-  background: rgba(7, 10, 18, 0.78);
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.section-card {
-  padding: 1.2rem;
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border-soft);
-  background: var(--bg-panel);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
-}
-
-.section__eyebrow {
-  margin: 0 0 0.45rem;
-  color: #94c9ff;
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-}
-
-.section__title {
-  margin: 0;
-  font-size: clamp(1.65rem, 3vw, 2.4rem);
-  letter-spacing: -0.04em;
-}
-
-.section__body {
-  margin: 0.65rem 0 0;
-  color: var(--text-muted);
-  font-size: 0.98rem;
-  line-height: 1.62;
-}
-
-.value-grid {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0.9rem;
-}
-
-.value-grid--two {
-  grid-template-columns: minmax(0, 1.08fr) minmax(280px, 0.92fr);
-}
-
-.value-card {
-  padding: 1rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(9, 14, 26, 0.86);
-}
-
-.value-card__title {
-  margin: 0 0 0.35rem;
-  font-size: 0.96rem;
-}
-
-.value-card__text {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 0.88rem;
-  line-height: 1.55;
-}
-
-.why-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
-  gap: 1rem;
-  align-items: start;
-}
-
-.flow-card {
-  padding: 1rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(76, 201, 240, 0.16);
-  background: rgba(8, 15, 30, 0.88);
-}
-
-.flow-card__label {
-  display: inline-flex;
-  padding: 0.3rem 0.55rem;
-  border-radius: 999px;
-  background: rgba(76, 201, 240, 0.12);
-  color: #c9edff;
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.flow-steps {
-  display: grid;
-  gap: 0.75rem;
-  margin-top: 0.9rem;
-}
-
-.flow-step {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 0.8rem;
-  align-items: center;
-  padding: 0.8rem 0.9rem;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.08);
-  background: rgba(10, 14, 26, 0.78);
-}
-
-.flow-step__route {
-  color: var(--text-main);
-  font-size: 0.93rem;
-}
-
-.flow-step__meta {
-  color: var(--text-muted);
-  font-size: 0.8rem;
-}
-
-.flow-step__status {
-  color: #7ef0a7;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 0.77rem;
-}
-
-.example-box {
-  padding: 1rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(76, 201, 240, 0.16);
-  background: rgba(8, 15, 30, 0.88);
-}
-
-.example-box__label {
-  display: inline-flex;
-  padding: 0.3rem 0.55rem;
-  border-radius: 999px;
-  background: rgba(76, 201, 240, 0.12);
-  color: #c9edff;
-  font-size: 0.72rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.example-box p {
-  margin: 0.7rem 0 0;
-  color: var(--text-muted);
-  font-size: 0.92rem;
-  line-height: 1.58;
-}
-
-.example-list {
-  list-style: none;
-  padding: 0;
-  margin: 0.9rem 0 0;
-  display: grid;
-  gap: 0.6rem;
-}
-
-.example-list li {
-  display: flex;
-  gap: 0.65rem;
-  align-items: flex-start;
-  color: #dce6f8;
-  font-size: 0.9rem;
-}
-
-.example-list li::before {
-  content: "";
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-top: 0.35rem;
-  background: var(--accent-green);
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.6);
-  flex: none;
-}
-
-.cta-band {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1.25rem;
-  padding: 1.25rem 1.3rem;
-  border-radius: var(--radius-xl);
-  border: 1px solid rgba(76, 201, 240, 0.18);
-  background:
-    radial-gradient(circle at left center, rgba(47, 124, 246, 0.18), transparent 28%),
-    linear-gradient(180deg, rgba(9, 14, 26, 0.96), rgba(6, 10, 20, 0.98));
-  box-shadow: var(--shadow-soft);
-}
-
-.proof-object {
-  margin-top: 1rem;
-  padding: 1rem;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(76, 201, 240, 0.16);
-  background: linear-gradient(180deg, rgba(8, 14, 25, 0.96), rgba(7, 11, 21, 0.92));
-}
-
-.proof-object__row {
-  display: grid;
-  grid-template-columns: 110px 1fr;
-  gap: 0.85rem;
-  padding: 0.62rem 0;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-
-.proof-object__row:last-child {
-  border-bottom: none;
-}
-
-.proof-object__label {
-  color: var(--text-soft);
-  font-size: 0.77rem;
-  text-transform: lowercase;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-
-.proof-object__value {
-  color: var(--text-main);
-  font-size: 0.88rem;
-  line-height: 1.5;
-  text-align: right;
-  word-break: break-word;
-}
-
-.cta-band__actions,
-.footer-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-}
-
-.site-footer {
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  background: #020308;
-}
-
-.site-footer__inner {
-  display: grid;
-  gap: 1.1rem;
-}
-.site-footer__row {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1rem;
-}
-.site-footer__col {
-  border-radius: 18px;
-  padding: 1rem;
-  background: rgba(10, 12, 20, 0.88);
-  border: 1px solid var(--border-soft);
-}
-.site-footer__col-title {
-  font-size: 0.78rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent-muted, var(--text-muted));
-  margin-bottom: 0.45rem;
-}
-.site-footer__cid {
-  color: var(--text-muted);
-  line-height: 1.6;
-  font-size: 0.84rem;
-}
-.site-footer__inner {
-  padding: 1.2rem 1.5rem 1.5rem;
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  align-items: flex-end;
-}
-
-.site-footer__meta {
-  color: var(--text-soft);
-  font-size: 0.78rem;
-}
-
-.site-footer__cid {
-  color: #88a2c6;
-  font-size: 0.74rem;
-  margin-top: 0.35rem;
-}
-
-.footer-links a {
-  color: #cae8ff;
-  text-decoration: none;
-  font-size: 0.84rem;
-}
-
-.footer-links a:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 980px) {
-  .hero__layout,
-  .why-card,
-  .cta-band,
-  .site-footer__inner {
-    grid-template-columns: 1fr;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .value-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .value-grid--two,
-  .proof-object__row,
-  .flow-step {
-    grid-template-columns: 1fr;
-  }
-
-  .proof-object__value {
-    text-align: left;
-  }
-}
-
-@media (max-width: 900px) {
-  .hero__cta-row,
-  .hero__proof-row {
-    flex-wrap: wrap;
-  }
-}
-
-@media (max-width: 880px) {
-  .site-header__inner {
-    padding-inline: 1rem;
-  }
-
-  .site-header__toggle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .site-header__nav {
-    display: none;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-    margin-top: 0.8rem;
-  }
-
-  .site-header.site-header--open .site-header__nav {
-    display: flex;
-  }
-}
-
-@media (max-width: 640px) {
-  .receipt-card {
-    margin-top: 0;
-  }
-
-  .container {
-    padding: 0 1rem;
-  }
-
-  .hero {
-    padding: 3rem 0 1.5rem;
-  }
-
-  .hero__title {
-    max-width: 100%;
-    font-size: clamp(2.5rem, 12vw, 3.5rem);
-  }
-
-  .hero__cta-row,
-  .hero__proof-row,
-  .cta-band__actions {
-    width: 100%;
-    flex-wrap: wrap;
-  }
-
-  .value-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .receipt-card__row {
-    grid-template-columns: 1fr;
-    gap: 0.28rem;
-  }
-
-  .receipt-card__value {
-    text-align: left;
-  }
-}
+.agent-arrow-line::after { content: '→'; position: absolute; right: -6px; top: -8px; font-size: 12px; color: var(--accent); }
+.agent-arrow-label { font-size: 10px; color: var(--dimmer); text-align: center; }
+
+/* ── PROOF ARTIFACT SECTION ── */
+.proof-showcase {
+  display: grid; grid-template-columns: 1fr 400px; gap: 48px; align-items: center;
+  margin-top: 56px;
+}
+@media (max-width: 900px) { .proof-showcase { grid-template-columns: 1fr; } }
+
+.proof-points { display: flex; flex-direction: column; gap: 20px; }
+.proof-point  { display: flex; gap: 14px; align-items: flex-start; }
+.pp-num {
+  width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600;
+  border: 1px solid var(--accent); color: var(--accent);
+  background: rgba(0,212,255,0.06);
+}
+.pp-content { flex: 1; }
+.pp-title { font-size: 14px; font-weight: 500; color: #fff; margin-bottom: 3px; }
+.pp-body  { font-size: 12px; color: var(--dim); line-height: 1.65; }
+
+/* compact receipt for proof section */
+.proof-artifact {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; overflow: hidden; font-size: 12px;
+}
+.pa-header {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+}
+.pa-title { font-size: 11px; color: var(--dim); }
+.pa-badge { font-size: 10px; padding: 2px 8px; border-radius: 3px; background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+.pa-body  { padding: 14px; }
+.pa-row   { display: flex; justify-content: space-between; align-items: baseline; padding: 5px 0; border-bottom: 1px solid var(--border); }
+.pa-row:last-child { border-bottom: none; }
+.pa-key   { color: var(--dimmer); font-size: 11px; }
+.pa-val   { color: var(--text); font-size: 11px; text-align: right; max-width: 60%; word-break: break-all; }
+.pa-val.green  { color: var(--green); }
+.pa-val.accent { color: var(--accent); }
+
+/* ── SEE IT IN ACTION ── */
+.action-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 40px;
+}
+@media (max-width: 700px) { .action-grid { grid-template-columns: 1fr; } }
+
+.action-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; padding: 24px; text-decoration: none;
+  transition: all 0.2s; display: block;
+}
+.action-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,212,255,0.08); }
+.ac-eyebrow { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--accent); margin-bottom: 10px; }
+.ac-title   { font-family: var(--sans); font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+.ac-body    { font-size: 12px; color: var(--dim); line-height: 1.6; }
+.ac-arrow   { display: block; margin-top: 14px; font-size: 11px; color: var(--accent); }
+
+/* divider */
+.divider {
+  border: none; border-top: 1px solid var(--border);
+  max-width: 1320px; margin: 0 auto;
+}
+
+/* ── FOOTER ── */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border);
+  padding: 20px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: var(--dimmer); flex-wrap: wrap; gap: 10px;
+}
+footer a { color: var(--dim); text-decoration: none; transition: color 0.15s; }
+footer a:hover { color: var(--accent); }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 </style>
 </head>
-
 <body>
-<div class="page-shell">
-  <header class="site-header">
-    <div class="site-header__inner container">
-      <a href="/" class="site-header__brand">
-        <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-        <div class="site-header__text">
-          <span class="site-header__title">CommandLayer</span>
-          <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
-        </div>
-      </a>
 
-      <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
-        &#9776;
-      </button>
-
-      <nav class="site-header__nav">
-        <a href="/" class="site-header__link site-header__link--active">Home</a>
-        <a href="/composer.html" class="site-header__link">Demo</a>
-        <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-
-        <div class="site-header__dropdown">
-          <button class="site-header__dropdown-btn" type="button">
-          Docs &#9662;
-          </button>
-          <div class="site-header__dropdown-menu">
-          <a href="/commons.html">Commons</a>
-          <a href="/commercial.html">Commercial</a>
-          <a href="/agent-cards.html">Agent Cards</a>
-          <a href="/runtime.html">Runtime</a>
-          </div>
-        </div>
-
-        <a
-        href="https://github.com/commandlayer"
-        class="site-header__link"
-        target="_blank"
-        rel="noopener noreferrer"
-        >
-        GitHub
-        </a>
-      </nav>
-    </div>
-  </header>
-
-  <main class="page-main">
-    <section class="hero">
-      <div class="container">
-        <div class="hero__layout">
-          <div>
-            <p class="eyebrow">Proof layer for agent execution</p>
-            <h1 class="hero__title">Agents Can Act. <span class="hero__title-accent">CommandLayer Proves They Acted.</span></h1>
-            <p class="hero__subtitle">
-              CommandLayer is infrastructure for agents that spend money, call services, and coordinate with other agents. It runs the action, emits the signed receipt, and makes proof visible fast. One execution trace links the flow, one receipt lands per step, and final verification closes the loop.
-            </p>
-            <p class="hero__supporting">Agents call services through ENS-resolved endpoints and leave behind signed, inspectable proof.</p>
-            <div class="hero__actions">
-              <div class="hero__cta-row">
-                <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-                <a href="/demo.html" class="btn btn--ghost">See Verified Receipt</a>
-              </div>
-            </div>
-            <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" class="hero__trust-link" target="_blank" rel="noopener noreferrer">ERC-8004 registration on Base</a>
-            <div class="hero__pills" aria-label="Trust signals">
-              <div class="hero__proof-row">
-                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>ENS Identity</span>
-                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Signed Receipts</span>
-                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Verifiable Execution</span>
-                <span class="trust-pill"><span class="trust-pill__dot" aria-hidden="true"></span>Multi-Step Flows</span>
-              </div>
-            </div>
-          </div>
-
-          <aside class="receipt-card" aria-label="Verified Receipt preview">
-            <div class="receipt-card__header receipt-card__header--stacked">
-              <div>
-                <div class="receipt-card__kicker mono">Verified Receipt</div>
-                <div class="receipt-card__title">Receipt proof artifact</div>
-              </div>
-              <div class="receipt-card__badge receipt-card__badge--strong"><span class="receipt-card__badge-dot" aria-hidden="true"></span>VERIFIED</div>
-            </div>
-            <div class="receipt-card__rows">
-              <div class="receipt-card__row receipt-card__row--primary">
-                <div class="receipt-card__label">status</div>
-                <div class="receipt-card__value receipt-card__value--ok receipt-card__value--primary">Ed25519 signature valid</div>
-              </div>
-              <div class="receipt-card__row receipt-card__row--secondary">
-                <div class="receipt-card__label">signer</div>
-                <div class="receipt-card__value mono receipt-card__value--identity">checkoutagent.eth · ENS resolved</div>
-              </div>
-              <div class="receipt-card__row receipt-card__row--hash">
-                <div class="receipt-card__label">proof hash</div>
-                <div class="receipt-card__value mono receipt-card__value--hash">sha256: 9fa31c4d7b2a6c91f4d8...e18f72</div>
-              </div>
-              <div class="receipt-card__row">
-                <div class="receipt-card__label">contract</div>
-                <div class="receipt-card__value mono">commercial.verify.receipt v1.1.0</div>
-              </div>
-              <div class="receipt-card__row">
-                <div class="receipt-card__label">execution trace</div>
-                <div class="receipt-card__value mono">trace_demo_checkout_7f3c</div>
-              </div>
-            </div>
-            <div class="receipt-card__footer">Independent verifier can recompute hash, resolve signer, and confirm the same receipt.</div>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="trust-strip">
-      <div class="container">
-        <div class="value-grid">
-          <article class="value-card">
-            <h2 class="value-card__title">ENS Identity</h2>
-            <p class="value-card__text">Agents present stable ENS names that make signer identity and service routing visible.</p>
-          </article>
-          <article class="value-card">
-            <h2 class="value-card__title">Signed Receipts</h2>
-            <p class="value-card__text">Every meaningful action returns a signed artifact you can inspect, store, and compare later.</p>
-          </article>
-          <article class="value-card">
-            <h2 class="value-card__title">Verifiable Execution</h2>
-            <p class="value-card__text">Hashes, signatures, and <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">ERC-8004 registration on Base</a> make proof portable.</p>
-          </article>
-          <article class="value-card">
-            <h2 class="value-card__title">Multi-Step Flows</h2>
-            <p class="value-card__text">CommandLayer captures cross-agent execution without hiding the flow behind vague infrastructure language.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="section section--muted">
-      <div class="container">
-        <div class="section-card why-card">
-          <div>
-            <p class="section__eyebrow">Operational infrastructure</p>
-            <h2 class="section__title">Built for agents that spend money, call services, and hand work to other agents.</h2>
-            <p class="section__body">
-              CommandLayer is operational infrastructure, not just identity metadata. It gives each action a signed receipt that another system can verify after payment, service calls, or multi-agent coordination.
-            </p>
-          </div>
-          <aside class="example-box">
-            <span class="example-box__label">Cross-agent example</span>
-            <p><strong>checkoutagent.eth</strong> charges the buyer, then hands the shipping task to <strong>shipagent.eth</strong>. Both steps stay on one trace, and each agent returns a receipt another party can verify.</p>
-            <ul class="example-list">
-              <li>agent-to-agent handoff stays visible</li>
-              <li>receipts prove who executed each step</li>
-              <li>verification survives outside the runtime</li>
-            </ul>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="section-card why-card">
-          <div>
-            <p class="section__eyebrow">Not output. Evidence.</p>
-            <h2 class="section__title">Execution should end with proof, not a claim.</h2>
-            <p class="section__body">This is the artifact the system leaves behind: agent identity, routed endpoint, signer, proof hash, and verification status in one inspectable object.</p>
-          </div>
-          <div class="cta-band__actions">
-            <a href="/composer.html" class="btn btn--primary">Run a Verified Agent Flow</a>
-            <a href="/quickstart.html" class="btn btn--ghost">See Verified Receipt</a>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section">
-      <div class="container">
-        <div class="cta-band">
-          <div>
-            <p class="section__eyebrow">See it in action</p>
-            <h2 class="section__title">See it in action</h2>
-            <p class="section__body">Run a real agent flow, inspect each step, and verify every receipt.</p>
-          </div>
-          <div class="cta-band__actions">
-            <a href="/composer.html" class="btn btn--primary">Launch Demo</a>
-            <a href="/agent-cards.html" class="btn btn--ghost">View Agent Identity</a>
-            <a href="/demo-inner.html" class="btn btn--ghost">Run a Commerce Agent</a>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-        <div class="container site-footer__inner" style="align-items: center; text-align: center;">
-          <div class="site-footer__cid">Commons v1.1.0 &middot; Commercial v1.1.0 &middot; Agent Cards v1.1.0 &middot; ERC-8004 registered</div>
-          <div class="site-footer__links" style="justify-content: center;">
-            <a href="/docs.html">Docs</a>
-            <a href="/repositories.html">Repositories</a>
-            <a href="/faq.html">FAQ</a>
-            <a href="/about.html">About</a>
-            <a href="/licensing.html">Licensing</a>
-          </div>
-        </div>
-      </footer>
+<!-- BACKGROUND GEOMETRY -->
+<div class="bg-geo" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="g1" cx="20%" cy="30%" r="50%">
+        <stop offset="0%" stop-color="#00d4ff" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#00d4ff" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="g2" cx="80%" cy="70%" r="40%">
+        <stop offset="0%" stop-color="#00e676" stop-opacity="0.4"/>
+        <stop offset="100%" stop-color="#00e676" stop-opacity="0"/>
+      </radialGradient>
+    </defs>
+    <rect width="1440" height="900" fill="url(#g1)"/>
+    <rect width="1440" height="900" fill="url(#g2)"/>
+    <!-- grid lines -->
+    <g stroke="#00d4ff" stroke-width="0.5" opacity="0.4">
+      <line x1="0" y1="200" x2="1440" y2="200"/>
+      <line x1="0" y1="450" x2="1440" y2="450"/>
+      <line x1="0" y1="700" x2="1440" y2="700"/>
+      <line x1="240" y1="0" x2="240" y2="900"/>
+      <line x1="720" y1="0" x2="720" y2="900"/>
+      <line x1="1200" y1="0" x2="1200" y2="900"/>
+    </g>
+    <!-- diagonal accent -->
+    <line x1="0" y1="900" x2="600" y2="0" stroke="#00d4ff" stroke-width="0.8" opacity="0.25"/>
+    <line x1="840" y1="900" x2="1440" y2="0" stroke="#00e676" stroke-width="0.8" opacity="0.2"/>
+  </svg>
 </div>
 
-<script>
-(function () {
-  const header = document.querySelector(".site-header");
-  const toggle = document.querySelector(".site-header__toggle");
-  const docsBtn = document.querySelector(".site-header__dropdown-btn");
+<!-- NAV -->
+<nav>
+  <a href="https://www.commandlayer.org/" class="nav-brand">
+    <img src="https://www.commandlayer.org/icon2.png" alt="CommandLayer logo" />
+    CommandLayer
+  </a>
 
-  if (toggle && header) {
-    toggle.addEventListener("click", () => {
-      const isOpen = header.classList.toggle("site-header--open");
-      toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    });
-  }
+  <ul class="nav-center">
+    <li><a href="https://www.commandlayer.org/" class="active">Home</a></li>
+    <li><a href="https://www.commandlayer.org/composer.html">Demo</a></li>
+    <li><a href="https://www.commandlayer.org/quickstart.html">Quickstart</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle">Docs ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="https://www.commandlayer.org/commons.html">Commons</a>
+        <a href="https://www.commandlayer.org/commercial.html">Commercial</a>
+        <a href="https://www.commandlayer.org/agent-cards.html">Agent Cards</a>
+        <a href="https://www.commandlayer.org/runtime.html">Runtime</a>
+      </div>
+    </li>
+  </ul>
 
-  if (docsBtn && header) {
-    docsBtn.addEventListener("click", () => {
-      header.classList.toggle("site-header--docs-open");
-    });
-  }
-})();
-</script>
+  <div class="nav-right">
+    <a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-left">
+    <div class="hero-kicker">
+      <span class="hero-kicker-dot"></span>
+      Proof layer for agent execution
+    </div>
+
+    <h1 class="hero-h1">
+      Agents Can Act.
+      <span class="line2">CommandLayer<br/>Proves They Acted.</span>
+    </h1>
+
+    <p class="hero-body">
+      Infrastructure for agents that <strong>spend money, call services, and coordinate with other agents.</strong>
+      Every action emits a signed receipt. One trace links the flow. Verification survives outside the runtime.
+    </p>
+
+    <div class="hero-ctas">
+      <a href="https://www.commandlayer.org/composer.html" class="btn btn-primary">▶ Run a Verified Agent Flow</a>
+      <a href="https://www.commandlayer.org/demo-inner.html" class="btn btn-outline">Commerce Demo →</a>
+    </div>
+
+    <div class="hero-proof">
+      <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener" class="proof-pill">
+        <span class="proof-pill-dot"></span>
+        ERC-8004 on Base
+      </a>
+      <div class="proof-pill">
+        <span class="proof-pill-dot"></span>
+        ENS Identity
+      </div>
+      <div class="proof-pill">
+        <span class="proof-pill-dot"></span>
+        Ed25519 Signed Receipts
+      </div>
+      <div class="proof-pill">
+        <span class="proof-pill-dot"></span>
+        Multi-Step Flows
+      </div>
+    </div>
+  </div>
+
+  <!-- RECEIPT ARTIFACT -->
+  <div class="hero-receipt">
+    <div class="receipt-card">
+      <div class="rc-header">
+        <div class="rc-dots">
+          <div class="rc-dot"></div>
+          <div class="rc-dot"></div>
+          <div class="rc-dot"></div>
+        </div>
+        <span class="rc-title">receipt proof artifact</span>
+        <div class="rc-verified">✓ VERIFIED</div>
+      </div>
+      <div class="rc-body">
+        <div class="rc-field">
+          <div class="rc-label">status</div>
+          <div class="rc-value green">Ed25519 signature valid</div>
+        </div>
+        <div class="rc-field">
+          <div class="rc-label">signer</div>
+          <div class="rc-value accent">checkoutagent.eth · ENS resolved</div>
+        </div>
+        <div class="rc-hash-row">
+          <div class="rc-hash-label">proof hash (sha256)</div>
+          <div class="rc-hash-val">9fa31c4d7b2a6c91f4d8e3b7a52c18d6f09e4b2a7c3f1d8e5b9c4a2f7e1d3c8...e18f72</div>
+        </div>
+        <div class="rc-field">
+          <div class="rc-label">contract</div>
+          <div class="rc-value dim">commercial.verify.receipt v1.1.0</div>
+        </div>
+        <div class="rc-field">
+          <div class="rc-label">execution trace</div>
+          <div class="rc-value accent">trace_demo_checkout_7f3c</div>
+        </div>
+      </div>
+      <div class="rc-footer">
+        Independent verifier can recompute hash, resolve signer, and confirm the same receipt.
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="divider" />
+
+<!-- FEATURES -->
+<section>
+  <div class="section-inner">
+    <div class="section-label">▸ protocol primitives</div>
+    <h2 class="section-h2">One contract.<br /><em>Portable proof.</em></h2>
+    <p class="section-body">Commons and Commercial define the verb language. Agent Cards define discovery. Runtime defines execution. Every layer stays subordinate to the receipt.</p>
+
+    <div class="feature-grid">
+      <div class="feature-cell">
+        <div class="feat-icon cyan">⬡</div>
+        <div class="feat-title">ENS Identity</div>
+        <div class="feat-body">Agents present stable ENS names. Signer identity and service routing stay visible to any caller without a centralized registry.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="feat-icon green">🧾</div>
+        <div class="feat-title">Signed Receipts</div>
+        <div class="feat-body">Every meaningful action returns an Ed25519-signed artifact you can inspect, store, hash-verify, and compare independently.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="feat-icon gold">⛓</div>
+        <div class="feat-title">Verifiable Execution</div>
+        <div class="feat-body">SHA-256 hashes, Ed25519 signatures, and ERC-8004 registration on Base make proof portable across runtimes and verifiers.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="feat-icon purple">⇄</div>
+        <div class="feat-title">Multi-Step Flows</div>
+        <div class="feat-body">Cross-agent execution stays visible. One trace links every step. Receipts prove who executed what — without hiding it behind vague infrastructure language.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- CROSS-AGENT SECTION -->
+<section>
+  <div class="section-inner">
+    <div class="section-label">▸ cross-agent coordination</div>
+    <h2 class="section-h2">Built for agents that <em>hand work<br />to other agents.</em></h2>
+    <p class="section-body">
+      CommandLayer is operational infrastructure, not identity metadata. It gives each action a signed receipt that another system can verify after payment, service calls, or multi-agent coordination.
+    </p>
+
+    <div class="agent-flow" style="margin-top:48px;">
+      <div class="agent-node">
+        <div class="agent-ens">checkoutagent.eth</div>
+        <div class="agent-role">charges the buyer</div>
+        <span class="agent-badge">receipt signed</span>
+      </div>
+      <div class="agent-arrow">
+        <div class="agent-arrow-line"></div>
+        <div class="agent-arrow-label">hands task</div>
+      </div>
+      <div class="agent-node">
+        <div class="agent-ens">shipagent.eth</div>
+        <div class="agent-role">executes shipment</div>
+        <span class="agent-badge">receipt signed</span>
+      </div>
+      <div class="agent-arrow">
+        <div class="agent-arrow-line"></div>
+        <div class="agent-arrow-label">proof closes</div>
+      </div>
+      <div class="agent-node">
+        <div class="agent-ens">verifyagent.eth</div>
+        <div class="agent-role">validates the trace</div>
+        <span class="agent-badge">receipt signed</span>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:32px;">
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--dim);">
+        <span style="color:var(--green);font-size:16px;">→</span>
+        Agent-to-agent handoffs stay visible on one shared trace
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--dim);">
+        <span style="color:var(--green);font-size:16px;">→</span>
+        Receipts prove who executed each step
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;font-size:13px;color:var(--dim);">
+        <span style="color:var(--green);font-size:16px;">→</span>
+        Verification survives outside the runtime
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- PROOF ARTIFACT SECTION -->
+<section>
+  <div class="section-inner">
+    <div class="section-label">▸ not output — evidence</div>
+    <h2 class="section-h2">Execution ends with<br /><em>proof, not a claim.</em></h2>
+    <p class="section-body">
+      The artifact the system leaves behind: agent identity, routed endpoint, signer, proof hash, and verification status in one inspectable object.
+    </p>
+
+    <div class="proof-showcase">
+      <div class="proof-points">
+        <div class="proof-point">
+          <div class="pp-num">1</div>
+          <div class="pp-content">
+            <div class="pp-title">Call the verb endpoint</div>
+            <div class="pp-body">POST to any Commons or Commercial verb endpoint. The runtime resolves the ENS-bound agent and executes the action.</div>
+          </div>
+        </div>
+        <div class="proof-point">
+          <div class="pp-num">2</div>
+          <div class="pp-content">
+            <div class="pp-title">Receive the canonical receipt</div>
+            <div class="pp-body">Every response carries a receipt: verb identity, status, and verb-specific output fields — flat, self-contained, schema-validated.</div>
+          </div>
+        </div>
+        <div class="proof-point">
+          <div class="pp-num">3</div>
+          <div class="pp-content">
+            <div class="pp-title">Verify independently</div>
+            <div class="pp-body">SHA-256 the canonical receipt bytes, check the Ed25519 signature from the proof block. Resolve the signer via ENS. Done.</div>
+          </div>
+        </div>
+        <div class="proof-point">
+          <div class="pp-num">4</div>
+          <div class="pp-content">
+            <div class="pp-title">Proof is portable</div>
+            <div class="pp-body">The receipt survives outside the runtime. Store it, share it, replay it — the hash still matches, the signature still verifies.</div>
+          </div>
+        </div>
+        <div style="margin-top:8px;">
+          <a href="https://www.commandlayer.org/quickstart.html" class="btn btn-primary btn-sm">Quickstart in 5 minutes →</a>
+        </div>
+      </div>
+
+      <div class="proof-artifact">
+        <div class="pa-header">
+          <span class="pa-title">receipt proof artifact</span>
+          <span class="pa-badge">VERIFIED</span>
+        </div>
+        <div class="pa-body">
+          <div class="pa-row">
+            <span class="pa-key">verb</span>
+            <span class="pa-val accent">verify</span>
+          </div>
+          <div class="pa-row">
+            <span class="pa-key">schema_version</span>
+            <span class="pa-val">1.1.0</span>
+          </div>
+          <div class="pa-row">
+            <span class="pa-key">status</span>
+            <span class="pa-val green">success</span>
+          </div>
+          <div class="pa-row">
+            <span class="pa-key">signer</span>
+            <span class="pa-val accent">runtime.commandlayer.eth</span>
+          </div>
+          <div class="pa-row">
+            <span class="pa-key">hash_sha256</span>
+            <span class="pa-val accent">9fa31c4d…e18f72</span>
+          </div>
+          <div class="pa-row">
+            <span class="pa-key">signature_b64</span>
+            <span class="pa-val accent">YWdlbnQu…Zg==</span>
+          </div>
+          <div class="pa-row">
+            <span class="pa-key">trace_id</span>
+            <span class="pa-val">trace_demo_7f3c</span>
+          </div>
+          <div class="pa-row">
+            <span class="pa-key">verified</span>
+            <span class="pa-val green">true</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider" />
+
+<!-- SEE IT IN ACTION -->
+<section>
+  <div class="section-inner">
+    <div class="section-label">▸ see it in action</div>
+    <h2 class="section-h2">Run a real flow.<br /><em>Inspect every receipt.</em></h2>
+    <p class="section-body">Live runtime. Real Ed25519 signatures. Every step verified. Three ways in.</p>
+
+    <div class="action-grid">
+      <a href="https://www.commandlayer.org/composer.html" class="action-card">
+        <div class="ac-eyebrow">Commons Demo</div>
+        <div class="ac-title">Flow Composer</div>
+        <div class="ac-body">Build a 3-step verb chain, watch receipts stack in real time, verify with one cURL command.</div>
+        <span class="ac-arrow">Launch Demo →</span>
+      </a>
+      <a href="https://www.commandlayer.org/demo-inner.html" class="action-card">
+        <div class="ac-eyebrow">Commercial Demo</div>
+        <div class="ac-title">Commerce Agent</div>
+        <div class="ac-body">Run a full <code style="color:var(--gold);font-size:11px;">authorize → checkout → purchase → ship → verify</code> flow. Each step leaves a signed receipt.</div>
+        <span class="ac-arrow">Run Commerce Agent →</span>
+      </a>
+      <a href="https://www.commandlayer.org/agent-cards.html" class="action-card">
+        <div class="ac-eyebrow">Discovery</div>
+        <div class="ac-title">Agent Cards</div>
+        <div class="ac-body">Browse ENS-bound agent identities. Verbs, schemas, entrypoints, and signing keys — all machine-readable.</div>
+        <span class="ac-arrow">View Agent Identity →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
+  <nav class="footer-links">
+    <a href="https://www.commandlayer.org/docs.html">Docs</a>
+    <a href="https://www.commandlayer.org/repositories.html">Repositories</a>
+    <a href="https://www.commandlayer.org/faq.html">FAQ</a>
+    <a href="https://www.commandlayer.org/about.html">About</a>
+    <a href="https://www.commandlayer.org/licensing.html">Licensing</a>
+  </nav>
+</footer>
+
 </body>
 </html>
