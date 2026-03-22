@@ -1124,7 +1124,7 @@ function showOutput(i, text) {
 function buildStepReceiptView(step) {
   const receipt = step?.receipt || {};
   const metadata = receipt?.metadata || receipt?.runtime_metadata || {};
-  const proof = metadata?.proof || {};
+  const proof = metadata?.proof || receipt?.runtime_metadata?.proof || {};
 
   return {
     status: receipt?.status || 'unknown',
@@ -1173,32 +1173,53 @@ function renderStepReceipt(index, step) {
 // ── BUILD REQUEST BODY ────────────────────────────────────────────────────────
 function buildBody(verb, content, stepIndex) {
   const conf = VERB_FIELDS[verb] || { field: 'content', ops: {} };
-  const body = {
-    verb,
-    schema_version: '1.1.0',
+  return {
     [conf.field]: content,
-    trace_id: traceId,
     ...conf.ops
   };
-  return body;
 }
 
 // ── EXTRACT OUTPUT FROM RECEIPT ──────────────────────────────────────────────
 function extractOutput(verb, data) {
-  const r = data.receipt || data;
-  // try common output field names
-  for (const key of ['cleaned_content','summary','analysis','classification','formatted_content','parsed_output','description','explanation','result','output']) {
-    if (r[key] !== undefined) {
-      const v = r[key];
-      if (typeof v === 'string') return v;
-      if (typeof v === 'object') return JSON.stringify(v, null, 2);
+  const receipt = data?.receipt || data || {};
+  const result = receipt?.result || {};
+
+  if (verb === 'clean') {
+    return result.cleaned_content || JSON.stringify(result, null, 2);
+  }
+
+  if (verb === 'summarize') {
+    return result.summary || JSON.stringify(result, null, 2);
+  }
+
+  if (verb === 'classify') {
+    if (Array.isArray(result.labels)) {
+      return `labels: ${result.labels.join(', ')}`;
     }
+    return JSON.stringify(result, null, 2);
   }
-  // fallback: find any non-standard string field
-  for (const [k, v] of Object.entries(r)) {
-    if (!['verb','schema_version','status','receipt_id','signer','timestamp'].includes(k) && typeof v === 'string' && v.length > 2) return v;
+
+  if (verb === 'format') {
+    return result.formatted_content || JSON.stringify(result, null, 2);
   }
-  return r.status || 'success';
+
+  if (verb === 'parse') {
+    return result.parsed_output || JSON.stringify(result, null, 2);
+  }
+
+  if (verb === 'describe') {
+    return result.description || JSON.stringify(result, null, 2);
+  }
+
+  if (verb === 'explain') {
+    return result.explanation || JSON.stringify(result, null, 2);
+  }
+
+  if (verb === 'analyze') {
+    return result.analysis || JSON.stringify(result, null, 2);
+  }
+
+  return JSON.stringify(result, null, 2);
 }
 
 // ── SYNTAX HIGHLIGHT JSON ─────────────────────────────────────────────────────
@@ -1241,8 +1262,11 @@ function addTrailItem(verb, receipt, stepIndex) {
 
   document.getElementById('trailBadge').style.display = '';
 
-  const hash = receipt?.runtime_metadata?.proof?.hash_sha256 || receipt?.hash_sha256 || '';
-  const signer = receipt?.runtime_metadata?.signer || receipt?.signer || 'runtime.commandlayer.eth';
+  const normalizedReceipt = receipt?.receipt || receipt || {};
+  const metadata = normalizedReceipt?.metadata || normalizedReceipt?.runtime_metadata || {};
+  const proof = metadata?.proof || normalizedReceipt?.runtime_metadata?.proof || {};
+  const hash = proof?.hash_sha256 || normalizedReceipt?.hash_sha256 || '';
+  const signer = proof?.signer_id || metadata?.signer || normalizedReceipt?.signer || 'runtime.commandlayer.eth';
   const shortHash = hash ? hash.slice(0, 24) + '…' : '—';
 
   const item = document.createElement('div');
@@ -1283,7 +1307,7 @@ async function executeStep(stepIndex, inputOverride) {
     const resp = await fetch(`${RUNTIME}/${verb}/v1.1.0`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ input: body }),
       signal: AbortSignal.timeout(20000)
     });
 
@@ -1303,7 +1327,7 @@ async function executeStep(stepIndex, inputOverride) {
     setStepState(stepIndex, 'done', `${verb} · ${elapsed}ms`);
     showOutput(stepIndex, output);
     renderStepReceipt(stepIndex, { ...stepResults[stepIndex], receipt, verb });
-    addTrailItem(verb, data, stepIndex);
+    addTrailItem(verb, receipt, stepIndex);
 
     // update proof panel with final step
     updateProofPanel(verb, data, elapsed);
@@ -1317,13 +1341,15 @@ async function executeStep(stepIndex, inputOverride) {
 
 // ── UPDATE PROOF PANEL ────────────────────────────────────────────────────────
 function updateProofPanel(verb, data, elapsed) {
-  const receipt = data.receipt || data;
-  const proof = data.runtime_metadata?.proof || {};
-  const signer = data.runtime_metadata?.signer || receipt.signer || 'runtime.commandlayer.eth';
-  const hash = proof.hash_sha256 || '—';
-  const sig = proof.signature_b64 || receipt.signature || null;
-  const receiptId = receipt.receipt_id || data.runtime_metadata?.receipt_id || `rcpt_${Date.now().toString(36)}`;
-  const schema = `commons/${verb}/v1.1.0`;
+  const receipt = data?.receipt || data || {};
+  const metadata = receipt?.metadata || receipt?.runtime_metadata || {};
+  const proof = metadata?.proof || receipt?.runtime_metadata?.proof || {};
+  const signer = proof?.signer_id || 'runtime.commandlayer.eth';
+  const hash = proof?.hash_sha256 || '—';
+  const sig = proof?.signature_b64 || null;
+  const receiptId = metadata?.receipt_id || proof?.receipt_id || '—';
+  const traceIdValue = metadata?.trace_id || proof?.trace_id || traceId || '—';
+  const schema = receipt?.version || receipt?.schema_version || '—';
 
   lastReceipt = receipt;
 
@@ -1335,12 +1361,13 @@ function updateProofPanel(verb, data, elapsed) {
   setMeta('mHash', hash !== '—' ? hash : '—', 'hash');
   setMeta('mReceiptId', receiptId, 'dim');
   setMeta('mTime', `${elapsed}ms`, 'dim');
+  document.getElementById('traceIdDisplay').textContent = traceIdValue;
 
   // signature animation
   if (sig) {
     animateSig(sig);
   } else {
-    document.getElementById('sigDisplay').textContent = '[signature in runtime_metadata.proof]';
+    document.getElementById('sigDisplay').textContent = '—';
     document.getElementById('sigDisplay').className = 'sig-value dim';
   }
 
@@ -1361,26 +1388,21 @@ function updateProofPanel(verb, data, elapsed) {
   document.getElementById('rawJson').innerHTML = hl(JSON.stringify(data, null, 2));
 
   // verify cURL
-  const curlVerify = buildVerifyCurl(verb, receipt, proof);
+  const curlVerify = buildVerifyCurl(receipt);
   verifyCurlCmd = curlVerify;
-  document.getElementById('curlDisplay').innerHTML = curlVerify;
+  document.getElementById('curlDisplay').textContent = curlVerify;
 }
 
 // ── BUILD VERIFY CURL ─────────────────────────────────────────────────────────
-function buildVerifyCurl(verb, receipt, proof) {
-  const hash = proof?.hash_sha256 || '';
-  const sig = proof?.signature_b64 || '';
-  const snippet = JSON.stringify({ verb, status: receipt.status || 'success' });
-  return `<span class="cmd">curl</span> -sS --max-time 20 \\
-  -X POST <span class="url">'${RUNTIME}/${verb}/v1.1.0'</span> \\
-  <span class="flag">-H</span> 'Content-Type: application/json' \\
-  <span class="flag">--data-binary</span> '${snippet}'
+function buildVerifyCurl(receipt) {
+  const body = JSON.stringify(receipt, null, 2)
+    .replace(/\\/g, '\\\\')
+    .replace(/'/g, "'\\''");
 
-<span style="color:var(--dimmer);"># verify Ed25519 detached signature:</span>
-<span style="color:var(--dimmer);"># hash: ${hash.slice(0,32)}…</span>
-<span style="color:var(--dimmer);"># sig:  ${sig.slice(0,32)}…</span>
-
-<span class="cmd">curl</span> -sS <span class="url">'${RUNTIME}/health'</span>`;
+  return `curl -sS --max-time 20 \
+  -X POST "https://runtime.commandlayer.org/verify?ens=1&strict_kid=1" \
+  -H "Content-Type: application/json" \
+  --data-binary '${body}'`;
 }
 
 // ── RUN FULL FLOW ─────────────────────────────────────────────────────────────
