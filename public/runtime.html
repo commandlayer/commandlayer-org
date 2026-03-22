@@ -661,15 +661,14 @@
             <div class="card-block">
               <h3 class="card-block__title">What Runtime adds around the receipt</h3>
               <p class="card-block__subtitle">
-                These are planned capabilities. They are deliberately layered on top of stable schemas — never baked into them.
+                These are execution-layer capabilities or design constraints. Only claim them when the relevant runtime implements them; none of them change the published schemas.
               </p>
 
               <ul>
-                <li><strong>Policy layers:</strong> allow/deny rules, safety filters, execution constraints.</li>
-                <li><strong>Idempotency:</strong> safe retries for multi-step and commercial flows.</li>
-                <li><strong>Metering:</strong> runtime-level usage and accounting fields layered on top of the base contract.</li>
-                <li><strong>Pricing:</strong> SLA-based execution tiers (latency/throughput/policy bundles).</li>
-                <li><strong>Settlement:</strong> execution-time economics on standardized rails.</li>
+                <li><strong>Policy layers:</strong> runtime-specific allow/deny rules, safety filters, or execution constraints when implemented.</li>
+                <li><strong>Idempotency:</strong> retry and replay controls when exposed by a given runtime.</li>
+                <li><strong>Metering:</strong> runtime-level usage and accounting fields layered on top of the base contract when a runtime emits them.</li>
+                <li><strong>Pricing and settlement:</strong> commercial execution concerns that live outside Commons semantics.</li>
                 <li><strong>Multi-runtime portability:</strong> same contracts, different executors.</li>
               </ul>
 

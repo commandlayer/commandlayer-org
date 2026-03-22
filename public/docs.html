@@ -863,7 +863,7 @@
             <div class="card-block">
               <h3 class="card-block__title">1. Inspect the schemas</h3>
               <p class="card-block__subtitle">
-                Both schemas are public and versioned under the self-contained v1.1.0 path:
+                Both schemas are public and versioned under the v1.1.0 path:
                 <code>https://commandlayer.org/schemas/v1.1.0/commons/summarize/</code>
               </p>
               <ul>
@@ -888,7 +888,7 @@
                 All Commons schemas follow the same pattern:
                 <code>/schemas/v1.1.0/commons/&lt;verb&gt;/&lt;verb&gt;.request.schema.json</code>
                 and
-                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/&lt;verb&gt;.receipt.schema.json</code>. Each schema is self-contained; there are no <code>/_shared/</code> references in the canonical v1.1.0 set.
+                <code>/schemas/v1.1.0/commons/&lt;verb&gt;/&lt;verb&gt;.receipt.schema.json</code>. Commons request and receipt files are the public entrypoints, but some published schemas still reference shared artifacts under <code>/schemas/v1.1.0/_shared/</code>; treat those shared URLs as part of the live contract surface.
               </p>
             </div>
 
@@ -950,28 +950,26 @@ const receipt = await res.json();
                 <code>/agent-cards/agents/v1.1.0/commons/&lt;ens&gt;.json</code>
               </p>
               <pre>{
-  "ens": "summarizeagent.eth",
+  "$schema": "https://commandlayer.org/agent-cards/schemas/v1.1.0/agent.card.schema.json",
+  "$id": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/summarizeagent.eth.json",
+  "id": "summarizeagent.eth",
   "owner": "commandlayer.eth",
-  "contact": "dev@commandlayer.org",
-  "verbs": [
-    {
-      "name": "summarize",
-      "schema_version": "1.1.0",
-      "tier": "commons"
-    }
-  ],
-  "routing": [
-    {
-      "network": "eip155:1",
-      "entry": "https://runtime.commandlayer.org/summarize/v1.1.0"
-    }
-  ]
+  "ens": "summarizeagent.eth",
+  "version": "1.1.0",
+  "status": "protocol_reference",
+  "class": "commons",
+  "implements": ["summarize"],
+  "schemas": {
+    "request": "https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json",
+    "receipt": "https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json"
+  },
+  "entry": "https://runtime.commandlayer.org/execute"
 }</pre>
               <p style="font-size:0.85rem;color:var(--text-muted);margin-top:0.6rem;">
                 Commercial agents follow the same pattern under
                 <code>/agent-cards/agents/v1.1.0/commercial/&lt;ens&gt;.json</code>, with verbs such as
                 <code>authorize</code>, <code>checkout</code>, <code>purchase</code>,
-                <code>ship</code>, and <code>verify</code>.
+                <code>ship</code>, and <code>verify</code>. The main routing difference is deliberate: Commons cards currently point at the shared HTTP execute surface, while Commercial cards remain payment-aware and advertise x402-style entries.
               </p>
             </div>
           </div>

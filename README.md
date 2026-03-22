@@ -4,9 +4,9 @@ Public website and proof surface for CommandLayer.
 
 CommandLayer is a trust layer for autonomous agent execution:
 
-- **Commons** is the canonical open receipt and contract layer.
-- **Commercial** extends that foundation for commerce-oriented flows.
-- **Agent Cards** handle discovery and routing.
+- **Commons** is the canonical open contract layer and current-line builder default.
+- **Commercial** is a separate commerce-oriented contract line that remains payment-aware.
+- **Agent Cards** handle discovery and routing across both lines.
 - **Runtime** executes contracts and may attach proof metadata without redefining the canonical receipt.
 
 ## Documentation authority
@@ -36,9 +36,9 @@ If drift is discovered, fix the canonical protocol/discovery repo first when the
 
 This repo should teach one architectural story consistently:
 
-1. Commons defines the minimum verifiable receipt.
-2. Commercial extends that contract model for economic flows.
-3. Agent Cards define discovery and routing.
+1. Commons v1.1.0 is the active current line and the minimum verifiable receipt model.
+2. Commercial v1.1.0 is a separate payment-aware extension for economic flows.
+3. Agent Cards define discovery and routing without changing contract semantics.
 4. Runtime executes the contract and may add proof, trace, or orchestration metadata around the receipt.
 
 ## Version policy

@@ -16,7 +16,7 @@ Commons covers actions that appear across many agent systems, such as:
 - describing
 - converting
 
-The exact live set is published on the website and under versioned schema paths.
+The exact live set is published on the website and under versioned schema paths. For the active current line, builders should target Commons v1.1.0.
 
 ## Contract discipline
 
@@ -41,7 +41,7 @@ Why:
 
 Commercial does not replace Commons.
 
-Commercial extends the same contract-first discipline for commerce-oriented flows. Commons remains the canonical baseline model the rest of the stack should be explained from.
+Commercial extends the same contract-first discipline for commerce-oriented flows. In the current line, Commons is non-x402 and remains the canonical baseline model the rest of the stack should be explained from.
 
 ## Related references
 
