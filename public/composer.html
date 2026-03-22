@@ -128,10 +128,12 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 .step-input{min-height:120px;resize:vertical}
 .helper-line{margin-top:0;color:var(--muted);font-size:12px;line-height:1.5}
 .step-column .actions{margin-top:4px}
-.proof-trail-stack{display:grid;gap:12px}
+.proof-trail-stack{display:grid;gap:14px;margin-top:12px;max-height:960px;overflow-y:auto;padding-right:4px}
 .proof-trail-item{padding:12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.025)}
+.proof-trail-item--expanded{background:rgba(255,255,255,.035);box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
 .proof-trail-item strong{display:block;font-size:13px;line-height:1.35}
 .proof-trail-item span{display:block;margin-top:6px;color:var(--muted);font-size:12px;line-height:1.45}
+.proof-json-label{margin-top:12px;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
 .proof-trail-trace{padding:12px;border-radius:14px;border:1px solid rgba(120,196,255,.2);background:rgba(9,18,35,.62)}
 .proof-trail-trace .label,.proof-mini .label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
 .proof-trail-trace .value{
@@ -146,7 +148,8 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 .details-block{margin-top:4px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.02);overflow:hidden}
 .details-block summary{cursor:pointer;list-style:none;padding:12px 14px;font-size:12px;font-weight:700;color:#dbe8fb}
 .details-block summary::-webkit-details-marker{display:none}
-.receipt-json-preview{margin:0;padding:0 14px 14px;overflow:auto;font-size:11px;line-height:1.55;color:#dce7ff;max-height:280px;white-space:pre-wrap}
+.receipt-json-preview,.receipt-json-block{margin:0;padding:0 14px 14px;overflow:auto;font-size:11px;line-height:1.55;color:#dce7ff;max-height:280px;white-space:pre-wrap}
+.receipt-json-block{margin-top:8px;padding:12px 14px;border-radius:12px;border:1px solid rgba(120,196,255,.14);background:rgba(9,18,35,.62)}
 .footer{padding:0 0 32px}
 .footer-row{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;color:var(--muted);font-size:12px;border-top:1px solid rgba(255,255,255,.06);padding-top:18px}
 @media (max-width:1120px){
@@ -286,14 +289,6 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
               <div class="label">Proof path</div>
               <div class="value" id="proof-path-strip">—</div>
             </div>
-            <div class="proof-mini">
-              <div class="label">Receipt chain</div>
-              <div class="value">
-                <select id="receipt-chain-selector" style="width:100%;margin-top:8px;">
-                  <option value="">No receipt chain yet</option>
-                </select>
-              </div>
-            </div>
           </div>
 
           <div class="proof-trail-stack" id="execution-steps">
@@ -354,12 +349,6 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 }</pre>
           </details>
 
-          <details class="details-block">
-            <summary>Selected Trace Receipt</summary>
-            <pre class="receipt-json-preview" id="selected-step-json">{
-  "status": "pending"
-}</pre>
-          </details>
         </div>
       </section>
     </section>
@@ -412,7 +401,6 @@ const step3Input = document.getElementById("step-3-input");
 const executionTrace = document.getElementById("execution-trace");
 const executionSteps = document.getElementById("execution-steps");
 const proofPathStrip = document.getElementById("proof-path-strip");
-const receiptChainSelector = document.getElementById("receipt-chain-selector");
 const receiptFinalVerb = document.getElementById("receipt-final-verb");
 const receiptId = document.getElementById("receipt-id");
 const receiptHash = document.getElementById("receipt-hash");
@@ -421,7 +409,6 @@ const receiptKid = document.getElementById("receipt-kid");
 const receiptVerified = document.getElementById("receipt-verified");
 const finalReceiptJson = document.getElementById("final-receipt-json");
 const verificationJson = document.getElementById("verification-json");
-const selectedStepJson = document.getElementById("selected-step-json");
 const runtimeStatusText = document.getElementById("runtime-status-text");
 
 const state = {
@@ -429,7 +416,6 @@ const state = {
   signedReceipt: null,
   verification: null,
   traceId: null,
-  selectedReceiptIndex: 0,
   lastError: null
 };
 
@@ -545,7 +531,6 @@ function renderError(message) {
   `);
   receiptVerified.textContent = "Error";
   verificationJson.textContent = JSON.stringify({ error: message }, null, 2);
-  selectedStepJson.textContent = JSON.stringify({ error: message }, null, 2);
 }
 
 function extractReceiptEnvelope(payload) {
@@ -569,24 +554,6 @@ function summarizeResult(result) {
     return result.summary || result.cleaned_text || result.content || result.output || result.label || (Array.isArray(result.labels) ? `labels: ${result.labels.join(", ")}` : null) || JSON.stringify(result).slice(0, 160);
   }
   return String(result);
-}
-
-function compactReceiptView(entry) {
-  const receipt = entry?.receipt || {};
-  return {
-    status: receipt?.status || entry?.status || "unknown",
-    verb: receipt?.verb || entry?.verb || "unknown",
-    schema_version: receipt?.schema_version || "—",
-    result: extractResult(receipt, entry?.raw) || "—",
-    metadata: {
-      proof: {
-        signer_id: receipt?.metadata?.proof?.signer_id || "—",
-        kid: receipt?.metadata?.proof?.kid || "—",
-        hash_sha256: receipt?.metadata?.proof?.hash_sha256 || "—"
-      },
-      receipt_id: receipt?.metadata?.receipt_id || receipt?.receipt_id || "—"
-    }
-  };
 }
 
 function buildVerifyCurl(receipt) {
@@ -655,26 +622,6 @@ function collectConfiguredSteps() {
   return stepConfigs.filter((step) => step.verb);
 }
 
-function renderReceiptChainSelector(chain) {
-  receiptChainSelector.innerHTML = "";
-  if (!chain.length) {
-    const option = document.createElement("option");
-    option.value = "";
-    option.textContent = "No receipt chain yet";
-    receiptChainSelector.appendChild(option);
-    return;
-  }
-
-  chain.forEach((entry, index) => {
-    const option = document.createElement("option");
-    option.value = String(index);
-    option.textContent = `Step ${index + 1}: ${entry.verb}`;
-    receiptChainSelector.appendChild(option);
-  });
-
-  receiptChainSelector.value = String(Math.min(state.selectedReceiptIndex, chain.length - 1));
-}
-
 function renderTrace(chain) {
   if (!chain.length) {
     executionSteps.innerHTML = `
@@ -689,23 +636,22 @@ function renderTrace(chain) {
 
   proofPathStrip.textContent = chain.map((entry) => entry.verb).join(" → ");
   executionSteps.innerHTML = chain.map((entry, index) => {
-    const compact = compactReceiptView(entry);
+    const receipt = entry?.receipt || {};
+    const summary =
+      receipt?.result?.summary ||
+      (Array.isArray(receipt?.result?.labels) ? `labels: ${receipt.result.labels.join(", ")}` : summarizeResult(extractResult(receipt, entry?.raw))) ||
+      "Receipt ready";
+    const titleVerb = receipt?.verb || entry?.verb || "unknown";
+    const titleStatus = receipt?.status || entry?.status || "unknown";
     return `
-      <div class="proof-trail-item">
-        <strong>Step ${index + 1} — ${entry.verb} — ${compact.status}</strong>
-        <span>${summarizeResult(compact.result)}</span>
-        <details class="details-block">
-          <summary>Technical details</summary>
-          <pre class="receipt-json-preview">${escapeHtml(JSON.stringify(compact, null, 2))}</pre>
-        </details>
+      <div class="proof-trail-item proof-trail-item--expanded">
+        <strong>Step ${index + 1} — ${escapeHtml(titleVerb)} — ${escapeHtml(titleStatus)}</strong>
+        <span>${escapeHtml(summary)}</span>
+        <div class="proof-json-label">Technical details</div>
+        <pre class="receipt-json-block">${escapeHtml(JSON.stringify(receipt, null, 2))}</pre>
       </div>
     `;
   }).join("");
-}
-
-function renderSelectedStepReceipt() {
-  const entry = state.normalizedChain[state.selectedReceiptIndex];
-  selectedStepJson.textContent = entry ? JSON.stringify(compactReceiptView(entry), null, 2) : JSON.stringify({ status: "pending" }, null, 2);
 }
 
 function updatePrimaryReceipt() {
@@ -776,7 +722,6 @@ function resetProofTrail() {
   state.signedReceipt = null;
   state.verification = null;
   state.traceId = null;
-  state.selectedReceiptIndex = 0;
   state.lastError = null;
   executionTrace.textContent = "—";
   proofPathStrip.textContent = "—";
@@ -786,8 +731,6 @@ function resetProofTrail() {
       <span>Normalized step receipts will appear here from Step 1 through Step 3.</span>
     </div>
   `;
-  renderReceiptChainSelector([]);
-  renderSelectedStepReceipt();
   updatePrimaryReceipt();
 }
 
@@ -833,12 +776,9 @@ async function runDemo() {
       const normalized = normalizeStep({ verb: step.verb, payload, response });
       chain.push(normalized);
       state.normalizedChain = chain;
-      state.selectedReceiptIndex = chain.length - 1;
       state.traceId = normalized.trace_id || state.traceId;
       executionTrace.textContent = state.traceId || `Flow step ${chain.length}`;
       renderTrace(chain);
-      renderReceiptChainSelector(chain);
-      renderSelectedStepReceipt();
       currentText = normalized.resultText || currentText;
     }
 
@@ -857,17 +797,10 @@ async function runDemo() {
     }
     runtimeStatusText.textContent = "Runtime request failed";
     renderTrace(chain);
-    renderReceiptChainSelector(chain);
-    renderSelectedStepReceipt();
     updatePrimaryReceipt();
     renderError(error?.message || String(error));
   }
 }
-
-receiptChainSelector.addEventListener("change", (event) => {
-  state.selectedReceiptIndex = Number(event.target.value || 0);
-  renderSelectedStepReceipt();
-});
 
 heroRunDefault.addEventListener("click", () => {
   applyDefaultFlow();
