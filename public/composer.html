@@ -126,6 +126,35 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 .field select{background:#10192b;color:var(--text);appearance:none;-webkit-appearance:none;-moz-appearance:none}
 .field select option{background:#10192b;color:#f3f7ff}
 .step-input{min-height:120px;resize:vertical}
+.step-output-row{margin-top:10px;border:1px solid rgba(120,196,255,.14);background:rgba(9,18,35,.62);border-radius:14px;padding:10px 12px 12px}
+.step-output-label{font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-soft)}
+.step-output-preview{margin:8px 0 0;font-size:.82rem;line-height:1.5;color:#dbe7fb;word-break:break-word;white-space:pre-wrap}
+.step-receipt-row{
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,0.08);
+  background:rgba(2,6,13,0.96);
+  border-radius:14px;
+}
+
+.step-receipt-label{
+  font-size:0.7rem;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--text-soft);
+  padding:8px 12px 0;
+}
+
+.step-receipt-json{
+  margin:0;
+  padding:10px 12px 12px;
+  font-size:0.75rem;
+  line-height:1.5;
+  color:#dbe7fb;
+  max-height:220px;
+  overflow:auto;
+  white-space:pre-wrap;
+  word-break:break-word;
+}
 .helper-line{margin-top:0;color:var(--muted);font-size:12px;line-height:1.5}
 .step-column .actions{margin-top:4px}
 .proof-trail-stack{display:grid;gap:14px;margin-top:12px;max-height:960px;overflow-y:auto;padding-right:4px}
@@ -226,6 +255,18 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
             <textarea id="step-1-input" class="step-input" placeholder="Enter the source text for the flow."></textarea>
           </div>
 
+          <div class="step-output-row">
+            <div class="step-output-label">Output</div>
+            <pre class="step-output-preview" id="step-1-output">Run the demo to see Step 1 output.</pre>
+          </div>
+
+          <div class="step-receipt-row">
+            <div class="step-receipt-label">Receipt</div>
+            <pre class="step-receipt-json" id="step-1-receipt">{
+  "status": "pending"
+}</pre>
+          </div>
+
           <div class="helper-line" id="step-1-helper">This starts the flow.</div>
           <div class="step-arrow-row"><span>Next</span><span class="arrow">→</span></div>
         </div>
@@ -247,6 +288,18 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
             <textarea id="step-2-input" class="step-input" placeholder="Leave blank to use output from Step 1."></textarea>
           </div>
 
+          <div class="step-output-row">
+            <div class="step-output-label">Output</div>
+            <pre class="step-output-preview" id="step-2-output">Run the demo to see Step 2 output.</pre>
+          </div>
+
+          <div class="step-receipt-row">
+            <div class="step-receipt-label">Receipt</div>
+            <pre class="step-receipt-json" id="step-2-receipt">{
+  "status": "pending"
+}</pre>
+          </div>
+
           <div class="helper-line" id="step-2-helper">Leave blank to use output from Step 1.</div>
           <div class="step-arrow-row"><span>Next</span><span class="arrow">→</span></div>
         </div>
@@ -266,6 +319,18 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
           <div class="field">
             <label for="step-3-input">Optional override</label>
             <textarea id="step-3-input" class="step-input" placeholder="Leave blank to use output from Step 2."></textarea>
+          </div>
+
+          <div class="step-output-row">
+            <div class="step-output-label">Output</div>
+            <pre class="step-output-preview" id="step-3-output">Run the demo to see Step 3 output.</pre>
+          </div>
+
+          <div class="step-receipt-row">
+            <div class="step-receipt-label">Receipt</div>
+            <pre class="step-receipt-json" id="step-3-receipt">{
+  "status": "pending"
+}</pre>
           </div>
 
           <div class="actions">
@@ -401,6 +466,15 @@ const step3Verb = document.getElementById("step-3-verb");
 const step1Input = document.getElementById("step-1-input");
 const step2Input = document.getElementById("step-2-input");
 const step3Input = document.getElementById("step-3-input");
+const step1Box = document.getElementById("step-1-box");
+const step2Box = document.getElementById("step-2-box");
+const step3Box = document.getElementById("step-3-box");
+const step1Output = document.getElementById("step-1-output");
+const step2Output = document.getElementById("step-2-output");
+const step3Output = document.getElementById("step-3-output");
+const step1Receipt = document.getElementById("step-1-receipt");
+const step2Receipt = document.getElementById("step-2-receipt");
+const step3Receipt = document.getElementById("step-3-receipt");
 
 const executionTrace = document.getElementById("execution-trace");
 const executionSteps = document.getElementById("execution-steps");
@@ -695,6 +769,48 @@ function buildStepInput(verb, text) {
   throw new Error(`Unsupported verb: ${verb}`);
 }
 
+const stepCardElements = [
+  { box: step1Box, title: step1Box.querySelector(".section-title"), output: step1Output, receipt: step1Receipt },
+  { box: step2Box, title: step2Box.querySelector(".section-title"), output: step2Output, receipt: step2Receipt },
+  { box: step3Box, title: step3Box.querySelector(".section-title"), output: step3Output, receipt: step3Receipt }
+];
+
+function renderStepGrid(chain) {
+  stepCardElements.forEach((elements, index) => {
+    const stepNumber = index + 1;
+    const step = chain[index] || null;
+    const verb = step?.verb || `Step ${stepNumber}`;
+    elements.title.textContent = step ? `Step ${stepNumber} — ${verb}` : `Step ${stepNumber}`;
+
+    if (!step) {
+      elements.output.textContent = `Run the demo to see Step ${stepNumber} output.`;
+      elements.receipt.textContent = JSON.stringify({ status: "pending" }, null, 2);
+      return;
+    }
+
+    const outputPreview = buildStepPreview(step) || step.resultText || "Receipt ready";
+    const receipt = step?.receipt || {};
+    const proof = receipt?.metadata?.proof || {};
+    const visibleReceipt = {
+      status: receipt.status,
+      verb: receipt.verb,
+      schema_version: receipt.schema_version || receipt.version,
+      result: receipt.result,
+      metadata: {
+        proof: {
+          signer_id: proof.signer_id,
+          kid: proof.kid,
+          hash_sha256: proof.hash_sha256
+        },
+        receipt_id: receipt?.metadata?.receipt_id
+      }
+    };
+
+    elements.output.textContent = outputPreview;
+    elements.receipt.textContent = JSON.stringify(visibleReceipt, null, 2);
+  });
+}
+
 function collectConfiguredSteps() {
   const initialText = step1Input.value.trim();
   const stepConfigs = [
@@ -831,6 +947,7 @@ function resetProofTrail() {
       <span>Normalized step receipts will appear here from Step 1 through Step 3.</span>
     </div>
   `;
+  renderStepGrid([]);
   updatePrimaryReceipt();
 }
 
@@ -878,6 +995,7 @@ async function runDemo() {
       state.normalizedChain = chain;
       state.traceId = normalized.trace_id || state.traceId;
       executionTrace.textContent = state.traceId || `Flow step ${chain.length}`;
+      renderStepGrid(chain);
       renderTrace(chain);
       currentText = normalized.resultText || currentText;
     }
@@ -896,6 +1014,7 @@ async function runDemo() {
       state.signedReceipt = chain[chain.length - 1]?.receipt || null;
     }
     runtimeStatusText.textContent = "Runtime request failed";
+    renderStepGrid(chain);
     renderTrace(chain);
     updatePrimaryReceipt();
     renderError(error?.message || String(error));
