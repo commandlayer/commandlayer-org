@@ -5,6 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>CommandLayer — Agents Can Act. CommandLayer Proves They Acted.</title>
 <meta name="description" content="CommandLayer is infrastructure for agents that spend money, call services, and coordinate with other agents. Signed receipts, ENS identity, ERC-8004 proof." />
+<meta property="og:title" content="CommandLayer — Agents Can Act. CommandLayer Proves They Acted." />
+<meta property="og:description" content="Infrastructure for agents that spend money, call services, and coordinate with other agents. Signed receipts, ENS identity, ERC-8004 proof on Base." />
+<meta property="og:image" content="https://www.commandlayer.org/icon2.png" />
+<meta property="og:url" content="https://www.commandlayer.org/" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
+<meta name="twitter:title" content="CommandLayer — Agents Can Act. CommandLayer Proves They Acted." />
+<meta name="twitter:description" content="Infrastructure for agents that spend money, call services, and coordinate with other agents. Signed receipts, ENS identity, ERC-8004 proof on Base." />
+<meta name="twitter:image" content="https://www.commandlayer.org/icon2.png" />
 <link rel="icon" href="https://www.commandlayer.org/icon2.png" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -98,6 +107,11 @@ nav {
   transition: all 0.15s;
 }
 .nav-github:hover { border-color: var(--accent); color: var(--accent); }
+.nav-status { display: flex; align-items: center; gap: 6px; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dimmer); transition: background 0.3s; flex-shrink: 0; }
+.status-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); animation: sdpulse 2s infinite; }
+.status-dot.error { background: var(--red, #ff4444); }
+@keyframes sdpulse { 0%,100%{opacity:1} 50%{opacity:.35} }
 
 /* ── HERO ── */
 .hero {
@@ -457,6 +471,10 @@ footer a:hover { color: var(--accent); }
   </ul>
 
   <div class="nav-right">
+    <div class="nav-status">
+      <div class="status-dot" id="navDot"></div>
+      <span id="navStatusText" style="font-size:11px;color:var(--dim);">runtime</span>
+    </div>
     <a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a>
   </div>
 </nav>
@@ -767,5 +785,25 @@ footer a:hover { color: var(--accent); }
   </nav>
 </footer>
 
+<script>
+(async () => {
+  try {
+    const r = await fetch('https://runtime.commandlayer.org/health', { signal: AbortSignal.timeout(5000) });
+    const dot = document.getElementById('navDot');
+    const txt = document.getElementById('navStatusText');
+    if (r.ok) {
+      dot.className = 'status-dot live';
+      txt.textContent = 'runtime live';
+      txt.style.color = 'var(--green)';
+    } else {
+      dot.className = 'status-dot error';
+      txt.textContent = 'runtime error';
+    }
+  } catch {
+    document.getElementById('navDot').className = 'status-dot error';
+    document.getElementById('navStatusText').textContent = 'unreachable';
+  }
+})();
+</script>
 </body>
 </html>
