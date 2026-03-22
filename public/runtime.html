@@ -1,836 +1,364 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Runtime — CommandLayer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta
-      name="description"
-      content="CommandLayer Runtime — the execution layer that runs pinned Commons and Commercial contracts, then optionally attaches trace, proof, and orchestration metadata without redefining the base receipt."
-    />
-
-    <style>
-      :root {
-        --bg: #05060a;
-        --bg-elevated: #0a0c14;
-        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
-        --border-soft: rgba(255, 255, 255, 0.06);
-        --border-strong: rgba(255, 255, 255, 0.18);
-        --accent: #c5cbe0;
-        --accent-strong: #e3e7ff;
-        --accent-muted: #8f96b5;
-        --text-main: #f7f8ff;
-        --text-muted: #9ca3c7;
-        --text-soft: #6b7280;
-        --radius-lg: 16px;
-        --radius-xl: 24px;
-        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
-        --max-width: 1120px;
-      }
-
-      * { box-sizing: border-box; }
-
-      html, body {
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", sans-serif;
-        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
-        color: var(--text-main);
-      }
-
-      body { min-height: 100vh; }
-
-      .page-shell {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .page-main { flex: 1; }
-
-      .container {
-        width: 100%;
-        max-width: var(--max-width);
-        margin: 0 auto;
-        padding: 0 1.5rem;
-      }
-
-      /* Header */
-      .site-header {
-        background: var(--bg-header);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        position: sticky;
-        top: 0;
-        z-index: 50;
-        backdrop-filter: blur(18px);
-      }
-
-      .site-header__inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.9rem 1.5rem;
-      }
-
-      .site-header__brand {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-decoration: none;
-        color: inherit;
-      }
-
-      .site-header__logo-img {
-        width: 28px;
-        height: 28px;
-        object-fit: contain;
-        display: block;
-        border-radius: 6px;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35), 0 14px 40px rgba(0, 0, 0, 0.9);
-      }
-
-      .site-header__text { display: flex; flex-direction: column; }
-
-      .site-header__title {
-        font-size: 0.98rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-      }
-
-      .site-header__subtitle {
-        font-size: 0.78rem;
-        color: var(--text-muted);
-      }
-
-      .site-header__nav {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .site-header__link {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        text-decoration: none;
-        color: var(--text-muted);
-        border: 1px solid transparent;
-        white-space: nowrap;
-      }
-
-      .site-header__link:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__link--active {
-        color: #020617;
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        border-color: rgba(255, 255, 255, 0.25);
-      }
-
-      /* Docs dropdown */
-      .site-header__dropdown { position: relative; }
-
-      .site-header__dropdown-btn {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: var(--text-muted);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        cursor: pointer;
-      }
-
-      .site-header__dropdown-btn:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__dropdown-btn--active {
-        color: #020617;
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        border-color: rgba(255, 255, 255, 0.25);
-      }
-
-      .site-header__dropdown-menu {
-        position: absolute;
-        top: 2.35rem;
-        right: 0;
-        background: rgba(15, 23, 42, 0.98);
-        border-radius: 14px;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        padding: 0.5rem 0.4rem;
-        min-width: 210px;
-        display: none;
-        z-index: 9999;           /* fix: ensure it's above everything */
-        pointer-events: auto;    /* fix: clickable links */
-      }
-
-      .site-header__dropdown-menu a {
-        display: block;
-        padding: 0.35rem 0.7rem;
-        font-size: 0.82rem;
-        text-decoration: none;
-        color: var(--text-muted);
-        border-radius: 999px;
-      }
-
-      .site-header__dropdown-menu a:hover {
-        color: var(--accent-strong);
-        background: rgba(31, 41, 55, 0.95);
-      }
-
-      .site-header--docs-open .site-header__dropdown-menu { display: block; }
-
-      /* Mobile toggle */
-      .site-header__toggle {
-        display: none;
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.7);
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--text-main);
-        padding: 0.25rem 0.6rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-      }
-
-      .site-header__toggle:hover { background: rgba(15, 23, 42, 1); }
-
-      /* Always-blue links */
-      .cl-blue-link {
-        color: #7ca8ff !important;
-        text-decoration: none;
-      }
-      .cl-blue-link:hover { text-decoration: underline; }
-      .cl-blue-link:visited { color: #7ca8ff !important; }
-
-      /* Hero */
-      .hero {
-        padding: 3.0rem 0 2.2rem;
-        border-bottom: 1px solid var(--border-soft);
-        background: radial-gradient(circle at 0 0, #111827, #020308);
-      }
-
-      .hero__inner {
-        display: grid;
-        grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.2fr);
-        gap: 2.4rem;
-        align-items: flex-start;
-      }
-
-      .hero__eyebrow {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--accent-muted);
-        margin-bottom: 0.8rem;
-      }
-
-      .hero__title {
-        margin: 0 0 0.8rem;
-        font-size: 2.05rem;
-        line-height: 1.15;
-      }
-
-      .hero__title-em {
-        background: linear-gradient(135deg, #e5e7eb, #a5b4fc);
-        -webkit-background-clip: text;
-        background-clip: text;
-        color: transparent;
-      }
-
-      .hero__subtitle {
-        margin: 0;
-        color: var(--text-muted);
-        font-size: 0.98rem;
-        max-width: 42rem;
-        line-height: 1.7;
-      }
-
-      .hero__cta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.8rem;
-        margin-top: 1.4rem;
-      }
-
-      .hero__meta {
-        margin-top: 1.1rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.6rem;
-        font-size: 0.8rem;
-        color: var(--text-soft);
-      }
-
-      .hero__meta-pill {
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.6);
-        padding: 0.18rem 0.55rem;
-      }
-
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.45rem;
-        padding: 0.6rem 1.1rem;
-        border-radius: 999px;
-        font-size: 0.9rem;
-        text-decoration: none;
-        border: 1px solid transparent;
-        cursor: pointer;
-        white-space: nowrap;
-      }
-
-      .btn--primary {
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        color: #020617;
-        border-color: rgba(255, 255, 255, 0.3);
-        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
-      }
-      .btn--primary:hover { filter: brightness(1.03); }
-
-      .btn--ghost {
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--accent-strong);
-        border-color: rgba(148, 163, 184, 0.6);
-      }
-      .btn--ghost:hover { background: rgba(15, 23, 42, 1); }
-
-      .btn__icon { font-size: 1rem; }
-
-      .hero__card {
-        background: rgba(15, 23, 42, 0.95);
-        border-radius: var(--radius-xl);
-        padding: 1.4rem 1.4rem 1.6rem;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        font-size: 0.9rem;
-      }
-
-      .hero__card h2 {
-        margin: 0 0 0.6rem;
-        font-size: 1rem;
-      }
-
-      .hero__card p { margin: 0; color: var(--text-muted); }
-
-      .hero__card ul { margin: 0.9rem 0 0; padding-left: 1.1rem; }
-      .hero__card li { margin-bottom: 0.35rem; }
-
-      /* Sections */
-      .section { padding: 2.6rem 0; }
-
-      .section--muted {
-        background: rgb(6, 9, 18);
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      }
-
-      .section__header {
-        max-width: 46rem;
-        margin-bottom: 1.4rem;
-      }
-
-      .section__header h2 {
-        margin: 0 0 0.5rem;
-        font-size: 1.45rem;
-      }
-
-      .section__header p {
-        margin: 0;
-        font-size: 0.95rem;
-        color: var(--text-muted);
-        line-height: 1.7;
-      }
-
-      .grid { display: grid; gap: 1.2rem; }
-      .grid--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-
-      .info-card {
-        background: rgba(15, 23, 42, 0.95);
-        padding: 1.1rem;
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--border-soft);
-        font-size: 0.9rem;
-      }
-
-      .info-card h3 { margin: 0 0 0.45rem; font-size: 1rem; }
-      .info-card p { margin: 0; color: var(--text-muted); line-height: 1.65; }
-
-      .card-block {
-        background: rgba(15, 23, 42, 0.95);
-        border-radius: var(--radius-xl);
-        padding: 1.4rem 1.4rem 1.6rem;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        font-size: 0.92rem;
-      }
-
-      .card-block__title { margin: 0 0 0.5rem; font-size: 1.15rem; }
-      .card-block__subtitle { margin: 0 0 0.9rem; color: var(--text-muted); line-height: 1.7; }
-
-      .card-block ul {
-        margin: 0.4rem 0 0;
-        padding-left: 1.1rem;
-        color: var(--text-muted);
-        line-height: 1.7;
-      }
-
-      .card-block li { margin-bottom: 0.35rem; }
-
-      .card-block pre {
-        margin: 0;
-        padding: 0.95rem 1rem;
-        background: rgba(2, 6, 23, 0.75);
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        overflow-x: auto;
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-        font-size: 0.82rem;
-        color: #e5e7eb;
-      }
-
-      /* Footer */
-      .site-footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        background: #020308;
-      }
-
-      .site-footer__inner {
-        padding: 1.8rem 1.5rem 2rem;
-        font-size: 0.78rem;
-        color: var(--text-soft);
-      }
-
-      .site-footer__row {
-        display: flex;
-        justify-content: space-between;
-        gap: 2rem;
-        margin-bottom: 1rem;
-      }
-
-      .site-footer__col {
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-      }
-
-      .site-footer__row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 2rem;
-      }
-
-      .site-footer__col {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-      }
-
-      .site-footer__col-title {
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--text-soft);
-        margin-bottom: 0.2rem;
-      }
-
-      .site-footer__cid {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        font-size: 0.72rem;
-        color: var(--accent-muted);
-        word-break: break-all;
-      }
-
-      .site-footer__links {
-        display: flex;
-        gap: 0.8rem;
-        margin-top: 0.8rem;
-        padding-top: 0.8rem;
-        border-top: 1px solid var(--border-soft);
-      }
-
-      .site-footer__links a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-
-      .site-footer__links a:hover { text-decoration: underline; }
-
-      /* Mobile */
-      @media (max-width: 880px) {
-        .site-header__inner { padding-inline: 1rem; }
-        .site-header__toggle { display: inline-flex; align-items: center; justify-content: center; }
-        .site-header__nav {
-          display: none;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
-          margin-top: 0.8rem;
-        }
-        .site-header.site-header--open .site-header__nav { display: flex; }
-        .hero__inner { grid-template-columns: minmax(0, 1fr); }
-        .hero__card { margin-top: 1.2rem; }
-        .grid--3 { grid-template-columns: minmax(0, 1fr); }
-        .site-footer__row { flex-direction: column; gap: 1rem; }
-        .site-footer__inner { padding-inline: 1rem; }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="page-shell">
-      <!-- HEADER -->
-      <header class="site-header">
-        <div class="site-header__inner container">
-          <a href="/" class="site-header__brand">
-            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-            <div class="site-header__text">
-              <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
-            </div>
-          </a>
-
-          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
-            ☰
-          </button>
-
-          <nav class="site-header__nav">
-            <a href="/" class="site-header__link">Home</a>
-            <a href="/composer.html" class="site-header__link">Demo</a>
-            <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-
-            <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn site-header__dropdown-btn--active" type="button">
-              Docs &#9662;
-              </button>
-              <div class="site-header__dropdown-menu">
-              <a href="/commons.html">Commons</a>
-              <a href="/commercial.html">Commercial</a>
-              <a href="/agent-cards.html">Agent Cards</a>
-              <a href="/runtime.html">Runtime</a>
-              </div>
-            </div>
-
-            <a
-            href="https://github.com/commandlayer"
-            class="site-header__link"
-            target="_blank"
-            rel="noopener noreferrer"
-            >
-            GitHub
-            </a>
-          </nav>
-        </div>
-      </header>
-
-      <main class="page-main">
-        <!-- HERO -->
-        <section class="hero">
-          <div class="container hero__inner">
-            <div>
-              <div class="hero__eyebrow">Runtime</div>
-              <h1 class="hero__title">
-                Runtime produces the proof boundary —
-                <span class="hero__title-em">it runs the action, emits the receipt, and makes verification possible.</span>
-              </h1>
-
-              <p class="hero__subtitle">
-                Runtime answers one question: how is proof produced and checked? It executes pinned CommandLayer contracts, emits the signed receipt, and can attach verification material around that receipt so anyone can inspect what happened.
-              </p>
-
-              <p class="hero__subtitle" style="margin-top:0.85rem;">
-                Today, Runtime is a live proving surface. It shows that agent execution can be reproducible, inspectable, and verifiable without changing the canonical receipt contract.
-              </p>
-
-              <div class="hero__cta-row">
-                <a href="/composer.html" class="btn btn--primary">
-                  <span class="btn__icon">▶️</span>
-<span>Run a Verified Agent Flow</span>
-                </a>
-                <a href="/agent-cards.html" class="btn btn--ghost">
-                  <span class="btn__icon">🪪</span>
-                  <span>How routing works</span>
-                </a>
-              </div>
-
-              <div class="hero__meta">
-                <span class="hero__meta-pill">Pinned schemas</span>
-                <span class="hero__meta-pill">Signed receipts + runtime proof</span>
-                <span class="hero__meta-pill">Portable receipt contract</span>
-              </div>
-            </div>
-
-            <aside class="hero__card">
-              <h2>What Runtime does</h2>
-              <p>
-                Runtime is not “the schema layer.” It is the <strong>execution boundary</strong> that consumes pinned
-                schemas and produces evidence.
-              </p>
-              <ul>
-                <li><strong>Is:</strong> a reference runtime that executes schema-stable Commons and Commercial verbs.</li>
-                <li><strong>Is:</strong> an execution layer that may attach optional proof and orchestration metadata around the canonical receipt.</li>
-                <li><strong>Is:</strong> a live proving surface — not just logs or responses.</li>
-                <li><strong>Is not:</strong> a closed semantic system — contracts and schemas remain public and portable.</li>
-                <li><strong>Is not:</strong> the finished shape of policy, metering, guarantees, or billing.</li>
-              </ul>
-            </aside>
-          </div>
-        </section>
-
-        <!-- HOW IT FITS -->
-        <section class="section">
-          <div class="container">
-            <div class="section__header">
-              <h2>How Runtime produces proof</h2>
-              <p>
-                Runtime sits above schemas and below applications. Commons defines the minimum verifiable receipt contract, Commercial extends the same model for economic flows, and Runtime executes those pinned contracts with optional metadata when orchestration, tracing, or proof are needed. Receipts are signed with Ed25519 and can be verified against ENS-anchored public keys.
-              </p>
-              <p>
-                That proving surface is also linked to CommandLayer’s <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener noreferrer">public ERC-8004 registration on Base</a>, giving Runtime an on-chain credibility and discoverability anchor.
-              </p>
-            </div>
-
-            <div class="grid grid--3">
-              <article class="info-card">
-                <h3>Inputs</h3>
-                <p>
-                  Schema-shaped verb invocations (Commons today). The protocol contract stays stable and portable before any runtime-specific fields are considered.
-                </p>
-              </article>
-
-              <article class="info-card">
-                <h3>Execution</h3>
-                <p>
-                  Reference execution against pinned schemas, with optional runtime metadata for chaining, timing, and verification layered on top of the base receipt rather than replacing it.
-                </p>
-              </article>
-
-              <article class="info-card">
-                <h3>Outputs</h3>
-                <p>
-                  Keep the receipt separate from runtime metadata. Clients should not confuse execution-layer fields like <code>trace</code> and <code>metadata.proof</code> with the core contract.
-                </p>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <!-- TODAY -->
-        <section class="section section--muted">
-          <div class="container">
-            <div class="section__header">
-              <h2>What Runtime provides today</h2>
-              <p>
-                This is the minimum Runtime surface needed to make agent execution trustworthy in public: deterministic contracts, visible receipts, and independently checkable verification.
-              </p>
-            </div>
-
-            <div class="card-block">
-              <h3 class="card-block__title">Live capabilities (reference runtime)</h3>
-              <p class="card-block__subtitle">
-                What exists now, end-to-end, in the live demo and runtime-backed flows.
-              </p>
-              <ul>
-                <li><strong>Schema enforcement:</strong> requests and canonical receipts conform to pinned JSON Schemas.</li>
-                <li><strong>Optional runtime metadata:</strong> execution may add <code>trace</code>, timing, and orchestration fields.</li>
-                <li><strong>Optional proof layer:</strong> runtimes may attach signed, hashable evidence on top of the base receipt.</li>
-                <li><strong>Reproducibility:</strong> calls can be replayed via copy-pasteable <code>curl</code>.</li>
-                <li><strong>Receipt verification:</strong> schema + hash + signature can be checked independently.</li>
-              </ul>
-              <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                Runtime proof is an execution-layer addition around the canonical receipt, not the canonical receipt itself. This layer is intentionally narrow: it proves the contract can be executed and proven reliably before layering in commercial policy and economics.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- DESIGNED -->
-        <section class="section">
-          <div class="container">
-            <div class="card-block">
-              <h3 class="card-block__title">What Runtime adds around the receipt</h3>
-              <p class="card-block__subtitle">
-                These are execution-layer capabilities or design constraints. Only claim them when the relevant runtime implements them; none of them change the published schemas.
-              </p>
-
-              <ul>
-                <li><strong>Policy layers:</strong> runtime-specific allow/deny rules, safety filters, or execution constraints when implemented.</li>
-                <li><strong>Idempotency:</strong> retry and replay controls when exposed by a given runtime.</li>
-                <li><strong>Metering:</strong> runtime-level usage and accounting fields layered on top of the base contract when a runtime emits them.</li>
-                <li><strong>Pricing and settlement:</strong> commercial execution concerns that live outside Commons semantics.</li>
-                <li><strong>Multi-runtime portability:</strong> same contracts, different executors.</li>
-              </ul>
-
-              <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                The constraint: semantics remain public goods. Runtime evolves operationally without fragmenting meaning.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ECONOMICS -->
-        <section class="section section--muted">
-          <div class="container">
-            <div class="section__header">
-              <h2>Why trust lives at execution</h2>
-              <p>
-                CommandLayer does not monetize meaning. Value accrues where execution absorbs operational cost and produces
-                audit-grade proof.
-              </p>
-            </div>
-
-            <div class="card-block">
-              <h3 class="card-block__title">Economics (principle)</h3>
-              <p class="card-block__subtitle">
-                Contracts stay open. Execution becomes infrastructure.
-              </p>
-
-              <ul>
-                <li><strong>Schemas remain public:</strong> the verb language stays accessible and portable.</li>
-                <li><strong>Receipts remain portable:</strong> evidence can be verified without trusting a vendor.</li>
-                <li><strong>Execution carries cost:</strong> guarantees, routing, policy, reliability, and metering live at runtime.</li>
-              </ul>
-
-              <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                The forward-looking bet: a shared verb language becomes normal. The winners are runtimes that can execute it
-                reliably and prove what happened — without forking semantics.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- EXAMPLE -->
-        <section class="section">
-          <div class="container">
-            <div class="section__header">
-              <h2>Keep the receipt separate from runtime metadata</h2>
-              <p>
-                Commons defines the minimum verifiable receipt contract. Runtimes may then attach execution metadata for tracing, chaining, timing, and proof. The snippets below separate those layers.
-              </p>
-            </div>
-
-            <div class="card-block">
-              <h3 class="card-block__title">Canonical Commons receipt</h3>
-              <p class="card-block__subtitle">
-                This is the minimum contract websites and SDKs should teach first.
-              </p>
-              <pre>{
-  "verb": "convert",
-  "schema_version": "1.1.0",
-  "status": "success",
-  "converted_content": "..."
-}</pre>
-              <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                Runtime may add fields under <code>runtime_metadata</code> as an optional proof layer for execution, orchestration, and verification, but those remain runtime-specific additions around the canonical receipt and should never be mistaken for the canonical Commons receipt itself.
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <!-- ROADMAP -->
-        <section class="section section--muted">
-          <div class="container">
-            <div class="card-block">
-              <h3 class="card-block__title">Runtime roadmap (high level)</h3>
-              <p class="card-block__subtitle">
-                Runtime ships in phases. Each phase hardens execution without changing semantics.
-              </p>
-              <ul>
-                <li><strong>Phase 1 (now):</strong> reference runtime + optional execution metadata + verification around Commons receipts.</li>
-                <li><strong>Phase 2:</strong> policy hooks + metered usage fields in receipts.</li>
-                <li><strong>Phase 3:</strong> commercial verbs + idempotent execution semantics.</li>
-                <li><strong>Phase 4:</strong> settlement + multi-runtime ecosystems on shared contracts.</li>
-              </ul>
-
-              <p style="margin:0.9rem 0 0; color: var(--text-muted); line-height: 1.7;">
-                Simple model: Commons and Commercial define the contract. Runtime defines execution. Semantics stay open. Execution becomes infrastructure.
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
-
-      <footer class="site-footer">
-        <div class="container site-footer__inner" style="align-items: center; text-align: center;">
-          <div class="site-footer__cid">Commons v1.1.0 &middot; Commercial v1.1.0 &middot; Agent Cards v1.1.0 &middot; ERC-8004 registered</div>
-          <div class="site-footer__links" style="justify-content: center;">
-            <a href="/docs.html">Docs</a>
-            <a href="/repositories.html">Repositories</a>
-            <a href="/faq.html">FAQ</a>
-            <a href="/about.html">About</a>
-            <a href="/licensing.html">Licensing</a>
-          </div>
-        </div>
-      </footer>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CommandLayer — Runtime produces the proof boundary.</title>
+<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:       #07090d;
+  --surface:  #0b0f18;
+  --panel:    #101828;
+  --border:   #1b2a3b;
+  --border-hi:#273d54;
+  --text:     #c8d8ea;
+  --dim:      #476080;
+  --dimmer:   #253040;
+  --accent:   #00d4ff;
+  --accent2:  #0099cc;
+  --green:    #00e676;
+  --gold:     #ffd54f;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Syne', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 13px; line-height: 1.6; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(0,212,255,0.022) 79px, rgba(0,212,255,0.022) 80px); }
+nav { position: sticky; top: 0; z-index: 100; background: rgba(7,9,13,0.93); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 54px; }
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-family: var(--sans); font-weight: 800; font-size: 15px; letter-spacing: -0.02em; }
+.nav-brand img { width: 26px; height: 26px; }
+.nav-center { display: flex; align-items: center; gap: 4px; list-style: none; }
+.nav-center a { color: var(--dim); text-decoration: none; font-size: 12px; padding: 5px 10px; border-radius: 4px; transition: all 0.15s; }
+.nav-center a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.nav-dropdown { position: relative; }
+.nav-dropdown-toggle { color: var(--dim); font-size: 12px; font-family: var(--mono); padding: 5px 10px; border-radius: 4px; cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 4px; transition: color 0.15s; }
+.nav-dropdown-toggle:hover { color: var(--text); }
+.nav-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; min-width: 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 6px; margin-top: 4px; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.nav-dropdown:hover .nav-dropdown-menu { display: flex; flex-direction: column; }
+.nav-dropdown-menu a { color: var(--dim); text-decoration: none; font-size: 12px; padding: 6px 10px; border-radius: 3px; transition: all 0.12s; }
+.nav-dropdown-menu a:hover { color: var(--accent); background: rgba(0,212,255,0.06); }
+.nav-dropdown-menu a.active { color: var(--accent); }
+.nav-right { display: flex; align-items: center; }
+.nav-github { color: var(--dim); text-decoration: none; font-size: 12px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; transition: all 0.15s; }
+.nav-github:hover { border-color: var(--accent); color: var(--accent); }
+.page-wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 60px 32px 80px; }
+.doc-eyebrow { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--green); margin-bottom: 14px; }
+.doc-h1 { font-family: var(--sans); font-size: clamp(26px, 4vw, 46px); font-weight: 800; letter-spacing: -0.04em; color: #fff; line-height: 1.05; margin-bottom: 18px; }
+.doc-h1 em { color: var(--green); font-style: normal; }
+.doc-lead { font-size: 15px; color: var(--dim); line-height: 1.75; max-width: 640px; margin-bottom: 24px; }
+.doc-lead strong { color: var(--text); font-weight: 500; }
+.badge-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 32px; }
+.v-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 3px; font-size: 11px; border: 1px solid var(--border); color: var(--dim); background: var(--surface); }
+.v-badge.green { border-color: rgba(0,230,118,0.3); color: var(--green); background: rgba(0,230,118,0.06); }
+.v-badge.accent { border-color: rgba(0,212,255,0.3); color: var(--accent); background: rgba(0,212,255,0.06); }
+.v-badge a { color: inherit; text-decoration: none; }
+.v-badge a:hover { text-decoration: underline; }
+.hero-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; }
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 9px 18px; border-radius: 4px; font-family: var(--mono); font-size: 12px; font-weight: 500; cursor: pointer; border: none; transition: all 0.15s; text-decoration: none; white-space: nowrap; }
+.btn-primary { background: var(--accent); color: #06090e; font-weight: 700; }
+.btn-primary:hover { background: #00bcde; }
+.btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+.doc-section { margin-bottom: 48px; }
+.doc-h2 { font-family: var(--sans); font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: #fff; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.doc-h3 { font-family: var(--sans); font-size: 15px; font-weight: 700; color: var(--text); margin: 20px 0 10px; }
+.doc-p { font-size: 13px; color: var(--dim); line-height: 1.8; margin-bottom: 14px; }
+.doc-p strong { color: var(--text); font-weight: 500; }
+.doc-p code { color: var(--green); font-size: 12px; }
+.doc-p a { color: var(--accent); text-decoration: none; }
+.doc-p a:hover { text-decoration: underline; }
+.is-isnot { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 24px; }
+.is-col { background: var(--surface); padding: 18px; }
+.is-col-header { font-family: var(--sans); font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+.is-col.is  .is-col-header { color: var(--green); }
+.is-col.not .is-col-header { color: var(--dim); }
+.is-item { display: flex; gap: 8px; font-size: 12px; color: var(--dim); margin-bottom: 8px; line-height: 1.5; }
+.is-item:last-child { margin-bottom: 0; }
+.is-item::before { content: '→'; flex-shrink: 0; }
+.is-col.is .is-item::before { color: var(--green); }
+.is-col.not .is-item::before { color: var(--dimmer); }
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 24px; }
+.feature-cell { background: var(--surface); padding: 20px; transition: background 0.2s; }
+.feature-cell:hover { background: var(--panel); }
+.fc-title { font-family: var(--sans); font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.fc-body  { font-size: 12px; color: var(--dim); line-height: 1.65; }
+.fc-body code { color: var(--green); }
+.doc-divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+.code-block { background: var(--surface); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 20px; }
+.code-header { background: var(--panel); border-bottom: 1px solid var(--border); padding: 8px 14px; display: flex; align-items: center; justify-content: space-between; }
+.code-lang { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--dimmer); }
+.code-label { font-size: 11px; color: var(--dim); }
+pre.code-pre { padding: 14px; font-size: 12px; line-height: 1.75; overflow-x: auto; color: var(--dim); }
+pre.code-pre .key  { color: var(--accent2); }
+pre.code-pre .str  { color: #a8d8a8; }
+pre.code-pre .cmt  { color: var(--dimmer); }
+.phase-list { display: flex; flex-direction: column; gap: 0; margin-bottom: 20px; }
+.phase-row { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.phase-row:last-child { border-bottom: none; }
+.phase-num { width: 28px; height: 20px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; border: 1px solid var(--border); color: var(--dimmer); background: var(--bg); margin-top: 1px; }
+.phase-row.now .phase-num { border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.08); }
+.phase-body { flex: 1; font-size: 12px; color: var(--dim); line-height: 1.65; }
+.phase-body strong { color: var(--text); }
+.phase-body code { color: var(--green); }
+.callout { border-radius: 4px; padding: 12px 16px; font-size: 12px; line-height: 1.7; margin-bottom: 20px; display: flex; gap: 10px; }
+.callout.info  { background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.2); color: var(--text); }
+.callout.green { background: rgba(0,230,118,0.06); border: 1px solid rgba(0,230,118,0.2); color: var(--text); }
+.callout-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.callout a { color: var(--accent); text-decoration: none; }
+.callout a:hover { text-decoration: underline; }
+footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--dimmer); flex-wrap: wrap; gap: 10px; }
+footer a { color: var(--dim); text-decoration: none; transition: color 0.15s; }
+footer a:hover { color: var(--accent); }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://www.commandlayer.org/" class="nav-brand">
+    <img src="https://www.commandlayer.org/icon2.png" alt="CommandLayer" />
+    CommandLayer
+  </a>
+  <ul class="nav-center">
+    <li><a href="https://www.commandlayer.org/">Home</a></li>
+    <li><a href="https://www.commandlayer.org/composer.html">Demo</a></li>
+    <li><a href="https://www.commandlayer.org/quickstart.html">Quickstart</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle">Docs ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="https://www.commandlayer.org/commons.html">Commons</a>
+        <a href="https://www.commandlayer.org/commercial.html">Commercial</a>
+        <a href="https://www.commandlayer.org/agent-cards.html">Agent Cards</a>
+        <a href="https://www.commandlayer.org/runtime.html" class="active">Runtime</a>
+      </div>
+    </li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a>
+  </div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="doc-eyebrow">▸ docs / runtime</div>
+  <h1 class="doc-h1">Runtime produces the<br /><em>proof boundary.</em></h1>
+  <p class="doc-lead">Runtime answers one question: how is proof produced and checked? It executes pinned CommandLayer contracts, emits the signed receipt, and can attach verification material around that receipt so anyone can inspect what happened.</p>
+  <p class="doc-lead" style="margin-top:-16px;">Today, Runtime is a <strong>live proving surface.</strong> It shows that agent execution can be reproducible, inspectable, and verifiable without changing the canonical receipt contract.</p>
+
+  <div class="badge-row">
+    <span class="v-badge green">Pinned schemas</span>
+    <span class="v-badge green">Signed receipts + runtime proof</span>
+    <span class="v-badge accent">Portable receipt contract</span>
+  </div>
+
+  <div class="hero-actions">
+    <a href="https://www.commandlayer.org/composer.html" class="btn btn-primary">▶ Run a Verified Agent Flow</a>
+    <a href="https://www.commandlayer.org/agent-cards.html" class="btn btn-outline">How routing works →</a>
+  </div>
+
+  <hr class="doc-divider" />
+
+  <div class="doc-section">
+    <h2 class="doc-h2">What Runtime does</h2>
+    <p class="doc-p">Runtime is not "the schema layer." It is the <strong>execution boundary</strong> that consumes pinned schemas and produces evidence.</p>
+
+    <div class="is-isnot">
+      <div class="is-col is">
+        <div class="is-col-header">Is</div>
+        <div class="is-item">A reference runtime that executes schema-stable Commons and Commercial verbs.</div>
+        <div class="is-item">An execution layer that may attach optional proof and orchestration metadata around the canonical receipt.</div>
+        <div class="is-item">A live proving surface — not just logs or responses.</div>
+      </div>
+      <div class="is-col not">
+        <div class="is-col-header">Is not</div>
+        <div class="is-item">A closed semantic system — contracts and schemas remain public and portable.</div>
+        <div class="is-item">The finished shape of policy, metering, guarantees, or billing.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="doc-divider" />
+
+  <div class="doc-section">
+    <h2 class="doc-h2">How Runtime produces proof</h2>
+    <p class="doc-p">Runtime sits above schemas and below applications. Commons defines the minimum verifiable receipt contract, Commercial extends the same model for economic flows, and Runtime executes those pinned contracts with optional metadata when orchestration, tracing, or proof are needed. Receipts are signed with Ed25519 and can be verified against ENS-anchored public keys.</p>
+    <p class="doc-p">That proving surface is also linked to CommandLayer's <a href="https://basescan.org/tx/0xb511007618f8c0aa0b5c12b48084ce67dc52321a79e0ef9002fdc8e6db5e899d" target="_blank" rel="noopener">public ERC-8004 registration on Base ↗</a>, giving Runtime an on-chain credibility and discoverability anchor.</p>
+
+    <div class="feature-grid">
+      <div class="feature-cell">
+        <div class="fc-title">Inputs</div>
+        <div class="fc-body">Schema-shaped verb invocations (Commons today). The protocol contract stays stable and portable before any runtime-specific fields are considered.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Execution</div>
+        <div class="fc-body">Reference execution against pinned schemas, with optional runtime metadata for chaining, timing, and verification layered on top of the base receipt rather than replacing it.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Outputs</div>
+        <div class="fc-body">Keep the receipt separate from runtime metadata. Clients should not confuse execution-layer fields like <code>trace</code> and <code>metadata.proof</code> with the core contract.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="doc-divider" />
+
+  <div class="doc-section">
+    <h2 class="doc-h2">What Runtime provides today</h2>
+    <p class="doc-p">This is the minimum Runtime surface needed to make agent execution trustworthy in public: deterministic contracts, visible receipts, and independently checkable verification.</p>
+
+    <h3 class="doc-h3">Live capabilities (reference runtime)</h3>
+
+    <div class="feature-grid">
+      <div class="feature-cell">
+        <div class="fc-title">Schema enforcement</div>
+        <div class="fc-body">Requests and canonical receipts conform to pinned JSON Schemas.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Optional runtime metadata</div>
+        <div class="fc-body">Execution may add <code>trace</code>, timing, and orchestration fields on top of the receipt.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Optional proof layer</div>
+        <div class="fc-body">Runtimes may attach signed, hashable evidence on top of the base receipt.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Reproducibility</div>
+        <div class="fc-body">Calls can be replayed via copy-pasteable <code>curl</code> commands.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Receipt verification</div>
+        <div class="fc-body">Schema + hash + signature can be checked independently, outside the runtime.</div>
+      </div>
     </div>
 
-    <script>
-      (function () {
-        const header = document.querySelector(".site-header");
-        const toggle = document.querySelector(".site-header__toggle");
-        const docsBtn = document.querySelector(".site-header__dropdown-btn");
-        const docsMenu = document.querySelector(".site-header__dropdown-menu");
+    <div class="callout info">
+      <span class="callout-icon">ℹ</span>
+      <span>Runtime proof is an execution-layer addition around the canonical receipt, not the canonical receipt itself. This layer is intentionally narrow: it proves the contract can be executed and proven reliably before layering in commercial policy and economics.</span>
+    </div>
 
-        function closeDocs() {
-          if (!header) return;
-          header.classList.remove("site-header--docs-open");
-          if (docsBtn) docsBtn.setAttribute("aria-expanded", "false");
-        }
+    <h3 class="doc-h3">What Runtime adds around the receipt</h3>
+    <p class="doc-p">These are execution-layer capabilities or design constraints. Only claim them when the relevant runtime implements them; none of them change the published schemas.</p>
 
-        function toggleDocs() {
-          if (!header) return;
-          const isOpen = header.classList.toggle("site-header--docs-open");
-          if (docsBtn) docsBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
-        }
+    <div class="feature-grid">
+      <div class="feature-cell">
+        <div class="fc-title">Policy layers</div>
+        <div class="fc-body">Runtime-specific allow/deny rules, safety filters, or execution constraints when implemented.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Idempotency</div>
+        <div class="fc-body">Retry and replay controls when exposed by a given runtime.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Metering</div>
+        <div class="fc-body">Runtime-level usage and accounting fields layered on top of the base contract when a runtime emits them.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Pricing and settlement</div>
+        <div class="fc-body">Commercial execution concerns that live outside Commons semantics.</div>
+      </div>
+    </div>
 
-        if (toggle && header) {
-          toggle.addEventListener("click", () => {
-            const isOpen = header.classList.toggle("site-header--open");
-            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-          });
-        }
+    <div class="callout green">
+      <span class="callout-icon">→</span>
+      <span>The constraint: semantics remain public goods. Runtime evolves operationally without fragmenting meaning.</span>
+    </div>
+  </div>
 
-        if (docsBtn) {
-          docsBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            toggleDocs();
-          });
-        }
+  <hr class="doc-divider" />
 
-        if (docsMenu) {
-          // If you click a link inside the menu, close it (but let navigation happen).
-          docsMenu.addEventListener("click", (e) => {
-            const a = e.target && e.target.closest ? e.target.closest("a") : null;
-            if (a) closeDocs();
-          });
-        }
+  <div class="doc-section">
+    <h2 class="doc-h2">Keep the receipt separate from runtime metadata</h2>
+    <p class="doc-p">Commons defines the minimum verifiable receipt contract. Runtimes may then attach execution metadata for tracing, chaining, timing, and proof. The snippet below shows those layers separately.</p>
 
-        // Click outside closes docs menu.
-        document.addEventListener("click", (e) => {
-          if (!header) return;
-          if (!header.classList.contains("site-header--docs-open")) return;
-          const dropdown = document.querySelector(".site-header__dropdown");
-          if (dropdown && dropdown.contains(e.target)) return;
-          closeDocs();
-        });
+    <h3 class="doc-h3">Canonical Commons receipt</h3>
+    <p class="doc-p">This is the minimum contract websites and SDKs should teach first.</p>
 
-        // ESC closes docs menu.
-        document.addEventListener("keydown", (e) => {
-          if (e.key === "Escape") closeDocs();
-        });
-      })();
-    </script>
-  </body>
+    <div class="code-block">
+      <div class="code-header">
+        <span class="code-lang">json</span>
+        <span class="code-label">canonical receipt · first shape to learn</span>
+      </div>
+      <pre class="code-pre">{
+  <span class="key">"verb"</span>: <span class="str">"convert"</span>,
+  <span class="key">"schema_version"</span>: <span class="str">"1.1.0"</span>,
+  <span class="key">"status"</span>: <span class="str">"success"</span>,
+  <span class="key">"converted_content"</span>: <span class="str">"..."</span>
+}
+<span class="cmt">// runtime may add runtime_metadata as an optional proof layer —
+// never mistake it for the canonical Commons receipt itself.</span></pre>
+    </div>
+
+    <h3 class="doc-h3">Runtime roadmap (high level)</h3>
+    <p class="doc-p">Runtime ships in phases. Each phase hardens execution without changing semantics.</p>
+
+    <div class="phase-list">
+      <div class="phase-row now">
+        <div class="phase-num">P1</div>
+        <div class="phase-body"><strong>Now:</strong> reference runtime + optional execution metadata + verification around Commons receipts.</div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-num">P2</div>
+        <div class="phase-body">Policy hooks + metered usage fields in receipts.</div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-num">P3</div>
+        <div class="phase-body">Commercial verbs + idempotent execution semantics.</div>
+      </div>
+      <div class="phase-row">
+        <div class="phase-num">P4</div>
+        <div class="phase-body">Settlement + multi-runtime ecosystems on shared contracts.</div>
+      </div>
+    </div>
+
+    <div class="callout info">
+      <span class="callout-icon">◈</span>
+      <span>Simple model: Commons and Commercial define the contract. Runtime defines execution. Semantics stay open. Execution becomes infrastructure.</span>
+    </div>
+  </div>
+
+  <hr class="doc-divider" />
+
+  <div class="doc-section">
+    <h2 class="doc-h2">Why trust lives at execution</h2>
+    <p class="doc-p">CommandLayer does not monetize meaning. Value accrues where execution absorbs operational cost and produces audit-grade proof.</p>
+
+    <div class="feature-grid">
+      <div class="feature-cell">
+        <div class="fc-title">Schemas remain public</div>
+        <div class="fc-body">The verb language stays accessible and portable. Anyone can implement it.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Receipts remain portable</div>
+        <div class="fc-body">Evidence can be verified without trusting a vendor. The hash still matches outside the runtime.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Execution carries cost</div>
+        <div class="fc-body">Guarantees, routing, policy, reliability, and metering live at runtime. That's where value accrues.</div>
+      </div>
+    </div>
+
+    <p class="doc-p">The forward-looking bet: a shared verb language becomes normal. The winners are runtimes that can execute it reliably and prove what happened — without forking semantics.</p>
+  </div>
+
+</div>
+
+<footer>
+  <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
+  <nav class="footer-links">
+    <a href="https://www.commandlayer.org/docs.html">Docs</a>
+    <a href="https://www.commandlayer.org/repositories.html">Repositories</a>
+    <a href="https://www.commandlayer.org/faq.html">FAQ</a>
+    <a href="https://www.commandlayer.org/about.html">About</a>
+    <a href="https://www.commandlayer.org/licensing.html">Licensing</a>
+  </nav>
+</footer>
+</body>
 </html>
