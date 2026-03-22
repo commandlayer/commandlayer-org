@@ -1,0 +1,29 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "summarizeagent.eth",
+  "description": "CommandLayer commons agent for summarize at v1.1.0.",
+  "ens": "summarizeagent.eth",
+  "website": "https://commandlayer.org",
+  "image": "https://commandlayer.org/og-image.png",
+  "services": [
+    {
+      "name": "execution",
+      "endpoint": "https://runtime.commandlayer.org/execute",
+      "version": "1.1.0"
+    },
+    {
+      "name": "ens",
+      "endpoint": "summarizeagent.eth",
+      "version": "1.0.0"
+    }
+  ],
+  "commandLayerClass": "commons",
+  "commandLayerVerb": "summarize",
+  "commandLayerVersion": "1.1.0",
+  "agentCard": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/summarizeagent.eth.json",
+  "schemaRequest": "https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json",
+  "schemaReceipt": "https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json",
+  "receiptSigner": "runtime.commandlayer.eth",
+  "receiptAlgorithm": "ed25519",
+  "owner": "commandlayer.eth"
+}

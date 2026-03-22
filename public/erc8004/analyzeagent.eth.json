@@ -1,0 +1,29 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "analyzeagent.eth",
+  "description": "CommandLayer commons agent for analyze at v1.1.0.",
+  "ens": "analyzeagent.eth",
+  "website": "https://commandlayer.org",
+  "image": "https://commandlayer.org/og-image.png",
+  "services": [
+    {
+      "name": "execution",
+      "endpoint": "https://runtime.commandlayer.org/execute",
+      "version": "1.1.0"
+    },
+    {
+      "name": "ens",
+      "endpoint": "analyzeagent.eth",
+      "version": "1.0.0"
+    }
+  ],
+  "commandLayerClass": "commons",
+  "commandLayerVerb": "analyze",
+  "commandLayerVersion": "1.1.0",
+  "agentCard": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/analyzeagent.eth.json",
+  "schemaRequest": "https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.request.schema.json",
+  "schemaReceipt": "https://commandlayer.org/schemas/v1.1.0/commons/analyze/analyze.receipt.schema.json",
+  "receiptSigner": "runtime.commandlayer.eth",
+  "receiptAlgorithm": "ed25519",
+  "owner": "commandlayer.eth"
+}

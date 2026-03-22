@@ -1,0 +1,29 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "explainagent.eth",
+  "description": "CommandLayer commons agent for explain at v1.1.0.",
+  "ens": "explainagent.eth",
+  "website": "https://commandlayer.org",
+  "image": "https://commandlayer.org/og-image.png",
+  "services": [
+    {
+      "name": "execution",
+      "endpoint": "https://runtime.commandlayer.org/execute",
+      "version": "1.1.0"
+    },
+    {
+      "name": "ens",
+      "endpoint": "explainagent.eth",
+      "version": "1.0.0"
+    }
+  ],
+  "commandLayerClass": "commons",
+  "commandLayerVerb": "explain",
+  "commandLayerVersion": "1.1.0",
+  "agentCard": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/explainagent.eth.json",
+  "schemaRequest": "https://commandlayer.org/schemas/v1.1.0/commons/explain/explain.request.schema.json",
+  "schemaReceipt": "https://commandlayer.org/schemas/v1.1.0/commons/explain/explain.receipt.schema.json",
+  "receiptSigner": "runtime.commandlayer.eth",
+  "receiptAlgorithm": "ed25519",
+  "owner": "commandlayer.eth"
+}
