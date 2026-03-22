@@ -1009,51 +1009,130 @@ function getReceiptIdFromNormalized(normalized) {
     || null;
 }
 
-function buildBody(verb) {
-  const buyer  = document.getElementById('fBuyer').value  || '0xcafe...dead';
-  const chain  = document.getElementById('fChain').value  || '8453';
-  const sku    = document.getElementById('fSku').value    || 'CL-VERB-001';
-  const qty    = document.getElementById('fQty').value    || '1';
-  const amount = document.getElementById('fAmount').value || '0.025';
+function getCommercialFormData() {
+  const buyer = document.getElementById('fBuyer').value || '0xcafe...dead';
+  const chainId = document.getElementById('fChain').value || '8453';
+  const sku = document.getElementById('fSku').value || 'CL-VERB-001';
+  const qty = parseInt(document.getElementById('fQty').value || '1', 10);
+  const amountValue = document.getElementById('fAmount').value || '0.025';
   const shipTo = document.getElementById('fShipTo').value || '100 Agent Ave';
+  const currency = 'ETH';
 
-  const base = {
-    verb,
-    schema_version: '1.1.0',
-    trace_id: traceId,
-    order_id: orderId,
+  return {
     buyer,
-    chain_id: parseInt(chain, 10),
+    chainId,
+    sku,
+    qty,
+    amountValue,
+    currency,
+    shipTo,
+    orderId,
   };
-
-  switch (verb) {
-    case 'authorize':
-      return { ...base, amount: parseFloat(amount), currency: 'ETH', payment_method: 'x402' };
-    case 'checkout':
-      return { ...base, items: [{ sku, quantity: parseInt(qty, 10), unit_price: parseFloat(amount) }], total: parseFloat(amount), currency: 'ETH' };
-    case 'purchase':
-      return { ...base, amount: parseFloat(amount), currency: 'ETH', settlement: 'onchain' };
-    case 'ship':
-      return { ...base, ship_to: shipTo, carrier: 'agent-logistics', items: [{ sku, quantity: parseInt(qty, 10) }] };
-    case 'verify':
-      return { ...base, subject: buyer, verification_type: 'receipt_boundary', check: 'full_flow' };
-    default:
-      return base;
-  }
 }
 
-function buildExecuteRequest(verb, body) {
+function buildAuthorizeBody() {
+  const { buyer, chainId, amountValue, currency, sku, qty, shipTo, orderId } = getCommercialFormData();
   return {
-    actor: 'demo.commandlayer.org',
-    input: body,
-    trace: { trace_id: traceId },
-    execution: {
-      entry: getStepEndpoint(verb),
-      class: 'commercial',
-      verb,
-      version: '1.1.0'
-    }
+    input: {
+      buyer,
+      chain_id: chainId,
+      amount: {
+        value: amountValue,
+        currency,
+      },
+      payment_method: 'demo',
+      metadata: {
+        order_id: orderId,
+        sku,
+        qty,
+        ship_to: shipTo,
+      },
+    },
   };
+}
+
+function buildCheckoutBody() {
+  const { amountValue, currency, sku, qty, orderId } = getCommercialFormData();
+  return {
+    input: {
+      amount: {
+        value: amountValue,
+        currency,
+      },
+      items: [{
+        sku,
+        quantity: qty,
+        unit_price: {
+          value: amountValue,
+          currency,
+        },
+      }],
+      metadata: {
+        order_id: orderId,
+      },
+    },
+  };
+}
+
+function buildPurchaseBody() {
+  const { buyer, chainId, amountValue, currency, sku, qty, orderId } = getCommercialFormData();
+  return {
+    input: {
+      buyer,
+      chain_id: chainId,
+      amount: {
+        value: amountValue,
+        currency,
+      },
+      items: [{ sku, quantity: qty }],
+      metadata: {
+        order_id: orderId,
+      },
+    },
+  };
+}
+
+function buildShipBody() {
+  const { buyer, sku, qty, shipTo, orderId } = getCommercialFormData();
+  return {
+    input: {
+      buyer,
+      items: [{ sku, quantity: qty }],
+      metadata: {
+        order_id: orderId,
+        ship_to: shipTo,
+      },
+    },
+  };
+}
+
+function buildVerifyBody() {
+  const { buyer, orderId } = getCommercialFormData();
+  return {
+    input: {
+      buyer,
+      metadata: {
+        order_id: orderId,
+      },
+    },
+  };
+}
+
+function buildCommercialRequestBody(verb) {
+  switch (verb) {
+    case 'authorize':
+      return buildAuthorizeBody();
+    case 'checkout':
+      return buildCheckoutBody();
+    case 'purchase':
+      return buildPurchaseBody();
+    case 'ship':
+      return buildShipBody();
+    case 'verify':
+      return buildVerifyBody();
+    default:
+      return { input: {} };
+  }
 }
 
 function renderVerifyCurl(receipt) {
@@ -1125,8 +1204,8 @@ async function runStep(i, auto = false) {
   setTimelineState(i, 'current');
   setGlobalBadge('running', verb);
 
-  const body = buildBody(verb);
-  const requestBody = buildExecuteRequest(verb, body);
+  const requestBody = buildCommercialRequestBody(verb);
+  console.log('commercial request body', verb, JSON.stringify(requestBody, null, 2));
   const t0 = Date.now();
 
   try {
