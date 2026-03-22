@@ -17,17 +17,17 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,9,13,.93);backdrop-filte
 .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-family:var(--sans);font-weight:800;font-size:15px;letter-spacing:-.02em;}
 .nav-brand img{width:26px;height:26px;}
 .nav-center{display:flex;align-items:center;gap:4px;list-style:none;}
-.nav-center a{color:var(--dim);text-decoration:none;font-size:12px;padding:5px 10px;border-radius:4px;transition:all .15s;}
+.nav-center a{color:var(--text);text-decoration:none;font-size:12px;padding:5px 10px;border-radius:4px;transition:all .15s;}
 .nav-center a:hover{color:var(--text);background:rgba(255,255,255,.04);}
 .nav-dropdown{position:relative;}
-.nav-dropdown-toggle{color:var(--dim);font-size:12px;font-family:var(--mono);padding:5px 10px;border-radius:4px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:4px;transition:color .15s;}
+.nav-dropdown-toggle{color:var(--text);font-size:12px;font-family:var(--mono);padding:5px 10px;border-radius:4px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:4px;transition:color .15s;}
 .nav-dropdown-toggle:hover{color:var(--text);}
 .nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;min-width:150px;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:6px;margin-top:4px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.4);}
 .nav-dropdown:hover .nav-dropdown-menu{display:flex;flex-direction:column;}
-.nav-dropdown-menu a{color:var(--dim);text-decoration:none;font-size:12px;padding:6px 10px;border-radius:3px;transition:all .12s;}
+.nav-dropdown-menu a{color:var(--text);text-decoration:none;font-size:12px;padding:6px 10px;border-radius:3px;transition:all .12s;}
 .nav-dropdown-menu a:hover{color:var(--accent);background:rgba(0,212,255,.06);}
 .nav-right{display:flex;align-items:center;}
-.nav-github{color:var(--dim);text-decoration:none;font-size:12px;padding:5px 12px;border:1px solid var(--border);border-radius:4px;transition:all .15s;}
+.nav-github{color:var(--text);text-decoration:none;font-size:12px;padding:5px 12px;border:1px solid var(--border);border-radius:4px;transition:all .15s;}
 .nav-github:hover{border-color:var(--accent);color:var(--accent);}
 .page-wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:60px 32px 80px;}
 .doc-eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
@@ -61,14 +61,20 @@ nav{position:sticky;top:0;z-index:100;background:rgba(7,9,13,.93);backdrop-filte
 .arch-title{font-family:var(--sans);font-size:14px;font-weight:700;color:#fff;margin-bottom:8px;}
 .arch-body{font-size:13px;color:var(--dim);line-height:1.75;}
 .arch-body strong{color:var(--text);}
-footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--dimmer);flex-wrap:wrap;gap:10px;}
-footer a{color:var(--dim);text-decoration:none;transition:color .15s;}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--dim);flex-wrap:wrap;gap:10px;}
+footer a{color:var(--text);text-decoration:none;transition:color .15s;}
 footer a:hover{color:var(--accent);}
 .footer-links{display:flex;gap:20px;flex-wrap:wrap;}
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:var(--bg);}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 </style>
+<meta property="og:title" content="CommandLayer — Repositories" />
+<meta property="og:description" content="CommandLayer: verifiable agent execution with signed receipts, ENS identity, and ERC-8004 proof on Base." />
+<meta property="og:image" content="https://www.commandlayer.org/icon2.png" />
+<meta property="og:url" content="https://www.commandlayer.org/repositories.html" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary" />
 </head>
 <body>
 <nav>
