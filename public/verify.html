@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CommandLayer Receipt Verifier</title>
+<meta name="description" content="Verify CommandLayer agents and receipts through ENS metadata, ERC-8004 registration state, and signed execution proofs." />
+<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #07090d;
+  --surface: #0b1017;
+  --panel: #101823;
+  --panel-hi: #121d2b;
+  --border: #1c2c3e;
+  --border-hi: #2b4662;
+  --text: #cad8e8;
+  --dim: #6f89a5;
+  --dimmer: #314355;
+  --accent: #00d4ff;
+  --accent2: #00a7d1;
+  --green: #00e676;
+  --amber: #ffb300;
+  --red: #ff5f67;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Syne', sans-serif;
+  --shadow: 0 24px 60px rgba(0,0,0,0.42);
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: var(--mono);
+  color: var(--text);
+  background:
+    radial-gradient(circle at top left, rgba(0,212,255,0.08), transparent 24%),
+    radial-gradient(circle at top right, rgba(0,230,118,0.06), transparent 20%),
+    linear-gradient(180deg, #06080c 0%, #080c12 40%, #05070a 100%);
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,255,0.025) 1px, transparent 1px);
+  background-size: 38px 38px;
+  pointer-events: none;
+  z-index: 0;
+}
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(6, 8, 12, 0.88);
+  backdrop-filter: blur(14px);
+}
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text);
+  text-decoration: none;
+  font-family: var(--sans);
+  font-size: 15px;
+  font-weight: 800;
+}
+.nav-brand img { width: 25px; height: 25px; }
+.nav-links { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.nav-links a {
+  text-decoration: none;
+  color: var(--dim);
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  transition: all .15s ease;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--accent); border-color: var(--border); background: rgba(0,212,255,0.06); }
+main {
+  position: relative;
+  z-index: 1;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 40px 24px 72px;
+}
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, .9fr);
+  gap: 20px;
+  align-items: stretch;
+}
+.hero-panel, .panel, .report-card, .status-card, details {
+  background: linear-gradient(180deg, rgba(16,24,35,0.94), rgba(11,16,23,0.98));
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+.hero-panel {
+  padding: 28px;
+}
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.kicker::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 10px rgba(0,230,118,.5);
+}
+h1 {
+  margin: 0 0 12px;
+  font-family: var(--sans);
+  font-size: clamp(34px, 5vw, 54px);
+  line-height: .98;
+  letter-spacing: -.04em;
+  color: #fff;
+}
+.hero-subtitle {
+  max-width: 700px;
+  margin: 0 0 24px;
+  color: var(--dim);
+  font-size: 14px;
+  line-height: 1.75;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.hero-stat {
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+.hero-stat-label {
+  font-size: 10px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--dimmer);
+  margin-bottom: 8px;
+}
+.hero-stat-value {
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.55;
+}
+.hero-aside {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+}
+.trust-title {
+  margin: 0;
+  font-family: var(--sans);
+  font-size: 18px;
+  letter-spacing: -.03em;
+  color: #fff;
+}
+.trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.trust-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(0,0,0,0.14);
+  font-size: 11px;
+  color: var(--dim);
+}
+.trust-step::before {
+  content: attr(data-step);
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  color: #071017;
+  background: var(--accent);
+  font-weight: 700;
+}
+.grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 420px) minmax(0, 1fr);
+  gap: 20px;
+  margin-top: 20px;
+}
+.panel { padding: 20px; }
+.section-title {
+  margin: 0 0 6px;
+  font-family: var(--sans);
+  font-size: 22px;
+  letter-spacing: -.03em;
+  color: #fff;
+}
+.section-copy {
+  margin: 0 0 18px;
+  color: var(--dim);
+  font-size: 12px;
+  line-height: 1.7;
+}
+.stack { display: grid; gap: 14px; }
+.input-card {
+  padding: 16px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.02);
+}
+.input-card h3 {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #fff;
+}
+.input-card p { margin: 0 0 12px; color: var(--dim); font-size: 11px; line-height: 1.7; }
+label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--dimmer);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+}
+input, textarea {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(5, 8, 12, 0.9);
+  color: var(--text);
+  padding: 12px 14px;
+  font: inherit;
+  outline: none;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+input:focus, textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.08);
+}
+textarea { min-height: 280px; resize: vertical; line-height: 1.55; }
+.button-row, .quick-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 10px 14px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  transition: transform .15s ease, border-color .15s ease, color .15s ease, background .15s ease;
+}
+.btn:hover { transform: translateY(-1px); border-color: var(--border-hi); }
+.btn-primary { background: var(--accent); color: #051017; border-color: transparent; font-weight: 700; }
+.btn-primary:hover { background: #16c3eb; }
+.btn-ghost:hover { color: var(--accent); background: rgba(0,212,255,0.05); }
+.quick-row button { font-size: 11px; padding: 8px 10px; }
+.muted-note {
+  font-size: 11px;
+  color: var(--dim);
+  line-height: 1.7;
+}
+.report-stack { display: grid; gap: 14px; }
+.report-card { padding: 18px; }
+.report-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.report-head h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #fff;
+}
+.report-head p {
+  margin: 6px 0 0;
+  color: var(--dim);
+  font-size: 11px;
+  line-height: 1.65;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  white-space: nowrap;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  background: rgba(255,255,255,0.03);
+}
+.badge.pass { color: var(--green); border-color: rgba(0,230,118,.35); background: rgba(0,230,118,.08); }
+.badge.fail { color: var(--red); border-color: rgba(255,95,103,.35); background: rgba(255,95,103,.08); }
+.badge.warn { color: var(--amber); border-color: rgba(255,179,0,.35); background: rgba(255,179,0,.08); }
+.badge.neutral { color: var(--dim); }
+.kv { display: grid; gap: 10px; }
+.kv-row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.kv-row:first-child { border-top: none; padding-top: 0; }
+.kv-key {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--dimmer);
+}
+.kv-value {
+  font-size: 12px;
+  color: var(--text);
+  word-break: break-word;
+}
+.kv-value code, pre {
+  font-family: var(--mono);
+  color: var(--accent);
+}
+.status-card {
+  padding: 16px 18px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.status-icon {
+  width: 30px;
+  height: 30px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  background: rgba(0,212,255,0.06);
+}
+.status-card h4 { margin: 0 0 6px; color: #fff; font-size: 13px; }
+.status-card p { margin: 0; color: var(--dim); font-size: 12px; line-height: 1.65; }
+details {
+  margin-top: 16px;
+  overflow: hidden;
+}
+summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 16px 18px;
+  font-family: var(--sans);
+  font-size: 16px;
+  color: #fff;
+}
+summary::-webkit-details-marker { display: none; }
+summary::after {
+  content: '+';
+  float: right;
+  color: var(--accent);
+}
+details[open] summary::after { content: '–'; }
+.details-body {
+  padding: 0 18px 18px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 11px;
+  line-height: 1.6;
+}
+.footer-note { margin-top: 14px; color: var(--dim); font-size: 11px; line-height: 1.7; }
+@media (max-width: 980px) {
+  .hero, .grid { grid-template-columns: 1fr; }
+  .hero-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  nav { padding: 0 16px; height: auto; min-height: 56px; flex-wrap: wrap; gap: 10px; padding-top: 10px; padding-bottom: 10px; }
+  main { padding: 28px 16px 56px; }
+  .hero-panel, .hero-aside, .panel, .report-card { padding: 18px; }
+  .kv-row { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<nav>
+  <a class="nav-brand" href="/index.html"><img src="/icon2.png" alt="CommandLayer" /> <span>CommandLayer</span></a>
+  <div class="nav-links">
+    <a href="/composer.html">Demo</a>
+    <a href="/agent-cards.html">Agent Cards</a>
+    <a href="/commons.html">Commons</a>
+    <a href="/commercial.html">Commercial</a>
+    <a class="active" href="/verify.html">Verifier</a>
+  </div>
+</nav>
+<main>
+  <section class="hero">
+    <div class="hero-panel">
+      <div class="kicker">Verification Surface</div>
+      <h1>CommandLayer Receipt Verifier</h1>
+      <p class="hero-subtitle">Verify agents and receipts through ENS, ERC-8004, and signed execution proofs.</p>
+      <div class="hero-grid">
+        <div class="hero-stat">
+          <div class="hero-stat-label">Input Modes</div>
+          <div class="hero-stat-value">Resolve an ENS agent directly or validate a signed receipt artifact against local CommandLayer metadata.</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">CommandLayer Split</div>
+          <div class="hero-stat-value">Commons routes should resolve to <code>https://runtime.commandlayer.org/execute</code>; commercial routes should resolve to <code>x402://&lt;agent&gt;/&lt;verb&gt;/v1.1.0</code>.</div>
+        </div>
+        <div class="hero-stat">
+          <div class="hero-stat-label">Designed For</div>
+          <div class="hero-stat-value">Local metadata validation now, with clear hooks for future live ENS, ERC-8004, and backend cryptographic verification.</div>
+        </div>
+      </div>
+    </div>
+    <aside class="hero-aside">
+      <div>
+        <h2 class="trust-title">Trust Chain</h2>
+        <p class="section-copy">Walk the same verification chain an auditor would inspect before trusting an agent execution proof.</p>
+      </div>
+      <div class="trust-row" aria-label="Trust Chain">
+        <span class="trust-step" data-step="1">ENS Records</span>
+        <span class="trust-step" data-step="2">Agent Card</span>
+        <span class="trust-step" data-step="3">Schema</span>
+        <span class="trust-step" data-step="4">ERC-8004</span>
+        <span class="trust-step" data-step="5">Signer Key</span>
+        <span class="trust-step" data-step="6">Signature Check</span>
+        <span class="trust-step" data-step="7">Verdict</span>
+      </div>
+      <div class="status-card">
+        <div class="status-icon">↳</div>
+        <div>
+          <h4>Structured for progressive trust</h4>
+          <p>The page reports structural consistency today, and reserves explicit placeholders for full cryptographic verification once a verifier backend or wallet-resolved public key service is attached.</p>
+        </div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="grid">
+    <div class="panel">
+      <h2 class="section-title">Inputs</h2>
+      <p class="section-copy">Use the standalone verifier without touching the composer flow. Resolve a known agent identity, inspect a receipt, or quick-load bundled examples.</p>
+      <div class="stack">
+        <div class="input-card">
+          <h3>ENS Agent Resolution</h3>
+          <p>Resolve an agent from local CommandLayer metadata, compare its class, verb, schemas, ERC-8004 registration, and expected entry target.</p>
+          <label for="ensInput">ENS Name</label>
+          <input id="ensInput" type="text" value="parseagent.eth" spellcheck="false" placeholder="parseagent.eth" />
+          <div class="button-row" style="margin-top:12px;">
+            <button id="resolveAgentBtn" class="btn btn-primary" type="button">Resolve Agent</button>
+          </div>
+        </div>
+        <div class="input-card">
+          <h3>Receipt Verification</h3>
+          <p>Paste a receipt JSON artifact, then verify its structure against resolved metadata, signer expectations, and CommandLayer routing conventions.</p>
+          <label for="receiptInput">Receipt JSON</label>
+          <textarea id="receiptInput" spellcheck="false" placeholder='{"x402": {"verb": "parse", ...}}'></textarea>
+          <div class="button-row" style="margin-top:12px;">
+            <button id="verifyReceiptBtn" class="btn btn-primary" type="button">Verify Receipt</button>
+          </div>
+        </div>
+        <div class="input-card">
+          <h3>Quick Load Samples</h3>
+          <p>Jump between commons and commercial reference agents plus bundled receipt examples.</p>
+          <div class="quick-row">
+            <button class="btn btn-ghost" type="button" data-sample="ens:parseagent.eth">parseagent.eth</button>
+            <button class="btn btn-ghost" type="button" data-sample="ens:authorizeagent.eth">authorizeagent.eth</button>
+            <button class="btn btn-ghost" type="button" data-sample="receipt:commons">sample commons receipt</button>
+            <button class="btn btn-ghost" type="button" data-sample="receipt:commercial">sample commercial receipt</button>
+          </div>
+          <p class="footer-note">Quick-load receipt samples intentionally include signer and entry metadata so the report can explain what passes structurally versus what still needs live cryptographic proof.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 class="section-title">Verification Report</h2>
+      <p class="section-copy">Each card exposes a concrete pass/fail state so auditors can see where trust originates and where a verification chain breaks.</p>
+      <div class="report-stack" id="reportStack"></div>
+      <details>
+        <summary>Technical Details</summary>
+        <div class="details-body">
+          <pre id="technicalDetails">No verification run yet.</pre>
+        </div>
+      </details>
+    </div>
+  </section>
+</main>
+<script src="/js/verify.js"></script>
+</body>
+</html>
