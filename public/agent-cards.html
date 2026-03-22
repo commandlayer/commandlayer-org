@@ -1,958 +1,273 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Agent Cards — CommandLayer</title>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <meta
-      name="description"
-      content="CommandLayer Agent Cards — canonical JSON descriptors that bind ENS names to verbs, schema versions, and current-line entrypoints so registries and clients can discover and route to agents."
-    />
-
-    <!-- Same metallic layout system as homepage / Commons / Commercial -->
-    <style>
-      :root {
-        --bg: #05060a;
-        --bg-elevated: #0a0c14;
-        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
-        --border-soft: rgba(255, 255, 255, 0.06);
-        --border-strong: rgba(255, 255, 255, 0.18);
-        --accent: #c5cbe0;
-        --accent-strong: #e3e7ff;
-        --accent-muted: #8f96b5;
-        --text-main: #f7f8ff;
-        --text-muted: #9ca3c7;
-        --text-soft: #6b7280;
-        --radius-lg: 16px;
-        --radius-xl: 24px;
-        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
-        --max-width: 1120px;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-          "Inter", sans-serif;
-        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
-        color: var(--text-main);
-      }
-
-      body {
-        min-height: 100vh;
-      }
-
-      .page-shell {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .page-main {
-        flex: 1;
-      }
-
-      .container {
-        width: 100%;
-        max-width: var(--max-width);
-        margin: 0 auto;
-        padding: 0 1.5rem;
-      }
-
-      /* Header */
-      .site-header {
-        background: var(--bg-header);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        backdrop-filter: blur(18px);
-      }
-
-      .site-header__inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 0.9rem 1.5rem;
-      }
-
-      .site-header__brand {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        text-decoration: none;
-        color: inherit;
-      }
-
-      .site-header__logo-img {
-        width: 28px;
-        height: 28px;
-        object-fit: contain;
-        display: block;
-        border-radius: 6px;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
-          0 14px 40px rgba(0, 0, 0, 0.9);
-      }
-
-      .site-header__text {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .site-header__title {
-        font-size: 0.98rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-      }
-
-      .site-header__subtitle {
-        font-size: 0.78rem;
-        color: var(--text-muted);
-      }
-
-      .site-header__nav {
-        display: flex;
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .site-header__link {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        text-decoration: none;
-        color: var(--text-muted);
-        border: 1px solid transparent;
-        white-space: nowrap;
-      }
-
-      .site-header__link:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__link--active {
-        color: #020617;
-        background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-        border-color: rgba(255, 255, 255, 0.25);
-      }
-
-      /* Docs dropdown */
-      .site-header__dropdown {
-        position: relative;
-      }
-
-      .site-header__dropdown-btn {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: var(--text-muted);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        cursor: pointer;
-      }
-
-      .site-header__dropdown-btn:hover {
-        color: var(--accent-strong);
-        border-color: rgba(255, 255, 255, 0.18);
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .site-header__dropdown-menu {
-        position: absolute;
-        top: 2.3rem;
-        right: 0;
-        background: rgba(15, 23, 42, 0.98);
-        border-radius: 14px;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        padding: 0.5rem 0.4rem;
-        min-width: 210px;
-        display: none;
-      }
-
-      .site-header__dropdown-menu a {
-        display: block;
-        padding: 0.35rem 0.7rem;
-        font-size: 0.82rem;
-        text-decoration: none;
-        color: var(--text-muted);
-        border-radius: 999px;
-      }
-
-      .site-header__dropdown-menu a:hover {
-        color: var(--accent-strong);
-        background: rgba(31, 41, 55, 0.95);
-      }
-
-      .site-header--docs-open .site-header__dropdown-menu {
-        display: block;
-      }
-
-      /* Mobile toggle */
-      .site-header__toggle {
-        display: none;
-        border-radius: 999px;
-        border: 1px solid rgba(148, 163, 184, 0.7);
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--text-main);
-        padding: 0.25rem 0.6rem;
-        font-size: 0.9rem;
-        cursor: pointer;
-      }
-
-      .site-header__toggle:hover {
-        background: rgba(15, 23, 42, 1);
-      }
-
-      /* Subhero */
-      .subhero {
-        padding: 2.8rem 0 2.1rem;
-        border-bottom: 1px solid var(--border-soft);
-        background: radial-gradient(circle at 0 0, #111827, #020308);
-      }
-
-      .subhero__inner {
-        display: flex;
-        justify-content: space-between;
-        gap: 2rem;
-        align-items: flex-end;
-      }
-
-      .subhero__eyebrow {
-        font-size: 0.8rem;
-        text-transform: uppercase;
-        letter-spacing: 0.14em;
-        color: var(--accent-muted);
-        margin-bottom: 0.5rem;
-      }
-
-      .subhero__title {
-        margin: 0 0 0.6rem;
-        font-size: 2rem;
-      }
-
-      .subhero__subtitle {
-        margin: 0;
-        color: var(--text-muted);
-        max-width: 40rem;
-        font-size: 0.96rem;
-        line-height: 1.6;
-      }
-
-      .subhero__subtitle strong {
-        color: var(--accent-strong);
-      }
-
-      .subhero__meta {
-        font-size: 0.85rem;
-        color: var(--text-soft);
-        text-align: right;
-      }
-
-      .subhero__meta code {
-        background: rgba(15, 23, 42, 0.9);
-        padding: 0.2rem 0.4rem;
-        border-radius: 4px;
-        font-size: 0.8rem;
-      }
-
-      /* Sections */
-      .section {
-        padding: 2.5rem 0;
-      }
-
-      .section--muted {
-        background: rgb(6, 9, 18);
-        border-top: 1px solid rgba(255, 255, 255, 0.06);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      }
-
-      .section__header {
-        max-width: 40rem;
-        margin-bottom: 1.4rem;
-      }
-
-      .section__header h2 {
-        margin: 0 0 0.5rem;
-        font-size: 1.4rem;
-      }
-
-      .section__header p {
-        margin: 0;
-        font-size: 0.95rem;
-        color: var(--text-muted);
-      }
-
-      .grid {
-        display: grid;
-        gap: 1.2rem;
-      }
-
-      .grid--3 {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-      }
-
-      .info-card {
-        background: rgba(15, 23, 42, 0.95);
-        padding: 1.1rem;
-        border-radius: var(--radius-lg);
-        border: 1px solid var(--border-soft);
-        font-size: 0.9rem;
-      }
-
-      .info-card h3 {
-        margin: 0 0 0.45rem;
-        font-size: 1rem;
-      }
-
-      .info-card p {
-        margin: 0;
-        color: var(--text-muted);
-      }
-
-      /* Card block */
-      .card-block {
-        background: rgba(15, 23, 42, 0.95);
-        border-radius: var(--radius-xl);
-        padding: 1.4rem 1.4rem 1.6rem;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-      }
-
-      .card-block__title {
-        margin: 0 0 0.4rem;
-        font-size: 1.1rem;
-      }
-
-      .card-block__subtitle {
-        margin: 0 0 1rem;
-        font-size: 0.9rem;
-        color: var(--text-muted);
-      }
-
-      /* Tables */
-      .table-wrapper {
-        width: 100%;
-        overflow-x: auto;
-      }
-
-      .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: 0.9rem;
-        min-width: 520px;
-      }
-
-      .data-table thead {
-        background: rgba(15, 23, 42, 0.95);
-      }
-
-      .data-table th,
-      .data-table td {
-        padding: 0.7rem 0.7rem;
-        text-align: left;
-        border-bottom: 1px solid var(--border-soft);
-      }
-
-      .data-table th {
-        font-weight: 500;
-        color: var(--accent-muted);
-        border-bottom: 1px solid var(--border-strong);
-      }
-
-      .data-table tbody tr:hover td {
-        background: rgba(15, 23, 42, 0.7);
-      }
-
-      .data-table code {
-        background: rgba(15, 23, 42, 0.9);
-        padding: 0.15rem 0.35rem;
-        border-radius: 4px;
-        font-size: 0.85rem;
-      }
-
-      .data-table a {
-        color: var(--accent-strong);
-        text-decoration: none;
-      }
-
-      .data-table a:hover {
-        text-decoration: underline;
-      }
-
-      /* Footer */
-      .site-footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        background: #020308;
-      }
-
-      .site-footer__inner {
-        padding: 1.8rem 1.5rem 2rem;
-        font-size: 0.78rem;
-        color: var(--text-soft);
-        display: flex;
-        flex-direction: column;
-        gap: 0.6rem;
-      }
-
-      .site-footer__row {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 2rem;
-      }
-
-      .site-footer__col {
-        display: flex;
-        flex-direction: column;
-        gap: 0.3rem;
-      }
-
-      .site-footer__col-title {
-        font-size: 0.72rem;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        color: var(--text-soft);
-        margin-bottom: 0.2rem;
-      }
-
-      .site-footer__cid {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-        font-size: 0.72rem;
-        color: var(--accent-muted);
-        word-break: break-all;
-      }
-
-      .site-footer__links {
-        display: flex;
-        gap: 0.8rem;
-        margin-top: 0.8rem;
-        padding-top: 0.8rem;
-        border-top: 1px solid var(--border-soft);
-      }
-
-      .site-footer__links a {
-        color: var(--accent);
-        text-decoration: none;
-      }
-
-      .site-footer__links a:hover {
-        text-decoration: underline;
-      }
-
-      /* Mobile */
-      @media (max-width: 880px) {
-        .site-header__inner {
-          padding-inline: 1rem;
-        }
-
-        .site-header__toggle {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .site-header__nav {
-          display: none;
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 0.5rem;
-          margin-top: 0.8rem;
-        }
-
-        .site-header.site-header--open .site-header__nav {
-          display: flex;
-        }
-
-        .subhero__inner {
-          flex-direction: column;
-          align-items: flex-start;
-        }
-
-        .subhero__meta {
-          text-align: left;
-        }
-
-        .grid--3 {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .site-footer__row {
-          flex-direction: column;
-          gap: 1rem;
-        }
-
-        .site-footer__inner {
-          padding-inline: 1rem;
-        }
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="page-shell">
-      <!-- HEADER -->
-      <header class="site-header">
-        <div class="site-header__inner container">
-          <a href="/" class="site-header__brand">
-            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-            <div class="site-header__text">
-              <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
-            </div>
-          </a>
-
-          <!-- Mobile toggle -->
-          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
-            ☰
-          </button>
-
-          <nav class="site-header__nav">
-            <a href="/" class="site-header__link">Home</a>
-            <a href="/composer.html" class="site-header__link">Demo</a>
-            <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-
-            <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button">
-              Docs &#9662;
-              </button>
-              <div class="site-header__dropdown-menu">
-              <a href="/commons.html">Commons</a>
-              <a href="/commercial.html">Commercial</a>
-              <a href="/agent-cards.html">Agent Cards</a>
-              <a href="/runtime.html">Runtime</a>
-              </div>
-            </div>
-
-            <a
-            href="https://github.com/commandlayer"
-            class="site-header__link"
-            target="_blank"
-            rel="noopener noreferrer"
-            >
-            GitHub
-            </a>
-          </nav>
-        </div>
-      </header>
-
-      <main class="page-main">
-        <!-- SUBHERO -->
-        <section class="subhero">
-          <div class="container subhero__inner">
-            <div>
-              <div class="subhero__eyebrow">Agent Cards</div>
-              <h1 class="subhero__title">Agent Cards Registry (v1.1.0, current)</h1>
-              <p class="subhero__subtitle">
-                Agent Cards answer one question: how are agents identified and discovered? Each card binds an <strong>ENS identity</strong> to supported verbs, schema versions, and entrypoints so clients can route work to the right agent and know who should have signed the receipt.
-              </p>
-            </div>
-            <div class="subhero__meta">
-              <div>Agent Cards v1.1.0 · current release</div>
-              <div>Apache-2.0 · descriptors free to use</div>
-              <div style="margin-top: 0.3rem">
-                Path pattern:<br />
-                <code>/agent-cards/agents/v1.1.0/&lt;tier&gt;/&lt;ens&gt;.json</code><br />
-                <span style="font-size:0.8rem;">where <code>tier</code> is <code>commons</code> or <code>commercial</code>.</span>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- EXPLAINER -->
-        <section class="section">
-          <div class="container">
-            <div class="section__header">
-              <h2>What Agent Cards do in the system</h2>
-              <p>
-                Agent Cards do not compete with Commons or Runtime. They provide the identity and discovery layer around the same execute → receipt → verify model: who the agent is, what contracts it speaks, and where to send work.
-              </p>
-            </div>
-
-            <div class="grid grid--3">
-              <article class="info-card">
-                <h3>Identity</h3>
-                <p>
-                  ENS name, owner, and contact fields that define who operates the agent. Cards make
-                  it explicit which human or organization stands behind a given ENS-based agent.
-                </p>
-              </article>
-
-              <article class="info-card">
-                <h3>Capabilities</h3>
-                <p>
-                  Supported verbs plus pinned Commons or Commercial <code>schema_version</code> values
-                  the agent speaks. This keeps <strong>capabilities and semantics in sync</strong>
-                  across ecosystems.
-                </p>
-              </article>
-
-              <article class="info-card">
-                <h3>Execution entrypoints</h3>
-                <p>
-                  One or more execution entrypoints and metadata for where to send
-                  <code>*.request</code> payloads. In the current line, Commons cards point at the shared HTTP execute surface while Commercial cards remain x402-style. Routing decisions can be made by registries and
-                  clients without hardcoding URLs.
-                </p>
-              </article>
-            </div>
-          </div>
-        </section>
-
-        <!-- COMMONS AGENT CARDS -->
-        <section class="section section--muted">
-          <div class="container">
-            <div class="section__header">
-              <h2>Commons Agents — v1.1.0</h2>
-              <p>
-                These agents implement the CommandLayer <strong>Commons verbs</strong>. These cards now align directly with the single published v1.1.0 Commons, Commercial, and Agent Cards story. Each link
-                opens the live Agent Card JSON for that ENS name under
-                <code>https://commandlayer.org</code>.
-              </p>
-            </div>
-
-          <div class="card-block">
-  <h3 class="card-block__title">Commons registry</h3>
-  <p class="card-block__subtitle">
-    Stable, MIT-backed semantics with <strong>Apache-2.0 Agent Cards</strong>. Each card
-    binds a Commons verb like <code>summarize</code> or <code>analyze</code> to a
-    concrete ENS identity and the shared HTTP execute entrypoint.
-  </p>
-
-  <div class="table-wrapper">
-    <table class="data-table">
-      <thead>
-        <tr>
-          <th>Verb</th>
-          <th>ENS name</th>
-          <th>Agent Card JSON</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><code>summarize</code></td>
-          <td><code>summarizeagent.eth</code></td>
-          <td>
-            <a
-              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/summarizeagent.eth.json"
-              target="_blank"
-            >
-              view JSON
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td><code>analyze</code></td>
-          <td><code>analyzeagent.eth</code></td>
-          <td>
-            <a
-              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/analyzeagent.eth.json"
-              target="_blank"
-            >
-              view JSON
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td><code>fetch</code></td>
-          <td><code>fetchagent.eth</code></td>
-          <td>
-            <a
-              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/fetchagent.eth.json"
-              target="_blank"
-            >
-              view JSON
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td><code>classify</code></td>
-          <td><code>classifyagent.eth</code></td>
-          <td>
-            <a
-              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/classifyagent.eth.json"
-              target="_blank"
-            >
-              view JSON
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td><code>clean</code></td>
-          <td><code>cleanagent.eth</code></td>
-          <td>
-            <a
-              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/cleanagent.eth.json"
-              target="_blank"
-            >
-              view JSON
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td><code>convert</code></td>
-          <td><code>convertagent.eth</code></td>
-          <td>
-            <a
-              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/convertagent.eth.json"
-              target="_blank"
-            >
-              view JSON
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td><code>describe</code></td>
-          <td><code>describeagent.eth</code></td>
-          <td>
-            <a
-              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/describeagent.eth.json"
-              target="_blank"
-            >
-              view JSON
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td><code>explain</code></td>
-          <td><code>explainagent.eth</code></td>
-          <td>
-            <a
-              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/explainagent.eth.json"
-              target="_blank"
-            >
-              view JSON
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td><code>format</code></td>
-          <td><code>formatagent.eth</code></td>
-          <td>
-            <a
-              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/formatagent.eth.json"
-              target="_blank"
-            >
-              view JSON
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td><code>parse</code></td>
-          <td><code>parseagent.eth</code></td>
-          <td>
-            <a
-              href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/parseagent.eth.json"
-              target="_blank"
-            >
-              view JSON
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CommandLayer — Agent Cards Registry (v1.1.0, current)</title>
+<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:       #07090d;
+  --surface:  #0b0f18;
+  --panel:    #101828;
+  --border:   #1b2a3b;
+  --border-hi:#273d54;
+  --text:     #c8d8ea;
+  --dim:      #476080;
+  --dimmer:   #253040;
+  --accent:   #00d4ff;
+  --accent2:  #0099cc;
+  --green:    #00e676;
+  --gold:     #ffd54f;
+  --purple:   #b39ddb;
+  --mono:     'JetBrains Mono', monospace;
+  --sans:     'Syne', sans-serif;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--mono); font-size: 13px; line-height: 1.6; overflow-x: hidden; }
+body::before { content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; background-image: repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(0,212,255,0.022) 79px, rgba(0,212,255,0.022) 80px); }
+nav { position: sticky; top: 0; z-index: 100; background: rgba(7,9,13,0.93); backdrop-filter: blur(16px); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 32px; height: 54px; }
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--text); font-family: var(--sans); font-weight: 800; font-size: 15px; letter-spacing: -0.02em; }
+.nav-brand img { width: 26px; height: 26px; }
+.nav-center { display: flex; align-items: center; gap: 4px; list-style: none; }
+.nav-center a { color: var(--dim); text-decoration: none; font-size: 12px; padding: 5px 10px; border-radius: 4px; transition: all 0.15s; }
+.nav-center a:hover { color: var(--text); background: rgba(255,255,255,0.04); }
+.nav-dropdown { position: relative; }
+.nav-dropdown-toggle { color: var(--dim); font-size: 12px; font-family: var(--mono); padding: 5px 10px; border-radius: 4px; cursor: pointer; background: none; border: none; display: flex; align-items: center; gap: 4px; transition: color 0.15s; }
+.nav-dropdown-toggle:hover { color: var(--text); }
+.nav-dropdown-menu { display: none; position: absolute; top: 100%; left: 0; min-width: 150px; background: var(--surface); border: 1px solid var(--border); border-radius: 5px; padding: 6px; margin-top: 4px; z-index: 200; box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.nav-dropdown:hover .nav-dropdown-menu { display: flex; flex-direction: column; }
+.nav-dropdown-menu a { color: var(--dim); text-decoration: none; font-size: 12px; padding: 6px 10px; border-radius: 3px; transition: all 0.12s; }
+.nav-dropdown-menu a:hover { color: var(--accent); background: rgba(0,212,255,0.06); }
+.nav-dropdown-menu a.active { color: var(--accent); }
+.nav-right { display: flex; align-items: center; }
+.nav-github { color: var(--dim); text-decoration: none; font-size: 12px; padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px; transition: all 0.15s; }
+.nav-github:hover { border-color: var(--accent); color: var(--accent); }
+.page-wrap { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 60px 32px 80px; }
+.doc-eyebrow { font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--purple); margin-bottom: 14px; }
+.doc-h1 { font-family: var(--sans); font-size: clamp(26px, 4vw, 46px); font-weight: 800; letter-spacing: -0.04em; color: #fff; line-height: 1.05; margin-bottom: 18px; }
+.doc-h1 em { color: var(--purple); font-style: normal; }
+.doc-lead { font-size: 15px; color: var(--dim); line-height: 1.75; max-width: 640px; margin-bottom: 24px; }
+.doc-lead strong { color: var(--text); font-weight: 500; }
+.badge-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 40px; }
+.v-badge { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 3px; font-size: 11px; border: 1px solid var(--border); color: var(--dim); background: var(--surface); }
+.v-badge.purple { border-color: rgba(179,157,219,0.3); color: var(--purple); background: rgba(179,157,219,0.06); }
+.v-badge.green  { border-color: rgba(0,230,118,0.3); color: var(--green); background: rgba(0,230,118,0.06); }
+.path-block { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--purple); border-radius: 0 4px 4px 0; padding: 12px 16px; margin-bottom: 40px; font-size: 12px; color: var(--dim); line-height: 1.9; }
+.path-block code { color: var(--purple); }
+.doc-section { margin-bottom: 48px; }
+.doc-h2 { font-family: var(--sans); font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: #fff; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.doc-h3 { font-family: var(--sans); font-size: 15px; font-weight: 700; color: var(--text); margin: 20px 0 10px; }
+.doc-p { font-size: 13px; color: var(--dim); line-height: 1.8; margin-bottom: 14px; }
+.doc-p strong { color: var(--text); font-weight: 500; }
+.doc-p code { color: var(--green); font-size: 12px; }
+.doc-p a { color: var(--accent); text-decoration: none; }
+.doc-p a:hover { text-decoration: underline; }
+.feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 24px; }
+.feature-cell { background: var(--surface); padding: 20px; transition: background 0.2s; }
+.feature-cell:hover { background: var(--panel); }
+.fc-title { font-family: var(--sans); font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.fc-body  { font-size: 12px; color: var(--dim); line-height: 1.65; }
+.fc-body code { color: var(--green); }
+.doc-divider { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+.schema-table-wrap { overflow-x: auto; margin-bottom: 24px; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead tr { border-bottom: 1px solid var(--border-hi); }
+th { padding: 9px 12px; text-align: left; font-family: var(--sans); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); white-space: nowrap; }
+td { padding: 9px 12px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: top; line-height: 1.5; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+td code { color: var(--accent); font-size: 11px; }
+td a { color: var(--accent2); text-decoration: none; font-size: 11px; }
+td a:hover { color: var(--accent); text-decoration: underline; }
+.td-dim { color: var(--dim); }
+.td-ens { color: var(--accent); font-size: 11px; }
+.callout { border-radius: 4px; padding: 12px 16px; font-size: 12px; line-height: 1.7; margin-bottom: 20px; display: flex; gap: 10px; }
+.callout.info   { background: rgba(0,212,255,0.06); border: 1px solid rgba(0,212,255,0.2); color: var(--text); }
+.callout.purple { background: rgba(179,157,219,0.06); border: 1px solid rgba(179,157,219,0.2); color: var(--text); }
+.callout.green  { background: rgba(0,230,118,0.06); border: 1px solid rgba(0,230,118,0.2); color: var(--text); }
+.callout-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.callout a { color: var(--accent); text-decoration: none; }
+.callout a:hover { text-decoration: underline; }
+.flow-steps { display: flex; flex-direction: column; gap: 0; margin-bottom: 20px; }
+.flow-step { display: flex; gap: 14px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.flow-step:last-child { border-bottom: none; }
+.fs-num { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 700; flex-shrink: 0; border: 1px solid var(--purple); color: var(--purple); background: rgba(179,157,219,0.08); margin-top: 1px; }
+.fs-body { flex: 1; font-size: 12px; color: var(--dim); line-height: 1.65; }
+.fs-body strong { color: var(--text); }
+.fs-body code { color: var(--green); }
+footer { position: relative; z-index: 1; border-top: 1px solid var(--border); padding: 20px 32px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: var(--dimmer); flex-wrap: wrap; gap: 10px; }
+footer a { color: var(--dim); text-decoration: none; transition: color 0.15s; }
+footer a:hover { color: var(--accent); }
+.footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://www.commandlayer.org/" class="nav-brand">
+    <img src="https://www.commandlayer.org/icon2.png" alt="CommandLayer" />
+    CommandLayer
+  </a>
+  <ul class="nav-center">
+    <li><a href="https://www.commandlayer.org/">Home</a></li>
+    <li><a href="https://www.commandlayer.org/composer.html">Demo</a></li>
+    <li><a href="https://www.commandlayer.org/quickstart.html">Quickstart</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle">Docs ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="https://www.commandlayer.org/commons.html">Commons</a>
+        <a href="https://www.commandlayer.org/commercial.html">Commercial</a>
+        <a href="https://www.commandlayer.org/agent-cards.html" class="active">Agent Cards</a>
+        <a href="https://www.commandlayer.org/runtime.html">Runtime</a>
+      </div>
+    </li>
+  </ul>
+  <div class="nav-right">
+    <a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a>
   </div>
-</div>
-</div>
-</section>
+</nav>
 
-<!-- COMMERCIAL AGENT CARDS -->
-<section class="section">
-<div class="container">
-  <div class="section__header">
-    <h2>Commercial Agents — v1.1.0</h2>
-    <p>
-      These agents implement the first <strong>Commercial verbs</strong> for economic
-      flows: authorization, checkout, purchase, shipping, and verification. Cards align
-      with payment-aware routing and can be indexed by ERC-8004 registries.
-    </p>
+<div class="page-wrap">
+
+  <div class="doc-eyebrow">▸ docs / agent cards</div>
+  <h1 class="doc-h1">Agent Cards Registry<br /><em>(v1.1.0, current)</em></h1>
+  <p class="doc-lead">Agent Cards answer one question: how are agents identified and discovered? Each card binds an <strong>ENS identity</strong> to supported verbs, schema versions, and entrypoints so clients can route work to the right agent and know who should have signed the receipt.</p>
+
+  <div class="badge-row">
+    <span class="v-badge purple">Agent Cards v1.1.0 · current release</span>
+    <span class="v-badge green">Apache-2.0</span>
+    <span class="v-badge">descriptors free to use</span>
   </div>
 
-  <div class="card-block">
-    <h3 class="card-block__title">Commercial registry</h3>
-    <p class="card-block__subtitle">
-      Reference Agent Cards for the initial 5 Commercial verbs. As more providers come
-      online, additional Agent Cards can be added behind the same verbs and schema
-      contracts.
-    </p>
+  <div class="path-block">
+    <code>/agent-cards/agents/v1.1.0/&lt;tier&gt;/&lt;ens&gt;.json</code><br />
+    where <code>tier</code> is <code>commons</code> or <code>commercial</code>.
+  </div>
 
-    <div class="table-wrapper">
-      <table class="data-table">
+  <hr class="doc-divider" />
+
+  <div class="doc-section">
+    <h2 class="doc-h2">What Agent Cards do in the system</h2>
+    <p class="doc-p">Agent Cards do not compete with Commons or Runtime. They provide the identity and discovery layer around the same execute → receipt → verify model: who the agent is, what contracts it speaks, and where to send work.</p>
+
+    <div class="feature-grid">
+      <div class="feature-cell">
+        <div class="fc-title">Identity</div>
+        <div class="fc-body">ENS name, owner, and contact fields that define who operates the agent. Cards make it explicit which human or organization stands behind a given ENS-based agent.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Capabilities</div>
+        <div class="fc-body">Supported verbs plus pinned Commons or Commercial <code>schema_version</code> values the agent speaks. Keeps capabilities and semantics in sync across ecosystems.</div>
+      </div>
+      <div class="feature-cell">
+        <div class="fc-title">Execution entrypoints</div>
+        <div class="fc-body">One or more execution entrypoints for where to send <code>*.request</code> payloads. Commons cards point at the shared HTTP execute surface; Commercial cards remain x402-style.</div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="doc-divider" />
+
+  <div class="doc-section">
+    <h2 class="doc-h2">Commons Agents — v1.1.0</h2>
+    <p class="doc-p">These agents implement the CommandLayer <strong>Commons verbs</strong>. Each link opens the live Agent Card JSON for that ENS name under <code>https://commandlayer.org</code>.</p>
+
+    <h3 class="doc-h3">Commons registry</h3>
+    <p class="doc-p">Stable, MIT-backed semantics with <strong>Apache-2.0 Agent Cards</strong>. Each card binds a Commons verb like <code>summarize</code> or <code>analyze</code> to a concrete ENS identity and the shared HTTP execute entrypoint.</p>
+
+    <div class="schema-table-wrap">
+      <table>
         <thead>
-          <tr>
-            <th>Verb</th>
-            <th>ENS name</th>
-            <th>Agent Card JSON</th>
-          </tr>
+          <tr><th>Verb</th><th>ENS name</th><th>Agent Card JSON</th></tr>
         </thead>
         <tbody>
-          <tr>
-            <td><code>authorize</code></td>
-            <td><code>authorizeagent.eth</code></td>
-            <td>
-              <a
-                href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/authorizeagent.eth.json"
-                target="_blank"
-              >
-                view JSON
-              </a>
-            </td>
-          </tr>
-          <tr>
-            <td><code>checkout</code></td>
-            <td><code>checkoutagent.eth</code></td>
-            <td>
-              <a
-                href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/checkoutagent.eth.json"
-                target="_blank"
-              >
-                view JSON
-              </a>
-            </td>
-          </tr>
-          <tr>
-            <td><code>purchase</code></td>
-            <td><code>purchaseagent.eth</code></td>
-            <td>
-              <a
-                href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/purchaseagent.eth.json"
-                target="_blank"
-              >
-                view JSON
-              </a>
-            </td>
-          </tr>
-          <tr>
-            <td><code>ship</code></td>
-            <td><code>shipagent.eth</code></td>
-            <td>
-              <a
-                href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/shipagent.eth.json"
-                target="_blank"
-              >
-                view JSON
-              </a>
-            </td>
-          </tr>
-          <tr>
-            <td><code>verify</code></td>
-            <td><code>verifyagent.eth</code></td>
-            <td>
-              <a
-                href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/verifyagent.eth.json"
-                target="_blank"
-              >
-                view JSON
-              </a>
-            </td>
-          </tr>
+          <tr><td><code>summarize</code></td><td class="td-ens">summarizeagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/summarizeagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>analyze</code></td><td class="td-ens">analyzeagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/analyzeagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>fetch</code></td><td class="td-ens">fetchagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/fetchagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>classify</code></td><td class="td-ens">classifyagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/classifyagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>clean</code></td><td class="td-ens">cleanagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/cleanagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>convert</code></td><td class="td-ens">convertagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/convertagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>describe</code></td><td class="td-ens">describeagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/describeagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>explain</code></td><td class="td-ens">explainagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/explainagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>format</code></td><td class="td-ens">formatagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/formatagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>parse</code></td><td class="td-ens">parseagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commons/parseagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
         </tbody>
       </table>
     </div>
   </div>
-</div>
-</section>
 
+  <hr class="doc-divider" />
 
-        <!-- HOW BUILDERS USE CARDS -->
-        <section class="section">
-          <div class="container">
-            <div class="card-block">
-              <h3 class="card-block__title">How Agent Cards support verification</h3>
-              <p class="card-block__subtitle">
-                Agent Cards turn ENS names and verbs into <strong>discoverable, routable</strong> units
-                of capability.
-              </p>
-              <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem;">
-                A typical flow:
-              </p>
-              <ul style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem 1.1rem;padding:0;">
-                <li>Registry or client looks up Agent Cards for a given verb (e.g. <code>summarize</code>).</li>
-                <li>Filters by network, limits, or metadata in the card.</li>
-                <li>Selects the card's advertised <code>entry</code> and sends a validated <code>*.request</code> payload. Commons cards currently advertise HTTP execute; Commercial cards advertise x402-style routes.</li>
-                <li>Receives a <code>*.receipt</code> shaped by the same Commons or Commercial schemas.</li>
-              </ul>
-              <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">
-                Because cards reference <strong>canonical schema versions</strong>, any runtime that
-                understands CommandLayer can route and verify agents without custom glue code per
-                provider.
-              </p>
-            </div>
-          </div>
-        </section>
+  <div class="doc-section">
+    <h2 class="doc-h2">Commercial Agents — v1.1.0</h2>
+    <p class="doc-p">These agents implement the first <strong>Commercial verbs</strong> for economic flows: authorization, checkout, purchase, shipping, and verification. Cards align with payment-aware routing and can be indexed by ERC-8004 registries.</p>
 
-        <!-- STABILITY / LICENSING -->
-        <section class="section">
-          <div class="container">
-            <div class="card-block">
-              <h3 class="card-block__title">Stability, licensing &amp; governance</h3>
-              <p class="card-block__subtitle">
-                Agent Cards v1.1.0 are the current release and follow the same stability guarantees as Commons and Commercial:
-                names and schema bindings are stable for this version; breaking changes move to new
-                versions.
-              </p>
-              <p style="font-size:0.9rem;color:var(--text-muted);margin:0 0 0.6rem;">
-                The <strong>Agent-Cards repository</strong> is licensed under Apache-2.0. Cards are
-                treated as protocol-grade metadata: anyone can read, cache, and index them. ENS TXT
-                records and IPFS CIDs can mirror card content to make resolution more robust.
-              </p>
-              <p style="font-size:0.9rem;color:var(--text-muted);margin:0;">
-                In the current v1.1.0 Agent Cards cycle, updates follow a clear process: open an issue, propose a
-                new or updated card, run validation, update checksums and manifests, then set ENS TXT
-                fields. This keeps <strong>identity, semantics, and routing</strong> aligned while
-                the ecosystem grows.
-              </p>
-            </div>
-          </div>
-        </section>
-      </main>
+    <h3 class="doc-h3">Commercial registry</h3>
+    <p class="doc-p">Reference Agent Cards for the initial 5 Commercial verbs. As more providers come online, additional Agent Cards can be added behind the same verbs and schema contracts.</p>
 
-      <footer class="site-footer">
-        <div class="container site-footer__inner" style="align-items: center; text-align: center;">
-          <div class="site-footer__cid">Commons v1.1.0 &middot; Commercial v1.1.0 &middot; Agent Cards v1.1.0 &middot; ERC-8004 registered</div>
-          <div class="site-footer__links" style="justify-content: center;">
-            <a href="/docs.html">Docs</a>
-            <a href="/repositories.html">Repositories</a>
-            <a href="/faq.html">FAQ</a>
-            <a href="/about.html">About</a>
-            <a href="/licensing.html">Licensing</a>
-          </div>
-        </div>
-      </footer>
+    <div class="schema-table-wrap">
+      <table>
+        <thead>
+          <tr><th>Verb</th><th>ENS name</th><th>Agent Card JSON</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>authorize</code></td><td class="td-ens">authorizeagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/authorizeagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>checkout</code></td><td class="td-ens">checkoutagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/checkoutagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>purchase</code></td><td class="td-ens">purchaseagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/purchaseagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>ship</code></td><td class="td-ens">shipagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/shipagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+          <tr><td><code>verify</code></td><td class="td-ens">verifyagent.eth</td><td><a href="https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/verifyagent.eth.json" target="_blank">view JSON ↗</a></td></tr>
+        </tbody>
+      </table>
     </div>
 
-    <script>
-      (function () {
-        const header = document.querySelector(".site-header");
-        const toggle = document.querySelector(".site-header__toggle");
-        const docsBtn = document.querySelector(".site-header__dropdown-btn");
+    <h3 class="doc-h3">How Agent Cards support verification</h3>
+    <p class="doc-p">Agent Cards turn ENS names and verbs into <strong>discoverable, routable</strong> units of capability. A typical flow:</p>
 
-        if (toggle && header) {
-          toggle.addEventListener("click", () => {
-            const isOpen = header.classList.toggle("site-header--open");
-            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-          });
-        }
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="fs-num">1</div>
+        <div class="fs-body">Registry or client looks up Agent Cards for a given verb (e.g. <code>summarize</code>) and filters by network, limits, or metadata in the card.</div>
+      </div>
+      <div class="flow-step">
+        <div class="fs-num">2</div>
+        <div class="fs-body">Selects the card's advertised <code>entry</code> and sends a validated <code>*.request</code> payload. Commons cards currently advertise HTTP execute; Commercial cards advertise x402-style routes.</div>
+      </div>
+      <div class="flow-step">
+        <div class="fs-num">3</div>
+        <div class="fs-body">Receives a <code>*.receipt</code> shaped by the same Commons or Commercial schemas. Because cards reference <strong>canonical schema versions</strong>, any runtime that understands CommandLayer can route and verify agents without custom glue code per provider.</div>
+      </div>
+    </div>
 
-        if (docsBtn && header) {
-          docsBtn.addEventListener("click", () => {
-            header.classList.toggle("site-header--docs-open");
-          });
-        }
-      })();
-    </script>
-  </body>
+    <h3 class="doc-h3">Stability, licensing &amp; governance</h3>
+    <p class="doc-p">Agent Cards v1.1.0 are the current release and follow the same stability guarantees as Commons and Commercial: names and schema bindings are stable for this version; breaking changes move to new versions.</p>
+    <p class="doc-p">The <strong>Agent-Cards repository</strong> is licensed under Apache-2.0. Cards are treated as protocol-grade metadata: anyone can read, cache, and index them. ENS TXT records and IPFS CIDs can mirror card content to make resolution more robust.</p>
+    <p class="doc-p">In the current v1.1.0 Agent Cards cycle, updates follow a clear process: open an issue, propose a new or updated card, run validation, update checksums and manifests, then set ENS TXT fields. This keeps <strong>identity, semantics, and routing</strong> aligned while the ecosystem grows.</p>
+
+    <div class="callout purple">
+      <span class="callout-icon">⬡</span>
+      <span>ENS TXT records and IPFS CIDs can mirror card content to make resolution more robust and independent of any centralized registry.</span>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
+  <nav class="footer-links">
+    <a href="https://www.commandlayer.org/docs.html">Docs</a>
+    <a href="https://www.commandlayer.org/repositories.html">Repositories</a>
+    <a href="https://www.commandlayer.org/faq.html">FAQ</a>
+    <a href="https://www.commandlayer.org/about.html">About</a>
+    <a href="https://www.commandlayer.org/licensing.html">Licensing</a>
+  </nav>
+</footer>
+</body>
 </html>
