@@ -1,2058 +1,1191 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>CommandLayer Commercial Demo — Runtime-backed flow</title>
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover"
-    />
-    <meta
-      name="description"
-      content="Run the CommandLayer commercial flow, inspect canonical receipts, compare runtime metadata, review the latest request, and verify proof across the five-step commercial path."
-    />
-    <style>
-      :root {
-        --bg: #05060a;
-        --bg-deep: #020308;
-        --bg-panel: rgba(10, 14, 24, 0.92);
-        --bg-panel-strong: rgba(7, 10, 18, 0.98);
-        --bg-soft: rgba(255, 255, 255, 0.03);
-        --border-soft: rgba(255, 255, 255, 0.08);
-        --border-strong: rgba(255, 255, 255, 0.18);
-        --text-main: #f7f9ff;
-        --text-muted: #9aa4bd;
-        --text-soft: #6d7687;
-        --accent-blue: #60a5fa;
-        --accent-blue-strong: #93c5fd;
-        --accent-green: #4ade80;
-        --accent-green-strong: #22c55e;
-        --accent-amber: #fbbf24;
-        --accent-red: #f87171;
-        --radius-lg: 18px;
-        --radius-xl: 24px;
-        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.48);
-        --shadow-proof: 0 0 0 1px rgba(74, 222, 128, 0.22),
-          0 30px 70px rgba(10, 24, 14, 0.32);
-        --max-width: 1320px;
-        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-          "Liberation Mono", "Courier New", monospace;
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        min-height: 100%;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-          "Inter", sans-serif;
-        background:
-          radial-gradient(circle at top left, rgba(59, 130, 246, 0.18), transparent 20%),
-          radial-gradient(circle at top right, rgba(74, 222, 128, 0.08), transparent 18%),
-          linear-gradient(180deg, #0a0e16 0%, #03050a 54%, #020308 100%);
-        color: var(--text-main);
-      }
-
-      body {
-        min-height: 100vh;
-      }
-
-      code,
-      pre {
-        font-family: var(--mono);
-      }
-
-      button,
-      input {
-        font: inherit;
-      }
-
-      button {
-        cursor: pointer;
-      }
-
-      .page-shell {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .page-main {
-        flex: 1;
-      }
-
-      .container {
-        width: 100%;
-        max-width: var(--max-width);
-        margin: 0 auto;
-        padding: 0 1.5rem;
-      }
-
-      .site-header {
-        position: sticky;
-        top: 0;
-        z-index: 40;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        background: rgba(5, 7, 12, 0.86);
-        backdrop-filter: blur(18px);
-      }
-
-      .site-header__inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 1rem;
-        padding: 0.95rem 1.5rem;
-      }
-
-      .site-header__brand {
-        display: flex;
-        align-items: center;
-        gap: 0.78rem;
-        text-decoration: none;
-        color: inherit;
-      }
-
-      .site-header__logo-img {
-        width: 30px;
-        height: 30px;
-        border-radius: 8px;
-        object-fit: contain;
-        display: block;
-        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28),
-          0 14px 30px rgba(0, 0, 0, 0.55);
-      }
-
-      .site-header__text {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .site-header__title {
-        font-size: 0.98rem;
-        font-weight: 600;
-        letter-spacing: 0.03em;
-      }
-
-      .site-header__subtitle {
-        font-size: 0.78rem;
-        color: var(--text-muted);
-      }
-
-      .site-header__nav {
-        display: flex;
-        align-items: center;
-        gap: 0.9rem;
-      }
-
-      .site-header__link,
-      .site-header__dropdown-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        text-decoration: none;
-        font-size: 0.85rem;
-        color: var(--text-muted);
-        background: transparent;
-        border: 1px solid transparent;
-        border-radius: 999px;
-        padding: 0.38rem 0.82rem;
-      }
-
-      .site-header__link:hover,
-      .site-header__dropdown-btn:hover {
-        color: var(--text-main);
-        border-color: rgba(255, 255, 255, 0.14);
-        background: rgba(15, 23, 42, 0.72);
-      }
-
-      .site-header__link--active {
-        color: var(--text-main);
-        background: rgba(15, 23, 42, 0.72);
-        border-color: rgba(255, 255, 255, 0.14);
-      }
-
-      .site-header__dropdown {
-        position: relative;
-      }
-
-      .site-header__dropdown-menu {
-        display: none;
-        position: absolute;
-        right: 0;
-        top: 2.25rem;
-        min-width: 220px;
-        border-radius: 14px;
-        background: rgba(10, 14, 22, 0.98);
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        padding: 0.4rem;
-      }
-
-      .site-header__dropdown-menu a {
-        display: block;
-        text-decoration: none;
-        color: var(--text-muted);
-        border-radius: 10px;
-        padding: 0.45rem 0.7rem;
-        font-size: 0.82rem;
-      }
-
-      .site-header__dropdown-menu a:hover {
-        color: var(--text-main);
-        background: rgba(15, 23, 42, 0.72);
-      }
-
-      .site-header--docs-open .site-header__dropdown-menu {
-        display: block;
-      }
-
-      .site-header__toggle {
-        display: none;
-        border-radius: 999px;
-        padding: 0.32rem 0.72rem;
-        background: rgba(15, 23, 42, 0.9);
-        color: var(--text-main);
-        border: 1px solid rgba(148, 163, 184, 0.58);
-      }
-
-      .hero {
-        padding: 1rem 0 0.35rem;
-      }
-
-      .hero__wrap {
-        display: grid;
-        grid-template-columns: minmax(0, 1.2fr) 320px;
-        gap: 0.9rem;
-        align-items: start;
-      }
-
-      .eyebrow {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        margin: 0 0 0.72rem;
-        padding: 0.34rem 0.68rem;
-        border-radius: 999px;
-        border: 1px solid rgba(96, 165, 250, 0.28);
-        background: rgba(8, 14, 25, 0.8);
-        color: #dbeafe;
-        font-size: 0.75rem;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-      }
-
-      .hero__title {
-        margin: 0;
-        display: inline-flex;
-        flex-direction: column;
-        align-items: flex-start;
-        font-size: clamp(2.5rem, 5vw, 4.5rem);
-        line-height: 0.96;
-        letter-spacing: -0.06em;
-      }
-
-      .hero__title-line {
-        display: block;
-        white-space: nowrap;
-      }
-
-      .hero__subtitle {
-        margin: 0.7rem 0 0;
-        max-width: 39rem;
-        color: var(--text-muted);
-        line-height: 1.48;
-        font-size: 0.95rem;
-      }
-
-      .verb-row,
-      .button-row,
-      .status-line,
-      .output-tabs,
-      .mini-pills {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.6rem;
-      }
-
-      .verb-row {
-        margin-top: 0.85rem;
-      }
-
-      .verb-pill,
-      .meta-pill {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.42rem;
-        min-height: 2rem;
-        padding: 0.36rem 0.72rem;
-        border-radius: 999px;
-        border: 1px solid rgba(96, 165, 250, 0.3);
-        background: rgba(8, 14, 24, 0.92);
-        color: #e8f2ff;
-        font-size: 0.8rem;
-      }
-
-      .verb-pill {
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        text-transform: lowercase;
-      }
-
-      .verb-pill--active {
-        border-color: rgba(74, 222, 128, 0.5);
-        color: #dcfce7;
-        background: rgba(7, 20, 12, 0.86);
-        box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.16);
-      }
-
-      .meta-pill {
-        border-color: rgba(255, 255, 255, 0.12);
-        color: var(--text-muted);
-        background: rgba(255, 255, 255, 0.04);
-      }
-
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        border-radius: 999px;
-        padding: 0.76rem 1.1rem;
-        border: 1px solid transparent;
-        text-decoration: none;
-        white-space: nowrap;
-        transition: transform 140ms ease, filter 140ms ease, border-color 140ms ease,
-          box-shadow 140ms ease;
-      }
-
-      .btn:hover,
-      .btn:focus-visible,
-      button:hover,
-      button:focus-visible {
-        transform: translateY(-1px);
-        filter: brightness(1.03);
-        outline: none;
-      }
-
-      .btn--primary,
-      button.primary {
-        background: linear-gradient(135deg, #2f7cf6, #4cc9f0);
-        color: #f8fcff;
-        border-color: rgba(76, 201, 240, 0.35);
-        font-weight: 720;
-        box-shadow: 0 18px 40px rgba(47, 124, 246, 0.22);
-      }
-
-      .btn--ghost,
-      button,
-      .tab {
-        background: rgba(15, 23, 42, 0.76);
-        color: var(--text-main);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-      }
-
-      .btn--ghost:hover,
-      button:hover,
-      .tab:hover {
-        border-color: rgba(255, 255, 255, 0.22);
-      }
-
-      .btn--commerce {
-        background: linear-gradient(135deg, #1f9d55, #34d399);
-        color: #f4fff7;
-        border-color: rgba(52, 211, 153, 0.32);
-        box-shadow: 0 14px 28px rgba(31, 157, 85, 0.16);
-      }
-
-      .btn--commerce:hover,
-      .btn--commerce:focus-visible {
-        border-color: rgba(74, 222, 128, 0.42);
-        box-shadow: 0 16px 30px rgba(31, 157, 85, 0.2);
-      }
-
-      .hero-card__cta-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.65rem;
-        margin-top: 0.15rem;
-      }
-
-      .hero-card__cta {
-        align-self: flex-start;
-        padding: 0.68rem 1rem;
-        font-size: 0.9rem;
-        font-weight: 650;
-      }
-
-      .hero-card,
-      .status-strip,
-      .panel,
-      .output-panel,
-      .meta-box,
-      .verification-card,
-      .step-card {
-        border-radius: var(--radius-xl);
-        border: 1px solid var(--border-soft);
-        background: linear-gradient(180deg, var(--bg-panel), rgba(6, 9, 15, 0.98));
-        box-shadow: var(--shadow-soft);
-      }
-
-      .hero-card {
-        padding: 1rem;
-        display: grid;
-        gap: 0.9rem;
-        align-content: start;
-      }
-
-      .hero-card h2,
-      .panel h2,
-      .output-panel h2,
-      .status-strip h2 {
-        margin: 0;
-      }
-
-      .hero-card p,
-      .panel p,
-      .output-panel p,
-      .helper,
-      .tab-note {
-        margin: 0;
-        color: var(--text-muted);
-        line-height: 1.58;
-      }
-
-      .hero-card__grid {
-        display: grid;
-        gap: 0.55rem;
-      }
-
-      .hero-card__row {
-        display: grid;
-        grid-template-columns: 92px minmax(0, 1fr);
-        gap: 0.7rem;
-        align-items: center;
-        padding: 0.68rem 0.78rem;
-        border-radius: 16px;
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(255, 255, 255, 0.06);
-      }
-
-      .hero-card__label {
-        font-size: 0.74rem;
-        color: var(--text-soft);
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-      }
-
-      .hero-card__value {
-        font-size: 0.84rem;
-        color: var(--text-main);
-        line-height: 1.4;
-      }
-
-      .hero-card__status {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.45rem;
-        width: fit-content;
-        padding: 0.3rem 0.6rem;
-        border-radius: 999px;
-        border: 1px solid rgba(74, 222, 128, 0.36);
-        background: rgba(9, 28, 15, 0.64);
-        color: #dcfce7;
-        font-size: 0.76rem;
-      }
-
-      .status-wrap {
-        padding-bottom: 0.45rem;
-      }
-
-      .status-strip {
-        padding: 0.78rem 0.95rem;
-        display: grid;
-        grid-template-columns: minmax(0, 1.15fr) repeat(3, minmax(132px, 0.5fr));
-        gap: 0.7rem;
-        align-items: center;
-      }
-
-      .status-strip__main {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-        min-width: 0;
-      }
-
-      .runtime-dot {
-        width: 11px;
-        height: 11px;
-        border-radius: 999px;
-        background: var(--accent-green);
-        box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.28),
-          0 0 18px rgba(74, 222, 128, 0.35);
-      }
-
-      .runtime-dot--pulse {
-        animation: runtimePulse 2.2s ease-out infinite;
-      }
-
-      .status-strip__eyebrow,
-      .panel__eyebrow {
-        color: var(--text-soft);
-        font-size: 0.76rem;
-        letter-spacing: 0.14em;
-        text-transform: uppercase;
-      }
-
-      .status-strip__state {
-        font-size: 0.98rem;
-        font-weight: 700;
-        letter-spacing: 0.06em;
-      }
-
-      .status-strip__desc {
-        color: var(--text-muted);
-        font-size: 0.88rem;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .status-metric {
-        text-align: right;
-      }
-
-      .status-metric strong {
-        display: block;
-        margin-bottom: 0.3rem;
-        color: var(--text-soft);
-        font-size: 0.74rem;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-      }
-
-      .status-metric span {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-width: 110px;
-        padding: 0.36rem 0.72rem;
-        border-radius: 999px;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        background: rgba(5, 10, 18, 0.92);
-        color: #dbeafe;
-        font-size: 0.8rem;
-      }
-
-      @keyframes runtimePulse {
-        0% {
-          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.34);
-        }
-        70% {
-          box-shadow: 0 0 0 7px rgba(34, 197, 94, 0);
-        }
-        100% {
-          box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
-        }
-      }
-
-      .stage {
-        padding: 0 0 2rem;
-      }
-
-      .stage-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
-        gap: 0.95rem;
-        align-items: start;
-      }
-
-      .panel,
-      .output-panel {
-        padding: 0.95rem;
-      }
-
-      .panel-heading {
-        display: flex;
-        justify-content: space-between;
-        gap: 0.8rem;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        margin-bottom: 0.8rem;
-      }
-
-      .panel h2,
-      .output-panel h2 {
-        font-size: 1.02rem;
-        margin-top: 0.18rem;
-      }
-
-      .form-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 0.6rem;
-        margin-top: 0.68rem;
-      }
-
-      .field label {
-        display: block;
-        margin-bottom: 0.28rem;
-        color: #c5cfdf;
-        font-size: 0.8rem;
-      }
-
-      .field input {
-        width: 100%;
-        border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(2, 6, 13, 0.96);
-        color: var(--text-main);
-        padding: 0.72rem 0.8rem;
-      }
-
-      .field input:focus {
-        outline: none;
-        border-color: rgba(147, 197, 253, 0.75);
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.18);
-      }
-
-      .button-row {
-        margin-top: 0.72rem;
-      }
-
-      .step-button-row {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 0.55rem;
-        margin-top: 0.85rem;
-      }
-
-      button {
-        border-radius: 999px;
-        padding: 0.64rem 0.92rem;
-        font-size: 0.84rem;
-      }
-
-      .step-btn {
-        min-height: 3.4rem;
-        border-radius: 18px;
-        padding: 0.75rem 0.85rem;
-        display: grid;
-        justify-items: start;
-        gap: 0.2rem;
-        text-align: left;
-        background: linear-gradient(
-          180deg,
-          rgba(12, 18, 30, 0.96),
-          rgba(6, 10, 20, 0.92)
-        );
-      }
-
-      .step-btn small {
-        color: var(--text-soft);
-        font-size: 0.7rem;
-        text-transform: uppercase;
-        letter-spacing: 0.12em;
-      }
-
-      .step-btn strong {
-        font-size: 0.92rem;
-      }
-
-      .step-btn span {
-        color: var(--text-muted);
-        font-size: 0.76rem;
-        line-height: 1.3;
-      }
-
-      .step-btn.active {
-        border-color: rgba(74, 222, 128, 0.55);
-        background: linear-gradient(
-          180deg,
-          rgba(10, 31, 18, 0.94),
-          rgba(8, 14, 22, 0.98)
-        );
-        box-shadow: 0 0 0 1px rgba(74, 222, 128, 0.18),
-          0 18px 40px rgba(9, 24, 15, 0.38);
-      }
-
-      .step-btn.active small,
-      .step-btn.active span {
-        color: #d1fae5;
-      }
-
-      .status-line {
-        margin-top: 0.78rem;
-        align-items: center;
-      }
-
-      .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.42rem;
-        border-radius: 999px;
-        padding: 0.28rem 0.66rem;
-        min-height: 28px;
-        font-size: 0.74rem;
-        line-height: 1;
-        border: 1px solid rgba(148, 163, 184, 0.3);
-        background: rgba(2, 6, 23, 0.35);
-        color: var(--text-muted);
-      }
-
-      .status-pill.good {
-        border-color: rgba(34, 197, 94, 0.42);
-        color: #dcfce7;
-        background: rgba(34, 197, 94, 0.08);
-      }
-
-      .status-pill.bad {
-        border-color: rgba(239, 68, 68, 0.42);
-        color: #fecaca;
-        background: rgba(239, 68, 68, 0.08);
-      }
-
-      .status-pill.warn {
-        border-color: rgba(59, 130, 246, 0.42);
-        color: #dbeafe;
-        background: rgba(59, 130, 246, 0.08);
-      }
-
-      .dot {
-        width: 7px;
-        height: 7px;
-        border-radius: 999px;
-        background: currentColor;
-      }
-
-      .helper {
-        margin-top: 0.7rem;
-        font-size: 0.84rem;
-      }
-
-      .step-strip {
-        display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
-        gap: 0.55rem;
-        margin-top: 0.72rem;
-      }
-
-      .step-card {
-        padding: 0.78rem 0.8rem;
-        min-height: 112px;
-        border-radius: 18px;
-        background: linear-gradient(
-          180deg,
-          rgba(6, 10, 26, 0.92),
-          rgba(2, 6, 23, 0.78)
-        );
-        border-color: rgba(255, 255, 255, 0.06);
-        box-shadow: none;
-      }
-
-      .step-card__index {
-        font-size: 0.7rem;
-        line-height: 1;
-        letter-spacing: 0.1em;
-        text-transform: uppercase;
-        color: var(--text-soft);
-      }
-
-      .step-card strong {
-        display: block;
-        margin: 0.35rem 0 0.25rem;
-        font-size: 0.92rem;
-        color: var(--text-main);
-      }
-
-      .step-card span {
-        display: block;
-        font-size: 0.76rem;
-        line-height: 1.42;
-        color: var(--text-muted);
-      }
-
-      .output-panel {
-        box-shadow: var(--shadow-proof);
-        min-height: 100%;
-      }
-
-      .output-header {
-        display: flex;
-        justify-content: space-between;
-        gap: 0.8rem;
-        align-items: flex-start;
-        flex-wrap: wrap;
-      }
-
-      .output-tabs {
-        margin: 0.65rem 0 0.45rem;
-        gap: 0.45rem;
-      }
-
-      .tab {
-        font-size: 0.76rem;
-        padding: 0.34rem 0.68rem;
-        color: var(--text-muted);
-      }
-
-      .tab.active {
-        background: rgba(2, 6, 23, 0.92);
-        border-color: rgba(74, 222, 128, 0.46);
-        color: #dcfce7;
-      }
-
-      pre {
-        margin: 0;
-        padding: 0.9rem;
-        border-radius: 16px;
-        background: rgba(2, 6, 13, 0.98);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        color: #dbe7fb;
-        font-size: 0.79rem;
-        line-height: 1.56;
-        white-space: pre-wrap;
-        word-break: break-word;
-        max-height: 390px;
-        overflow: auto;
-      }
-
-      .meta-grid {
-        display: grid;
-        grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
-        gap: 0.7rem;
-        margin-top: 0.75rem;
-      }
-
-      .meta-box,
-      .verification-card {
-        padding: 0.9rem;
-        border-radius: 18px;
-      }
-
-      .meta-box strong,
-      .verification-card strong {
-        display: block;
-        margin-bottom: 0.45rem;
-        color: var(--text-main);
-      }
-
-      .kv {
-        display: grid;
-        grid-template-columns: 132px minmax(0, 1fr);
-        gap: 0.38rem 0.7rem;
-        font-size: 0.82rem;
-      }
-
-      .kv div:nth-child(odd) {
-        color: var(--text-muted);
-      }
-
-      .site-footer {
-        border-top: 1px solid rgba(255, 255, 255, 0.07);
-        background: #020308;
-        margin-top: auto;
-      }
-
-      .site-footer__inner {
-        padding: 1.6rem 1.5rem 2rem;
-        display: grid;
-        gap: 1rem;
-        font-size: 0.8rem;
-        color: var(--text-soft);
-        text-align: center;
-      }
-
-      .site-footer__links {
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .site-footer__links a {
-        color: #c2cad8;
-        text-decoration: none;
-      }
-
-      .site-footer__links a:hover {
-        text-decoration: underline;
-      }
-
-      @media (max-width: 1120px) {
-        .hero__wrap,
-        .stage-grid,
-        .meta-grid {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .status-strip {
-          grid-template-columns: minmax(0, 1fr) repeat(2, minmax(140px, 1fr));
-        }
-      }
-
-      @media (max-width: 920px) {
-        .site-header__toggle {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .site-header__nav {
-          display: none;
-          flex-direction: column;
-          align-items: flex-start;
-          width: 100%;
-        }
-
-        .site-header.site-header--open .site-header__nav {
-          display: flex;
-        }
-
-        .status-strip {
-          grid-template-columns: 1fr;
-        }
-
-        .form-grid,
-        .step-strip,
-        .step-button-row {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-      }
-
-      @media (max-width: 640px) {
-        .container {
-          padding: 0 1rem;
-        }
-
-        .site-header__inner {
-          padding-inline: 1rem;
-        }
-
-        .form-grid,
-        .step-strip,
-        .step-button-row,
-        .kv {
-          grid-template-columns: minmax(0, 1fr);
-        }
-
-        .hero {
-          padding-top: 0.8rem;
-        }
-
-        .hero__title-line {
-          white-space: normal;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="page-shell">
-      <header class="site-header">
-        <div class="site-header__inner container">
-          <a href="/" class="site-header__brand">
-            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-            <div class="site-header__text">
-              <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">
-                Signed, verifiable receipts for agent execution
-              </span>
-            </div>
-          </a>
-
-          <button
-            class="site-header__toggle"
-            aria-label="Toggle navigation"
-            aria-expanded="false"
-          >
-            ☰
-          </button>
-
-          <nav class="site-header__nav">
-            <a href="/" class="site-header__link">Home</a>
-            <a href="/demo.html" class="site-header__link site-header__link--active">Demo</a>
-            <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-
-            <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button">Docs ▾</button>
-              <div class="site-header__dropdown-menu">
-                <a href="/commons.html">Commons</a>
-                <a href="/commercial.html">Commercial</a>
-                <a href="/agent-cards.html">Agent Cards</a>
-                <a href="/runtime.html">Runtime</a>
-              </div>
-            </div>
-
-            <a
-              href="https://github.com/commandlayer"
-              class="site-header__link"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              GitHub
-            </a>
-          </nav>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CommandLayer — Commercial Flow Demo</title>
+<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg:         #06080c;
+  --surface:    #0a0e14;
+  --panel:      #0f1520;
+  --border:     #1a2535;
+  --border-hi:  #253545;
+  --text:       #c4d4e4;
+  --dim:        #445a70;
+  --dimmer:     #253040;
+  --accent:     #00d4ff;
+  --accent2:    #0088bb;
+  --green:      #00e676;
+  --amber:      #ffb300;
+  --red:        #ff4444;
+  --gold:       #ffd54f;
+  --purple:     #b39ddb;
+  --mono:       'JetBrains Mono', monospace;
+  --sans:       'Syne', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* scanline texture */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,212,255,0.012) 2px,
+    rgba(0,212,255,0.012) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(6,8,12,0.94);
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px; height: 52px;
+}
+.nav-brand {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: var(--text);
+  font-family: var(--sans); font-weight: 700; font-size: 15px; letter-spacing: -0.02em;
+}
+.nav-brand img { width: 24px; height: 24px; }
+.nav-links { display: flex; align-items: center; gap: 20px; list-style: none; }
+.nav-links a { color: var(--dim); text-decoration: none; font-size: 12px; transition: color 0.15s; }
+.nav-links a:hover { color: var(--accent); }
+.nav-links a.active { color: var(--gold); }
+.nav-status { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--dim); }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dimmer); transition: background 0.3s; }
+.status-dot.live { background: var(--green); box-shadow: 0 0 6px var(--green); animation: blink 2s infinite; }
+.status-dot.error { background: var(--red); }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.35} }
+
+/* ── HERO ── */
+.hero {
+  position: relative; z-index: 1;
+  padding: 40px 24px 0; max-width: 1400px; margin: 0 auto;
+}
+.hero-eyebrow {
+  font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 10px;
+}
+.hero h1 {
+  font-family: var(--sans); font-size: clamp(26px, 4vw, 42px);
+  font-weight: 800; letter-spacing: -0.03em; color: #fff; line-height: 1.1; margin-bottom: 10px;
+}
+.hero h1 em { color: var(--gold); font-style: normal; }
+.hero-sub { color: var(--dim); font-size: 13px; max-width: 580px; margin-bottom: 20px; }
+.hero-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: 4px;
+  font-family: var(--mono); font-size: 12px; font-weight: 500;
+  cursor: pointer; border: none; transition: all 0.15s;
+  text-decoration: none; white-space: nowrap;
+}
+.btn-gold { background: var(--gold); color: #080808; font-weight: 700; }
+.btn-gold:hover { background: #ffe082; transform: translateY(-1px); }
+.btn-gold:disabled { background: var(--dimmer); color: var(--dim); cursor: not-allowed; transform: none; }
+.btn-ghost { background: transparent; color: var(--dim); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+.btn-copy { background: var(--panel); color: var(--dim); border: 1px solid var(--border); padding: 5px 10px; font-size: 11px; }
+.btn-copy:hover { border-color: var(--border-hi); color: var(--text); }
+.btn-copy.copied { border-color: var(--green); color: var(--green); }
+
+/* ── PIPELINE ── */
+.pipeline-wrap {
+  position: relative; z-index: 1;
+  max-width: 1400px; margin: 28px auto 0; padding: 0 24px;
+}
+
+.pipeline {
+  display: flex; align-items: stretch; gap: 0;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; overflow: hidden;
+}
+
+.pipe-step {
+  flex: 1; padding: 14px 16px;
+  border-right: 1px solid var(--border);
+  cursor: pointer; transition: background 0.2s;
+  position: relative;
+}
+.pipe-step:last-child { border-right: none; }
+.pipe-step:hover { background: var(--panel); }
+.pipe-step.active { background: rgba(255,213,79,0.06); }
+.pipe-step.done { background: rgba(0,230,118,0.04); }
+.pipe-step.running { background: rgba(255,179,0,0.05); }
+
+.pipe-num {
+  font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--dimmer); margin-bottom: 4px;
+}
+.pipe-step.active .pipe-num { color: var(--gold); }
+.pipe-step.done .pipe-num   { color: var(--green); }
+.pipe-step.running .pipe-num { color: var(--amber); }
+
+.pipe-verb {
+  font-family: var(--sans); font-size: 14px; font-weight: 700;
+  color: var(--dim); letter-spacing: -0.01em;
+  transition: color 0.2s;
+}
+.pipe-step.active .pipe-verb  { color: var(--gold); }
+.pipe-step.done .pipe-verb    { color: var(--green); }
+.pipe-step.running .pipe-verb { color: var(--amber); }
+
+.pipe-desc { font-size: 10px; color: var(--dimmer); margin-top: 2px; }
+
+.pipe-indicator {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px; background: var(--dimmer); transition: background 0.3s;
+}
+.pipe-step.active .pipe-indicator  { background: var(--gold); }
+.pipe-step.done .pipe-indicator    { background: var(--green); }
+.pipe-step.running .pipe-indicator { background: var(--amber); animation: shimmer 1s infinite; }
+
+@keyframes shimmer {
+  0%   { opacity: 1; }
+  50%  { opacity: 0.4; }
+  100% { opacity: 1; }
+}
+
+/* progress bar across full pipeline */
+.pipeline-progress {
+  height: 2px;
+  background: var(--border);
+  border-radius: 0 0 6px 6px;
+  overflow: hidden;
+  margin-top: -1px;
+}
+.pipeline-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--accent));
+  width: 0%;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── COCKPIT ── */
+.cockpit {
+  position: relative; z-index: 1;
+  max-width: 1400px; margin: 16px auto 0;
+  padding: 0 24px 60px;
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 900px) { .cockpit { grid-template-columns: 1fr; } }
+
+/* ── PANEL CARD ── */
+.panel-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.card-header {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--panel);
+}
+.card-title {
+  font-family: var(--sans); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; color: var(--text);
+}
+.card-badge {
+  font-size: 10px; padding: 2px 7px; border-radius: 3px;
+  letter-spacing: 0.05em; text-transform: uppercase;
+}
+.badge-commercial { background: rgba(255,213,79,0.12); color: var(--gold); border: 1px solid rgba(255,213,79,0.25); }
+.badge-live       { background: rgba(0,230,118,0.12); color: var(--green); border: 1px solid rgba(0,230,118,0.25); }
+.badge-pending    { background: rgba(37,48,64,0.4); color: var(--dim); border: 1px solid var(--border); }
+.card-body { padding: 14px; }
+
+/* ── CONTEXT FORM ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-field { display: flex; flex-direction: column; gap: 4px; }
+.form-field.full { grid-column: 1 / -1; }
+.form-label { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); }
+.form-input {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 3px; color: var(--text); font-family: var(--mono);
+  font-size: 12px; padding: 7px 10px; outline: none;
+  transition: border-color 0.15s;
+}
+.form-input:focus { border-color: var(--gold); }
+.form-input::placeholder { color: var(--dimmer); }
+select.form-input {
+  appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23445a70'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 8px center; padding-right: 24px;
+}
+
+/* ── ETH AMOUNT DISPLAY ── */
+.eth-display {
+  background: var(--bg); border: 1px solid var(--border);
+  border-radius: 4px; padding: 10px 12px;
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 10px;
+}
+.eth-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--dim); }
+.eth-value { font-family: var(--sans); font-size: 18px; font-weight: 700; color: var(--gold); }
+.eth-unit  { font-size: 12px; color: var(--dim); margin-left: 4px; }
+
+/* ── STEP CONTROLS ── */
+.step-controls { display: flex; flex-direction: column; gap: 8px; }
+
+.step-btn {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-radius: 4px;
+  background: var(--bg); border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.15s; text-align: left;
+  font-family: var(--mono); color: var(--text);
+}
+.step-btn:hover { border-color: var(--gold); background: rgba(255,213,79,0.04); }
+.step-btn.active  { border-color: var(--gold); background: rgba(255,213,79,0.08); }
+.step-btn.done    { border-color: var(--green); background: rgba(0,230,118,0.05); }
+.step-btn.running { border-color: var(--amber); }
+.step-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.step-btn-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; flex-shrink: 0;
+  border: 1px solid var(--dimmer); color: var(--dimmer);
+  transition: all 0.2s;
+}
+.step-btn.active .step-btn-num  { border-color: var(--gold); color: var(--gold); background: rgba(255,213,79,0.12); }
+.step-btn.done .step-btn-num    { border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.12); }
+.step-btn.running .step-btn-num { border-color: var(--amber); color: var(--amber); }
+
+.step-btn-info { flex: 1; }
+.step-btn-verb { font-size: 13px; font-weight: 500; letter-spacing: -0.01em; }
+.step-btn.active .step-btn-verb  { color: var(--gold); }
+.step-btn.done .step-btn-verb    { color: var(--green); }
+.step-btn-desc { font-size: 10px; color: var(--dimmer); margin-top: 1px; }
+
+.step-btn-status { font-size: 10px; color: var(--dimmer); white-space: nowrap; }
+.step-btn.done .step-btn-status    { color: var(--green); }
+.step-btn.running .step-btn-status { color: var(--amber); }
+
+/* mini spinner */
+.spin { display: inline-block; width: 10px; height: 10px; border: 1.5px solid var(--dimmer); border-top-color: var(--amber); border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.flow-controls { display: flex; gap: 8px; margin-top: 4px; flex-wrap: wrap; }
+
+/* ── RIGHT PANEL ── */
+.proof-panel { display: flex; flex-direction: column; gap: 12px; position: sticky; top: 68px; }
+
+/* ── TRANSACTION CARD ── */
+.tx-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 6px; overflow: hidden;
+  transition: border-color 0.4s;
+}
+.tx-card.live { border-color: var(--gold); box-shadow: 0 0 24px rgba(255,213,79,0.06); }
+.tx-card.settled { border-color: var(--green); box-shadow: 0 0 24px rgba(0,230,118,0.07); }
+
+.tx-header {
+  background: var(--panel); border-bottom: 1px solid var(--border);
+  padding: 10px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.tx-badge {
+  display: flex; align-items: center; gap: 6px;
+  padding: 4px 12px; border-radius: 20px;
+  font-family: var(--sans); font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  transition: all 0.4s;
+  background: rgba(37,48,64,0.4); border: 1px solid var(--border); color: var(--dim);
+}
+.tx-badge.pending  { }
+.tx-badge.active   { background: rgba(255,213,79,0.12); border-color: var(--gold); color: var(--gold); }
+.tx-badge.settled  { background: rgba(0,230,118,0.12); border-color: var(--green); color: var(--green); box-shadow: 0 0 10px rgba(0,230,118,0.12); animation: pop 0.4s cubic-bezier(.34,1.56,.64,1); }
+@keyframes pop { 0%{transform:scale(.85);opacity:0} 100%{transform:scale(1);opacity:1} }
+
+/* tx meta grid */
+.tx-meta { padding: 14px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.meta-field { display: flex; flex-direction: column; gap: 3px; }
+.meta-label { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); }
+.meta-value { font-size: 12px; color: var(--text); font-family: var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.meta-value.gold   { color: var(--gold); }
+.meta-value.green  { color: var(--green); }
+.meta-value.accent { color: var(--accent); }
+.meta-value.dim    { color: var(--dimmer); }
+.meta-value.hash   { color: var(--accent); font-size: 11px; }
+.meta-value.full   { grid-column: 1/-1; }
+
+@keyframes reveal { 0%{opacity:0;transform:translateY(4px)} 100%{opacity:1;transform:none} }
+.meta-value.anim { animation: reveal 0.3s ease both; }
+
+/* step timeline */
+.step-timeline { padding: 0 14px 14px; display: flex; flex-direction: column; gap: 0; }
+.timeline-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+  opacity: 0.4; transition: opacity 0.3s;
+}
+.timeline-row:last-child { border-bottom: none; }
+.timeline-row.done    { opacity: 1; }
+.timeline-row.active  { opacity: 1; }
+.timeline-row.current { opacity: 1; }
+
+.tl-icon {
+  width: 22px; height: 22px; border-radius: 4px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; border: 1px solid var(--dimmer); color: var(--dimmer);
+  background: var(--bg); margin-top: 1px; transition: all 0.3s;
+}
+.timeline-row.done .tl-icon    { border-color: var(--green); color: var(--green); background: rgba(0,230,118,0.1); }
+.timeline-row.active .tl-icon  { border-color: var(--gold); color: var(--gold); background: rgba(255,213,79,0.08); }
+.timeline-row.current .tl-icon { border-color: var(--amber); color: var(--amber); }
+
+.tl-content { flex: 1; }
+.tl-verb    { font-size: 12px; font-weight: 500; color: var(--text); }
+.timeline-row.done .tl-verb  { color: var(--green); }
+.timeline-row.active .tl-verb { color: var(--gold); }
+.tl-detail  { font-size: 11px; color: var(--dimmer); margin-top: 1px; }
+.tl-hash    { font-size: 10px; color: var(--accent); opacity: 0.7; word-break: break-all; margin-top: 2px; }
+.tl-time    { font-size: 10px; color: var(--dimmer); white-space: nowrap; margin-top: 1px; }
+
+/* sig box */
+.sig-box { margin: 0 14px 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; }
+.sig-label { color: var(--dim); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; }
+.sig-value { color: var(--accent); word-break: break-all; line-height: 1.5; font-size: 10.5px; }
+.sig-value.dim { color: var(--dimmer); }
+.sig-chars span { display: inline-block; opacity: 0; animation: char-in 0.03s forwards; }
+@keyframes char-in { to { opacity: 1; } }
+
+/* JSON tabs */
+.json-tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--panel); }
+.json-tab { padding: 8px 14px; font-size: 11px; color: var(--dim); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s; background: none; border-top: none; border-left: none; border-right: none; font-family: var(--mono); }
+.json-tab:hover { color: var(--text); }
+.json-tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+
+.json-pane { display: none; padding: 12px 14px; }
+.json-pane.active { display: block; }
+
+pre.json-view {
+  background: transparent; color: var(--dim); font-family: var(--mono);
+  font-size: 11px; line-height: 1.7; white-space: pre-wrap; word-break: break-word;
+  max-height: 240px; overflow-y: auto;
+}
+pre.json-view .k { color: var(--accent2); }
+pre.json-view .s { color: #a8d8a8; }
+pre.json-view .n { color: #ffcc80; }
+pre.json-view .b { color: var(--green); }
+
+pre.curl-code {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 4px;
+  padding: 10px 12px; font-size: 11px; color: var(--dim);
+  white-space: pre-wrap; word-break: break-word; max-height: 130px; overflow-y: auto; line-height: 1.6;
+}
+pre.curl-code .cmd  { color: var(--green); }
+pre.curl-code .url  { color: var(--accent); }
+pre.curl-code .flag { color: var(--amber); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+/* autorun banner */
+.autorun-bar {
+  position: relative; z-index: 1;
+  max-width: 1400px; margin: 12px auto 0; padding: 0 24px;
+}
+.autorun-inner {
+  background: rgba(255,213,79,0.06); border: 1px solid rgba(255,213,79,0.2);
+  border-radius: 4px; padding: 8px 14px; font-size: 11px; color: var(--gold);
+  display: flex; align-items: center; gap: 8px; transition: opacity 0.5s;
+}
+.autorun-inner.hidden { opacity: 0; pointer-events: none; }
+
+.error-msg { background: rgba(255,68,68,0.08); border: 1px solid rgba(255,68,68,0.25); border-radius: 4px; padding: 8px 12px; font-size: 11px; color: #ff8080; display: none; }
+.error-msg.visible { display: block; }
+
+/* footer */
+footer {
+  position: relative; z-index: 1;
+  border-top: 1px solid var(--border); padding: 16px 24px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: var(--dimmer); flex-wrap: wrap; gap: 8px;
+}
+footer a { color: var(--dim); text-decoration: none; }
+footer a:hover { color: var(--gold); }
+
+.empty-state { padding: 28px 14px; text-align: center; color: var(--dimmer); font-size: 12px; line-height: 1.8; }
+.empty-state .big { font-size: 24px; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://www.commandlayer.org/" class="nav-brand">
+    <img src="https://www.commandlayer.org/icon2.png" alt="CommandLayer" />
+    CommandLayer
+  </a>
+  <ul class="nav-links">
+    <li><a href="https://www.commandlayer.org/">Home</a></li>
+    <li><a href="https://www.commandlayer.org/composer.html">Commons Demo</a></li>
+    <li><a href="https://www.commandlayer.org/demo-inner.html" class="active">Commercial</a></li>
+    <li><a href="https://www.commandlayer.org/quickstart.html">Quickstart</a></li>
+    <li><a href="https://www.commandlayer.org/commercial.html">Docs</a></li>
+    <li><a href="https://github.com/commandlayer">GitHub</a></li>
+  </ul>
+  <div class="nav-status">
+    <div class="status-dot" id="navDot"></div>
+    <span id="navStatusText">checking runtime…</span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyebrow">◈ commercial extension v1.1.0 · x402-ready · ERC-8004 registered</div>
+  <h1>Agents that <em>spend money</em><br />leave proof behind.</h1>
+  <p class="hero-sub">
+    A five-step commerce flow: <code style="color:var(--gold);font-size:12px;">authorize → checkout → purchase → ship → verify</code>.
+    Every step returns a signed receipt. One trace links the chain. Proof survives outside the runtime.
+  </p>
+  <div class="hero-actions">
+    <button class="btn btn-gold" id="runBtn" onclick="runFullFlow()">▶ Run Commerce Flow</button>
+    <button class="btn btn-ghost" onclick="resetFlow()">↺ Reset</button>
+    <a href="https://www.commandlayer.org/composer.html" class="btn btn-ghost">Commons Composer →</a>
+  </div>
+</div>
+
+<!-- AUTORUN BANNER -->
+<div class="autorun-bar">
+  <div class="autorun-inner" id="autorunBar">
+    <span class="spin"></span>
+    Auto-running commercial flow against runtime.commandlayer.org…
+  </div>
+</div>
+
+<!-- PIPELINE -->
+<div class="pipeline-wrap">
+  <div class="pipeline">
+    <div class="pipe-step" id="pipe0" onclick="focusStep(0)">
+      <div class="pipe-num">Step 1</div>
+      <div class="pipe-verb">authorize</div>
+      <div class="pipe-desc">Payment intent</div>
+      <div class="pipe-indicator"></div>
+    </div>
+    <div class="pipe-step" id="pipe1" onclick="focusStep(1)">
+      <div class="pipe-num">Step 2</div>
+      <div class="pipe-verb">checkout</div>
+      <div class="pipe-desc">Cart & order</div>
+      <div class="pipe-indicator"></div>
+    </div>
+    <div class="pipe-step" id="pipe2" onclick="focusStep(2)">
+      <div class="pipe-num">Step 3</div>
+      <div class="pipe-verb">purchase</div>
+      <div class="pipe-desc">Execute payment</div>
+      <div class="pipe-indicator"></div>
+    </div>
+    <div class="pipe-step" id="pipe3" onclick="focusStep(3)">
+      <div class="pipe-num">Step 4</div>
+      <div class="pipe-verb">ship</div>
+      <div class="pipe-desc">Fulfillment</div>
+      <div class="pipe-indicator"></div>
+    </div>
+    <div class="pipe-step" id="pipe4" onclick="focusStep(4)">
+      <div class="pipe-num">Step 5</div>
+      <div class="pipe-verb">verify</div>
+      <div class="pipe-desc">Proof check</div>
+      <div class="pipe-indicator"></div>
+    </div>
+  </div>
+  <div class="pipeline-progress">
+    <div class="pipeline-progress-fill" id="progressFill"></div>
+  </div>
+</div>
+
+<!-- COCKPIT -->
+<div class="cockpit">
+
+  <!-- LEFT: CONTEXT + CONTROLS -->
+  <div style="display:flex;flex-direction:column;gap:12px;">
+
+    <!-- Commerce context -->
+    <div class="panel-card">
+      <div class="card-header">
+        <span class="card-title">Commerce Context</span>
+        <span class="card-badge badge-commercial">Commercial v1.1.0</span>
+      </div>
+      <div class="card-body">
+        <div class="eth-display">
+          <span class="eth-label">Total</span>
+          <span><span class="eth-value" id="ethDisplay">0.025</span><span class="eth-unit">ETH</span></span>
         </div>
-      </header>
-
-      <main class="page-main">
-        <section class="hero">
-          <div class="container hero__wrap">
-            <div>
-              <div class="eyebrow">Commercial demo</div>
-              <h1 class="hero__title">
-                <span class="hero__title-line">Run the Commercial Flow.</span>
-                <span class="hero__title-line">Inspect the Receipt.</span>
-                <span class="hero__title-line">Verify the Proof.</span>
-              </h1>
-
-              <p class="hero__subtitle">
-                Commercial execution runs on the same receipt-first contract
-                across a five-step path:
-                <code>authorize</code> → <code>checkout</code> →
-                <code>purchase</code> → <code>ship</code> →
-                <code>verify</code>. The live surface drives the request. The proof
-                side shows the resulting receipt, runtime metadata, verification
-                view, and reproducible request output.
-              </p>
-
-              <div class="verb-row" aria-label="Commercial flow verbs">
-                <span class="verb-pill verb-pill--active" data-hero-verb="authorize">authorize</span>
-                <span class="verb-pill" data-hero-verb="checkout">checkout</span>
-                <span class="verb-pill" data-hero-verb="purchase">purchase</span>
-                <span class="verb-pill" data-hero-verb="ship">ship</span>
-                <span class="verb-pill" data-hero-verb="verify">verify</span>
-              </div>
-            </div>
-
-            <aside class="hero-card">
-              <div class="panel__eyebrow">Commercial summary</div>
-              <h2>Compact flow status</h2>
-
-              <div class="hero-card__status">
-                <span class="runtime-dot runtime-dot--pulse"></span>
-                <span id="summary_runtime_status">Runtime live</span>
-              </div>
-
-              <div class="hero-card__grid">
-                <div class="hero-card__row">
-                  <div class="hero-card__label">Flow</div>
-                  <div class="hero-card__value">
-                    authorize → checkout → purchase → ship → verify
-                  </div>
-                </div>
-                <div class="hero-card__row">
-                  <div class="hero-card__label">Mode</div>
-                  <div class="hero-card__value">commercial</div>
-                </div>
-                <div class="hero-card__row">
-                  <div class="hero-card__label">Contract</div>
-                  <div class="hero-card__value">canonical receipt first</div>
-                </div>
-                <div class="hero-card__row">
-                  <div class="hero-card__label">Runtime</div>
-                  <div class="hero-card__value">metadata secondary</div>
-                </div>
-              </div>
-
-              <div class="hero-card__cta-row">
-                <a href="#commercial-controls" class="btn btn--commerce hero-card__cta">Run the Commercial Flow</a>
-                <a href="/composer.html" class="btn btn--ghost hero-card__cta">Open Commons Composer</a>
-              </div>
-            </aside>
+        <div class="form-grid">
+          <div class="form-field">
+            <label class="form-label">Buyer</label>
+            <input class="form-input" id="fBuyer" value="0xcafe...dead" />
           </div>
-        </section>
-
-        <section class="status-wrap">
-          <div class="container">
-            <div class="status-strip">
-              <div class="status-strip__main">
-                <span class="runtime-dot runtime-dot--pulse"></span>
-                <div>
-                  <div class="status-strip__eyebrow">Runtime status</div>
-                  <div class="status-strip__state">Commercial runtime live</div>
-                  <div class="status-strip__desc">
-                    Five-step commerce path ready to populate the live surface and proof side.
-                  </div>
-                </div>
-              </div>
-
-              <div class="status-metric">
-                <strong>Backend</strong>
-                <span>https://runtime.commandlayer.org/&lt;verb&gt;/v1.1.0</span>
-              </div>
-
-              <div class="status-metric">
-                <strong>Active flow</strong>
-                <span>authorize → verify</span>
-              </div>
-
-              <div class="status-metric">
-                <strong>Mode</strong>
-                <span>commercial</span>
-              </div>
-            </div>
+          <div class="form-field">
+            <label class="form-label">Chain ID</label>
+            <select class="form-input" id="fChain">
+              <option value="8453">Base (8453)</option>
+              <option value="1">Ethereum (1)</option>
+              <option value="10">Optimism (10)</option>
+              <option value="42161">Arbitrum (42161)</option>
+            </select>
           </div>
-        </section>
-
-        <section class="stage">
-          <div class="container stage-grid">
-            <article class="panel" id="commercial-controls">
-              <div class="panel-heading">
-                <div>
-                  <div class="panel__eyebrow">Live surface</div>
-                  <h2>Commercial Flow Surface</h2>
-                  <p>
-                    Set the commercial context once, then drive the receipt and
-                    proof surfaces with step controls.
-                  </p>
-                </div>
-
-                <div class="mini-pills">
-                  <span class="meta-pill">Commercial v1.1.0</span>
-                  <span class="meta-pill" id="active_step_pill">Active step: authorize</span>
-                </div>
-              </div>
-
-              <div class="form-grid">
-                <div class="field">
-                  <label>Buyer</label>
-                  <input id="buyer" value="0xBEEF" />
-                </div>
-                <div class="field">
-                  <label>Chain ID</label>
-                  <input id="chain_id" value="eip155:84532" />
-                </div>
-                <div class="field">
-                  <label>Order ID</label>
-                  <input id="order_id" value="order_demo_1" />
-                </div>
-              </div>
-
-              <div class="form-grid">
-                <div class="field">
-                  <label>Item SKU</label>
-                  <input id="sku" value="demo-sticker-pack" />
-                </div>
-                <div class="field">
-                  <label>Qty</label>
-                  <input id="qty" value="1" />
-                </div>
-                <div class="field">
-                  <label>Total (ETH)</label>
-                  <input id="total_amount" value="0.0001" />
-                </div>
-              </div>
-
-              <div class="form-grid">
-                <div class="field">
-                  <label>Currency</label>
-                  <input id="currency" value="ETH" />
-                </div>
-                <div class="field">
-                  <label>Ship To</label>
-                  <input id="address" value="123 Demo Street" />
-                </div>
-                <div class="field">
-                  <label>Trace ID (optional)</label>
-                  <input id="trace_id" placeholder="auto if blank" />
-                </div>
-              </div>
-
-              <div class="step-button-row" aria-label="Commercial flow controls">
-                <button class="step-btn active" id="b_authorize" onclick="runStep('authorize')">
-                  <small>Step 1</small>
-                  <strong>Authorize</strong>
-                  <span>Start the receipt</span>
-                </button>
-                <button class="step-btn" id="b_checkout" onclick="runStep('checkout')">
-                  <small>Step 2</small>
-                  <strong>Checkout</strong>
-                  <span>Attach the order</span>
-                </button>
-                <button class="step-btn" id="b_purchase" onclick="runStep('purchase')">
-                  <small>Step 3</small>
-                  <strong>Purchase</strong>
-                  <span>Execute payment</span>
-                </button>
-                <button class="step-btn" id="b_ship" onclick="runStep('ship')">
-                  <small>Step 4</small>
-                  <strong>Ship</strong>
-                  <span>Advance fulfillment</span>
-                </button>
-                <button class="step-btn" id="b_verify" onclick="runStep('verify')">
-                  <small>Step 5</small>
-                  <strong>Verify</strong>
-                  <span>Inspect proof</span>
-                </button>
-              </div>
-
-              <div class="button-row">
-                <button class="primary" id="b_flow" onclick="runFlow()">Run full flow</button>
-                <button onclick="copyJson()">Copy JSON</button>
-                <button onclick="copyCurl()">Copy curl</button>
-                <button onclick="resetState()">Reset</button>
-              </div>
-
-              <div class="status-line">
-                <span class="status-pill" id="status_pill" style="display:none;">
-                  <span class="dot"></span>
-                  <span id="status_text">Idle</span>
-                </span>
-
-                <span class="status-pill" id="net_pill" style="display:none;">
-                  <span class="dot"></span>
-                  <span id="net_text">Ready</span>
-                </span>
-
-                <span class="status-pill good" id="runtime_pill">
-                  <span class="dot"></span>
-                  <span id="runtime_text">Runtime live</span>
-                </span>
-              </div>
-
-              <p class="helper">
-                Click a verb to populate the live surface on the left and refresh
-                the proof side on the right with the matching commercial result.
-              </p>
-
-              <div class="step-strip">
-                <div class="step-card">
-                  <div class="step-card__index">1.</div>
-                  <strong>Authorize</strong>
-                  <span>Create the canonical payment intent receipt.</span>
-                </div>
-                <div class="step-card">
-                  <div class="step-card__index">2.</div>
-                  <strong>Checkout</strong>
-                  <span>Attach cart and order context without leaving the receipt model.</span>
-                </div>
-                <div class="step-card">
-                  <div class="step-card__index">3.</div>
-                  <strong>Purchase</strong>
-                  <span>Advance payment execution and inspect the resulting proof details.</span>
-                </div>
-                <div class="step-card">
-                  <div class="step-card__index">4.</div>
-                  <strong>Ship</strong>
-                  <span>Add shipment evidence while keeping runtime metadata secondary.</span>
-                </div>
-                <div class="step-card">
-                  <div class="step-card__index">5.</div>
-                  <strong>Verify</strong>
-                  <span>Validate the receipt boundary and the latest verification proof.</span>
-                </div>
-              </div>
-            </article>
-
-            <article class="output-panel" id="inspection-surface">
-              <div class="output-header">
-                <div>
-                  <div class="panel__eyebrow">Proof side</div>
-                  <h2>Proof + Inspection Surface</h2>
-                  <p>
-                    Inspect the latest commercial action, compare canonical receipt
-                    and runtime detail, then verify or reproduce the request.
-                  </p>
-                </div>
-
-                <div class="mini-pills">
-                  <span class="meta-pill" id="proof_focus_pill">Focus: latest action</span>
-                </div>
-              </div>
-
-              <div class="output-tabs">
-                <button class="tab active" data-tab="latest" onclick="setTab('latest')">Latest action</button>
-                <button class="tab" data-tab="request" onclick="setTab('request')">Latest request</button>
-                <button class="tab" data-tab="receipt" onclick="setTab('receipt')">Canonical receipt</button>
-                <button class="tab" data-tab="runtime" onclick="setTab('runtime')">Runtime details</button>
-                <button class="tab" data-tab="verification" onclick="setTab('verification')">Receipt verification</button>
-                <button class="tab" data-tab="raw" onclick="setTab('raw')">Raw JSON</button>
-                <button class="tab" data-tab="curl" onclick="setTab('curl')">Curl</button>
-              </div>
-
-              <p class="tab-note" id="tab_note">Latest step action and response summary.</p>
-
-              <pre id="output">{}</pre>
-
-              <div class="meta-grid">
-                <div class="meta-box">
-                  <strong>Latest action summary</strong>
-                  <div class="kv">
-                    <div>verb</div><div><code id="m_verb">-</code></div>
-                    <div>runtime_url</div><div><code id="m_url">-</code></div>
-                    <div>trace_id</div><div><code id="m_trace">-</code></div>
-                    <div>receipt_id</div><div><code id="m_receipt">-</code></div>
-                    <div>signer</div><div><code id="m_signer">-</code></div>
-                    <div>validation</div><div><code id="m_validation">-</code></div>
-                  </div>
-                </div>
-
-                <div class="verification-card">
-                  <strong>Inspection focus</strong>
-                  <p>
-                    The proof side stays aligned to the selected step so the
-                    latest request, canonical receipt, runtime evidence, and
-                    verification view read like one commercial result panel.
-                  </p>
-                </div>
-              </div>
-            </article>
+          <div class="form-field">
+            <label class="form-label">Order ID</label>
+            <input class="form-input" id="fOrder" value="" placeholder="auto-generated" />
           </div>
-        </section>
-      </main>
-
-      <footer class="site-footer">
-        <div class="container site-footer__inner" style="align-items: center; text-align: center;">
-          <div class="site-footer__cid">
-            Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered
+          <div class="form-field">
+            <label class="form-label">Item SKU</label>
+            <input class="form-input" id="fSku" value="CL-VERB-001" />
           </div>
-          <div class="site-footer__links" style="justify-content: center;">
-            <a href="/docs.html">Docs</a>
-            <a href="/repositories.html">Repositories</a>
-            <a href="/faq.html">FAQ</a>
-            <a href="/about.html">About</a>
-            <a href="/licensing.html">Licensing</a>
+          <div class="form-field">
+            <label class="form-label">Qty</label>
+            <input class="form-input" id="fQty" type="number" value="1" min="1" />
+          </div>
+          <div class="form-field">
+            <label class="form-label">Total (ETH)</label>
+            <input class="form-input" id="fAmount" type="number" value="0.025" step="0.001" oninput="document.getElementById('ethDisplay').textContent=this.value||'0'" />
+          </div>
+          <div class="form-field full">
+            <label class="form-label">Ship To</label>
+            <input class="form-input" id="fShipTo" value="100 Agent Ave, Base Network, ETH 00001" />
+          </div>
+          <div class="form-field full">
+            <label class="form-label">Trace ID</label>
+            <input class="form-input" id="fTrace" placeholder="auto-generated on run" />
           </div>
         </div>
-      </footer>
+      </div>
     </div>
 
-    <script>
-      (function () {
-        const header = document.querySelector(".site-header");
-        const toggle = document.querySelector(".site-header__toggle");
-        const docsBtn = document.querySelector(".site-header__dropdown-btn");
-
-        if (toggle && header) {
-          toggle.addEventListener("click", () => {
-            const isOpen = header.classList.toggle("site-header--open");
-            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-          });
-        }
-
-        if (docsBtn && header) {
-          docsBtn.addEventListener("click", () => {
-            header.classList.toggle("site-header--docs-open");
-          });
-        }
-
-        document.addEventListener("click", (e) => {
-          const dropdown = header?.querySelector(".site-header__dropdown");
-          if (dropdown && !dropdown.contains(e.target)) {
-            header.classList.remove("site-header--docs-open");
-          }
-        });
-      })();
-
-      let last = null;
-      let lastRequest = null;
-      let state = {
-        trace_id: null,
-        last_order_id: null,
-        last_shipment_id: null,
-        last_receipt: null,
-      };
-
-      const RUNTIME_BASE = "https://runtime.commandlayer.org";
-      const RUNTIME_VERSION = "1.1.0";
-      const VERBS = ["authorize", "checkout", "purchase", "ship", "verify"];
-      const CHAINABLE_VERBS = ["authorize", "checkout", "purchase", "ship"];
-      const ALLOWED = new Set(VERBS);
-
-      let activeTab = "latest";
-      let activeVerb = "authorize";
-
-      const TAB_NOTES = {
-        latest: "Latest step action and response summary.",
-        request: "The latest request body sent directly to the live commercial runtime.",
-        receipt: "Canonical Commercial receipt only. This is the contract truth.",
-        runtime: "Optional runtime_metadata only. This is trace / proof / orchestration context around the receipt.",
-        verification: "Receipt verification fields extracted from the latest step.",
-        raw: "Raw wrapped response assembled from the live runtime responses.",
-        curl: "Reproduce the latest request with curl.",
-      };
-
-      function $(id) {
-        return document.getElementById(id);
-      }
-
-      function safeGet(obj, path, fallback = null) {
-        try {
-          const v = path.split(".").reduce((acc, k) => {
-            return acc && acc[k] != null ? acc[k] : null;
-          }, obj);
-          return v == null ? fallback : v;
-        } catch {
-          return fallback;
-        }
-      }
-
-      function prettify(obj) {
-        return JSON.stringify(obj ?? {}, null, 2);
-      }
-
-      function buildJsonError(prefix, text) {
-        const snippet = String(text || "").slice(0, 200).trim() || "(empty response)";
-        return new Error(`${prefix}: ${snippet}`);
-      }
-
-      async function parseJsonResponse(res, errorPrefix) {
-        const text = await res.text();
-        if (!text.trim().startsWith("{")) {
-          throw buildJsonError(errorPrefix, text);
-        }
-
-        try {
-          return JSON.parse(text);
-        } catch {
-          throw buildJsonError(errorPrefix, text);
-        }
-      }
-
-      function shellSingleQuote(value) {
-        return `'${String(value).replace(/'/g, `'"'"'`)}'`;
-      }
-
-      function buildCurlCommand(url, body) {
-        return [
-          `curl -sS -X POST ${shellSingleQuote(url)} \\`,
-          `  -H 'Content-Type: application/json' \\`,
-          `  --data-binary ${shellSingleQuote(JSON.stringify(body))}`,
-        ].join("\n");
-      }
-
-      function extractReceiptEnvelope(payload) {
-        return (
-          payload?.receipt ||
-          payload?.signed_receipt ||
-          payload?.result?.receipt ||
-          payload?.result?.signed_receipt ||
-          payload ||
-          null
-        );
-      }
-
-      function extractRuntimeMetadata(payload, runtimeUrl, verb) {
-        return (
-          payload?.runtime_metadata ||
-          payload?.metadata ||
-          payload?.result?.runtime_metadata ||
-          payload?.result?.metadata || {
-            runtime_url: runtimeUrl,
-            verb,
-          }
-        );
-      }
-
-      function extractTraceIdFromPayload(payload) {
-        return (
-          payload?.trace_id ||
-          safeGet(payload, "trace.trace_id") ||
-          safeGet(payload, "runtime_metadata.trace.trace_id") ||
-          safeGet(payload, "metadata.trace_id") ||
-          safeGet(payload, "receipt.trace_id") ||
-          null
-        );
-      }
-
-      function extractVerificationResult(payload) {
-        return payload?.verify || payload?.verification || payload?.checks || null;
-      }
-
-      function buildStepRecord({ verb, runtimeUrl, requestBody, responseBody, verification = null }) {
-        const receipt = extractReceiptEnvelope(responseBody);
-        const runtimeMetadata = extractRuntimeMetadata(responseBody, runtimeUrl, verb);
-        if (!runtimeMetadata.runtime_url) runtimeMetadata.runtime_url = runtimeUrl;
-        const validation = verification || responseBody?.validation || runtimeMetadata.validation || null;
-
-        return {
-          verb,
-          runtime_url: runtimeUrl,
-          request: requestBody,
-          response: responseBody,
-          receipt,
-          signed_receipt: receipt,
-          runtime_metadata: runtimeMetadata,
-          validation,
-          verification,
-          verify: verification || extractVerificationResult(responseBody),
-          curl: buildCurlCommand(runtimeUrl, requestBody),
-        };
-      }
-
-      async function runCommercialVerb(verb, payload) {
-        const runtimeUrl = `${RUNTIME_BASE}/${verb}/v${RUNTIME_VERSION}`;
-        const requestBody = { input: payload };
-        lastRequest = {
-          endpoint: runtimeUrl,
-          method: "POST",
-          body: requestBody,
-        };
-
-        const res = await fetch(runtimeUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(requestBody),
-        });
-
-        const data = await parseJsonResponse(res, `Non-JSON response from runtime ${verb}`);
-
-        if (!res.ok) {
-          const detail = data?.error || data?.message || `Runtime ${verb} failed (${res.status})`;
-          throw new Error(detail);
-        }
-
-        return {
-          runtimeUrl,
-          requestBody,
-          data,
-        };
-      }
-
-      async function verifyCommercialReceipt(receipt) {
-        const runtimeUrl = `${RUNTIME_BASE}/verify?ens=1&strict_kid=1`;
-        lastRequest = {
-          endpoint: runtimeUrl,
-          method: "POST",
-          body: receipt,
-        };
-
-        const res = await fetch(runtimeUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(receipt),
-        });
-
-        const data = await parseJsonResponse(res, "Non-JSON verify response");
-
-        if (!res.ok) {
-          const detail = data?.error || data?.message || `Verify failed (${res.status})`;
-          throw new Error(detail);
-        }
-
-        return {
-          runtimeUrl,
-          requestBody: receipt,
-          data,
-        };
-      }
-
-      async function probeCommercialRuntime() {
-        const started = performance.now();
-        try {
-          const res = await fetch(`${RUNTIME_BASE}/health`, { method: "GET" });
-          const latency = `${Math.round(performance.now() - started)} ms`;
-          return { ok: res.ok, latency };
-        } catch {
-          return { ok: false, latency: "offline" };
-        }
-      }
-
-      function currentSteps() {
-        return Array.isArray(last?.steps) ? last.steps : [];
-      }
-
-      function latestStep() {
-        const steps = currentSteps();
-        return steps.length ? steps[steps.length - 1] : null;
-      }
-
-      function currentReceipt(step = latestStep()) {
-        return (
-          step?.receipt ||
-          step?.signed_receipt ||
-          step?.response?.receipt ||
-          step?.response?.signed_receipt ||
-          step?.response?.result?.receipt ||
-          step?.response?.result?.signed_receipt ||
-          step?.response ||
-          null
-        );
-      }
-
-      function currentRuntimeMetadata(step = latestStep()) {
-        return step?.runtime_metadata || safeGet(last, "runtime_metadata") || null;
-      }
-
-      function currentValidation(step = latestStep()) {
-        return (
-          step?.validation ||
-          safeGet(step, "runtime_metadata.validation") ||
-          safeGet(last, "validation") ||
-          null
-        );
-      }
-
-      function verificationView(step = latestStep()) {
-        const receipt = currentReceipt(step) || {};
-        const runtimeMetadata = currentRuntimeMetadata(step) || {};
-
-        return {
-          receipt_id:
-            safeGet(runtimeMetadata, "metadata.receipt_id") ||
-            safeGet(runtimeMetadata, "proof.hash_sha256") ||
-            safeGet(receipt, "receipt_id") ||
-            null,
-          signer_id:
-            safeGet(runtimeMetadata, "proof.signer_id") ||
-            safeGet(runtimeMetadata, "metadata.signer_id") ||
-            null,
-          proof_hash: safeGet(runtimeMetadata, "proof.hash_sha256") || null,
-          trace_id:
-            safeGet(runtimeMetadata, "trace.trace_id") ||
-            safeGet(runtimeMetadata, "trace_id") ||
-            null,
-          verify_result:
-            safeGet(step, "verify") ||
-            safeGet(runtimeMetadata, "verify") ||
-            safeGet(runtimeMetadata, "verification") ||
-            null,
-          validation: currentValidation(step),
-        };
-      }
-
-      function setTab(name) {
-        activeTab = name;
-
-        document.querySelectorAll(".tab").forEach((t) => t.classList.remove("active"));
-        const el = document.querySelector(`.tab[data-tab="${name}"]`);
-        if (el) el.classList.add("active");
-
-        $("tab_note").textContent = TAB_NOTES[name] || "";
-
-        const focus = $("proof_focus_pill");
-        if (focus) focus.textContent = `Focus: ${el ? el.textContent : name}`;
-
-        renderOutput();
-      }
-
-      function setPill(pillEl, textEl, mode, text) {
-        pillEl.className = `status-pill ${mode}`;
-        pillEl.style.display = "inline-flex";
-        textEl.textContent = text;
-      }
-
-      function setActiveVerb(verb) {
-        activeVerb = verb;
-
-        document.querySelectorAll(".step-btn").forEach((btn) => btn.classList.remove("active"));
-        const activeButton = $(`b_${verb}`);
-        if (activeButton) activeButton.classList.add("active");
-
-        document.querySelectorAll("[data-hero-verb]").forEach((pill) => {
-          pill.classList.toggle("verb-pill--active", pill.dataset.heroVerb === verb);
-        });
-
-        const stepPill = $("active_step_pill");
-        if (stepPill) stepPill.textContent = `Active step: ${verb}`;
-      }
-
-      function syncSummaryStatus(text) {
-        const el = $("summary_runtime_status");
-        if (el) el.textContent = text;
-      }
-
-      function getBaseRequest() {
-        return {
-          buyer: $("buyer").value,
-          chain_id: $("chain_id").value,
-          order_id: $("order_id").value,
-          sku: $("sku").value,
-          qty: Number($("qty").value || 1),
-          total_amount: $("total_amount").value,
-          currency: $("currency").value,
-          address: $("address").value,
-        };
-      }
-
-      function effectiveTraceId() {
-        const explicit = ($("trace_id").value || "").trim();
-        return explicit || state.trace_id || null;
-      }
-
-      function updateTrace(traceId) {
-        if (!traceId) return;
-        state.trace_id = traceId;
-        if (!$("trace_id").value) $("trace_id").value = traceId;
-        setPill($("status_pill"), $("status_text"), "good", `Trace active: ${traceId}`);
-      }
-
-      function renderMetaFromStep(step) {
-        const receipt = currentReceipt(step);
-        const runtimeMeta = currentRuntimeMetadata(step);
-        const validation = currentValidation(step);
-
-        const traceId =
-          safeGet(runtimeMeta, "trace.trace_id") ||
-          safeGet(runtimeMeta, "trace_id") ||
-          "-";
-
-        const receiptId =
-          safeGet(runtimeMeta, "metadata.receipt_id") ||
-          safeGet(runtimeMeta, "proof.hash_sha256") ||
-          safeGet(receipt, "receipt_id") ||
-          "-";
-
-        const signer =
-          safeGet(runtimeMeta, "proof.signer_id") ||
-          safeGet(runtimeMeta, "metadata.signer_id") ||
-          "-";
-
-        let validationText = "-";
-        if (validation) {
-          const ok =
-            safeGet(validation, "receipt.ok") ??
-            safeGet(validation, "ok") ??
-            safeGet(validation, "request.ok");
-          validationText = ok === true ? "ok" : ok === false ? "failed" : "present";
-        }
-
-        $("m_verb").textContent = step?.verb || "-";
-        $("m_url").textContent = step?.runtime_url || safeGet(runtimeMeta, "runtime_url") || "-";
-        $("m_trace").textContent = String(traceId);
-        $("m_receipt").textContent = String(receiptId);
-        $("m_signer").textContent = String(signer);
-        $("m_validation").textContent = String(validationText);
-      }
-
-      function resetState() {
-        last = null;
-        lastRequest = null;
-        state = {
-          trace_id: null,
-          last_order_id: null,
-          last_shipment_id: null,
-          last_receipt: null,
-        };
-
-        $("trace_id").value = "";
-        $("output").textContent = "{}";
-        $("status_pill").style.display = "none";
-        $("net_pill").style.display = "none";
-
-        renderMetaFromStep(null);
-        setActiveVerb("authorize");
-        syncSummaryStatus("Runtime live");
-        setTab("latest");
-      }
-
-      function disableButtons(disabled) {
-        ["b_authorize", "b_checkout", "b_purchase", "b_ship", "b_verify", "b_flow"].forEach((id) => {
-          const el = $(id);
-          if (el) el.disabled = disabled;
-        });
-      }
-
-      function renderOutput() {
-        const out = $("output");
-
-        if (!last) {
-          out.textContent = "{}";
-          return;
-        }
-
-        const step = latestStep();
-
-        if (activeTab === "raw") {
-          out.textContent = prettify(last);
-        } else if (activeTab === "request") {
-          out.textContent = prettify(lastRequest || { note: "No request captured yet." });
-        } else if (activeTab === "curl") {
-          out.textContent = latestStep()?.curl || last?.meta?.curl || "# (no curl yet — run a step or full flow)";
-        } else if (activeTab === "receipt") {
-          out.textContent = prettify(currentReceipt(step) || { note: "No canonical receipt returned yet." });
-        } else if (activeTab === "runtime") {
-          out.textContent = prettify(currentRuntimeMetadata(step) || { note: "No runtime metadata attached to the latest step." });
-        } else if (activeTab === "verification") {
-          out.textContent = prettify(verificationView(step));
-        } else {
-          out.textContent = prettify(step || last);
-        }
-      }
-
-
-      function buildStepInput(verb, base) {
-        const trace_id = effectiveTraceId() || undefined;
-        const order_id = state.last_order_id || base.order_id;
-        const shipment_id = state.last_shipment_id || "demo-shipment";
-        const previous_receipt = state.last_receipt || undefined;
-
-        if (verb === "authorize") {
-          return {
-            trace_id,
-            buyer: base.buyer,
-            chain_id: base.chain_id,
-            order_id,
-            sku: base.sku,
-            qty: base.qty,
-            total_amount: base.total_amount,
-            currency: base.currency,
-            amount: {
-              value: base.total_amount,
-              currency: base.currency,
-            },
-            payment_method: "demo",
-            address: base.address,
-          };
-        }
-
-        if (verb === "checkout") {
-          return {
-            trace_id,
-            order_id,
-            buyer: base.buyer,
-            chain_id: base.chain_id,
-            items: [{ sku: base.sku, qty: base.qty }],
-            sku: base.sku,
-            qty: base.qty,
-            total_amount: base.total_amount,
-            currency: base.currency,
-            address: base.address,
-            previous_receipt,
-          };
-        }
-
-        if (verb === "purchase") {
-          return {
-            trace_id,
-            order_id,
-            buyer: base.buyer,
-            chain_id: base.chain_id,
-            sku: base.sku,
-            qty: base.qty,
-            total_amount: base.total_amount,
-            currency: base.currency,
-            previous_receipt,
-          };
-        }
-
-        if (verb === "ship") {
-          return {
-            trace_id,
-            order_id,
-            buyer: base.buyer,
-            chain_id: base.chain_id,
-            address: base.address,
-            shipment_id,
-            previous_receipt,
-          };
-        }
-
-        if (verb === "verify") {
-          return {
-            trace_id,
-            order_id,
-            shipment_id,
-            previous_receipt,
-          };
-        }
-
-        return { trace_id, ...base, previous_receipt };
-      }
-
-      function captureIdsFromReceipt(receipt) {
-        if (!receipt || typeof receipt !== "object") return;
-
-        const maybeOrder =
-          safeGet(receipt, "result.order_id") ||
-          safeGet(receipt, "result.checkout_id") ||
-          safeGet(receipt, "result.purchase_id") ||
-          null;
-
-        const maybeShipment =
-          safeGet(receipt, "result.shipment_id") ||
-          safeGet(receipt, "result.tracking_id") ||
-          null;
-
-        if (maybeOrder) state.last_order_id = String(maybeOrder);
-        if (maybeShipment) state.last_shipment_id = String(maybeShipment);
-        state.last_receipt = receipt;
-      }
-
-      async function runStep(verb) {
-        if (!ALLOWED.has(verb)) return;
-
-        try {
-          setActiveVerb(verb);
-          syncSummaryStatus(`Running ${verb}`);
-          disableButtons(true);
-          setPill($("net_pill"), $("net_text"), "warn", `Running ${verb}…`);
-
-          const base = getBaseRequest();
-          let stepRecord;
-
-          if (verb === "verify") {
-            const receipt = state.last_receipt || currentReceipt();
-            if (!receipt) {
-              throw new Error("Run authorize, checkout, purchase, or ship before verifying the final receipt.");
-            }
-
-            const verification = await verifyCommercialReceipt(receipt);
-            stepRecord = buildStepRecord({
-              verb,
-              runtimeUrl: verification.runtimeUrl,
-              requestBody: verification.requestBody,
-              responseBody: receipt,
-              verification: verification.data,
-            });
-          } else {
-            const payload = buildStepInput(verb, base);
-            const runtimeResult = await runCommercialVerb(verb, payload);
-            stepRecord = buildStepRecord({
-              verb,
-              runtimeUrl: runtimeResult.runtimeUrl,
-              requestBody: runtimeResult.requestBody,
-              responseBody: runtimeResult.data,
-            });
-          }
-
-          const receipt = currentReceipt(stepRecord);
-          const traceId = extractTraceIdFromPayload(stepRecord.response) || extractTraceIdFromPayload(receipt);
-          if (traceId) updateTrace(traceId);
-          if (receipt) captureIdsFromReceipt(receipt);
-
-          last = {
-            ok: true,
-            trace_id: effectiveTraceId(),
-            steps: [stepRecord],
-            meta: { curl: stepRecord.curl },
-          };
-
-          renderMetaFromStep(stepRecord);
-          renderOutput();
-
-          syncSummaryStatus(`Runtime live · ${verb}`);
-          setPill($("net_pill"), $("net_text"), "good", `OK — ${verb} step returned.`);
-        } catch (err) {
-          last = { ok: false, error: err?.message || String(err) };
-          renderOutput();
-          renderMetaFromStep(null);
-          syncSummaryStatus("Runtime error");
-          setPill($("net_pill"), $("net_text"), "bad", `Error — ${err?.message || String(err)}`);
-        } finally {
-          disableButtons(false);
-        }
-      }
-
-      async function runFlow() {
-        try {
-          setActiveVerb("verify");
-          syncSummaryStatus("Running full flow");
-          disableButtons(true);
-          setPill($("net_pill"), $("net_text"), "warn", "Running full flow…");
-
-          const keepTrace = ($("trace_id").value || "").trim();
-          state.last_order_id = null;
-          state.last_shipment_id = null;
-          state.last_receipt = null;
-          if (!keepTrace) state.trace_id = null;
-
-          const base = getBaseRequest();
-          const collectedSteps = [];
-
-          for (const verb of CHAINABLE_VERBS) {
-            const payload = buildStepInput(verb, base);
-            const runtimeResult = await runCommercialVerb(verb, payload);
-            const stepRecord = buildStepRecord({
-              verb,
-              runtimeUrl: runtimeResult.runtimeUrl,
-              requestBody: runtimeResult.requestBody,
-              responseBody: runtimeResult.data,
-            });
-            const receipt = currentReceipt(stepRecord);
-            const traceId = extractTraceIdFromPayload(stepRecord.response) || extractTraceIdFromPayload(receipt);
-            if (traceId) updateTrace(traceId);
-            if (receipt) captureIdsFromReceipt(receipt);
-            collectedSteps.push(stepRecord);
-          }
-
-          const finalReceipt = state.last_receipt || currentReceipt(collectedSteps[collectedSteps.length - 1]);
-          if (!finalReceipt) {
-            throw new Error("Full flow completed without a final receipt to verify.");
-          }
-
-          const verification = await verifyCommercialReceipt(finalReceipt);
-          const verifyStep = buildStepRecord({
-            verb: "verify",
-            runtimeUrl: verification.runtimeUrl,
-            requestBody: verification.requestBody,
-            responseBody: finalReceipt,
-            verification: verification.data,
-          });
-          collectedSteps.push(verifyStep);
-
-          last = {
-            ok: true,
-            trace_id: effectiveTraceId(),
-            steps: collectedSteps,
-            meta: { curl: verifyStep.curl },
-          };
-
-          renderMetaFromStep(latestStep());
-          renderOutput();
-
-          syncSummaryStatus("Runtime live · full flow complete");
-          setPill($("net_pill"), $("net_text"), "good", "OK — full flow returned receipts.");
-        } catch (err) {
-          last = { ok: false, error: err?.message || String(err) };
-          renderOutput();
-          renderMetaFromStep(null);
-          syncSummaryStatus("Runtime error");
-          setPill($("net_pill"), $("net_text"), "bad", `Error — ${err?.message || String(err)}`);
-        } finally {
-          disableButtons(false);
-        }
-      }
-
-      async function copyCurl() {
-
-        try {
-          const curl = latestStep()?.curl || last?.meta?.curl;
-          if (!curl) throw new Error("No curl block available yet. Run a step or full flow first.");
-          await navigator.clipboard.writeText(curl);
-          setPill($("net_pill"), $("net_text"), "good", "Copied curl block.");
-          setTab("curl");
-        } catch (err) {
-          setPill($("net_pill"), $("net_text"), "bad", err?.message || String(err));
-        }
-      }
-
-      async function copyJson() {
-        try {
-          if (!last) throw new Error("No JSON available yet. Run a step or full flow first.");
-          await navigator.clipboard.writeText(JSON.stringify(last, null, 2));
-          setPill($("net_pill"), $("net_text"), "good", "Copied latest JSON.");
-          setTab("raw");
-        } catch (err) {
-          setPill($("net_pill"), $("net_text"), "bad", err?.message || String(err));
-        }
-      }
-
-      (async function init() {
-        setPill($("net_pill"), $("net_text"), "warn", "Ready.");
-        renderMetaFromStep(null);
-        setActiveVerb(activeVerb);
-        setTab("latest");
-
-        const runtime = await probeCommercialRuntime();
-        const runtimePill = $("runtime_pill");
-        const runtimeText = $("runtime_text");
-        if (runtime.ok) {
-          runtimePill.className = "status-pill good";
-          runtimeText.textContent = `Runtime live · ${runtime.latency}`;
-          syncSummaryStatus(`Runtime live · ${runtime.latency}`);
-        } else {
-          runtimePill.className = "status-pill bad";
-          runtimeText.textContent = `Runtime offline · ${runtime.latency}`;
-          syncSummaryStatus("Runtime offline");
-        }
-      })();
-    </script>
-  </body>
+    <!-- Step controls -->
+    <div class="panel-card">
+      <div class="card-header">
+        <span class="card-title">Step Controls</span>
+        <span class="card-badge badge-pending" id="stepBadgeGlobal">idle</span>
+      </div>
+      <div class="card-body">
+        <div class="step-controls">
+          <button class="step-btn" id="sbtn0" onclick="runStep(0)">
+            <div class="step-btn-num" id="snum0">1</div>
+            <div class="step-btn-info">
+              <div class="step-btn-verb">authorize</div>
+              <div class="step-btn-desc">Create payment intent receipt</div>
+            </div>
+            <div class="step-btn-status" id="sstatus0">—</div>
+          </button>
+          <button class="step-btn" id="sbtn1" onclick="runStep(1)" disabled>
+            <div class="step-btn-num" id="snum1">2</div>
+            <div class="step-btn-info">
+              <div class="step-btn-verb">checkout</div>
+              <div class="step-btn-desc">Attach cart & order context</div>
+            </div>
+            <div class="step-btn-status" id="sstatus1">—</div>
+          </button>
+          <button class="step-btn" id="sbtn2" onclick="runStep(2)" disabled>
+            <div class="step-btn-num" id="snum2">3</div>
+            <div class="step-btn-info">
+              <div class="step-btn-verb">purchase</div>
+              <div class="step-btn-desc">Execute & settle payment</div>
+            </div>
+            <div class="step-btn-status" id="sstatus2">—</div>
+          </button>
+          <button class="step-btn" id="sbtn3" onclick="runStep(3)" disabled>
+            <div class="step-btn-num" id="snum3">4</div>
+            <div class="step-btn-info">
+              <div class="step-btn-verb">ship</div>
+              <div class="step-btn-desc">Fulfillment & tracking receipt</div>
+            </div>
+            <div class="step-btn-status" id="sstatus3">—</div>
+          </button>
+          <button class="step-btn" id="sbtn4" onclick="runStep(4)" disabled>
+            <div class="step-btn-num" id="snum4">5</div>
+            <div class="step-btn-info">
+              <div class="step-btn-verb">verify</div>
+              <div class="step-btn-desc">Validate proof boundary</div>
+            </div>
+            <div class="step-btn-status" id="sstatus4">—</div>
+          </button>
+        </div>
+        <div class="flow-controls" style="margin-top:12px;">
+          <button class="btn btn-gold" id="runBtn2" onclick="runFullFlow()">▶ Run Full Flow</button>
+          <button class="btn btn-ghost" onclick="resetFlow()">↺ Reset</button>
+        </div>
+        <div class="error-msg" id="errorMsg" style="margin-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- Trace -->
+    <div class="panel-card">
+      <div class="card-header">
+        <span class="card-title">Execution Trace</span>
+      </div>
+      <div class="card-body">
+        <div style="font-size:11px;color:var(--dim);margin-bottom:6px;">Trace ID</div>
+        <div style="font-size:12px;color:var(--gold);word-break:break-all;" id="traceDisplay">—</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:10px;margin-bottom:4px;">Runtime</div>
+        <div style="font-size:11px;color:var(--accent);">runtime.commandlayer.org/&lt;verb&gt;/v1.1.0</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:10px;margin-bottom:4px;">Mode</div>
+        <div style="font-size:11px;color:var(--text);">commercial · canonical receipt first</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT: PROOF -->
+  <div class="proof-panel">
+
+    <!-- TX card -->
+    <div class="tx-card panel-card" id="txCard">
+      <div class="tx-header">
+        <span class="card-title">Transaction Receipt</span>
+        <div class="tx-badge" id="txBadge">
+          <span id="txIcon">○</span>
+          <span id="txText">Idle</span>
+        </div>
+      </div>
+
+      <!-- step timeline -->
+      <div class="step-timeline" id="stepTimeline">
+        <div class="timeline-row" id="tl0">
+          <div class="tl-icon">1</div>
+          <div class="tl-content">
+            <div class="tl-verb">authorize</div>
+            <div class="tl-detail">payment intent</div>
+          </div>
+          <div class="tl-time" id="tltime0">—</div>
+        </div>
+        <div class="timeline-row" id="tl1">
+          <div class="tl-icon">2</div>
+          <div class="tl-content">
+            <div class="tl-verb">checkout</div>
+            <div class="tl-detail">cart & order</div>
+          </div>
+          <div class="tl-time" id="tltime1">—</div>
+        </div>
+        <div class="timeline-row" id="tl2">
+          <div class="tl-icon">3</div>
+          <div class="tl-content">
+            <div class="tl-verb">purchase</div>
+            <div class="tl-detail">payment execution</div>
+          </div>
+          <div class="tl-time" id="tltime2">—</div>
+        </div>
+        <div class="timeline-row" id="tl3">
+          <div class="tl-icon">4</div>
+          <div class="tl-content">
+            <div class="tl-verb">ship</div>
+            <div class="tl-detail">fulfillment</div>
+          </div>
+          <div class="tl-time" id="tltime3">—</div>
+        </div>
+        <div class="timeline-row" id="tl4">
+          <div class="tl-icon">5</div>
+          <div class="tl-content">
+            <div class="tl-verb">verify</div>
+            <div class="tl-detail">proof boundary</div>
+          </div>
+          <div class="tl-time" id="tltime4">—</div>
+        </div>
+      </div>
+
+      <!-- latest receipt meta -->
+      <div class="tx-meta">
+        <div class="meta-field">
+          <span class="meta-label">current verb</span>
+          <span class="meta-value gold" id="mVerb">—</span>
+        </div>
+        <div class="meta-field">
+          <span class="meta-label">status</span>
+          <span class="meta-value green" id="mStatus">—</span>
+        </div>
+        <div class="meta-field">
+          <span class="meta-label">signer</span>
+          <span class="meta-value accent" id="mSigner">—</span>
+        </div>
+        <div class="meta-field">
+          <span class="meta-label">elapsed</span>
+          <span class="meta-value dim" id="mTime">—</span>
+        </div>
+        <div class="meta-field" style="grid-column:1/-1">
+          <span class="meta-label">proof hash (sha256)</span>
+          <span class="meta-value hash" id="mHash">—</span>
+        </div>
+        <div class="meta-field">
+          <span class="meta-label">receipt id</span>
+          <span class="meta-value dim" id="mReceiptId">—</span>
+        </div>
+        <div class="meta-field">
+          <span class="meta-label">chain</span>
+          <span class="meta-value dim" id="mChain">—</span>
+        </div>
+      </div>
+
+      <div class="sig-box">
+        <div class="sig-label">Ed25519 signature (latest step)</div>
+        <div class="sig-value dim" id="sigDisplay">awaiting execution…</div>
+      </div>
+    </div>
+
+    <!-- JSON tabs -->
+    <div class="panel-card">
+      <div class="json-tabs">
+        <button class="json-tab active" onclick="switchTab('receipt')">Receipt JSON</button>
+        <button class="json-tab" onclick="switchTab('verify')">Verify cURL</button>
+        <button class="json-tab" onclick="switchTab('raw')">Raw</button>
+      </div>
+      <div id="tab-receipt" class="json-pane active">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;">canonical receipt · latest step</span>
+          <button class="btn btn-copy" id="copyReceiptBtn" onclick="copyReceipt()">copy</button>
+        </div>
+        <pre class="json-view" id="receiptJson"><span style="color:var(--dimmer);">// run the commerce flow to see receipts</span></pre>
+      </div>
+      <div id="tab-verify" class="json-pane">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;">independent verification</span>
+          <button class="btn btn-copy" id="copyCurlBtn" onclick="copyCurl()">copy</button>
+        </div>
+        <pre class="curl-code" id="curlDisplay"><span style="color:var(--dimmer);">// verify cURL generated after run</span></pre>
+      </div>
+      <div id="tab-raw" class="json-pane">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;">full runtime response</span>
+          <button class="btn btn-copy" onclick="copyRaw()">copy</button>
+        </div>
+        <pre class="json-view" id="rawJson"><span style="color:var(--dimmer);">// raw response appears here</span></pre>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
+  <div style="display:flex;gap:16px;">
+    <a href="https://www.commandlayer.org/docs.html">Docs</a>
+    <a href="https://www.commandlayer.org/repositories.html">Repositories</a>
+    <a href="https://www.commandlayer.org/faq.html">FAQ</a>
+    <a href="https://www.commandlayer.org/about.html">About</a>
+    <a href="https://www.commandlayer.org/licensing.html">Licensing</a>
+  </div>
+</footer>
+
+<script>
+// ── CONFIG ───────────────────────────────────────────────────────────────────
+const RUNTIME = 'https://runtime.commandlayer.org';
+
+const STEPS = [
+  { verb: 'authorize', desc: 'payment intent' },
+  { verb: 'checkout',  desc: 'cart & order'   },
+  { verb: 'purchase',  desc: 'settlement'     },
+  { verb: 'ship',      desc: 'fulfillment'    },
+  { verb: 'verify',    desc: 'proof check'    },
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let traceId    = null;
+let orderId    = null;
+let isRunning  = false;
+let stepsDone  = 0;
+let stepData   = Array(5).fill(null); // { data, elapsed }
+
+// ── HELPERS ──────────────────────────────────────────────────────────────────
+function genId(prefix) {
+  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,6)}`;
+}
+
+function hl(json) {
+  return json
+    .replace(/("[\w_$]+"):/g, '<span class="k">$1</span>:')
+    .replace(/: ("(?:[^"\\]|\\.)*")/g, ': <span class="s">$1</span>')
+    .replace(/: (true|false)/g, ': <span class="b">$1</span>')
+    .replace(/: (-?\d+(?:\.\d+)?)/g, ': <span class="n">$1</span>');
+}
+
+function setMeta(id, val, cls='') {
+  const el = document.getElementById(id);
+  el.textContent = val;
+  el.className = `meta-value ${cls} anim`;
+  el.addEventListener('animationend', () => el.classList.remove('anim'), { once: true });
+}
+
+function animateSig(sig) {
+  const el = document.getElementById('sigDisplay');
+  el.className = 'sig-value sig-chars';
+  el.innerHTML = '';
+  sig.split('').forEach((ch, i) => {
+    const s = document.createElement('span');
+    s.textContent = ch;
+    s.style.animationDelay = `${i * 10}ms`;
+    el.appendChild(s);
+  });
+}
+
+// ── RUNTIME HEALTH ───────────────────────────────────────────────────────────
+async function checkRuntime() {
+  try {
+    const r = await fetch(`${RUNTIME}/health`, { signal: AbortSignal.timeout(5000) });
+    document.getElementById('navDot').className = r.ok ? 'status-dot live' : 'status-dot error';
+    document.getElementById('navStatusText').textContent = r.ok ? 'runtime live' : 'runtime error';
+  } catch {
+    document.getElementById('navDot').className = 'status-dot error';
+    document.getElementById('navStatusText').textContent = 'unreachable';
+  }
+}
+
+// ── PIPELINE UI ───────────────────────────────────────────────────────────────
+function setPipeState(i, state) {
+  const el = document.getElementById(`pipe${i}`);
+  el.className = `pipe-step ${state}`;
+}
+
+function setProgress(done) {
+  document.getElementById('progressFill').style.width = `${(done / 5) * 100}%`;
+}
+
+function focusStep(i) {
+  if (!stepData[i]) return;
+  updateProofPanel(i);
+}
+
+// ── STEP BUTTON UI ────────────────────────────────────────────────────────────
+function setStepBtnState(i, state, timeStr='') {
+  const btn   = document.getElementById(`sbtn${i}`);
+  const num   = document.getElementById(`snum${i}`);
+  const sts   = document.getElementById(`sstatus${i}`);
+  btn.className = `step-btn ${state}`;
+
+  if (state === 'running') {
+    sts.innerHTML = '<span class="spin"></span>';
+    btn.disabled = true;
+  } else if (state === 'done') {
+    sts.textContent = timeStr || '✓';
+    btn.disabled = true;
+  } else if (state === 'active') {
+    sts.textContent = 'ready';
+    btn.disabled = false;
+  } else {
+    sts.textContent = '—';
+    btn.disabled = true;
+  }
+}
+
+function setTimelineState(i, state, elapsed='') {
+  const row = document.getElementById(`tl${i}`);
+  row.className = `timeline-row ${state}`;
+  const icon = row.querySelector('.tl-icon');
+  if (state === 'done') icon.textContent = '✓';
+  else if (state === 'active' || state === 'current') icon.textContent = i + 1;
+  if (elapsed) document.getElementById(`tltime${i}`).textContent = elapsed;
+}
+
+// ── BUILD COMMERCIAL BODY ─────────────────────────────────────────────────────
+function buildBody(verb) {
+  const buyer  = document.getElementById('fBuyer').value  || '0xcafe...dead';
+  const chain  = document.getElementById('fChain').value  || '8453';
+  const sku    = document.getElementById('fSku').value    || 'CL-VERB-001';
+  const qty    = document.getElementById('fQty').value    || '1';
+  const amount = document.getElementById('fAmount').value || '0.025';
+  const shipTo = document.getElementById('fShipTo').value || '100 Agent Ave';
+
+  const base = {
+    verb,
+    schema_version: '1.1.0',
+    trace_id: traceId,
+    order_id: orderId,
+    buyer,
+    chain_id: parseInt(chain),
+  };
+
+  switch (verb) {
+    case 'authorize':
+      return { ...base, amount: parseFloat(amount), currency: 'ETH', payment_method: 'x402' };
+    case 'checkout':
+      return { ...base, items: [{ sku, quantity: parseInt(qty), unit_price: parseFloat(amount) }], total: parseFloat(amount), currency: 'ETH' };
+    case 'purchase':
+      return { ...base, amount: parseFloat(amount), currency: 'ETH', settlement: 'onchain' };
+    case 'ship':
+      return { ...base, ship_to: shipTo, carrier: 'agent-logistics', items: [{ sku, quantity: parseInt(qty) }] };
+    case 'verify':
+      return { ...base, subject: buyer, verification_type: 'receipt_boundary', check: 'full_flow' };
+    default:
+      return base;
+  }
+}
+
+// ── EXECUTE ONE STEP ──────────────────────────────────────────────────────────
+async function runStep(i, auto = false) {
+  if (isRunning && !auto) return;
+  if (!auto) isRunning = true;
+
+  const { verb } = STEPS[i];
+
+  // set UI to running
+  setPipeState(i, 'running');
+  setStepBtnState(i, 'running');
+  setTimelineState(i, 'current');
+  setGlobalBadge('running', verb);
+
+  const body = buildBody(verb);
+  const t0 = Date.now();
+
+  try {
+    const resp = await fetch(`${RUNTIME}/${verb}/v1.1.0`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(20000),
+    });
+
+    if (!resp.ok) {
+      const t = await resp.text();
+      throw new Error(`HTTP ${resp.status}: ${t.slice(0, 100)}`);
+    }
+
+    const data = await resp.json();
+    const elapsed = Date.now() - t0;
+    stepData[i] = { data, verb, elapsed };
+    stepsDone = i + 1;
+
+    // update pipeline
+    setPipeState(i, 'done');
+    setStepBtnState(i, 'done', `${elapsed}ms`);
+    setTimelineState(i, 'done', `${elapsed}ms`);
+    setProgress(stepsDone);
+
+    // unlock next step
+    if (i < 4) setStepBtnState(i + 1, 'active');
+
+    // update proof panel
+    updateProofPanel(i);
+
+    // settle badge on last step
+    if (i === 4) {
+      setGlobalBadge('settled', 'settled');
+      document.getElementById('txCard').className = 'tx-card panel-card settled';
+      document.getElementById('txBadge').className = 'tx-badge settled';
+      document.getElementById('txIcon').textContent = '✓';
+      document.getElementById('txText').textContent = 'Settled';
+    }
+
+    if (!auto) isRunning = false;
+    return data;
+
+  } catch (err) {
+    setPipeState(i, '');
+    setStepBtnState(i, 'active');
+    setTimelineState(i, '');
+    const errEl = document.getElementById('errorMsg');
+    errEl.textContent = `Step ${i + 1} (${verb}) error: ${err.message}`;
+    errEl.className = 'error-msg visible';
+    if (!auto) isRunning = false;
+    throw err;
+  }
+}
+
+function setGlobalBadge(state, label) {
+  const badge = document.getElementById('stepBadgeGlobal');
+  if (state === 'running') {
+    badge.textContent = `running ${label}…`;
+    badge.className = 'card-badge';
+    badge.style.cssText = 'background:rgba(255,179,0,.12);color:var(--amber);border:1px solid rgba(255,179,0,.3)';
+  } else if (state === 'settled') {
+    badge.textContent = 'settled ✓';
+    badge.className = 'card-badge badge-live';
+    badge.style.cssText = '';
+  } else {
+    badge.textContent = 'idle';
+    badge.className = 'card-badge badge-pending';
+    badge.style.cssText = '';
+  }
+}
+
+// ── UPDATE PROOF PANEL ────────────────────────────────────────────────────────
+function updateProofPanel(i) {
+  const { data, verb, elapsed } = stepData[i];
+  const receipt = data.receipt || data;
+  const proof   = data.runtime_metadata?.proof || {};
+  const signer  = data.runtime_metadata?.signer || receipt.signer || 'runtime.commandlayer.eth';
+  const hash    = proof.hash_sha256 || '—';
+  const sig     = proof.signature_b64 || receipt.signature || null;
+  const rid     = receipt.receipt_id || data.runtime_metadata?.receipt_id || `rcpt_${Date.now().toString(36)}`;
+  const chain   = document.getElementById('fChain').options[document.getElementById('fChain').selectedIndex].text;
+
+  setMeta('mVerb',       verb,                'gold');
+  setMeta('mStatus',     receipt.status || 'success', 'green');
+  setMeta('mSigner',     signer,              'accent');
+  setMeta('mTime',       `${elapsed}ms`,      'dim');
+  setMeta('mHash',       hash,                'hash');
+  setMeta('mReceiptId',  rid,                 'dim');
+  setMeta('mChain',      chain,               'dim');
+
+  // tx card live while running, settled only on step 5
+  if (i < 4) {
+    document.getElementById('txCard').className = 'tx-card panel-card live';
+    document.getElementById('txBadge').className = 'tx-badge active';
+    document.getElementById('txIcon').textContent = '◈';
+    document.getElementById('txText').textContent = verb.charAt(0).toUpperCase() + verb.slice(1);
+  }
+
+  // signature
+  if (sig) animateSig(sig);
+  else {
+    document.getElementById('sigDisplay').textContent = `[proof in runtime_metadata for ${verb}]`;
+    document.getElementById('sigDisplay').className = 'sig-value dim';
+  }
+
+  // JSON panels
+  document.getElementById('receiptJson').innerHTML = hl(JSON.stringify(receipt, null, 2));
+  document.getElementById('rawJson').innerHTML     = hl(JSON.stringify(data,    null, 2));
+
+  // verify cURL
+  const h = hash !== '—' ? hash.slice(0, 32) : '';
+  const s = sig ? sig.slice(0, 32) : '';
+  document.getElementById('curlDisplay').innerHTML =
+`<span class="cmd">curl</span> -sS --max-time 20 \\
+  -X POST <span class="url">'${RUNTIME}/${verb}/v1.1.0'</span> \\
+  <span class="flag">-H</span> 'Content-Type: application/json' \\
+  <span class="flag">--data-binary</span> '${JSON.stringify({ verb, trace_id: traceId })}'
+
+<span style="color:var(--dimmer);"># verify Ed25519 detached signature:</span>
+<span style="color:var(--dimmer);"># hash: ${h}…</span>
+<span style="color:var(--dimmer);"># sig:  ${s}…</span>
+
+<span class="cmd">curl</span> -sS <span class="url">'${RUNTIME}/health'</span>`;
+}
+
+// ── RUN FULL FLOW ─────────────────────────────────────────────────────────────
+async function runFullFlow() {
+  if (isRunning) return;
+  isRunning = true;
+  resetFlow(true);
+
+  const runBtn  = document.getElementById('runBtn');
+  const runBtn2 = document.getElementById('runBtn2');
+  runBtn.disabled = runBtn2.disabled = true;
+  runBtn.textContent = runBtn2.textContent = '⏳ Running…';
+
+  // generate IDs
+  traceId = document.getElementById('fTrace').value || genId('trace_comm');
+  orderId = document.getElementById('fOrder').value || genId('order');
+  document.getElementById('traceDisplay').textContent = traceId;
+  document.getElementById('fTrace').value  = traceId;
+  document.getElementById('fOrder').value  = orderId;
+
+  // unlock first step then auto-chain
+  setStepBtnState(0, 'active');
+
+  try {
+    for (let i = 0; i < 5; i++) {
+      await runStep(i, true);
+    }
+    document.getElementById('autorunBar').classList.add('hidden');
+  } catch {
+    // error already displayed in runStep
+  }
+
+  runBtn.disabled = runBtn2.disabled = false;
+  runBtn.textContent  = '▶ Run Again';
+  runBtn2.textContent = '▶ Run Again';
+  isRunning = false;
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────────
+function resetFlow(silent = false) {
+  if (isRunning && !silent) return;
+  stepsDone = 0;
+  stepData  = Array(5).fill(null);
+
+  for (let i = 0; i < 5; i++) {
+    setPipeState(i, '');
+    setStepBtnState(i, i === 0 ? 'active' : 'pending');
+    setTimelineState(i, '');
+    document.getElementById(`tltime${i}`).textContent = '—';
+  }
+
+  setProgress(0);
+  setGlobalBadge('idle', '');
+  document.getElementById('txCard').className = 'tx-card panel-card';
+  document.getElementById('txBadge').className = 'tx-badge pending';
+  document.getElementById('txIcon').textContent = '○';
+  document.getElementById('txText').textContent = 'Idle';
+  document.getElementById('sigDisplay').textContent = 'awaiting execution…';
+  document.getElementById('sigDisplay').className = 'sig-value dim';
+  ['mVerb','mStatus','mSigner','mTime','mHash','mReceiptId','mChain'].forEach(id => {
+    document.getElementById(id).textContent = '—';
+    document.getElementById(id).className = 'meta-value dim';
+  });
+  document.getElementById('receiptJson').innerHTML = `<span style="color:var(--dimmer);">// run the commerce flow to see receipts</span>`;
+  document.getElementById('rawJson').innerHTML     = `<span style="color:var(--dimmer);">// raw response appears here</span>`;
+  document.getElementById('curlDisplay').innerHTML = `<span style="color:var(--dimmer);">// verify cURL generated after run</span>`;
+  document.getElementById('errorMsg').className    = 'error-msg';
+  document.getElementById('traceDisplay').textContent = '—';
+  if (!silent) {
+    document.getElementById('runBtn').textContent  = '▶ Run Commerce Flow';
+    document.getElementById('runBtn2').textContent = '▶ Run Full Flow';
+    document.getElementById('autorunBar').classList.remove('hidden');
+  }
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────────
+function switchTab(name) {
+  const names = ['receipt','verify','raw'];
+  document.querySelectorAll('.json-tab').forEach((t, i) => t.classList.toggle('active', names[i] === name));
+  document.querySelectorAll('.json-pane').forEach(p => p.classList.remove('active'));
+  document.getElementById(`tab-${name}`).classList.add('active');
+}
+
+// ── COPY HELPERS ──────────────────────────────────────────────────────────────
+function copyText(text, btnId) {
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById(btnId);
+    if (!btn) return;
+    btn.textContent = 'copied ✓'; btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+function copyReceipt() { copyText(document.getElementById('receiptJson').textContent, 'copyReceiptBtn'); }
+function copyCurl()    { copyText(document.getElementById('curlDisplay').textContent, 'copyCurlBtn'); }
+function copyRaw()     { navigator.clipboard.writeText(document.getElementById('rawJson').textContent); }
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+checkRuntime();
+setStepBtnState(0, 'active');
+
+setTimeout(() => { runFullFlow(); }, 900);
+</script>
+</body>
 </html>
