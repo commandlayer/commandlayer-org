@@ -512,7 +512,7 @@ footer a:hover { color: var(--gold); }
 <div class="autorun-bar">
   <div class="autorun-inner" id="autorunBar">
     <span class="spin"></span>
-    Auto-running commercial flow against runtime.commandlayer.org…
+    Auto-running commercial flow against commercial-runtime.commandlayer.org…
   </div>
 </div>
 
@@ -680,7 +680,7 @@ footer a:hover { color: var(--gold); }
         <div style="font-size:11px;color:var(--dim);margin-bottom:6px;">Trace ID</div>
         <div style="font-size:12px;color:var(--gold);word-break:break-all;" id="traceDisplay">—</div>
         <div style="font-size:11px;color:var(--dim);margin-top:10px;margin-bottom:4px;">Runtime</div>
-        <div style="font-size:11px;color:var(--accent);">runtime.commandlayer.org/execute</div>
+        <div style="font-size:11px;color:var(--accent);" id="runtimeLabel">commercial-runtime.commandlayer.org/authorize/v1.1.0 → /checkout/v1.1.0 → /purchase/v1.1.0 → /ship/v1.1.0 → /verify/v1.1.0</div>
         <div style="font-size:11px;color:var(--dim);margin-top:10px;margin-bottom:4px;">Mode</div>
         <div style="font-size:11px;color:var(--text);">commercial · canonical receipt first</div>
       </div>
@@ -830,7 +830,8 @@ footer a:hover { color: var(--gold); }
 
 <script>
 // ── CONFIG ───────────────────────────────────────────────────────────────────
-const RUNTIME = 'https://runtime.commandlayer.org';
+const RUNTIME_BASE = 'https://commercial-runtime.commandlayer.org';
+const RUNTIME_HOST = new URL(RUNTIME_BASE).host;
 
 const STEPS = [
   { verb: 'authorize', desc: 'payment intent' },
@@ -882,13 +883,50 @@ function animateSig(sig) {
 // ── RUNTIME HEALTH ───────────────────────────────────────────────────────────
 async function checkRuntime() {
   try {
-    const r = await fetch(`${RUNTIME}/health`, { signal: AbortSignal.timeout(5000) });
+    const r = await fetch(`${RUNTIME_BASE}/health`, { signal: AbortSignal.timeout(5000) });
     document.getElementById('navDot').className = r.ok ? 'status-dot live' : 'status-dot error';
     document.getElementById('navStatusText').textContent = r.ok ? 'runtime live' : 'runtime error';
   } catch {
     document.getElementById('navDot').className = 'status-dot error';
     document.getElementById('navStatusText').textContent = 'unreachable';
   }
+}
+
+
+function getStepEndpoint(verb) {
+  return `${RUNTIME_BASE}/${verb}/v1.1.0`;
+}
+
+function updateRuntimeLabels() {
+  const runtimeLabel = document.getElementById('runtimeLabel');
+  if (runtimeLabel) {
+    runtimeLabel.textContent = `${RUNTIME_HOST}/authorize/v1.1.0 → /checkout/v1.1.0 → /purchase/v1.1.0 → /ship/v1.1.0 → /verify/v1.1.0`;
+  }
+
+  const autorunBar = document.getElementById('autorunBar');
+  if (autorunBar) {
+    autorunBar.innerHTML = `<span class="spin"></span>Auto-running commercial flow against ${RUNTIME_HOST}…`;
+  }
+}
+
+async function parseJsonResponse(resp) {
+  const text = await resp.text();
+  let data = null;
+
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new Error(`Runtime returned non-JSON (${resp.status}): ${text.slice(0, 160)}`);
+    }
+  }
+
+  if (!resp.ok) {
+    const detail = data?.error || data?.message || text.slice(0, 160) || 'request failed';
+    throw new Error(`HTTP ${resp.status}: ${detail}`);
+  }
+
+  return data;
 }
 
 // ── PIPELINE UI ───────────────────────────────────────────────────────────────
@@ -962,7 +1000,7 @@ function getSignerFromNormalized(normalized) {
     || normalized?.receipt?.signer
     || normalized?.receipt?.proof?.signer_id
     || normalized?.receipt?.metadata?.proof?.signer_id
-    || 'runtime.commandlayer.eth';
+    || 'commercial-runtime.commandlayer.eth';
 }
 
 function getReceiptIdFromNormalized(normalized) {
@@ -1012,40 +1050,10 @@ function buildExecuteRequest(verb, body) {
     input: body,
     trace: { trace_id: traceId },
     execution: {
-      entry: `${RUNTIME}/execute`,
+      entry: getStepEndpoint(verb),
       class: 'commercial',
       verb,
       version: '1.1.0'
-    }
-  };
-}
-
-function buildMultiStepExecuteRequest() {
-  const buyer  = document.getElementById('fBuyer').value  || '0xcafe...dead';
-  const chain  = document.getElementById('fChain').value  || '8453';
-  const sku    = document.getElementById('fSku').value    || 'CL-VERB-001';
-  const qty    = document.getElementById('fQty').value    || '1';
-  const amount = document.getElementById('fAmount').value || '0.025';
-  const shipTo = document.getElementById('fShipTo').value || '100 Agent Ave';
-
-  return {
-    actor: 'demo.commandlayer.org',
-    input: {
-      buyer,
-      chain_id: parseInt(chain, 10),
-      order_id: orderId,
-      sku,
-      qty: parseInt(qty, 10),
-      amount: parseFloat(amount),
-      currency: 'ETH',
-      ship_to: shipTo
-    },
-    trace: { trace_id: traceId },
-    execution: {
-      entry: `${RUNTIME}/execute`,
-      class: 'commercial',
-      version: '1.1.0',
-      flow: ['authorize', 'checkout', 'purchase', 'ship', 'verify']
     }
   };
 }
@@ -1056,7 +1064,7 @@ function renderVerifyCurl(receipt) {
   }
 
   return `<span class="cmd">curl</span> -sS --max-time 20 \
-  -X POST <span class="url">'https://runtime.commandlayer.org/verify?ens=1&strict_kid=1'</span> \
+  -X POST <span class="url">'https://commercial-runtime.commandlayer.org/verify/v1.1.0?ens=1&amp;strict_kid=1'</span> \
   <span class="flag">-H</span> 'Content-Type: application/json' \
   <span class="flag">--data-binary</span> '${JSON.stringify(receipt)}'`;
 }
@@ -1115,19 +1123,14 @@ async function runStep(i, auto = false) {
   const t0 = Date.now();
 
   try {
-    const resp = await fetch(`${RUNTIME}/execute`, {
+    const resp = await fetch(getStepEndpoint(verb), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody),
       signal: AbortSignal.timeout(20000),
     });
 
-    if (!resp.ok) {
-      const t = await resp.text();
-      throw new Error(`HTTP ${resp.status}: ${t.slice(0, 100)}`);
-    }
-
-    const raw = await resp.json();
+    const raw = await parseJsonResponse(resp);
     const normalized = normalizeRuntimeResponse(raw);
     const elapsed = Date.now() - t0;
     stepData[i] = { data: normalized, raw, verb, elapsed, requestBody };
@@ -1235,41 +1238,17 @@ async function runFullFlow() {
 
   setStepBtnState(0, 'active');
 
-  let flowComplete = false;
   let sequentialError = null;
 
   try {
-    const requestBody = buildMultiStepExecuteRequest();
-    const t0 = Date.now();
-    const resp = await fetch(`${RUNTIME}/execute`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody),
-      signal: AbortSignal.timeout(20000),
-    });
-
-    if (resp.ok) {
-      const raw = await resp.json();
-      const normalized = normalizeRuntimeResponse(raw);
-      const elapsed = Date.now() - t0;
-      flowComplete = applyMultiStepResult(normalized, elapsed);
+    for (let i = 0; i < 5; i++) {
+      await runStep(i, true);
     }
-  } catch {
-    // silently fall back to sequential execution
+    document.getElementById('autorunBar').classList.add('hidden');
+  } catch (err) {
+    sequentialError = err;
   }
-
-  if (!flowComplete) {
-    try {
-      for (let i = 0; i < 5; i++) {
-        await runStep(i, true);
-      }
-      document.getElementById('autorunBar').classList.add('hidden');
-    } catch (err) {
-      sequentialError = err;
-    }
-  }
-
-  if (!flowComplete && sequentialError) {
+  if (sequentialError) {
     const errEl = document.getElementById('errorMsg');
     errEl.textContent = `Commerce flow error: ${sequentialError.message}`;
     errEl.className = 'error-msg visible';
@@ -1341,6 +1320,7 @@ function copyCurl()    { copyText(document.getElementById('curlDisplay').textCon
 function copyRaw()     { navigator.clipboard.writeText(document.getElementById('rawJson').textContent); }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
+updateRuntimeLabels();
 checkRuntime();
 setStepBtnState(0, 'active');
 
