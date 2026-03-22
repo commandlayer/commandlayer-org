@@ -680,7 +680,7 @@ footer a:hover { color: var(--gold); }
         <div style="font-size:11px;color:var(--dim);margin-bottom:6px;">Trace ID</div>
         <div style="font-size:12px;color:var(--gold);word-break:break-all;" id="traceDisplay">—</div>
         <div style="font-size:11px;color:var(--dim);margin-top:10px;margin-bottom:4px;">Runtime</div>
-        <div style="font-size:11px;color:var(--accent);">runtime.commandlayer.org/&lt;verb&gt;/v1.1.0</div>
+        <div style="font-size:11px;color:var(--accent);">runtime.commandlayer.org/execute</div>
         <div style="font-size:11px;color:var(--dim);margin-top:10px;margin-bottom:4px;">Mode</div>
         <div style="font-size:11px;color:var(--text);">commercial · canonical receipt first</div>
       </div>
@@ -938,6 +938,41 @@ function setTimelineState(i, state, elapsed='') {
 }
 
 // ── BUILD COMMERCIAL BODY ─────────────────────────────────────────────────────
+function normalizeRuntimeResponse(raw) {
+  const receipt = raw?.final_receipt || raw?.receipt || raw || {};
+  return {
+    raw,
+    trace_id: raw?.trace_id || receipt?.metadata?.trace_id || receipt?.runtime_metadata?.trace_id || null,
+    runtime_metadata: raw?.runtime_metadata || receipt?.runtime_metadata || {},
+    receipt,
+    steps: Array.isArray(raw?.steps) ? raw.steps : [],
+  };
+}
+
+function getProofFromNormalized(normalized) {
+  return normalized?.receipt?.proof
+    || normalized?.receipt?.metadata?.proof
+    || normalized?.receipt?.runtime_metadata?.proof
+    || normalized?.runtime_metadata?.proof
+    || {};
+}
+
+function getSignerFromNormalized(normalized) {
+  return normalized?.runtime_metadata?.signer
+    || normalized?.receipt?.signer
+    || normalized?.receipt?.proof?.signer_id
+    || normalized?.receipt?.metadata?.proof?.signer_id
+    || 'runtime.commandlayer.eth';
+}
+
+function getReceiptIdFromNormalized(normalized) {
+  return normalized?.receipt?.receipt_id
+    || normalized?.receipt?.metadata?.receipt_id
+    || normalized?.receipt?.metadata?.proof?.receipt_id
+    || normalized?.runtime_metadata?.receipt_id
+    || `rcpt_${Date.now().toString(36)}`;
+}
+
 function buildBody(verb) {
   const buyer  = document.getElementById('fBuyer').value  || '0xcafe...dead';
   const chain  = document.getElementById('fChain').value  || '8453';
@@ -952,23 +987,115 @@ function buildBody(verb) {
     trace_id: traceId,
     order_id: orderId,
     buyer,
-    chain_id: parseInt(chain),
+    chain_id: parseInt(chain, 10),
   };
 
   switch (verb) {
     case 'authorize':
       return { ...base, amount: parseFloat(amount), currency: 'ETH', payment_method: 'x402' };
     case 'checkout':
-      return { ...base, items: [{ sku, quantity: parseInt(qty), unit_price: parseFloat(amount) }], total: parseFloat(amount), currency: 'ETH' };
+      return { ...base, items: [{ sku, quantity: parseInt(qty, 10), unit_price: parseFloat(amount) }], total: parseFloat(amount), currency: 'ETH' };
     case 'purchase':
       return { ...base, amount: parseFloat(amount), currency: 'ETH', settlement: 'onchain' };
     case 'ship':
-      return { ...base, ship_to: shipTo, carrier: 'agent-logistics', items: [{ sku, quantity: parseInt(qty) }] };
+      return { ...base, ship_to: shipTo, carrier: 'agent-logistics', items: [{ sku, quantity: parseInt(qty, 10) }] };
     case 'verify':
       return { ...base, subject: buyer, verification_type: 'receipt_boundary', check: 'full_flow' };
     default:
       return base;
   }
+}
+
+function buildExecuteRequest(verb, body) {
+  return {
+    actor: 'demo.commandlayer.org',
+    input: body,
+    trace: { trace_id: traceId },
+    execution: {
+      entry: `${RUNTIME}/execute`,
+      class: 'commercial',
+      verb,
+      version: '1.1.0'
+    }
+  };
+}
+
+function buildMultiStepExecuteRequest() {
+  const buyer  = document.getElementById('fBuyer').value  || '0xcafe...dead';
+  const chain  = document.getElementById('fChain').value  || '8453';
+  const sku    = document.getElementById('fSku').value    || 'CL-VERB-001';
+  const qty    = document.getElementById('fQty').value    || '1';
+  const amount = document.getElementById('fAmount').value || '0.025';
+  const shipTo = document.getElementById('fShipTo').value || '100 Agent Ave';
+
+  return {
+    actor: 'demo.commandlayer.org',
+    input: {
+      buyer,
+      chain_id: parseInt(chain, 10),
+      order_id: orderId,
+      sku,
+      qty: parseInt(qty, 10),
+      amount: parseFloat(amount),
+      currency: 'ETH',
+      ship_to: shipTo
+    },
+    trace: { trace_id: traceId },
+    execution: {
+      entry: `${RUNTIME}/execute`,
+      class: 'commercial',
+      version: '1.1.0',
+      flow: ['authorize', 'checkout', 'purchase', 'ship', 'verify']
+    }
+  };
+}
+
+function renderVerifyCurl(receipt) {
+  if (!receipt || !Object.keys(receipt).length) {
+    return `<span style="color:var(--dimmer);"># verify cURL available after a receipt is returned</span>`;
+  }
+
+  return `<span class="cmd">curl</span> -sS --max-time 20 \
+  -X POST <span class="url">'https://runtime.commandlayer.org/verify?ens=1&strict_kid=1'</span> \
+  <span class="flag">-H</span> 'Content-Type: application/json' \
+  <span class="flag">--data-binary</span> '${JSON.stringify(receipt)}'`;
+}
+
+function completeSettledState() {
+  setGlobalBadge('settled', 'settled');
+  document.getElementById('txCard').className = 'tx-card panel-card settled';
+  document.getElementById('txBadge').className = 'tx-badge settled';
+  document.getElementById('txIcon').textContent = '✓';
+  document.getElementById('txText').textContent = 'Settled';
+}
+
+function applyMultiStepResult(normalized, elapsed) {
+  if (!normalized?.steps?.length) return false;
+
+  const count = Math.min(normalized.steps.length, STEPS.length);
+  for (let i = 0; i < count; i++) {
+    const step = normalized.steps[i] || {};
+    const verb = step.verb || STEPS[i].verb;
+    const normalizedStep = normalizeRuntimeResponse(step);
+    const stepElapsed = step.elapsed_ms || elapsed;
+
+    stepData[i] = { data: normalizedStep, raw: step, verb, elapsed: stepElapsed };
+    setPipeState(i, 'done');
+    setStepBtnState(i, 'done', step.elapsed_ms ? `${step.elapsed_ms}ms` : 'flow');
+    setTimelineState(i, 'done', step.elapsed_ms ? `${step.elapsed_ms}ms` : 'flow');
+  }
+
+  stepsDone = count;
+  setProgress(stepsDone);
+
+  for (let i = 0; i < STEPS.length; i++) {
+    if (i >= count) setStepBtnState(i, 'pending');
+  }
+
+  updateProofPanel(count - 1);
+  if (count === STEPS.length) completeSettledState();
+  document.getElementById('autorunBar').classList.add('hidden');
+  return true;
 }
 
 // ── EXECUTE ONE STEP ──────────────────────────────────────────────────────────
@@ -978,20 +1105,20 @@ async function runStep(i, auto = false) {
 
   const { verb } = STEPS[i];
 
-  // set UI to running
   setPipeState(i, 'running');
   setStepBtnState(i, 'running');
   setTimelineState(i, 'current');
   setGlobalBadge('running', verb);
 
   const body = buildBody(verb);
+  const requestBody = buildExecuteRequest(verb, body);
   const t0 = Date.now();
 
   try {
-    const resp = await fetch(`${RUNTIME}/${verb}/v1.1.0`, {
+    const resp = await fetch(`${RUNTIME}/execute`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify(requestBody),
       signal: AbortSignal.timeout(20000),
     });
 
@@ -1000,34 +1127,25 @@ async function runStep(i, auto = false) {
       throw new Error(`HTTP ${resp.status}: ${t.slice(0, 100)}`);
     }
 
-    const data = await resp.json();
+    const raw = await resp.json();
+    const normalized = normalizeRuntimeResponse(raw);
     const elapsed = Date.now() - t0;
-    stepData[i] = { data, verb, elapsed };
-    stepsDone = i + 1;
+    stepData[i] = { data: normalized, raw, verb, elapsed, requestBody };
+    stepsDone = Math.max(stepsDone, i + 1);
 
-    // update pipeline
     setPipeState(i, 'done');
     setStepBtnState(i, 'done', `${elapsed}ms`);
     setTimelineState(i, 'done', `${elapsed}ms`);
     setProgress(stepsDone);
 
-    // unlock next step
     if (i < 4) setStepBtnState(i + 1, 'active');
 
-    // update proof panel
     updateProofPanel(i);
 
-    // settle badge on last step
-    if (i === 4) {
-      setGlobalBadge('settled', 'settled');
-      document.getElementById('txCard').className = 'tx-card panel-card settled';
-      document.getElementById('txBadge').className = 'tx-badge settled';
-      document.getElementById('txIcon').textContent = '✓';
-      document.getElementById('txText').textContent = 'Settled';
-    }
+    if (i === 4) completeSettledState();
 
     if (!auto) isRunning = false;
-    return data;
+    return normalized;
 
   } catch (err) {
     setPipeState(i, '');
@@ -1060,24 +1178,26 @@ function setGlobalBadge(state, label) {
 
 // ── UPDATE PROOF PANEL ────────────────────────────────────────────────────────
 function updateProofPanel(i) {
-  const { data, verb, elapsed } = stepData[i];
-  const receipt = data.receipt || data;
-  const proof   = data.runtime_metadata?.proof || {};
-  const signer  = data.runtime_metadata?.signer || receipt.signer || 'runtime.commandlayer.eth';
-  const hash    = proof.hash_sha256 || '—';
-  const sig     = proof.signature_b64 || receipt.signature || null;
-  const rid     = receipt.receipt_id || data.runtime_metadata?.receipt_id || `rcpt_${Date.now().toString(36)}`;
-  const chain   = document.getElementById('fChain').options[document.getElementById('fChain').selectedIndex].text;
+  const { data, verb, elapsed, raw } = stepData[i];
+  const receipt = data.receipt || {};
+  const proof = getProofFromNormalized(data);
+  const signer = getSignerFromNormalized(data);
+  const hash = proof.hash_sha256 || '—';
+  const sig = proof.signature_b64
+    || receipt.signature
+    || receipt?.metadata?.proof?.signature_b64
+    || null;
+  const rid = getReceiptIdFromNormalized(data);
+  const chain = document.getElementById('fChain').options[document.getElementById('fChain').selectedIndex].text;
 
-  setMeta('mVerb',       verb,                'gold');
-  setMeta('mStatus',     receipt.status || 'success', 'green');
-  setMeta('mSigner',     signer,              'accent');
-  setMeta('mTime',       `${elapsed}ms`,      'dim');
-  setMeta('mHash',       hash,                'hash');
-  setMeta('mReceiptId',  rid,                 'dim');
-  setMeta('mChain',      chain,               'dim');
+  setMeta('mVerb', verb, 'gold');
+  setMeta('mStatus', receipt.status || 'success', 'green');
+  setMeta('mSigner', signer, 'accent');
+  setMeta('mTime', `${elapsed}ms`, 'dim');
+  setMeta('mHash', hash, 'hash');
+  setMeta('mReceiptId', rid, 'dim');
+  setMeta('mChain', chain, 'dim');
 
-  // tx card live while running, settled only on step 5
   if (i < 4) {
     document.getElementById('txCard').className = 'tx-card panel-card live';
     document.getElementById('txBadge').className = 'tx-badge active';
@@ -1085,31 +1205,15 @@ function updateProofPanel(i) {
     document.getElementById('txText').textContent = verb.charAt(0).toUpperCase() + verb.slice(1);
   }
 
-  // signature
   if (sig) animateSig(sig);
   else {
-    document.getElementById('sigDisplay').textContent = `[proof in runtime_metadata for ${verb}]`;
+    document.getElementById('sigDisplay').textContent = `[proof in runtime metadata for ${verb}]`;
     document.getElementById('sigDisplay').className = 'sig-value dim';
   }
 
-  // JSON panels
   document.getElementById('receiptJson').innerHTML = hl(JSON.stringify(receipt, null, 2));
-  document.getElementById('rawJson').innerHTML     = hl(JSON.stringify(data,    null, 2));
-
-  // verify cURL
-  const h = hash !== '—' ? hash.slice(0, 32) : '';
-  const s = sig ? sig.slice(0, 32) : '';
-  document.getElementById('curlDisplay').innerHTML =
-`<span class="cmd">curl</span> -sS --max-time 20 \\
-  -X POST <span class="url">'${RUNTIME}/${verb}/v1.1.0'</span> \\
-  <span class="flag">-H</span> 'Content-Type: application/json' \\
-  <span class="flag">--data-binary</span> '${JSON.stringify({ verb, trace_id: traceId })}'
-
-<span style="color:var(--dimmer);"># verify Ed25519 detached signature:</span>
-<span style="color:var(--dimmer);"># hash: ${h}…</span>
-<span style="color:var(--dimmer);"># sig:  ${s}…</span>
-
-<span class="cmd">curl</span> -sS <span class="url">'${RUNTIME}/health'</span>`;
+  document.getElementById('rawJson').innerHTML = hl(JSON.stringify(raw || data.raw || data, null, 2));
+  document.getElementById('curlDisplay').innerHTML = renderVerifyCurl(receipt);
 }
 
 // ── RUN FULL FLOW ─────────────────────────────────────────────────────────────
@@ -1123,23 +1227,52 @@ async function runFullFlow() {
   runBtn.disabled = runBtn2.disabled = true;
   runBtn.textContent = runBtn2.textContent = '⏳ Running…';
 
-  // generate IDs
   traceId = document.getElementById('fTrace').value || genId('trace_comm');
   orderId = document.getElementById('fOrder').value || genId('order');
   document.getElementById('traceDisplay').textContent = traceId;
-  document.getElementById('fTrace').value  = traceId;
-  document.getElementById('fOrder').value  = orderId;
+  document.getElementById('fTrace').value = traceId;
+  document.getElementById('fOrder').value = orderId;
 
-  // unlock first step then auto-chain
   setStepBtnState(0, 'active');
 
+  let flowComplete = false;
+  let sequentialError = null;
+
   try {
-    for (let i = 0; i < 5; i++) {
-      await runStep(i, true);
+    const requestBody = buildMultiStepExecuteRequest();
+    const t0 = Date.now();
+    const resp = await fetch(`${RUNTIME}/execute`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody),
+      signal: AbortSignal.timeout(20000),
+    });
+
+    if (resp.ok) {
+      const raw = await resp.json();
+      const normalized = normalizeRuntimeResponse(raw);
+      const elapsed = Date.now() - t0;
+      flowComplete = applyMultiStepResult(normalized, elapsed);
     }
-    document.getElementById('autorunBar').classList.add('hidden');
   } catch {
-    // error already displayed in runStep
+    // silently fall back to sequential execution
+  }
+
+  if (!flowComplete) {
+    try {
+      for (let i = 0; i < 5; i++) {
+        await runStep(i, true);
+      }
+      document.getElementById('autorunBar').classList.add('hidden');
+    } catch (err) {
+      sequentialError = err;
+    }
+  }
+
+  if (!flowComplete && sequentialError) {
+    const errEl = document.getElementById('errorMsg');
+    errEl.textContent = `Commerce flow error: ${sequentialError.message}`;
+    errEl.className = 'error-msg visible';
   }
 
   runBtn.disabled = runBtn2.disabled = false;
@@ -1152,7 +1285,7 @@ async function runFullFlow() {
 function resetFlow(silent = false) {
   if (isRunning && !silent) return;
   stepsDone = 0;
-  stepData  = Array(5).fill(null);
+  stepData = Array.from({ length: 5 }, () => null);
 
   for (let i = 0; i < 5; i++) {
     setPipeState(i, '');
@@ -1174,12 +1307,13 @@ function resetFlow(silent = false) {
     document.getElementById(id).className = 'meta-value dim';
   });
   document.getElementById('receiptJson').innerHTML = `<span style="color:var(--dimmer);">// run the commerce flow to see receipts</span>`;
-  document.getElementById('rawJson').innerHTML     = `<span style="color:var(--dimmer);">// raw response appears here</span>`;
-  document.getElementById('curlDisplay').innerHTML = `<span style="color:var(--dimmer);">// verify cURL generated after run</span>`;
-  document.getElementById('errorMsg').className    = 'error-msg';
+  document.getElementById('rawJson').innerHTML = `<span style="color:var(--dimmer);">// raw response appears here</span>`;
+  document.getElementById('curlDisplay').innerHTML = renderVerifyCurl(null);
+  document.getElementById('errorMsg').textContent = '';
+  document.getElementById('errorMsg').className = 'error-msg';
   document.getElementById('traceDisplay').textContent = '—';
   if (!silent) {
-    document.getElementById('runBtn').textContent  = '▶ Run Commerce Flow';
+    document.getElementById('runBtn').textContent = '▶ Run Commerce Flow';
     document.getElementById('runBtn2').textContent = '▶ Run Full Flow';
     document.getElementById('autorunBar').classList.remove('hidden');
   }
