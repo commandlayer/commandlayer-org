@@ -1,0 +1,29 @@
+{
+  "type": "https://eips.ethereum.org/EIPS/eip-8004#registration-v1",
+  "name": "authorizeagent.eth",
+  "description": "CommandLayer commercial agent for authorize at v1.1.0.",
+  "ens": "authorizeagent.eth",
+  "website": "https://commandlayer.org",
+  "image": "https://commandlayer.org/og-image.png",
+  "services": [
+    {
+      "name": "execution",
+      "endpoint": "x402://authorizeagent.eth/authorize/v1.1.0",
+      "version": "1.1.0"
+    },
+    {
+      "name": "ens",
+      "endpoint": "authorizeagent.eth",
+      "version": "1.0.0"
+    }
+  ],
+  "commandLayerClass": "commercial",
+  "commandLayerVerb": "authorize",
+  "commandLayerVersion": "1.1.0",
+  "agentCard": "https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/authorizeagent.eth.json",
+  "schemaRequest": "https://commandlayer.org/schemas/v1.1.0/commercial/authorize/authorize.request.schema.json",
+  "schemaReceipt": "https://commandlayer.org/schemas/v1.1.0/commercial/authorize/authorize.receipt.schema.json",
+  "receiptSigner": "runtime.commandlayer.eth",
+  "receiptAlgorithm": "ed25519",
+  "owner": "commandlayer.eth"
+}
