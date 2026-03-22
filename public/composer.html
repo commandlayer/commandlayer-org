@@ -134,6 +134,10 @@ h1{margin:14px 0 10px;font-size:42px;line-height:.98;letter-spacing:-.05em;max-w
 .proof-trail-item strong{display:block;font-size:13px;line-height:1.35}
 .proof-trail-item span{display:block;margin-top:6px;color:var(--muted);font-size:12px;line-height:1.45}
 .proof-json-label{margin-top:12px;font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
+.trace-step-preview{margin-top:8px;color:var(--muted);font-size:.84rem;line-height:1.5;word-break:break-word}
+.trace-step-receipt{margin-top:10px;border:1px solid rgba(255,255,255,.08);background:rgba(2,6,13,.96);border-radius:16px;overflow:hidden}
+.trace-step-receipt pre{margin:0;padding:12px 14px;max-height:320px;overflow:auto;font-size:.76rem;line-height:1.55;color:#dbe7fb;white-space:pre-wrap;word-break:break-word}
+.trace-step-details{margin-top:12px}
 .proof-trail-trace{padding:12px;border-radius:14px;border:1px solid rgba(120,196,255,.2);background:rgba(9,18,35,.62)}
 .proof-trail-trace .label,.proof-mini .label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted-2);font-weight:700}
 .proof-trail-trace .value{
@@ -564,6 +568,90 @@ function buildVerifyCurl(receipt) {
   ].join("\n");
 }
 
+function getReceiptPayload(receipt) {
+  return extractReceiptEnvelope(receipt) || {};
+}
+
+function getReceiptProof(receipt) {
+  return getReceiptPayload(receipt)?.metadata?.proof || {};
+}
+
+function getReceiptResult(receipt) {
+  return getReceiptPayload(receipt)?.result || {};
+}
+
+function buildStepPreview(node) {
+  const receipt = getReceiptPayload(node?.receipt);
+  const result = getReceiptResult(receipt);
+  const previewFor = (value) => {
+    if (value == null) return "Result present";
+    if (typeof value === "string") return value.slice(0, 180);
+    return JSON.stringify(value).slice(0, 180);
+  };
+
+  if (receipt.verb === "clean") {
+    return previewFor({ cleaned_content: result.cleaned_content || result.cleaned_text || result.content || result.output || null });
+  }
+
+  if (receipt.verb === "summarize") {
+    return previewFor({ summary: result.summary || result.output || result.content || null });
+  }
+
+  if (receipt.verb === "classify") {
+    return Array.isArray(result.labels)
+      ? `labels: ${result.labels.join(", ")}`
+      : previewFor(result);
+  }
+
+  return previewFor(result);
+}
+
+function buildVisibleStepReceipt(node) {
+  const receipt = getReceiptPayload(node?.receipt);
+  const proof = getReceiptProof(receipt);
+  const result = getReceiptResult(receipt);
+
+  return {
+    status: receipt.status || node?.status || "unknown",
+    entry: receipt.entry || "https://runtime.commandlayer.org/execute",
+    verb: receipt.verb || node?.verb || "unknown",
+    version: receipt.version || receipt.schema_version || RUNTIME_VERSION,
+    class: receipt.class || "commons",
+    result,
+    metadata: {
+      trace_id:
+        receipt.metadata?.trace_id ||
+        proof.trace_id ||
+        node?.trace_id ||
+        null,
+      proof: {
+        alg: proof.alg || "ed25519-sha256",
+        canonical: proof.canonical || proof.canonical_id || "json.sorted_keys.v1",
+        signer_id: proof.signer_id || node?.signer || "runtime.commandlayer.eth",
+        kid: proof.kid || "—",
+        hash_sha256: proof.hash_sha256 || node?.hash || null,
+        signature_b64: proof.signature_b64 || node?.signature || null,
+        canonical_id: proof.canonical_id || "json.sorted_keys.v1",
+        receipt_id:
+          proof.receipt_id ||
+          receipt.metadata?.receipt_id ||
+          node?.receiptId ||
+          null,
+        trace_id:
+          proof.trace_id ||
+          receipt.metadata?.trace_id ||
+          node?.trace_id ||
+          null
+      },
+      receipt_id:
+        receipt.metadata?.receipt_id ||
+        proof.receipt_id ||
+        node?.receiptId ||
+        null
+    }
+  };
+}
+
 function getReceiptOutputText(receipt) {
   const result = receipt?.result;
   if (typeof result === "string") return result;
@@ -636,19 +724,31 @@ function renderTrace(chain) {
 
   proofPathStrip.textContent = chain.map((entry) => entry.verb).join(" → ");
   executionSteps.innerHTML = chain.map((entry, index) => {
-    const receipt = entry?.receipt || {};
-    const summary =
-      receipt?.result?.summary ||
-      (Array.isArray(receipt?.result?.labels) ? `labels: ${receipt.result.labels.join(", ")}` : summarizeResult(extractResult(receipt, entry?.raw))) ||
-      "Receipt ready";
+    const receipt = getReceiptPayload(entry?.receipt);
+    const visibleReceipt = buildVisibleStepReceipt(entry);
+    const preview = buildStepPreview(entry) || "Receipt ready";
+    const technicalDetails = {
+      step: index + 1,
+      verb: entry?.verb || receipt?.verb || "unknown",
+      status: entry?.status || receipt?.status || "unknown",
+      trace_id: entry?.trace_id || receipt?.metadata?.trace_id || null,
+      payload: entry?.payload || null,
+      raw: entry?.raw || null,
+      receipt
+    };
     const titleVerb = receipt?.verb || entry?.verb || "unknown";
     const titleStatus = receipt?.status || entry?.status || "unknown";
     return `
       <div class="proof-trail-item proof-trail-item--expanded">
         <strong>Step ${index + 1} — ${escapeHtml(titleVerb)} — ${escapeHtml(titleStatus)}</strong>
-        <span>${escapeHtml(summary)}</span>
-        <div class="proof-json-label">Technical details</div>
-        <pre class="receipt-json-block">${escapeHtml(JSON.stringify(receipt, null, 2))}</pre>
+        <div class="trace-step-preview">${escapeHtml(preview)}</div>
+        <div class="trace-step-receipt">
+          <pre>${escapeHtml(JSON.stringify(visibleReceipt, null, 2))}</pre>
+        </div>
+        <details class="details-block trace-step-details">
+          <summary>Technical details</summary>
+          <pre class="receipt-json-block">${escapeHtml(JSON.stringify(technicalDetails, null, 2))}</pre>
+        </details>
       </div>
     `;
   }).join("");
