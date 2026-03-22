@@ -1,365 +1,194 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Licensing — CommandLayer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="description" content="CommandLayer licensing — open semantics, public schemas, portable validation, and monetized execution surfaces where guarantees, routing, and operations actually live." />
-    <style>
-      :root {
-        --bg: #05060a;
-        --bg-elevated: #0a0c14;
-        --bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
-        --border-soft: rgba(255, 255, 255, 0.06);
-        --border-strong: rgba(255, 255, 255, 0.18);
-        --accent: #c5cbe0;
-        --accent-strong: #e3e7ff;
-        --accent-muted: #8f96b5;
-        --text-main: #f7f8ff;
-        --text-muted: #9ca3c7;
-        --text-soft: #6b7280;
-        --radius-lg: 16px;
-        --radius-xl: 24px;
-        --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
-        --max-width: 1120px;
-      }
-      * { box-sizing: border-box; }
-      html, body {
-        margin: 0;
-        padding: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text", Inter, sans-serif;
-        background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
-        color: var(--text-main);
-      }
-      body { min-height: 100vh; }
-      .page-shell { min-height: 100vh; display: flex; flex-direction: column; }
-      .page-main { flex: 1; }
-      .container { width: 100%; max-width: var(--max-width); margin: 0 auto; padding: 0 1.5rem; }
-      .site-header {
-        background: var(--bg-header);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-        position: sticky;
-        top: 0;
-        z-index: 20;
-        backdrop-filter: blur(18px);
-      }
-      .site-header__inner { display: flex; align-items: center; justify-content: space-between; padding: 0.9rem 1.5rem; }
-      .site-header__brand { display: flex; align-items: center; gap: 0.75rem; text-decoration: none; color: inherit; }
-      .site-header__logo-img { width: 28px; height: 28px; object-fit: contain; display: block; border-radius: 6px; box-shadow: 0 0 0 1px rgba(255,255,255,.35), 0 14px 40px rgba(0,0,0,.9); }
-      .site-header__text { display: flex; flex-direction: column; }
-      .site-header__title { font-size: 0.98rem; font-weight: 600; letter-spacing: 0.03em; }
-      .site-header__subtitle { font-size: 0.78rem; color: var(--text-muted); }
-      .site-header__nav { display: flex; gap: 1rem; align-items: center; }
-      .site-header__link {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        text-decoration: none;
-        color: var(--text-muted);
-        border: 1px solid transparent;
-        white-space: nowrap;
-      }
-      .site-header__link:hover, .site-header__dropdown-btn:hover { color: var(--accent-strong); border-color: rgba(255,255,255,.18); background: rgba(15,23,42,.7); }
-      .site-header__dropdown { position: relative; }
-      .site-header__dropdown-btn {
-        font-size: 0.86rem;
-        padding: 0.35rem 0.8rem;
-        border-radius: 999px;
-        border: 1px solid transparent;
-        background: transparent;
-        color: var(--text-muted);
-        display: inline-flex;
-        align-items: center;
-        gap: 0.25rem;
-        cursor: pointer;
-      }
-      .site-header__dropdown-menu {
-        position: absolute;
-        top: 2.3rem;
-        right: 0;
-        background: rgba(15, 23, 42, 0.98);
-        border-radius: 14px;
-        border: 1px solid var(--border-soft);
-        box-shadow: var(--shadow-soft);
-        padding: 0.5rem 0.4rem;
-        min-width: 210px;
-        display: none;
-      }
-      .site-header__dropdown-menu a { display: block; padding: 0.35rem 0.7rem; font-size: 0.82rem; text-decoration: none; color: var(--text-muted); border-radius: 999px; }
-      .site-header__dropdown-menu a:hover { color: var(--accent-strong); background: rgba(31,41,55,.95); }
-      .site-header__dropdown-menu a.site-header__link--active { color: #020617; background: linear-gradient(135deg, #e5e7eb, #cdd3e7); }
-      .site-header--docs-open .site-header__dropdown-menu { display: block; }
-      .site-header__toggle { display: none; border-radius: 999px; border: 1px solid rgba(148,163,184,.7); background: rgba(15,23,42,.9); color: var(--text-main); padding: 0.25rem 0.6rem; font-size: 0.9rem; cursor: pointer; }
-      .hero { padding: 3rem 0 2.2rem; border-bottom: 1px solid var(--border-soft); background: radial-gradient(circle at 0 0, #111827, #020308); }
-      .hero__inner { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(320px, 1fr); gap: 2rem; align-items: start; }
-      .hero__eyebrow, .section__eyebrow { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--accent-muted); margin-bottom: 0.65rem; }
-      .hero__title { margin: 0 0 0.8rem; font-size: 2.1rem; line-height: 1.1; }
-      .hero__title-em { background: linear-gradient(135deg, #e5e7eb, #a5b4fc); -webkit-background-clip: text; background-clip: text; color: transparent; }
-      .hero__subtitle, .section__header p, .card p, .table-card td, .principle-card p, .note-card p { color: var(--text-muted); line-height: 1.7; }
-      .hero__meta { display: flex; flex-wrap: wrap; gap: 0.55rem; margin-top: 1.1rem; }
-      .hero__meta-pill, .badge { border-radius: 999px; border: 1px solid rgba(148,163,184,.45); padding: 0.28rem 0.65rem; font-size: 0.8rem; color: var(--text-muted); }
-      .card, .table-card, .principle-card, .note-card { background: rgba(15,23,42,.94); border-radius: var(--radius-xl); border: 1px solid var(--border-soft); box-shadow: var(--shadow-soft); }
-      .card { padding: 1.35rem 1.4rem 1.5rem; }
-      .card ul, .note-card ul { margin: 0.75rem 0 0; padding-left: 1.1rem; color: var(--text-muted); line-height: 1.7; }
-      .section { padding: 2.7rem 0; }
-      .section--muted { background: linear-gradient(180deg, rgba(255,255,255,.02), rgba(255,255,255,0)); }
-      .section__header { margin-bottom: 1.4rem; }
-      .section__header h2 { margin: 0 0 0.55rem; font-size: 1.6rem; }
-      .grid { display: grid; gap: 1rem; }
-      .grid--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .table-card { overflow: hidden; }
-      table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-      th, td { padding: 1rem; border-bottom: 1px solid rgba(255,255,255,.07); text-align: left; vertical-align: top; }
-      th { background: rgba(255,255,255,.04); color: var(--accent-strong); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; }
-      tr:last-child td { border-bottom: none; }
-      code { font-size: 0.86rem; background: rgba(2,6,23,.7); padding: 0.12rem 0.36rem; border-radius: 6px; }
-      .principle-card, .note-card { padding: 1.25rem 1.3rem; }
-      .principle-card h3, .note-card h3, .card h2 { margin: 0 0 0.6rem; font-size: 1.05rem; }
-      .site-footer { margin-top: auto; border-top: 1px solid rgba(255,255,255,.06); background: rgba(2,6,23,.95); }
-      .site-footer__inner { padding: 1.6rem 1.5rem 2rem; display: grid; gap: 1rem; }
-      .site-footer__row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-      .site-footer__col { background: rgba(15,23,42,.55); border: 1px solid var(--border-soft); border-radius: 16px; padding: 1rem 1.05rem; }
-      .site-footer__col-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--accent-muted); margin-bottom: 0.45rem; }
-      .site-footer__cid, .site-footer__col div { color: var(--text-muted); line-height: 1.6; }
-      .site-footer__links { display: flex; flex-wrap: wrap; gap: 1rem; }
-      .site-footer__links a { color: var(--text-muted); text-decoration: none; }
-      .site-footer__links a:hover { color: var(--accent-strong); }
-      @media (max-width: 900px) { .hero__inner, .grid--2, .site-footer__row { grid-template-columns: 1fr; } }
-      @media (max-width: 760px) {
-        .site-header__toggle { display: inline-flex; }
-        .site-header__nav { display: none; position: absolute; left: 1rem; right: 1rem; top: calc(100% + 0.75rem); flex-direction: column; align-items: stretch; gap: 0.6rem; padding: 0.9rem; border-radius: 18px; background: rgba(3,7,18,.98); border: 1px solid rgba(148,163,184,.22); box-shadow: var(--shadow-soft); }
-        .site-header--open .site-header__nav { display: flex; }
-        .site-header__link, .site-header__dropdown-btn { width: 100%; justify-content: space-between; }
-        .site-header__dropdown-menu { position: static; min-width: 100%; margin-top: 0.45rem; }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="page-shell">
-      <header class="site-header">
-        <div class="site-header__inner container">
-          <a href="/" class="site-header__brand">
-            <img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-            <div class="site-header__text">
-              <span class="site-header__title">CommandLayer</span>
-              <span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
-            </div>
-          </a>
-          <button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">☰</button>
-          <nav class="site-header__nav">
-            <a href="/" class="site-header__link">Home</a>
-            <a href="/composer.html" class="site-header__link">Demo</a>
-            <a href="/quickstart.html" class="site-header__link">Quickstart</a>
+<head>
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>CommandLayer — Open semantics. Monetized execution.</title>
+<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+<style>
+:root{--bg:#07090d;--surface:#0b0f18;--panel:#101828;--border:#1b2a3b;--border-hi:#273d54;--text:#c8d8ea;--dim:#476080;--dimmer:#253040;--accent:#00d4ff;--accent2:#0099cc;--green:#00e676;--gold:#ffd54f;--red:#ff5555;--mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.6;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(0,212,255,.022) 79px,rgba(0,212,255,.022) 80px);}
+nav{position:sticky;top:0;z-index:100;background:rgba(7,9,13,.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:54px;}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-family:var(--sans);font-weight:800;font-size:15px;letter-spacing:-.02em;}
+.nav-brand img{width:26px;height:26px;}
+.nav-center{display:flex;align-items:center;gap:4px;list-style:none;}
+.nav-center a{color:var(--dim);text-decoration:none;font-size:12px;padding:5px 10px;border-radius:4px;transition:all .15s;}
+.nav-center a:hover{color:var(--text);background:rgba(255,255,255,.04);}
+.nav-dropdown{position:relative;}
+.nav-dropdown-toggle{color:var(--dim);font-size:12px;font-family:var(--mono);padding:5px 10px;border-radius:4px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:4px;transition:color .15s;}
+.nav-dropdown-toggle:hover{color:var(--text);}
+.nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;min-width:150px;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:6px;margin-top:4px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.nav-dropdown:hover .nav-dropdown-menu{display:flex;flex-direction:column;}
+.nav-dropdown-menu a{color:var(--dim);text-decoration:none;font-size:12px;padding:6px 10px;border-radius:3px;transition:all .12s;}
+.nav-dropdown-menu a:hover{color:var(--accent);background:rgba(0,212,255,.06);}
+.nav-right{display:flex;align-items:center;}
+.nav-github{color:var(--dim);text-decoration:none;font-size:12px;padding:5px 12px;border:1px solid var(--border);border-radius:4px;transition:all .15s;}
+.nav-github:hover{border-color:var(--accent);color:var(--accent);}
+.page-wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:60px 32px 80px;}
+.doc-eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+.doc-h1{font-family:var(--sans);font-size:clamp(26px,4vw,46px);font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1.05;margin-bottom:18px;}
+.doc-h1 em{color:var(--accent);font-style:normal;}
+.doc-lead{font-size:15px;color:var(--dim);line-height:1.75;max-width:640px;margin-bottom:24px;}
+.doc-lead strong{color:var(--text);font-weight:500;}
+.doc-divider{border:none;border-top:1px solid var(--border);margin:40px 0;}
+.doc-h2{font-family:var(--sans);font-size:22px;font-weight:800;letter-spacing:-.02em;color:#fff;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.doc-h3{font-family:var(--sans);font-size:15px;font-weight:700;color:var(--text);margin:20px 0 10px;}
+.doc-p{font-size:13px;color:var(--dim);line-height:1.8;margin-bottom:14px;}
+.doc-p strong{color:var(--text);font-weight:500;}
+.doc-p a{color:var(--accent);text-decoration:none;}
+.doc-p a:hover{text-decoration:underline;}
+/* badge pills */
+.badge-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:32px;}
+.v-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:3px;font-size:11px;border:1px solid var(--border);color:var(--dim);background:var(--surface);}
+.v-badge.green{border-color:rgba(0,230,118,.3);color:var(--green);background:rgba(0,230,118,.06);}
+/* license table */
+.lic-table-wrap{overflow-x:auto;margin-bottom:28px;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+thead tr{border-bottom:1px solid var(--border-hi);}
+th{padding:10px 14px;text-align:left;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);white-space:nowrap;}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:top;line-height:1.6;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,.015);}
+.td-component strong{display:block;color:#fff;margin-bottom:2px;}
+.td-component span{font-size:11px;color:var(--dim);}
+.lic-badge{display:inline-block;padding:2px 8px;border-radius:3px;font-size:10px;font-weight:700;letter-spacing:.06em;}
+.lic-mit{background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.25);}
+.lic-apache{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.25);}
+.lic-busl{background:rgba(255,213,79,.1);color:var(--gold);border:1px solid rgba(255,213,79,.25);}
+td.td-dim{color:var(--dim);font-size:12px;}
+/* principle cards */
+.principle-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:5px;overflow:hidden;margin-bottom:24px;}
+.principle-cell{background:var(--surface);padding:20px;transition:background .2s;}
+.principle-cell:hover{background:var(--panel);}
+.pc-title{font-family:var(--sans);font-size:13px;font-weight:700;color:#fff;margin-bottom:6px;}
+.pc-body{font-size:12px;color:var(--dim);line-height:1.65;}
+/* callout */
+.callout{border-radius:4px;padding:12px 16px;font-size:12px;line-height:1.7;margin-bottom:20px;display:flex;gap:10px;}
+.callout.green{background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.2);color:var(--text);}
+.callout.info{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);color:var(--text);}
+.callout-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--dimmer);flex-wrap:wrap;gap:10px;}
+footer a{color:var(--dim);text-decoration:none;transition:color .15s;}
+footer a:hover{color:var(--accent);}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+</style>
+</head>
+<body>
+<nav>
+  <a href="https://www.commandlayer.org/" class="nav-brand"><img src="https://www.commandlayer.org/icon2.png" alt="CommandLayer" />CommandLayer</a>
+  <ul class="nav-center">
+    <li><a href="https://www.commandlayer.org/">Home</a></li>
+    <li><a href="https://www.commandlayer.org/composer.html">Demo</a></li>
+    <li><a href="https://www.commandlayer.org/quickstart.html">Quickstart</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle">Docs ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="https://www.commandlayer.org/commons.html">Commons</a>
+        <a href="https://www.commandlayer.org/commercial.html">Commercial</a>
+        <a href="https://www.commandlayer.org/agent-cards.html">Agent Cards</a>
+        <a href="https://www.commandlayer.org/runtime.html">Runtime</a>
+      </div>
+    </li>
+  </ul>
+  <div class="nav-right"><a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a></div>
+</nav>
 
-            <div class="site-header__dropdown">
-              <button class="site-header__dropdown-btn" type="button" aria-haspopup="menu" aria-expanded="false">Docs &#9662;</button>
-              <div class="site-header__dropdown-menu">
-              <a href="/commons.html">Commons</a>
-              <a href="/commercial.html">Commercial</a>
-              <a href="/agent-cards.html">Agent Cards</a>
-              <a href="/runtime.html">Runtime</a>
-              </div>
-            </div>
+<div class="page-wrap">
+  <div class="doc-eyebrow">▸ licensing</div>
+  <h1 class="doc-h1">Open semantics.<br /><em>Monetized execution.</em></h1>
+  <p class="doc-lead">CommandLayer is licensed to keep the contract surface public and the execution surface investable. <strong>Commons and Commercial define the contract. Agent Cards define discovery. Runtime defines execution.</strong></p>
 
-            <a href="https://github.com/commandlayer" class="site-header__link" target="_blank" rel="noopener noreferrer">GitHub</a>
-          </nav>
-        </div>
-      </header>
+  <div class="badge-row">
+    <span class="v-badge green">No paywalled standards</span>
+    <span class="v-badge green">Schemas stay public and portable</span>
+    <span class="v-badge">Guarantees and routing can be commercial</span>
+  </div>
 
-      <main class="page-main">
-        <section class="hero">
-          <div class="container hero__inner">
-            <div>
-              <div class="hero__eyebrow">Licensing</div>
-              <h1 class="hero__title">Open semantics. <span class="hero__title-em">Monetized execution.</span></h1>
-              <p class="hero__subtitle">
-                CommandLayer is licensed to keep the contract surface public and the execution surface investable.
-                <strong>Commons and Commercial define the contract.</strong> <strong>Agent Cards define discovery.</strong>
-                <strong>Runtime defines execution.</strong>
-              </p>
-              <div class="hero__meta">
-                <span class="hero__meta-pill">No paywalled standards</span>
-                <span class="hero__meta-pill">Schemas stay public and portable</span>
-                <span class="hero__meta-pill">Guarantees and routing can be commercial</span>
-              </div>
-            </div>
-            <aside class="card">
-              <h2>The licensing rule</h2>
-              <p><strong>CommandLayer never charges for semantics, schemas, or validation.</strong> Monetization lives in runtime execution, guarantees, routing, and commercial service surfaces.</p>
-              <ul>
-                <li>The contract layer remains inspectable, versioned, and portable.</li>
-                <li>Discovery remains open because Agent Cards are protocol descriptors, not private lock-in.</li>
-                <li>Execution value accrues where operational cost, risk, and guarantees actually exist.</li>
-              </ul>
-            </aside>
-          </div>
-        </section>
+  <hr class="doc-divider" />
 
-        <section class="section section--muted">
-          <div class="container">
-            <div class="section__header">
-              <div class="section__eyebrow">What is licensed where</div>
-              <h2>Public contracts below, commercial operations above</h2>
-              <p>
-                This is not open-core theater. The protocol surface remains public so builders can validate, route,
-                and interoperate without permission. Commercial value shows up where execution has cost, policy,
-                and guarantee overhead.
-              </p>
-            </div>
-            <div class="table-card">
-              <table>
-                <thead>
-                  <tr><th>Component</th><th>License</th><th>What it means</th></tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Commons</strong><br /><span class="badge">Canonical contract layer</span></td>
-                    <td>MIT</td>
-                    <td>Public-goods request and receipt schemas. Anyone can implement, validate, mirror, or extend integrations against Commons without asking permission.</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Commercial</strong><br /><span class="badge">Economic contract layer</span></td>
-                    <td>Apache-2.0</td>
-                    <td>Economic verbs remain public and portable. Builders can use the same schemas across processors, marketplaces, and runtimes while keeping patent posture clean.</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Agent Cards</strong><br /><span class="badge">Discovery layer</span></td>
-                    <td>Apache-2.0</td>
-                    <td>Open descriptors for identity, discovery, and routing. Clients should be able to discover capabilities without scraping private docs.</td>
-                  </tr>
-                  <tr>
-                    <td><strong>Runtime</strong><br /><span class="badge">Execution layer</span></td>
-                    <td>BUSL-1.1</td>
-                    <td>Reference runtime code can be inspected and used under its terms, while commercial deployment, guarantees, routing logic, and managed execution remain monetizable service surfaces.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </section>
+  <h2 class="doc-h2">The licensing rule</h2>
+  <p class="doc-p"><strong>CommandLayer never charges for semantics, schemas, or validation.</strong> Monetization lives in runtime execution, guarantees, routing, and commercial service surfaces.</p>
+  <p class="doc-p">The contract layer remains inspectable, versioned, and portable. Discovery remains open because Agent Cards are protocol descriptors, not private lock-in. Execution value accrues where operational cost, risk, and guarantees actually exist.</p>
 
-        <section class="section">
-          <div class="container grid grid--2">
-            <article class="principle-card">
-              <h3>Why this structure exists</h3>
-              <p>
-                Standards only work when the semantic layer is public. If schemas are paywalled, builders cannot validate independently,
-                judges cannot trust the protocol claim, and portability collapses.
-              </p>
-              <p>
-                CommandLayer keeps the meaning layer open so multiple runtimes can compete on execution without fragmenting the contract.
-              </p>
-            </article>
-            <article class="principle-card">
-              <h3>Where value actually accrues</h3>
-              <p>
-                Runtime execution carries the operational burden: metering, policy, trace capture, guarantees, retries,
-                commercial routing, and service reliability. That is where monetization belongs.
-              </p>
-              <p>
-                The contract stays public. Execution becomes infrastructure.
-              </p>
-            </article>
-          </div>
-        </section>
+  <hr class="doc-divider" />
 
-        <section class="section section--muted">
-          <div class="container grid grid--2">
-            <article class="note-card">
-              <h3>What builders can rely on</h3>
-              <ul>
-                <li>Published schemas remain usable without a commercial agreement.</li>
-                <li>Validation remains available to anyone who needs protocol-grade verification.</li>
-                <li>Agent Cards remain open descriptors for discovery and routing.</li>
-                <li>Canonical receipt first, runtime metadata second.</li>
-              </ul>
-            </article>
-            <article class="note-card">
-              <h3>Why judges should care</h3>
-              <ul>
-                <li>The business model is coherent because standards are not the toll booth.</li>
-                <li>The trust layer thesis is credible because meaning remains public.</li>
-                <li>The execution layer is investable because guarantees and operations are where monetization lives.</li>
-                <li>No contradiction with Commons, Commercial, Runtime, or Repositories.</li>
-              </ul>
-            </article>
-          </div>
-        </section>
-      </main>
+  <h2 class="doc-h2">Public contracts below, commercial operations above</h2>
+  <p class="doc-p">This is not open-core theater. The protocol surface remains public so builders can validate, route, and interoperate without permission. Commercial value shows up where execution has cost, policy, and guarantee overhead.</p>
 
-      <footer class="site-footer">
-        <div class="container site-footer__inner" style="align-items: center; text-align: center;">
-          <div class="site-footer__cid">Commons v1.1.0 &middot; Commercial v1.1.0 &middot; Agent Cards v1.1.0 &middot; ERC-8004 registered</div>
-          <div class="site-footer__links" style="justify-content: center;">
-            <a href="/docs.html">Docs</a>
-            <a href="/repositories.html">Repositories</a>
-            <a href="/faq.html">FAQ</a>
-            <a href="/about.html">About</a>
-            <a href="/licensing.html">Licensing</a>
-          </div>
-        </div>
-      </footer>
+  <div class="lic-table-wrap">
+    <table>
+      <thead>
+        <tr><th>Component</th><th>License</th><th>What it means</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="td-component"><strong>Commons</strong><span>Canonical contract layer</span></td>
+          <td><span class="lic-badge lic-mit">MIT</span></td>
+          <td class="td-dim">Public-goods request and receipt schemas. Anyone can implement, validate, mirror, or extend integrations against Commons without asking permission.</td>
+        </tr>
+        <tr>
+          <td class="td-component"><strong>Commercial</strong><span>Economic contract layer</span></td>
+          <td><span class="lic-badge lic-apache">Apache-2.0</span></td>
+          <td class="td-dim">Economic verbs remain public and portable. Builders can use the same schemas across processors, marketplaces, and runtimes while keeping patent posture clean.</td>
+        </tr>
+        <tr>
+          <td class="td-component"><strong>Agent Cards</strong><span>Discovery layer</span></td>
+          <td><span class="lic-badge lic-apache">Apache-2.0</span></td>
+          <td class="td-dim">Open descriptors for identity, discovery, and routing. Clients should be able to discover capabilities without scraping private docs.</td>
+        </tr>
+        <tr>
+          <td class="td-component"><strong>Runtime</strong><span>Execution layer</span></td>
+          <td><span class="lic-badge lic-busl">BUSL-1.1</span></td>
+          <td class="td-dim">Reference runtime code can be inspected and used under its terms, while commercial deployment, guarantees, routing logic, and managed execution remain monetizable service surfaces.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <hr class="doc-divider" />
+
+  <h2 class="doc-h2">Why this structure exists</h2>
+  <p class="doc-p">Standards only work when the semantic layer is public. If schemas are paywalled, builders cannot validate independently, judges cannot trust the protocol claim, and portability collapses.</p>
+  <p class="doc-p">CommandLayer keeps the meaning layer open so multiple runtimes can compete on execution without fragmenting the contract.</p>
+
+  <div class="principle-grid">
+    <div class="principle-cell">
+      <div class="pc-title">Where value accrues</div>
+      <div class="pc-body">Runtime execution carries the operational burden: metering, policy, trace capture, guarantees, retries, commercial routing, and service reliability. That is where monetization belongs.</div>
     </div>
+    <div class="principle-cell">
+      <div class="pc-title">What builders can rely on</div>
+      <div class="pc-body">Published schemas remain usable without a commercial agreement. Validation remains available to anyone. Agent Cards remain open descriptors. Canonical receipt first, runtime metadata second.</div>
+    </div>
+    <div class="principle-cell">
+      <div class="pc-title">Why judges should care</div>
+      <div class="pc-body">The business model is coherent because standards are not the toll booth. The trust layer thesis is credible because meaning remains public. The execution layer is investable because guarantees and operations are where monetization lives.</div>
+    </div>
+  </div>
 
-    <script>
-      (function () {
-        const header = document.querySelector(".site-header");
-        const toggle = document.querySelector(".site-header__toggle");
-        const docsBtn = document.querySelector(".site-header__dropdown-btn");
-        const dropdown = document.querySelector(".site-header__dropdown");
-        const nav = document.querySelector(".site-header__nav");
+  <div class="callout green">
+    <span class="callout-icon">✓</span>
+    <span>The contract stays public. Execution becomes infrastructure. No contradiction with Commons, Commercial, Runtime, or Repositories.</span>
+  </div>
+</div>
 
-        function setDocsOpen(open) {
-          if (!header || !docsBtn) return;
-          header.classList.toggle("site-header--docs-open", !!open);
-          docsBtn.setAttribute("aria-expanded", open ? "true" : "false");
-        }
-
-        function setNavOpen(open) {
-          if (!header || !toggle) return;
-          header.classList.toggle("site-header--open", !!open);
-          toggle.setAttribute("aria-expanded", open ? "true" : "false");
-        }
-
-        if (toggle && header) {
-          toggle.addEventListener("click", () => {
-            const isOpen = header.classList.toggle("site-header--open");
-            toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-            if (isOpen) setDocsOpen(false);
-          });
-        }
-
-        if (docsBtn && header) {
-          docsBtn.addEventListener("click", (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const willOpen = !header.classList.contains("site-header--docs-open");
-            setDocsOpen(willOpen);
-          });
-        }
-
-        document.addEventListener("click", (e) => {
-          const isOpen = header?.classList.contains("site-header--docs-open");
-          if (!isOpen) return;
-          if (dropdown && dropdown.contains(e.target)) return;
-          setDocsOpen(false);
-        });
-
-        document.addEventListener("keydown", (e) => {
-          if (e.key !== "Escape") return;
-          setDocsOpen(false);
-          setNavOpen(false);
-        });
-
-        if (nav) {
-          nav.addEventListener("click", (e) => {
-            const a = e.target?.closest?.("a");
-            if (!a) return;
-            setDocsOpen(false);
-            setNavOpen(false);
-          });
-        }
-      })();
-    </script>
-  </body>
+<footer>
+  <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
+  <nav class="footer-links">
+    <a href="https://www.commandlayer.org/docs.html">Docs</a>
+    <a href="https://www.commandlayer.org/repositories.html">Repositories</a>
+    <a href="https://www.commandlayer.org/faq.html">FAQ</a>
+    <a href="https://www.commandlayer.org/about.html">About</a>
+    <a href="https://www.commandlayer.org/licensing.html">Licensing</a>
+  </nav>
+</footer>
+</body>
 </html>
