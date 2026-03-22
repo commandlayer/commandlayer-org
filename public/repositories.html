@@ -1,755 +1,197 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
 <title>CommandLayer — Repositories</title>
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1, viewport-fit=cover"
-/>
-<meta
-name="description"
-content="CommandLayer protocol repositories: Commons defines the canonical receipt contract, while runtimes and SDKs sit above it as execution and tooling layers."
-/>
-
-
+<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
 <style>
-:root {
---bg: #05060a;
---bg-elevated: #0a0c14;
---bg-header: radial-gradient(circle at 0% 0%, #525b70 0, #1b1f2b 40%, #05060a 100%);
---border-soft: rgba(255, 255, 255, 0.06);
---border-strong: rgba(255, 255, 255, 0.18);
---accent: #c5cbe0;
---accent-strong: #e3e7ff;
---accent-muted: #8f96b5;
---text-main: #f7f8ff;
---text-muted: #9ca3c7;
---text-soft: #6b7280;
---radius-lg: 16px;
---radius-xl: 24px;
---shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.65);
---max-width: 1120px;
-}
-
-
-* {
-box-sizing: border-box;
-}
-
-
-html,
-body {
-margin: 0;
-padding: 0;
-font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
-"Inter", sans-serif;
-background: radial-gradient(circle at 0 0, #121826 0, #020308 65%);
-color: var(--text-main);
-}
-
-
-body {
-min-height: 100vh;
-}
-
-
-a {
-color: inherit;
-}
-
-
-.page-shell {
-min-height: 100vh;
-display: flex;
-flex-direction: column;
-}
-
-
-.page-main {
-flex: 1;
-}
-
-
-.container {
-width: 100%;
-max-width: var(--max-width);
-margin: 0 auto;
-padding: 0 1.5rem;
-}
-
-
-/* Header */
-.site-header {
-background: var(--bg-header);
-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-position: sticky;
-top: 0;
-z-index: 20;
-backdrop-filter: blur(18px);
-}
-
-
-.site-header__inner {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 0.9rem 1.5rem;
-}
-
-
-.site-header__brand {
-display: flex;
-align-items: center;
-gap: 0.75rem;
-text-decoration: none;
-color: inherit;
-}
-
-
-.site-header__logo-img {
-width: 28px;
-height: 28px;
-object-fit: contain;
-display: block;
-border-radius: 6px;
-box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35),
-0 14px 40px rgba(0, 0, 0, 0.9);
-}
-
-
-.site-header__text {
-display: flex;
-flex-direction: column;
-}
-
-
-.site-header__title {
-font-size: 0.98rem;
-font-weight: 600;
-letter-spacing: 0.03em;
-}
-
-
-.site-header__subtitle {
-font-size: 0.78rem;
-color: var(--text-muted);
-}
-
-
-.site-header__nav {
-display: flex;
-gap: 1rem;
-align-items: center;
-}
-
-
-.site-header__link {
-font-size: 0.86rem;
-padding: 0.35rem 0.8rem;
-border-radius: 999px;
-text-decoration: none;
-color: var(--text-muted);
-border: 1px solid transparent;
-white-space: nowrap;
-}
-
-
-.site-header__link:hover {
-color: var(--accent-strong);
-border-color: rgba(255, 255, 255, 0.18);
-background: rgba(15, 23, 42, 0.7);
-}
-
-
-.site-header__link--active {
-color: #020617;
-background: linear-gradient(135deg, #e5e7eb, #cdd3e7);
-border-color: rgba(255, 255, 255, 0.25);
-}
-
-
-/* Docs dropdown */
-.site-header__dropdown {
-position: relative;
-}
-
-
-.site-header__dropdown-btn {
-font-size: 0.86rem;
-padding: 0.35rem 0.8rem;
-border-radius: 999px;
-border: 1px solid transparent;
-background: transparent;
-color: var(--text-muted);
-display: inline-flex;
-align-items: center;
-gap: 0.25rem;
-cursor: pointer;
-}
-
-
-.site-header__dropdown-btn:hover {
-color: var(--accent-strong);
-border-color: rgba(255, 255, 255, 0.18);
-background: rgba(15, 23, 42, 0.7);
-}
-
-
-.site-header__dropdown-menu {
-position: absolute;
-top: 2.3rem;
-right: 0;
-background: rgba(15, 23, 42, 0.98);
-border-radius: 14px;
-border: 1px solid var(--border-soft);
-box-shadow: var(--shadow-soft);
-padding: 0.5rem 0.4rem;
-min-width: 210px;
-display: none;
-}
-
-
-.site-header__dropdown-menu a {
-display: block;
-padding: 0.35rem 0.7rem;
-font-size: 0.82rem;
-text-decoration: none;
-color: var(--text-muted);
-border-radius: 999px;
-}
-
-
-.site-header__dropdown-menu a:hover {
-color: var(--accent-strong);
-background: rgba(31, 41, 55, 0.95);
-}
-
-
-.site-header--docs-open .site-header__dropdown-menu {
-display: block;
-}
-
-
-/* Mobile toggle */
-.site-header__toggle {
-display: none;
-border-radius: 999px;
-border: 1px solid rgba(148, 163, 184, 0.7);
-background: rgba(15, 23, 42, 0.9);
-color: var(--text-main);
-padding: 0.25rem 0.6rem;
-font-size: 0.9rem;
-cursor: pointer;
-}
-
-
-.site-header__toggle:hover {
-background: rgba(15, 23, 42, 1);
-}
-
-
-/* Page header */
-.page-hero {
-padding: 3rem 0 2.5rem;
-border-bottom: 1px solid var(--border-soft);
-background: radial-gradient(circle at 0 0, #111827, #020308);
-}
-
-
-.page-hero h1 {
-margin: 0 0 0.6rem;
-font-size: 1.8rem;
-font-weight: 700;
-}
-
-
-.page-hero p {
-margin: 0;
-font-size: 0.95rem;
-color: var(--text-muted);
-max-width: 38rem;
-line-height: 1.7;
-}
-
-
-/* Section */
-.section {
-padding: 2.5rem 0;
-}
-
-
-.section--muted {
-background: rgb(6, 9, 18);
-border-top: 1px solid rgba(255, 255, 255, 0.06);
-border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-
-.section__header {
-margin-bottom: 1.2rem;
-}
-
-
-.section__header h2 {
-margin: 0 0 0.3rem;
-font-size: 1.15rem;
-}
-
-
-.section__header p {
-margin: 0;
-font-size: 0.88rem;
-color: var(--text-muted);
-}
-
-
-/* Layer label */
-.layer-label {
-display: inline-flex;
-align-items: center;
-width: fit-content;
-font-size: 0.68rem;
-font-weight: 600;
-text-transform: uppercase;
-letter-spacing: 0.14em;
-color: #8dc2ff;
-border: 1px solid rgba(96, 165, 250, 0.78);
-border-radius: 999px;
-padding: 0.18rem 0.58rem;
-margin-bottom: 0.65rem;
-background: linear-gradient(180deg, rgba(5, 10, 22, 0.96) 0%, rgba(4, 8, 18, 0.92) 100%);
-box-shadow: inset 0 0 0 1px rgba(191, 219, 254, 0.05),
-0 0 10px rgba(59, 130, 246, 0.16);
-}
-
-
-/* Repo grid */
-.repo-grid {
-display: grid;
-grid-template-columns: repeat(2, 1fr);
-gap: 1rem;
-}
-
-
-.repo-card {
-background: linear-gradient(180deg, rgba(15, 23, 42, 0.96) 0%, rgba(9, 14, 28, 0.96) 100%);
-padding: 1.1rem 1.2rem;
-border-radius: var(--radius-lg);
-border: 1px solid rgba(255, 255, 255, 0.08);
-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03),
-0 16px 30px rgba(2, 6, 23, 0.42);
-display: flex;
-flex-direction: column;
-gap: 0.5rem;
-transition: border-color 150ms ease, box-shadow 150ms ease,
-transform 150ms ease;
-}
-
-
-.repo-card:hover {
-border-color: rgba(255, 255, 255, 0.12);
-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04),
-0 20px 34px rgba(2, 6, 23, 0.5);
-transform: translateY(-2px);
-}
-
-
-.repo-card__name {
-font-size: 1rem;
-font-weight: 600;
-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-margin: 0;
-}
-
-
-.repo-card__name a {
-color: var(--accent-strong);
-text-decoration: none;
-}
-
-
-.repo-card__name a:hover {
-text-decoration: underline;
-}
-
-
-.repo-card__desc {
-font-size: 0.86rem;
-color: var(--text-muted);
-margin: 0;
-line-height: 1.6;
-}
-
-
-.repo-card__meta {
-display: flex;
-gap: 0.5rem;
-flex-wrap: wrap;
-margin-top: 0.2rem;
-}
-
-
-.repo-card__tag {
-font-size: 0.72rem;
-color: var(--text-soft);
-border: 1px solid rgba(255, 255, 255, 0.1);
-border-radius: 999px;
-padding: 0.1rem 0.45rem;
-}
-
-
-/* Footer */
-.site-footer {
-border-top: 1px solid rgba(255, 255, 255, 0.1);
-background: #020308;
-}
-
-
-.site-footer__inner {
-padding: 1.8rem 1.5rem 2rem;
-font-size: 0.78rem;
-color: var(--text-soft);
-display: flex;
-flex-direction: column;
-gap: 0.6rem;
-}
-
-
-.site-footer__row {
-display: flex;
-justify-content: space-between;
-align-items: flex-start;
-gap: 2rem;
-}
-
-
-.site-footer__col {
-display: flex;
-flex-direction: column;
-gap: 0.3rem;
-}
-
-
-.site-footer__col-title {
-font-size: 0.72rem;
-text-transform: uppercase;
-letter-spacing: 0.1em;
-color: var(--text-soft);
-margin-bottom: 0.2rem;
-}
-
-
-.site-footer__cid {
-font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-font-size: 0.72rem;
-color: var(--accent-muted);
-word-break: break-all;
-}
-
-
-.site-footer__links {
-display: flex;
-gap: 0.8rem;
-margin-top: 0.8rem;
-padding-top: 0.8rem;
-border-top: 1px solid var(--border-soft);
-}
-
-
-.site-footer__links a {
-color: var(--accent);
-text-decoration: none;
-}
-
-
-.site-footer__links a:hover {
-text-decoration: underline;
-}
-
-
-/* Mobile */
-@media (max-width: 880px) {
-.site-header__inner {
-padding-inline: 1rem;
-}
-
-
-.site-header__toggle {
-display: inline-flex;
-align-items: center;
-justify-content: center;
-}
-
-
-.site-header__nav {
-display: none;
-flex-direction: column;
-align-items: flex-start;
-gap: 0.5rem;
-margin-top: 0.8rem;
-}
-
-
-.site-header.site-header--open .site-header__nav {
-display: flex;
-}
-
-
-.repo-grid {
-grid-template-columns: 1fr;
-}
-
-
-.site-footer__row {
-flex-direction: column;
-gap: 1rem;
-}
-
-
-.site-footer__inner {
-padding-inline: 1rem;
-}
-}
+:root{--bg:#07090d;--surface:#0b0f18;--panel:#101828;--border:#1b2a3b;--border-hi:#273d54;--text:#c8d8ea;--dim:#476080;--dimmer:#253040;--accent:#00d4ff;--accent2:#0099cc;--green:#00e676;--gold:#ffd54f;--purple:#b39ddb;--mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.6;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(0,212,255,.022) 79px,rgba(0,212,255,.022) 80px);}
+nav{position:sticky;top:0;z-index:100;background:rgba(7,9,13,.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:54px;}
+.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-family:var(--sans);font-weight:800;font-size:15px;letter-spacing:-.02em;}
+.nav-brand img{width:26px;height:26px;}
+.nav-center{display:flex;align-items:center;gap:4px;list-style:none;}
+.nav-center a{color:var(--dim);text-decoration:none;font-size:12px;padding:5px 10px;border-radius:4px;transition:all .15s;}
+.nav-center a:hover{color:var(--text);background:rgba(255,255,255,.04);}
+.nav-dropdown{position:relative;}
+.nav-dropdown-toggle{color:var(--dim);font-size:12px;font-family:var(--mono);padding:5px 10px;border-radius:4px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:4px;transition:color .15s;}
+.nav-dropdown-toggle:hover{color:var(--text);}
+.nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;min-width:150px;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:6px;margin-top:4px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.4);}
+.nav-dropdown:hover .nav-dropdown-menu{display:flex;flex-direction:column;}
+.nav-dropdown-menu a{color:var(--dim);text-decoration:none;font-size:12px;padding:6px 10px;border-radius:3px;transition:all .12s;}
+.nav-dropdown-menu a:hover{color:var(--accent);background:rgba(0,212,255,.06);}
+.nav-right{display:flex;align-items:center;}
+.nav-github{color:var(--dim);text-decoration:none;font-size:12px;padding:5px 12px;border:1px solid var(--border);border-radius:4px;transition:all .15s;}
+.nav-github:hover{border-color:var(--accent);color:var(--accent);}
+.page-wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:60px 32px 80px;}
+.doc-eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
+.doc-h1{font-family:var(--sans);font-size:clamp(26px,4vw,46px);font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1.05;margin-bottom:18px;}
+.doc-lead{font-size:15px;color:var(--dim);line-height:1.75;max-width:640px;margin-bottom:32px;}
+.doc-lead strong{color:var(--text);font-weight:500;}
+.doc-divider{border:none;border-top:1px solid var(--border);margin:40px 0;}
+.doc-h2{font-family:var(--sans);font-size:22px;font-weight:800;letter-spacing:-.02em;color:#fff;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
+.doc-p{font-size:13px;color:var(--dim);line-height:1.8;margin-bottom:14px;}
+.doc-p strong{color:var(--text);font-weight:500;}
+/* repo cards */
+.repo-list{display:flex;flex-direction:column;gap:12px;margin-bottom:24px;}
+.repo-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;overflow:hidden;transition:border-color .2s;}
+.repo-card:hover{border-color:var(--border-hi);}
+.repo-card a.repo-card-link{text-decoration:none;display:block;}
+.repo-inner{padding:20px 20px 16px;}
+.repo-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap;}
+.repo-name{font-family:var(--sans);font-size:16px;font-weight:700;color:var(--accent);text-decoration:none;letter-spacing:-.01em;}
+.repo-name:hover{text-decoration:underline;}
+.repo-tier{font-size:10px;padding:3px 9px;border-radius:3px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;flex-shrink:0;}
+.tier-contract{background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.25);}
+.tier-discovery{background:rgba(179,157,219,.1);color:var(--purple);border:1px solid rgba(179,157,219,.25);}
+.tier-tooling{background:rgba(255,213,79,.1);color:var(--gold);border:1px solid rgba(255,213,79,.25);}
+.tier-execution{background:rgba(0,230,118,.1);color:var(--green);border:1px solid rgba(0,230,118,.25);}
+.tier-publishing{background:rgba(74,96,128,.2);color:var(--dim);border:1px solid var(--border);}
+.repo-desc{font-size:13px;color:var(--dim);line-height:1.7;margin-bottom:12px;}
+.repo-pills{display:flex;gap:6px;flex-wrap:wrap;}
+.repo-pill{font-size:10px;padding:2px 8px;border-radius:3px;border:1px solid var(--border);color:var(--dimmer);}
+/* arch rule card */
+.arch-card{background:var(--surface);border:1px solid var(--border-hi);border-left:3px solid var(--accent);border-radius:0 5px 5px 0;padding:20px;margin-bottom:20px;}
+.arch-title{font-family:var(--sans);font-size:14px;font-weight:700;color:#fff;margin-bottom:8px;}
+.arch-body{font-size:13px;color:var(--dim);line-height:1.75;}
+.arch-body strong{color:var(--text);}
+footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--dimmer);flex-wrap:wrap;gap:10px;}
+footer a{color:var(--dim);text-decoration:none;transition:color .15s;}
+footer a:hover{color:var(--accent);}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 </style>
 </head>
-
-
 <body>
-<div class="page-shell">
-<!-- HEADER -->
-<header class="site-header">
-<div class="site-header__inner container">
-<a href="/" class="site-header__brand">
-<img src="icon2.png" alt="CommandLayer Logo" class="site-header__logo-img" />
-<div class="site-header__text">
-<span class="site-header__title">CommandLayer</span>
-<span class="site-header__subtitle">Signed, verifiable receipts for agent execution</span>
-</div>
-</a>
+<nav>
+  <a href="https://www.commandlayer.org/" class="nav-brand"><img src="https://www.commandlayer.org/icon2.png" alt="CommandLayer" />CommandLayer</a>
+  <ul class="nav-center">
+    <li><a href="https://www.commandlayer.org/">Home</a></li>
+    <li><a href="https://www.commandlayer.org/composer.html">Demo</a></li>
+    <li><a href="https://www.commandlayer.org/quickstart.html">Quickstart</a></li>
+    <li class="nav-dropdown">
+      <button class="nav-dropdown-toggle">Docs ▾</button>
+      <div class="nav-dropdown-menu">
+        <a href="https://www.commandlayer.org/commons.html">Commons</a>
+        <a href="https://www.commandlayer.org/commercial.html">Commercial</a>
+        <a href="https://www.commandlayer.org/agent-cards.html">Agent Cards</a>
+        <a href="https://www.commandlayer.org/runtime.html">Runtime</a>
+      </div>
+    </li>
+  </ul>
+  <div class="nav-right"><a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a></div>
+</nav>
 
+<div class="page-wrap">
+  <div class="doc-eyebrow">▸ repositories</div>
+  <h1 class="doc-h1">Repositories</h1>
+  <p class="doc-lead">CommandLayer is one system with separate repos for separate layers. Read this page top-down: Commons and Commercial define the contract, Agent Cards define discovery, runtimes prove execution, and public surfaces explain the stack.</p>
 
-<!-- Mobile toggle -->
-<button class="site-header__toggle" aria-label="Toggle navigation" aria-expanded="false">
-&#9776;
-</button>
+  <hr class="doc-divider" />
 
+  <div class="doc-h2" style="border:none;padding:0;margin-bottom:20px;">Protocol stack</div>
+  <p class="doc-p" style="margin-bottom:24px;">Read the repositories in stack order: contract first, discovery second, execution third, then SDK and publishing surfaces that mirror and explain that core.</p>
 
-<nav class="site-header__nav">
-  <a href="/" class="site-header__link">Home</a>
-  <a href="/composer.html" class="site-header__link">Demo</a>
-  <a href="/quickstart.html" class="site-header__link">Quickstart</a>
-
-  <div class="site-header__dropdown">
-    <button class="site-header__dropdown-btn" type="button">
-    Docs &#9662;
-    </button>
-    <div class="site-header__dropdown-menu">
-    <a href="/commons.html">Commons</a>
-    <a href="/commercial.html">Commercial</a>
-    <a href="/agent-cards.html">Agent Cards</a>
-    <a href="/runtime.html">Runtime</a>
+  <div class="repo-list">
+    <div class="repo-card">
+      <div class="repo-inner">
+        <div class="repo-top">
+          <a href="https://github.com/commandlayer/protocol-commons" target="_blank" rel="noopener" class="repo-name">protocol-commons ↗</a>
+          <span class="repo-tier tier-contract">contract</span>
+        </div>
+        <div class="repo-desc">The canonical open contract layer. Defines the public request and receipt schemas, the minimum verifiable receipt, and the baseline semantics builders should target first.</div>
+        <div class="repo-pills"><span class="repo-pill">MIT</span><span class="repo-pill">Canonical contract</span><span class="repo-pill">IPFS-pinned</span></div>
+      </div>
+    </div>
+    <div class="repo-card">
+      <div class="repo-inner">
+        <div class="repo-top">
+          <a href="https://github.com/commandlayer/protocol-commercial" target="_blank" rel="noopener" class="repo-name">protocol-commercial ↗</a>
+          <span class="repo-tier tier-contract">contract</span>
+        </div>
+        <div class="repo-desc">The commerce-oriented contract extension. Adds payment, checkout, fulfillment, shipping, and verification schemas while preserving the Commons-first model and portable receipt discipline.</div>
+        <div class="repo-pills"><span class="repo-pill">Apache-2.0</span><span class="repo-pill">Economic contracts</span><span class="repo-pill">Portable schemas</span></div>
+      </div>
+    </div>
+    <div class="repo-card">
+      <div class="repo-inner">
+        <div class="repo-top">
+          <a href="https://github.com/commandlayer/agent-cards" target="_blank" rel="noopener" class="repo-name">agent-cards ↗</a>
+          <span class="repo-tier tier-discovery">discovery</span>
+        </div>
+        <div class="repo-desc">The discovery and identity layer. Agent Cards say who an agent is, which verbs and versions it supports, and where clients should route requests without redefining the contract itself.</div>
+        <div class="repo-pills"><span class="repo-pill">Apache-2.0</span><span class="repo-pill">Identity + routing</span><span class="repo-pill">IPFS-pinned</span></div>
+      </div>
+    </div>
+    <div class="repo-card">
+      <div class="repo-inner">
+        <div class="repo-top">
+          <a href="https://github.com/commandlayer/sdk" target="_blank" rel="noopener" class="repo-name">sdk ↗</a>
+          <span class="repo-tier tier-tooling">tooling</span>
+        </div>
+        <div class="repo-desc">Client-side tooling for integrating the stack. Helps applications discover agents, call pinned contract surfaces, and verify receipts without blurring contract data with runtime metadata.</div>
+        <div class="repo-pills"><span class="repo-pill">see repo</span><span class="repo-pill">TypeScript + Python</span><span class="repo-pill">Client tooling</span></div>
+      </div>
+    </div>
+    <div class="repo-card">
+      <div class="repo-inner">
+        <div class="repo-top">
+          <a href="https://github.com/commandlayer/runtime-core" target="_blank" rel="noopener" class="repo-name">runtime-core ↗</a>
+          <span class="repo-tier tier-execution">execution</span>
+        </div>
+        <div class="repo-desc">Shared execution and verification primitives. Holds schema validation, canonical serialization, signing, and receipt-proof helpers used by runtime implementations.</div>
+        <div class="repo-pills"><span class="repo-pill">Execution primitives</span><span class="repo-pill">Shared library</span></div>
+      </div>
+    </div>
+    <div class="repo-card">
+      <div class="repo-inner">
+        <div class="repo-top">
+          <a href="https://github.com/commandlayer/commercial-runtime" target="_blank" rel="noopener" class="repo-name">commercial-runtime ↗</a>
+          <span class="repo-tier tier-execution">execution</span>
+        </div>
+        <div class="repo-desc">The commerce-oriented execution surface. Runs Commercial flows against the public contracts and may attach proof, trace, and orchestration metadata around the canonical receipts it returns.</div>
+        <div class="repo-pills"><span class="repo-pill">Commercial execution</span><span class="repo-pill">x402-aligned</span></div>
+      </div>
+    </div>
+    <div class="repo-card">
+      <div class="repo-inner">
+        <div class="repo-top">
+          <a href="https://github.com/commandlayer/commandlayer-org" target="_blank" rel="noopener" class="repo-name">commandlayer-org ↗</a>
+          <span class="repo-tier tier-publishing">publishing</span>
+        </div>
+        <div class="repo-desc">The public explanation and publishing surface. Hosts the website, docs hub, quickstart, demos, and mirrored schema publishing paths that make the rest of the stack legible to builders.</div>
+        <div class="repo-pills"><span class="repo-pill">Docs + demo</span><span class="repo-pill">Publishing surface</span></div>
+      </div>
     </div>
   </div>
 
-  <a
-  href="https://github.com/commandlayer"
-  class="site-header__link"
-  target="_blank"
-  rel="noopener noreferrer"
-  >
-  GitHub
-  </a>
-</nav>
-</div>
-</header>
+  <hr class="doc-divider" />
 
-
-<main class="page-main">
-<!-- PAGE HERO -->
-<section class="page-hero">
-<div class="container">
-<h1>Repositories</h1>
-<p>
-CommandLayer is one system with separate repos for separate layers. Read this page top-down: Commons and Commercial define the contract, Agent Cards define discovery, runtimes prove execution, and public surfaces explain the stack.
-</p>
-</div>
-</section>
-
-<!-- STACK -->
-<section class="section">
-<div class="container">
-<div class="section__header">
-<h2>Protocol stack</h2>
-<p>Read the repositories in stack order: contract first, discovery second, execution third, then SDK and publishing surfaces that mirror and explain that core rather than competing with it.</p>
+  <h2 class="doc-h2">Architecture rule</h2>
+  <p class="doc-p">Do not read these repos as separate products. They are one stack with a strict boundary.</p>
+  <div class="arch-card">
+    <div class="arch-title">Canonical receipt first</div>
+    <div class="arch-body">Commons and Commercial define the canonical request/receipt surfaces. Agent Cards describe discovery and routing. <strong>Runtime layers may add execution evidence, but proof fields sit around canonical contracts rather than inside the contract definition layer.</strong></div>
+  </div>
 </div>
 
-<div class="repo-grid">
-<article class="repo-card">
-<div class="layer-label">contract</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/protocol-commons" target="_blank" rel="noopener noreferrer">protocol-commons</a>
-</h3>
-<p class="repo-card__desc">
-The canonical open contract layer. This repo defines the public request and receipt schemas, the minimum verifiable receipt, and the baseline semantics builders should target first.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">MIT</span>
-<span class="repo-card__tag">Canonical contract</span>
-<span class="repo-card__tag">IPFS-pinned</span>
-</div>
-</article>
-
-<article class="repo-card">
-<div class="layer-label">contract</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/protocol-commercial" target="_blank" rel="noopener noreferrer">protocol-commercial</a>
-</h3>
-<p class="repo-card__desc">
-The commerce-oriented contract extension. It adds payment, checkout, fulfillment, shipping, and verification schemas while preserving the Commons-first model and portable receipt discipline.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">Apache-2.0</span>
-<span class="repo-card__tag">Economic contracts</span>
-<span class="repo-card__tag">Portable schemas</span>
-</div>
-</article>
-
-<article class="repo-card">
-<div class="layer-label">discovery</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/agent-cards" target="_blank" rel="noopener noreferrer">agent-cards</a>
-</h3>
-<p class="repo-card__desc">
-The discovery and identity layer. Agent Cards say who an agent is, which verbs and versions it supports, and where clients should route requests without redefining the contract itself.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">Apache-2.0</span>
-<span class="repo-card__tag">Identity + routing</span>
-<span class="repo-card__tag">IPFS-pinned</span>
-</div>
-</article>
-
-<article class="repo-card">
-<div class="layer-label">tooling</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/sdk" target="_blank" rel="noopener noreferrer">sdk</a>
-</h3>
-<p class="repo-card__desc">
-Client-side tooling for integrating the stack. The SDK helps applications discover agents, call pinned contract surfaces, and verify receipts without blurring contract data with runtime metadata.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">License: see repo</span>
-<span class="repo-card__tag">TypeScript + Python</span>
-<span class="repo-card__tag">Client tooling</span>
-</div>
-</article>
-
-<article class="repo-card">
-<div class="layer-label">execution</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/runtime-core" target="_blank" rel="noopener noreferrer">runtime-core</a>
-</h3>
-<p class="repo-card__desc">
-Shared execution and verification primitives. Runtime-core holds schema validation, canonical serialization, signing, and receipt-proof helpers used by runtime implementations.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">Execution primitives</span>
-<span class="repo-card__tag">Shared library</span>
-</div>
-</article>
-
-<article class="repo-card">
-<div class="layer-label">execution</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/commercial-runtime" target="_blank" rel="noopener noreferrer">commercial-runtime</a>
-</h3>
-<p class="repo-card__desc">
-The commerce-oriented execution surface. It runs Commercial flows against the public contracts and may attach proof, trace, and orchestration metadata around the canonical receipts it returns.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">Commercial execution</span>
-<span class="repo-card__tag">x402-aligned</span>
-</div>
-</article>
-
-<article class="repo-card">
-<div class="layer-label">publishing</div>
-<h3 class="repo-card__name">
-<a href="https://github.com/commandlayer/commandlayer-org" target="_blank" rel="noopener noreferrer">commandlayer-org</a>
-</h3>
-<p class="repo-card__desc">
-The public explanation and publishing surface. This repo hosts the website, docs hub, quickstart, demos, and mirrored schema publishing paths that make the rest of the stack legible to builders and judges without becoming a second protocol authority.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">Docs + demo</span>
-<span class="repo-card__tag">Publishing surface</span>
-</div>
-</article>
-</div>
-</div>
-</section>
-
-<section class="section section--muted">
-<div class="container">
-<div class="section__header">
-<h2>Architecture rule</h2>
-<p>Do not read these repos as separate products. They are one stack with a strict boundary: protocol repos define meaning, discovery binds identity, execution proves what happened, SDKs package access, and the website mirrors/publishes the approved public story.</p>
-</div>
-<div class="repo-grid">
-<article class="repo-card">
-<div class="layer-label">stack rule</div>
-<h3 class="repo-card__name">Canonical receipt first</h3>
-<p class="repo-card__desc">
-Commons and Commercial define the canonical request/receipt surfaces. Agent Cards describe discovery and routing. Runtime layers may add execution evidence, but proof fields sit around canonical contracts rather than inside the contract definition layer.
-</p>
-<div class="repo-card__meta">
-<span class="repo-card__tag">Contract first</span>
-<span class="repo-card__tag">Execution second</span>
-</div>
-</article>
-</div>
-</div>
-</section>
-</main>
-
-<!-- TECHNICAL FOOTER -->
-<footer class="site-footer">
-        <div class="container site-footer__inner" style="align-items: center; text-align: center;">
-          <div class="site-footer__cid">Commons v1.1.0 &middot; Commercial v1.1.0 &middot; Agent Cards v1.1.0 &middot; ERC-8004 registered</div>
-          <div class="site-footer__links" style="justify-content: center;">
-            <a href="/docs.html">Docs</a>
-            <a href="/repositories.html">Repositories</a>
-            <a href="/faq.html">FAQ</a>
-            <a href="/about.html">About</a>
-            <a href="/licensing.html">Licensing</a>
-          </div>
-        </div>
-      </footer>
-</div>
-
-
-<script>
-(function () {
-const header = document.querySelector(".site-header");
-const toggle = document.querySelector(".site-header__toggle");
-const docsBtn = document.querySelector(".site-header__dropdown-btn");
-
-
-if (toggle && header) {
-toggle.addEventListener("click", () => {
-const isOpen = header.classList.toggle("site-header--open");
-toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
-});
-}
-
-
-if (docsBtn && header) {
-docsBtn.addEventListener("click", () => {
-header.classList.toggle("site-header--docs-open");
-});
-}
-})();
-</script>
+<footer>
+  <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
+  <nav class="footer-links">
+    <a href="https://www.commandlayer.org/docs.html">Docs</a>
+    <a href="https://www.commandlayer.org/repositories.html">Repositories</a>
+    <a href="https://www.commandlayer.org/faq.html">FAQ</a>
+    <a href="https://www.commandlayer.org/about.html">About</a>
+    <a href="https://www.commandlayer.org/licensing.html">Licensing</a>
+  </nav>
+</footer>
 </body>
 </html>
