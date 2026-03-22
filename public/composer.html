@@ -729,16 +729,18 @@
     CommandLayer
   </a>
   <ul class="nav-links">
-    <li><a href="https://www.commandlayer.org/">Home</a></li>
-    <li><a href="https://www.commandlayer.org/composer.html" class="active">Demo</a></li>
-    <li><a href="https://www.commandlayer.org/quickstart.html">Quickstart</a></li>
+    <li><a href="/index.html">Home</a></li>
+    <li><a href="/composer.html" class="active">Commons Demo</a></li>
+    <li><a href="/demo-inner.html">Commerce Demo</a></li>
+    <li><a href="/verify.html">Verifier</a></li>
+    <li><a href="/quickstart.html">Quickstart</a></li>
     <li class="nav-dropdown">
       <button class="nav-dropdown-toggle">Docs ▾</button>
       <div class="nav-dropdown-menu">
-        <a href="https://www.commandlayer.org/commons.html">Commons</a>
-        <a href="https://www.commandlayer.org/commercial.html">Commercial</a>
-        <a href="https://www.commandlayer.org/agent-cards.html">Agent Cards</a>
-        <a href="https://www.commandlayer.org/runtime.html">Runtime</a>
+        <a href="/commons.html">Commons</a>
+        <a href="/commercial.html">Commercial</a>
+        <a href="/agent-cards.html">Agent Cards</a>
+        <a href="/runtime.html">Runtime</a>
       </div>
     </li>
   </ul>
@@ -764,6 +766,7 @@
     <button class="btn btn-ghost" onclick="resetFlow()">↺ Reset</button>
     <a href="https://www.commandlayer.org/demo-inner.html" class="btn btn-ghost">Commerce Demo →</a>
     <a href="https://www.commandlayer.org/quickstart.html" class="btn btn-ghost">Quickstart →</a>
+    <a href="/verify.html" class="btn btn-ghost">Verifier →</a>
   </div>
 </div>
 
@@ -961,6 +964,9 @@
         <button class="json-tab active" onclick="switchTab('receipt')">Receipt JSON</button>
         <button class="json-tab" onclick="switchTab('verify')">Verify cURL</button>
         <button class="json-tab" onclick="switchTab('raw')">Raw Response</button>
+      </div>
+      <div style="padding:8px 14px 0;display:flex;justify-content:flex-end;">
+        <a href="/verify.html" class="btn btn-ghost" style="font-size:11px;padding:5px 12px;">Open Verifier →</a>
       </div>
 
       <div id="tab-receipt" class="json-pane active">
