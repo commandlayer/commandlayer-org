@@ -1048,6 +1048,10 @@ let lastRaw = null;
 let lastReceipt = null;
 let verifyCurlCmd = null;
 
+function getReceiptTraceId(receipt) {
+  return receipt?.metadata?.trace_id || receipt?.metadata?.proof?.trace_id || receipt?.runtime_metadata?.trace_id || receipt?.runtime_metadata?.proof?.trace_id || null;
+}
+
 // ── RUNTIME HEALTH ───────────────────────────────────────────────────────────
 async function checkRuntime() {
   try {
@@ -1125,6 +1129,7 @@ function buildStepReceiptView(step) {
   const receipt = step?.receipt || {};
   const metadata = receipt?.metadata || receipt?.runtime_metadata || {};
   const proof = metadata?.proof || receipt?.runtime_metadata?.proof || {};
+  const receiptTraceId = getReceiptTraceId(receipt);
 
   return {
     status: receipt?.status || 'unknown',
@@ -1134,7 +1139,7 @@ function buildStepReceiptView(step) {
     class: receipt?.class || 'commons',
     result: receipt?.result || {},
     metadata: {
-      trace_id: metadata?.trace_id || proof?.trace_id || null,
+      trace_id: receiptTraceId,
       proof: {
         alg: proof?.alg || null,
         canonical: proof?.canonical || null,
@@ -1144,7 +1149,7 @@ function buildStepReceiptView(step) {
         signature_b64: proof?.signature_b64 || null,
         canonical_id: proof?.canonical_id || null,
         receipt_id: proof?.receipt_id || metadata?.receipt_id || null,
-        trace_id: proof?.trace_id || metadata?.trace_id || null
+        trace_id: receiptTraceId
       },
       receipt_id: metadata?.receipt_id || proof?.receipt_id || null
     }
@@ -1171,11 +1176,25 @@ function renderStepReceipt(index, step) {
 }
 
 // ── BUILD REQUEST BODY ────────────────────────────────────────────────────────
-function buildBody(verb, content, stepIndex) {
+function buildBody(verb, content) {
   const conf = VERB_FIELDS[verb] || { field: 'content', ops: {} };
   return {
     [conf.field]: content,
     ...conf.ops
+  };
+}
+
+function buildExecuteRequest(verb, content) {
+  return {
+    actor: 'composer.commandlayer.org',
+    input: buildBody(verb, content),
+    trace: { trace_id: traceId },
+    execution: {
+      entry: `${RUNTIME}/execute`,
+      class: 'commons',
+      verb,
+      version: '1.1.0'
+    }
   };
 }
 
@@ -1290,7 +1309,7 @@ function addTrailItem(verb, receipt, stepIndex) {
 // ── EXECUTE A SINGLE STEP ─────────────────────────────────────────────────────
 async function executeStep(stepIndex, inputOverride) {
   const verb = document.getElementById(`verb${stepIndex}`).value;
-  const rawInput = inputOverride || document.getElementById(`input${stepIndex}`).value || '';
+  const rawInput = typeof inputOverride === 'string' ? inputOverride : (document.getElementById(`input${stepIndex}`).value || '');
 
   // show chain indicator if chaining
   if (stepIndex > 0 && !document.getElementById(`input${stepIndex}`).value.trim()) {
@@ -1300,14 +1319,14 @@ async function executeStep(stepIndex, inputOverride) {
   setStepState(stepIndex, 'running');
   document.getElementById(`trace${stepIndex}`).textContent = verb;
 
-  const body = buildBody(verb, rawInput, stepIndex);
+  const requestBody = buildExecuteRequest(verb, rawInput);
   const t0 = Date.now();
 
   try {
-    const resp = await fetch(`${RUNTIME}/${verb}/v1.1.0`, {
+    const resp = await fetch(`${RUNTIME}/execute`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input: body }),
+      body: JSON.stringify(requestBody),
       signal: AbortSignal.timeout(20000)
     });
 
@@ -1318,7 +1337,7 @@ async function executeStep(stepIndex, inputOverride) {
 
     const data = await resp.json();
     const elapsed = Date.now() - t0;
-    stepResults[stepIndex] = { data, verb, elapsed };
+    stepResults[stepIndex] = { data, verb, elapsed, requestBody };
     lastRaw = data;
 
     const receipt = data.receipt || data;
@@ -1348,7 +1367,7 @@ function updateProofPanel(verb, data, elapsed) {
   const hash = proof?.hash_sha256 || '—';
   const sig = proof?.signature_b64 || null;
   const receiptId = metadata?.receipt_id || proof?.receipt_id || '—';
-  const traceIdValue = metadata?.trace_id || proof?.trace_id || traceId || '—';
+  const traceIdValue = getReceiptTraceId(receipt) || traceId || '—';
   const schema = receipt?.version || receipt?.schema_version || '—';
 
   lastReceipt = receipt;
@@ -1394,6 +1413,29 @@ function updateProofPanel(verb, data, elapsed) {
 }
 
 // ── BUILD VERIFY CURL ─────────────────────────────────────────────────────────
+
+function assertTraceContinuity() {
+  const receipts = stepResults.map(step => step?.data?.receipt || step?.data || step?.receipt || null);
+  const comparedTraceIds = [
+    traceId,
+    ...receipts.map(getReceiptTraceId),
+    getReceiptTraceId(lastReceipt)
+  ];
+  const hasMissingTraceId = comparedTraceIds.some(value => !value);
+  const uniqueTraceIds = [...new Set(comparedTraceIds)];
+
+  if (receipts.some(receipt => !receipt) || hasMissingTraceId || uniqueTraceIds.length !== 1 || uniqueTraceIds[0] !== traceId) {
+    const errEl = document.getElementById('errorMsg');
+    errEl.textContent = 'Trace continuity failed: step receipts do not share one trace_id.';
+    errEl.className = 'error-msg visible';
+    document.getElementById('traceIdDisplay').textContent = traceId || '—';
+    return false;
+  }
+
+  document.getElementById('traceIdDisplay').textContent = uniqueTraceIds[0];
+  return true;
+}
+
 function buildVerifyCurl(receipt) {
   const body = JSON.stringify(receipt, null, 2)
     .replace(/\\/g, '\\\\')
@@ -1414,7 +1456,7 @@ async function runFlow() {
   btn.disabled = true;
   btn.textContent = '⏳ Running…';
 
-  traceId = `trace_demo_${Date.now().toString(36)}`;
+  traceId = `cltrace_${Date.now().toString(36)}`;
   document.getElementById('traceIdDisplay').textContent = traceId;
 
   // reset state
@@ -1456,9 +1498,14 @@ async function runFlow() {
     const input3 = document.getElementById('input2').value.trim() || out2;
     await executeStep(2, input3);
 
+    if (!assertTraceContinuity()) {
+      throw new Error('Trace continuity failed: step receipts do not share one trace_id.');
+    }
+
   } catch (err) {
     const errEl = document.getElementById('errorMsg');
-    errEl.textContent = `Runtime error: ${err.message}`;
+    const message = String(err?.message || err || 'Unknown runtime error');
+    errEl.textContent = message.startsWith('Trace continuity failed:') ? message : `Runtime error: ${message}`;
     errEl.className = 'error-msg visible';
   }
 
@@ -1499,6 +1546,10 @@ function resetFlow() {
   document.getElementById('curlDisplay').innerHTML = `<span style="color:var(--dimmer);">// run a flow to generate the verify cURL command</span>`;
   document.getElementById('autorunBar').classList.remove('hidden');
   stepResults = [null, null, null];
+  lastReceipt = null;
+  lastRaw = null;
+  verifyCurlCmd = null;
+  traceId = null;
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
