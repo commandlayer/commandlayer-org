@@ -372,6 +372,41 @@
   .step-output-mini.visible { display: block; }
   .step-output-mini.has-data { color: var(--text); }
 
+  .step-receipt-row {
+    display: none;
+    margin-top: 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  .step-receipt-row.visible {
+    display: block;
+  }
+
+  .step-receipt-label {
+    padding: 8px 10px 0;
+    font-size: 10px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  .step-receipt-json {
+    margin: 0;
+    padding: 8px 10px 10px;
+    font-family: var(--mono);
+    font-size: 10.5px;
+    line-height: 1.55;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 220px;
+    overflow: auto;
+    background: transparent;
+  }
+
   /* ── FLOW CONTROLS ── */
   .flow-controls {
     display: flex;
@@ -797,6 +832,10 @@
         </div>
         <textarea class="step-input" id="input0" placeholder="Input text for this step…">CommandLayer provides verifiable execution receipts for autonomous agents. Each action is signed with Ed25519, bound to an ENS identity, and registered on Base via ERC-8004.</textarea>
         <div class="step-output-mini" id="output0"></div>
+        <div class="step-receipt-row" id="receiptRow0" style="display:none;">
+          <div class="step-receipt-label">Receipt</div>
+          <pre class="step-receipt-json" id="receipt0"></pre>
+        </div>
         <div class="step-status" id="status0">awaiting run</div>
       </div>
     </div>
@@ -824,6 +863,10 @@
         <textarea class="step-input" id="input1" placeholder="Leave blank to chain from Step 1 output…"></textarea>
         <div class="chain-connector" id="chain1" style="display:none;">using Step 1 output</div>
         <div class="step-output-mini" id="output1"></div>
+        <div class="step-receipt-row" id="receiptRow1" style="display:none;">
+          <div class="step-receipt-label">Receipt</div>
+          <pre class="step-receipt-json" id="receipt1"></pre>
+        </div>
         <div class="step-status" id="status1">awaiting step 1</div>
       </div>
     </div>
@@ -851,6 +894,10 @@
         <textarea class="step-input" id="input2" placeholder="Leave blank to chain from Step 2 output…"></textarea>
         <div class="chain-connector" id="chain2" style="display:none;">using Step 2 output</div>
         <div class="step-output-mini" id="output2"></div>
+        <div class="step-receipt-row" id="receiptRow2" style="display:none;">
+          <div class="step-receipt-label">Receipt</div>
+          <pre class="step-receipt-json" id="receipt2"></pre>
+        </div>
         <div class="step-status" id="status2">awaiting step 2</div>
       </div>
     </div>
@@ -1074,6 +1121,55 @@ function showOutput(i, text) {
   el.className = `step-output-mini visible${text ? ' has-data' : ''}`;
 }
 
+function buildStepReceiptView(step) {
+  const receipt = step?.receipt || {};
+  const metadata = receipt?.metadata || receipt?.runtime_metadata || {};
+  const proof = metadata?.proof || {};
+
+  return {
+    status: receipt?.status || 'unknown',
+    entry: receipt?.entry || 'https://runtime.commandlayer.org/execute',
+    verb: receipt?.verb || step?.verb || 'unknown',
+    version: receipt?.version || receipt?.schema_version || '1.1.0',
+    class: receipt?.class || 'commons',
+    result: receipt?.result || {},
+    metadata: {
+      trace_id: metadata?.trace_id || proof?.trace_id || null,
+      proof: {
+        alg: proof?.alg || null,
+        canonical: proof?.canonical || null,
+        signer_id: proof?.signer_id || null,
+        kid: proof?.kid || null,
+        hash_sha256: proof?.hash_sha256 || null,
+        signature_b64: proof?.signature_b64 || null,
+        canonical_id: proof?.canonical_id || null,
+        receipt_id: proof?.receipt_id || metadata?.receipt_id || null,
+        trace_id: proof?.trace_id || metadata?.trace_id || null
+      },
+      receipt_id: metadata?.receipt_id || proof?.receipt_id || null
+    }
+  };
+}
+
+function renderStepReceipt(index, step) {
+  const row = document.getElementById(`receiptRow${index}`);
+  const pre = document.getElementById(`receipt${index}`);
+  if (!row || !pre) return;
+
+  const receipt = step?.receipt;
+  if (!receipt) {
+    row.classList.remove('visible');
+    row.style.display = 'none';
+    pre.textContent = '';
+    return;
+  }
+
+  const visibleReceipt = buildStepReceiptView(step);
+  pre.textContent = JSON.stringify(visibleReceipt, null, 2);
+  row.style.display = 'block';
+  row.classList.add('visible');
+}
+
 // ── BUILD REQUEST BODY ────────────────────────────────────────────────────────
 function buildBody(verb, content, stepIndex) {
   const conf = VERB_FIELDS[verb] || { field: 'content', ops: {} };
@@ -1206,6 +1302,7 @@ async function executeStep(stepIndex, inputOverride) {
 
     setStepState(stepIndex, 'done', `${verb} · ${elapsed}ms`);
     showOutput(stepIndex, output);
+    renderStepReceipt(stepIndex, { ...stepResults[stepIndex], receipt, verb });
     addTrailItem(verb, data, stepIndex);
 
     // update proof panel with final step
@@ -1302,6 +1399,7 @@ async function runFlow() {
   for (let i = 0; i < 3; i++) {
     setStepState(i, 'pending', i === 0 ? 'awaiting run' : `awaiting step ${i}`);
     document.getElementById(`output${i}`).className = 'step-output-mini';
+    renderStepReceipt(i, null);
     if (i > 0) document.getElementById(`chain${i}`).style.display = 'none';
   }
   document.getElementById('proofTrail').innerHTML = `<div class="empty-state"><div class="big">◎</div>Executing…</div>`;
@@ -1354,6 +1452,7 @@ function resetFlow() {
   for (let i = 0; i < 3; i++) {
     setStepState(i, 'pending', i === 0 ? 'awaiting run' : `awaiting step ${i}`);
     document.getElementById(`output${i}`).className = 'step-output-mini';
+    renderStepReceipt(i, null);
     if (i > 0) document.getElementById(`chain${i}`).style.display = 'none';
     document.getElementById(`trace${i}`).textContent = '—';
     document.getElementById(`trace${i}`).className = 'trace-verb pending';
