@@ -1087,6 +1087,55 @@ function setCompletionCtas(isComplete) {
   completionCtas.verifier?.classList.toggle('cta-complete-green--priority', isComplete);
 }
 
+function isMeaningfulProofValue(value) {
+  if (typeof value !== 'string') return false;
+  const normalized = value.trim().toLowerCase();
+  return Boolean(normalized) && !['—', 'pending', 'awaiting execution…', 'awaiting execution...'].includes(normalized);
+}
+
+function getFinalReceipt() {
+  return stepResults[2]?.receipt || lastReceipt || null;
+}
+
+function isProofReady(receipt = getFinalReceipt()) {
+  if (!receipt || typeof receipt !== 'object') return false;
+  const metadata = receipt.metadata || {};
+  const proof = metadata.proof || {};
+  const hash = proof.hash_sha256;
+  const receiptId = metadata.receipt_id || proof.receipt_id;
+  const status = String(receipt.status || '').trim().toLowerCase();
+
+  return isMeaningfulProofValue(hash)
+    && isMeaningfulProofValue(receiptId)
+    && ['success', 'finalized'].includes(status);
+}
+
+function isProofRendered() {
+  const hashText = document.getElementById('mHash')?.textContent || '';
+  const receiptIdText = document.getElementById('mReceiptId')?.textContent || '';
+  const statusText = document.getElementById('mStatus')?.textContent || '';
+  const normalizedStatus = statusText.trim().toLowerCase();
+
+  return isMeaningfulProofValue(hashText)
+    && isMeaningfulProofValue(receiptIdText)
+    && ['success', 'finalized'].includes(normalizedStatus);
+}
+
+async function finalizeCompletionCtas(receipt = getFinalReceipt(), attemptsLeft = 4) {
+  if (!isProofReady(receipt)) return false;
+
+  await new Promise(resolve => queueMicrotask(resolve));
+  await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+  if (isProofRendered()) {
+    setCompletionCtas(true);
+    return true;
+  }
+
+  if (attemptsLeft <= 1) return false;
+  return finalizeCompletionCtas(receipt, attemptsLeft - 1);
+}
+
 // ── RUNTIME HEALTH ───────────────────────────────────────────────────────────
 async function checkRuntime() {
   try {
@@ -1450,7 +1499,7 @@ async function runFlow() {
       throw new Error('Trace continuity failed — steps do not share one trace_id');
     }
 
-    setCompletionCtas(true);
+    await finalizeCompletionCtas(stepResults[2]?.receipt);
 
   } catch (err) {
     const errEl = document.getElementById('errorMsg');
