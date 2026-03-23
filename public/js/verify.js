@@ -246,19 +246,36 @@ function buildAgentReport({ ens, erc, card }) {
 
 // ── PARSE RECEIPT ENVELOPE ────────────────────────────────────────────────────
 function parseEnvelope(raw) {
-  const body     = raw?.receipt && typeof raw.receipt === 'object' ? raw.receipt : raw;
+  const body =
+    raw?.receipt && typeof raw.receipt === 'object' ? raw.receipt :
+    raw?.final_receipt && typeof raw.final_receipt === 'object' ? raw.final_receipt :
+    raw;
+
   const metadata = body?.metadata || raw?.runtime_metadata?.metadata || {};
-  const proof    = body?.proof || raw?.runtime_metadata?.proof || raw?.proof || {};
+  const proof =
+    body?.metadata?.proof ||
+    body?.proof ||
+    raw?.runtime_metadata?.proof ||
+    raw?.proof ||
+    {};
+  const agentId = metadata?.agent_id;
+
   return {
-    raw, body, proof,
-    verb:    body?.verb || body?.x402?.verb || metadata?.verb || null,
-    version: body?.schema_version || body?.x402?.version || metadata?.version || null,
-    entry:   body?.entry || body?.x402?.entry || null,
-    ens:     metadata?.agent_id || metadata?.ens || body?.ens || null,
-    signer:  metadata?.signer_id || metadata?.signer || proof?.signer_id || null,
-    sigB64:  proof?.signature_b64 || proof?.signature || null,
-    sigKid:  proof?.kid || null,
-    hash:    proof?.hash_sha256 || null,
+    raw,
+    body,
+    metadata,
+    proof,
+    verb: body?.verb || body?.x402?.verb || metadata?.verb || null,
+    version: body?.version || body?.schema_version || body?.x402?.version || metadata?.version || null,
+    entry: body?.entry || body?.x402?.entry || null,
+    ens:
+      metadata?.ens ||
+      body?.ens ||
+      (typeof agentId === 'string' && agentId.endsWith('.eth') ? agentId : null),
+    signer: proof?.signer_id || metadata?.signer_id || metadata?.signer || null,
+    sigB64: proof?.signature_b64 || proof?.signature || null,
+    sigKid: proof?.kid || null,
+    hash: proof?.hash_sha256 || null,
   };
 }
 
