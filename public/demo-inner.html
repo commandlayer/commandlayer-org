@@ -516,7 +516,7 @@ footer a:hover { color: var(--gold); }
   <h1>Agents that <em>spend money</em><br />leave proof behind.</h1>
   <p class="hero-sub">
     A five-step commerce flow: <code style="color:var(--gold);font-size:12px;">authorize → checkout → purchase → ship → verify</code>.
-    Every step returns a signed receipt. One trace links the chain. Proof survives outside the runtime.
+    Every step returns a signed receipt. Runtime trace continuity and verifier results are shown from the returned receipts.
   </p>
   <div class="hero-actions">
     <button class="btn btn-gold" id="runBtn" onclick="runFullFlow()">▶ Run Commerce Flow</button>
@@ -675,7 +675,7 @@ footer a:hover { color: var(--gold); }
             <div class="step-btn-num" id="snum4">5</div>
             <div class="step-btn-info">
               <div class="step-btn-verb">verify</div>
-              <div class="step-btn-desc">Validate proof boundary</div>
+              <div class="step-btn-desc">Run verifier check</div>
             </div>
             <div class="step-btn-status" id="sstatus4">—</div>
           </button>
@@ -696,6 +696,7 @@ footer a:hover { color: var(--gold); }
       <div class="card-body">
         <div style="font-size:11px;color:var(--dim);margin-bottom:6px;">Trace ID</div>
         <div style="font-size:12px;color:var(--gold);word-break:break-all;" id="traceDisplay">—</div>
+        <div style="font-size:11px;color:var(--dim);margin-top:6px;display:none;" id="traceWarning"></div>
         <div style="font-size:11px;color:var(--dim);margin-top:10px;margin-bottom:4px;">Runtime</div>
         <div style="font-size:11px;color:var(--accent);" id="runtimeLabel">commercial-runtime.commandlayer.org/authorize/v1.1.0 → /checkout/v1.1.0 → /purchase/v1.1.0 → /ship/v1.1.0 → /verify/v1.1.0</div>
         <div style="font-size:11px;color:var(--dim);margin-top:10px;margin-bottom:4px;">Mode</div>
@@ -756,7 +757,7 @@ footer a:hover { color: var(--gold); }
           <div class="tl-icon">5</div>
           <div class="tl-content">
             <div class="tl-verb">verify</div>
-            <div class="tl-detail">proof boundary</div>
+            <div class="tl-detail" id="verifyTimelineDetail">verifier check</div>
           </div>
           <div class="tl-time" id="tltime4">—</div>
         </div>
@@ -798,6 +799,7 @@ footer a:hover { color: var(--gold); }
         <div class="sig-label">Ed25519 signature (latest step)</div>
         <div class="sig-value dim" id="sigDisplay">awaiting execution…</div>
       </div>
+      <div style="padding:0 14px 14px;font-size:11px;color:var(--dim);display:none;" id="verifyNotice"></div>
     </div>
 
     <!-- JSON tabs -->
@@ -996,11 +998,42 @@ function setTimelineState(i, state, elapsed='') {
 }
 
 // ── BUILD COMMERCIAL BODY ─────────────────────────────────────────────────────
+function getCommercialTraceId(receipt) {
+  return (
+    receipt?.trace?.trace_id ||
+    receipt?.metadata?.trace_id ||
+    receipt?.metadata?.proof?.trace_id ||
+    null
+  );
+}
+
+function collectStepTraceIds(stepReceipts) {
+  return stepReceipts
+    .map(r => getCommercialTraceId(r))
+    .filter(Boolean);
+}
+
+function hasTraceMismatch(stepReceipts) {
+  const ids = [...new Set(collectStepTraceIds(stepReceipts))];
+  return ids.length > 1;
+}
+
+function getVerifyResult(receipt) {
+  return receipt?.result || {};
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
 function normalizeRuntimeResponse(raw) {
   const receipt = raw?.final_receipt || raw?.receipt || raw || {};
   return {
     raw,
-    trace_id: raw?.trace_id || receipt?.metadata?.trace_id || receipt?.runtime_metadata?.trace_id || null,
+    trace_id: getCommercialTraceId(receipt) || raw?.trace_id || receipt?.runtime_metadata?.trace_id || null,
     runtime_metadata: raw?.runtime_metadata || receipt?.runtime_metadata || {},
     receipt,
     steps: Array.isArray(raw?.steps) ? raw.steps : [],
@@ -1027,6 +1060,83 @@ function getReceiptIdFromNormalized(normalized) {
   return normalized?.receipt?.metadata?.receipt_id
     || normalized?.receipt?.metadata?.proof?.receipt_id
     || null;
+}
+function getRecordedStepReceipts() {
+  return stepData
+    .map(step => step?.data?.receipt)
+    .filter(Boolean);
+}
+
+function updateTraceDisplay(latestReceipt = null) {
+  const traceDisplay = document.getElementById('traceDisplay');
+  const traceWarning = document.getElementById('traceWarning');
+  const stepReceipts = getRecordedStepReceipts();
+  const latestTraceId = getCommercialTraceId(latestReceipt)
+    || [...stepReceipts].reverse().map(getCommercialTraceId).find(Boolean)
+    || traceId
+    || '—';
+
+  traceId = latestTraceId === '—' ? null : latestTraceId;
+  traceDisplay.textContent = latestTraceId;
+  document.getElementById('fTrace').value = traceId || '';
+
+  if (hasTraceMismatch(stepReceipts)) {
+    traceWarning.textContent = 'Trace continuity mismatch: step receipts do not share one runtime trace_id.';
+    traceWarning.style.display = 'block';
+    traceWarning.style.color = 'var(--amber)';
+  } else if (latestTraceId && latestTraceId !== '—') {
+    traceWarning.textContent = 'Runtime trace_id shown from the latest signed receipt.';
+    traceWarning.style.display = 'block';
+    traceWarning.style.color = 'var(--dim)';
+  } else {
+    traceWarning.textContent = '';
+    traceWarning.style.display = 'none';
+  }
+}
+
+function getVerifyPresentation(receipt, verbOverride = '') {
+  const verb = receipt?.x402?.verb || verbOverride;
+  const result = getVerifyResult(receipt);
+  if (verb !== 'verify') {
+    return null;
+  }
+
+  if (result?.verified === true) {
+    return {
+      txText: 'Verified',
+      txIcon: '✓',
+      badgeClass: 'tx-badge settled',
+      cardClass: 'tx-card panel-card settled',
+      status: result.status || 'verified',
+      statusClass: 'green',
+      timelineDetail: 'verification confirmed',
+      notice: result.status ? `Verifier result: ${result.status}` : 'Independent verification confirmed.',
+      noticeColor: 'var(--green)',
+    };
+  }
+
+  const status = result?.status || 'not_confirmed';
+  const reason = result?.reason || '';
+  const noticeParts = [
+    `Verifier result: ${status}`
+  ];
+  if (reason === 'stub_verifier') {
+    noticeParts.push('Final verify step returned stub_verifier; commercial receipt signing is real, but verifier result is placeholder.');
+  } else if (reason) {
+    noticeParts.push(`Reason: ${reason}`);
+  }
+
+  return {
+    txText: 'Verify Step Executed',
+    txIcon: '◈',
+    badgeClass: 'tx-badge active',
+    cardClass: 'tx-card panel-card live',
+    status,
+    statusClass: 'dim',
+    timelineDetail: reason === 'stub_verifier' ? 'stub verifier response' : 'verification not confirmed',
+    notice: noticeParts.join(' '),
+    noticeColor: 'var(--amber)',
+  };
 }
 
 function getCommercialFormData() {
@@ -1175,12 +1285,16 @@ function renderVerifyCurl(receipt) {
   <span class="flag">--data-binary</span> '${htmlBody}'`;
 }
 
-function completeSettledState() {
-  setGlobalBadge('settled', 'settled');
-  document.getElementById('txCard').className = 'tx-card panel-card settled';
-  document.getElementById('txBadge').className = 'tx-badge settled';
-  document.getElementById('txIcon').textContent = '✓';
-  document.getElementById('txText').textContent = 'Settled';
+function completeSettledState(receipt = null) {
+  const verifyPresentation = getVerifyPresentation(receipt, 'verify');
+  const settledLabel = verifyPresentation?.status === 'verified' || verifyPresentation?.txText === 'Verified'
+    ? 'verified ✓'
+    : 'flow complete ✓';
+  setGlobalBadge('settled', settledLabel);
+  document.getElementById('txCard').className = verifyPresentation?.cardClass || 'tx-card panel-card settled';
+  document.getElementById('txBadge').className = verifyPresentation?.badgeClass || 'tx-badge settled';
+  document.getElementById('txIcon').textContent = verifyPresentation?.txIcon || '✓';
+  document.getElementById('txText').textContent = verifyPresentation?.txText || 'Settled';
 }
 
 function applyMultiStepResult(normalized, elapsed) {
@@ -1194,6 +1308,7 @@ function applyMultiStepResult(normalized, elapsed) {
     const stepElapsed = step.elapsed_ms || elapsed;
 
     stepData[i] = { data: normalizedStep, raw: step, verb, elapsed: stepElapsed };
+    updateTraceDisplay(normalizedStep.receipt);
     setPipeState(i, 'done');
     setStepBtnState(i, 'done', step.elapsed_ms ? `${step.elapsed_ms}ms` : 'flow');
     setTimelineState(i, 'done', step.elapsed_ms ? `${step.elapsed_ms}ms` : 'flow');
@@ -1207,7 +1322,7 @@ function applyMultiStepResult(normalized, elapsed) {
   }
 
   updateProofPanel(count - 1);
-  if (count === STEPS.length) completeSettledState();
+  if (count === STEPS.length) completeSettledState(stepData[count - 1]?.data?.receipt);
   document.getElementById('autorunBar').classList.add('hidden');
   return true;
 }
@@ -1241,6 +1356,7 @@ async function runStep(i, auto = false) {
     const elapsed = Date.now() - t0;
     stepData[i] = { data: normalized, raw, verb, elapsed, requestBody };
     stepsDone = Math.max(stepsDone, i + 1);
+    updateTraceDisplay(normalized.receipt);
 
     setPipeState(i, 'done');
     setStepBtnState(i, 'done', `${elapsed}ms`);
@@ -1251,7 +1367,7 @@ async function runStep(i, auto = false) {
 
     updateProofPanel(i);
 
-    if (i === 4) completeSettledState();
+    if (i === 4) completeSettledState(normalized.receipt);
 
     if (!auto) isRunning = false;
     return normalized;
@@ -1275,7 +1391,7 @@ function setGlobalBadge(state, label) {
     badge.className = 'card-badge';
     badge.style.cssText = 'background:rgba(255,179,0,.12);color:var(--amber);border:1px solid rgba(255,179,0,.3)';
   } else if (state === 'settled') {
-    badge.textContent = 'settled ✓';
+    badge.textContent = label || 'flow complete ✓';
     badge.className = 'card-badge badge-live';
     badge.style.cssText = '';
   } else {
@@ -1298,16 +1414,30 @@ function updateProofPanel(i) {
     || null;
   const rid = getReceiptIdFromNormalized(data) || '—';
   const chain = document.getElementById('fChain').options[document.getElementById('fChain').selectedIndex].text;
+  const verifyPresentation = getVerifyPresentation(receipt, verb);
+  const verifyNotice = document.getElementById('verifyNotice');
 
   setMeta('mVerb', verb, 'gold');
-  setMeta('mStatus', receipt.status || 'success', 'green');
+  setMeta('mStatus', verifyPresentation?.status || receipt.status || 'success', verifyPresentation?.statusClass || 'green');
   setMeta('mSigner', signer, 'accent');
   setMeta('mTime', `${elapsed}ms`, 'dim');
   setMeta('mHash', hash, 'hash');
   setMeta('mReceiptId', rid, 'dim');
   setMeta('mChain', chain, 'dim');
 
-  if (i < 4) {
+  if (verifyPresentation) {
+    document.getElementById('txCard').className = verifyPresentation.cardClass;
+    document.getElementById('txBadge').className = verifyPresentation.badgeClass;
+    document.getElementById('txIcon').textContent = verifyPresentation.txIcon;
+    document.getElementById('txText').textContent = verifyPresentation.txText;
+    document.getElementById('verifyTimelineDetail').textContent = verifyPresentation.timelineDetail;
+    verifyNotice.innerHTML = escapeHtml(verifyPresentation.notice);
+    verifyNotice.style.display = 'block';
+    verifyNotice.style.color = verifyPresentation.noticeColor;
+  } else {
+    document.getElementById('verifyTimelineDetail').textContent = 'verifier check';
+    verifyNotice.textContent = '';
+    verifyNotice.style.display = 'none';
     document.getElementById('txCard').className = 'tx-card panel-card live';
     document.getElementById('txBadge').className = 'tx-badge active';
     document.getElementById('txIcon').textContent = '◈';
@@ -1320,6 +1450,7 @@ function updateProofPanel(i) {
     document.getElementById('sigDisplay').className = 'sig-value dim';
   }
 
+  updateTraceDisplay(receipt);
   document.getElementById('receiptJson').innerHTML = hl(JSON.stringify(receipt, null, 2));
   document.getElementById('rawJson').innerHTML = hl(JSON.stringify(raw || data.raw || data, null, 2));
   document.getElementById('curlDisplay').innerHTML = renderVerifyCurl(receipt);
@@ -1338,8 +1469,7 @@ async function runFullFlow() {
 
   traceId = document.getElementById('fTrace').value || genId('trace_comm');
   orderId = document.getElementById('fOrder').value || genId('order');
-  document.getElementById('traceDisplay').textContent = traceId;
-  document.getElementById('fTrace').value = traceId;
+  updateTraceDisplay(null);
   document.getElementById('fOrder').value = orderId;
 
   setStepBtnState(0, 'active');
@@ -1387,6 +1517,9 @@ function resetFlow(silent = false) {
   document.getElementById('txText').textContent = 'Idle';
   document.getElementById('sigDisplay').textContent = 'awaiting execution…';
   document.getElementById('sigDisplay').className = 'sig-value dim';
+  document.getElementById('verifyNotice').textContent = '';
+  document.getElementById('verifyNotice').style.display = 'none';
+  document.getElementById('verifyTimelineDetail').textContent = 'verifier check';
   ['mVerb','mStatus','mSigner','mTime','mHash','mReceiptId','mChain'].forEach(id => {
     document.getElementById(id).textContent = '—';
     document.getElementById(id).className = 'meta-value dim';
@@ -1396,7 +1529,9 @@ function resetFlow(silent = false) {
   document.getElementById('curlDisplay').innerHTML = renderVerifyCurl(null);
   document.getElementById('errorMsg').textContent = '';
   document.getElementById('errorMsg').className = 'error-msg';
-  document.getElementById('traceDisplay').textContent = '—';
+  traceId = null;
+  document.getElementById('fTrace').value = '';
+  updateTraceDisplay(null);
   if (!silent) {
     document.getElementById('runBtn').textContent = '▶ Run Commerce Flow';
     document.getElementById('runBtn2').textContent = '▶ Run Full Flow';
