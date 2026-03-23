@@ -478,18 +478,16 @@ footer a:hover { color: var(--accent); }
 
       <div class="card panel-card">
         <h2 class="panel-title">Receipt Verification</h2>
-        <p class="panel-copy">Paste a CommandLayer receipt JSON. The verifier extracts verb, version, entry, and proof fields — then compares against the selected agent above.</p>
+        <p class="panel-copy">Paste a CommandLayer receipt JSON or runtime wrapper. The verifier extracts verb, version, entry, and proof fields — including <code>metadata.proof</code> — then compares against the selected agent above.</p>
         <label class="field-label" for="receiptInput">Receipt JSON</label>
         <textarea class="field" id="receiptInput" spellcheck="false" placeholder="Paste a CommandLayer receipt JSON here…
 
 Fields the verifier reads:
+  receipt / final_receipt / runtime wrapper
   metadata.ens / metadata.agent_id
-  verb / x402.verb / schema_version
+  verb / x402.verb / version / schema_version
   entry / x402.entry
-  proof.signer_id
-  proof.signature_b64
-  proof.hash_sha256
-  proof.kid"></textarea>
+  metadata.proof.* / proof.*"></textarea>
         <div class="btn-row">
           <button class="btn btn-primary" id="verifyBtn" style="flex:1;">▶ Verify Receipt</button>
           <button class="btn btn-ghost"   id="clearBtn">Clear</button>
