@@ -207,6 +207,46 @@
   }
   .btn-ghost:hover { border-color: var(--accent); color: var(--accent); }
 
+  .cta-complete-green {
+    background: #31f28f;
+    border: 1px solid #28da80;
+    color: #052812;
+    box-shadow: 0 0 0 1px rgba(49,242,143,0.18), 0 0 18px rgba(49,242,143,0.28);
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease, transform 0.15s ease;
+    animation: cta-complete-pulse 0.7s ease-out 1;
+  }
+
+  .cta-complete-green:hover {
+    background: #49f6a0;
+    border-color: #39e18c;
+    color: #031b0c;
+    box-shadow: 0 0 0 1px rgba(73,246,160,0.24), 0 0 24px rgba(73,246,160,0.34);
+    transform: translateY(-1px);
+  }
+
+  .cta-complete-green:focus-visible {
+    outline: 2px solid #b8ffd7;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 3px rgba(73,246,160,0.2), 0 0 26px rgba(73,246,160,0.34);
+  }
+
+  .cta-complete-green.cta-complete-green--priority {
+    background: #4dff9f;
+    border-color: #3ae88d;
+    box-shadow: 0 0 0 1px rgba(77,255,159,0.24), 0 0 22px rgba(77,255,159,0.38);
+  }
+
+  .cta-complete-green.cta-complete-green--priority:hover {
+    background: #67ffaf;
+    border-color: #52ef9f;
+    box-shadow: 0 0 0 1px rgba(103,255,175,0.28), 0 0 28px rgba(103,255,175,0.42);
+  }
+
+  @keyframes cta-complete-pulse {
+    0% { box-shadow: 0 0 0 0 rgba(49,242,143,0.42), 0 0 0 rgba(49,242,143,0.2); }
+    100% { box-shadow: 0 0 0 10px rgba(49,242,143,0), 0 0 18px rgba(49,242,143,0.28); }
+  }
+
   .btn-copy {
     background: var(--panel);
     color: var(--dim);
@@ -764,9 +804,9 @@
   <div class="hero-actions">
     <button class="btn btn-primary" id="runBtn" onclick="runFlow()">▶ Run Flow</button>
     <button class="btn btn-ghost" onclick="resetFlow()">↺ Reset</button>
-    <a href="https://www.commandlayer.org/demo-inner.html" class="btn btn-ghost">Commerce Demo →</a>
+    <a href="https://www.commandlayer.org/demo-inner.html" class="btn btn-ghost" id="commerceDemoCta">Commerce Demo →</a>
     <a href="https://www.commandlayer.org/quickstart.html" class="btn btn-ghost">Quickstart →</a>
-    <a href="/verify.html" class="btn btn-ghost">Verifier →</a>
+    <a href="/verify.html" class="btn btn-ghost" id="verifierCta">Verifier →</a>
   </div>
 </div>
 
@@ -1036,6 +1076,16 @@ let isRunning = false;
 let lastRaw = null;
 let lastReceipt = null;
 let verifyCurlCmd = null;
+const completionCtas = {
+  commerce: document.getElementById('commerceDemoCta'),
+  verifier: document.getElementById('verifierCta')
+};
+
+function setCompletionCtas(isComplete) {
+  completionCtas.commerce?.classList.toggle('cta-complete-green', isComplete);
+  completionCtas.verifier?.classList.toggle('cta-complete-green', isComplete);
+  completionCtas.verifier?.classList.toggle('cta-complete-green--priority', isComplete);
+}
 
 // ── RUNTIME HEALTH ───────────────────────────────────────────────────────────
 async function checkRuntime() {
@@ -1366,6 +1416,7 @@ async function runFlow() {
   stepResults = [null, null, null];
   lastReceipt = null;
   verifyCurlCmd = null;
+  setCompletionCtas(false);
 
   // reset receipt panel
   document.getElementById('receiptHero').classList.remove('verified');
@@ -1398,6 +1449,8 @@ async function runFlow() {
     if ((trace1 && trace1 !== traceId) || (trace2 && trace2 !== traceId) || (trace3 && trace3 !== traceId) || (trace1 !== trace2) || (trace2 !== trace3)) {
       throw new Error('Trace continuity failed — steps do not share one trace_id');
     }
+
+    setCompletionCtas(true);
 
   } catch (err) {
     const errEl = document.getElementById('errorMsg');
@@ -1443,6 +1496,7 @@ function resetFlow() {
   document.getElementById('curlDisplay').innerHTML = `<span style="color:var(--dimmer);">// run a flow to generate the verify cURL command</span>`;
   document.getElementById('autorunBar').classList.remove('hidden');
   stepResults = [null, null, null];
+  setCompletionCtas(false);
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
