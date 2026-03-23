@@ -123,6 +123,21 @@ nav {
 .btn-gold:disabled { background: var(--dimmer); color: var(--dim); cursor: not-allowed; transform: none; }
 .btn-ghost { background: transparent; color: var(--dim); border: 1px solid var(--border); }
 .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+.cta-highlight-green {
+  background: #39ff88;
+  border-color: #39ff88;
+  color: #04140b;
+  box-shadow: 0 0 0 1px rgba(57, 255, 136, 0.2), 0 0 18px rgba(57, 255, 136, 0.38);
+}
+.cta-highlight-green:hover,
+.cta-highlight-green:focus-visible {
+  background: #66ff9f;
+  border-color: #66ff9f;
+  color: #031008;
+  box-shadow: 0 0 0 2px rgba(57, 255, 136, 0.28), 0 0 24px rgba(57, 255, 136, 0.45);
+  outline: none;
+  transform: translateY(-1px);
+}
 .btn-copy { background: var(--panel); color: var(--dim); border: 1px solid var(--border); padding: 5px 10px; font-size: 11px; }
 .btn-copy:hover { border-color: var(--border-hi); color: var(--text); }
 .btn-copy.copied { border-color: var(--green); color: var(--green); }
@@ -506,7 +521,7 @@ footer a:hover { color: var(--gold); }
   <div class="hero-actions">
     <button class="btn btn-gold" id="runBtn" onclick="runFullFlow()">▶ Run Commerce Flow</button>
     <button class="btn btn-ghost" onclick="resetFlow()">↺ Reset</button>
-    <a href="https://www.commandlayer.org/composer.html" class="btn btn-ghost">Commons Composer →</a>
+    <a href="https://www.commandlayer.org/composer.html" class="btn btn-ghost" id="composerCta">Commons Composer →</a>
   </div>
 </div>
 
@@ -1414,6 +1429,12 @@ function copyRaw()     { navigator.clipboard.writeText(document.getElementById('
 updateRuntimeLabels();
 checkRuntime();
 setStepBtnState(0, 'active');
+
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    document.getElementById('composerCta')?.classList.add('cta-highlight-green');
+  }, 3000);
+});
 
 setTimeout(() => { runFullFlow(); }, 900);
 </script>
