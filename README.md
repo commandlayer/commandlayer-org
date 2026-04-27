@@ -2,6 +2,8 @@
 
 Public website and proof surface for CommandLayer.
 
+CommandLayer creates signed receipts. VerifyAgent verifies whether those receipts are real.
+
 CommandLayer is a trust layer for autonomous agent execution:
 
 - **Commons** is the canonical open contract layer and current-line builder default.

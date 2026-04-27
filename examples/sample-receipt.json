@@ -1,0 +1,22 @@
+{
+  "receipt_id": "rcpt_demo_verifyagent_0001",
+  "verb": "parse",
+  "version": "1.1.0",
+  "timestamp": "2026-04-27T00:00:00Z",
+  "entry": "https://runtime.commandlayer.org/execute",
+  "status": "ok",
+  "metadata": {
+    "ens": "parseagent.eth",
+    "agent_id": "parseagent.eth",
+    "proof": {
+      "signer_id": "runtime.commandlayer.eth",
+      "kid": "runtime.commandlayer.eth#cl.sig.kid",
+      "hash_sha256": "8ccf55df2467967f73f5a8f6ad47431142819438dfdbbe7d387dd2e2dc7ecf95",
+      "signature_b64": "MEUCIA2f20uYcJhfD1dPq3d7bxf1zY5T5yQj1vQ9W9s3qVztAiEA4w1UMW0x13Qlb9QJcgVJ5J9h0f3x6dJ3m0QkJ0n1xD4="
+    }
+  },
+  "result": {
+    "action": "parse",
+    "ok": true
+  }
+}
