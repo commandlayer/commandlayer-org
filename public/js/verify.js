@@ -213,13 +213,17 @@ async function verifyReceipt() {
   els.verifyBtn.textContent = 'Verify';
 }
 
+async function fetchSampleReceipt() {
+  const resp = await fetch('/examples/sample-receipt.json', { cache: 'no-store' });
+  if (!resp.ok) throw new Error('Sample receipt could not be loaded.');
+  return resp.json();
+}
+
 async function loadSampleReceipt() {
   els.loadSampleBtn.disabled = true;
   els.loadSampleBtn.textContent = 'Loading...';
   try {
-    const resp = await fetch('/examples/sample-receipt.json', { cache: 'no-store' });
-    if (!resp.ok) throw new Error('Sample receipt could not be loaded.');
-    const data = await resp.json();
+    const data = await fetchSampleReceipt();
     els.receiptInput.value = JSON.stringify(data, null, 2);
     resetToNeutralState('Sample loaded. Click Verify to validate.');
   } catch (e) {
@@ -230,12 +234,11 @@ async function loadSampleReceipt() {
 }
 
 async function loadTamperedReceipt() {
+  console.log('Load Tampered clicked');
   els.loadTamperedBtn.disabled = true;
   els.loadTamperedBtn.textContent = 'Loading...';
   try {
-    const resp = await fetch('/examples/sample-receipt.json', { cache: 'no-store' });
-    if (!resp.ok) throw new Error('Sample receipt could not be loaded.');
-    const data = await resp.json();
+    const data = await fetchSampleReceipt();
     const tampered = JSON.parse(JSON.stringify(data));
     const target = tampered?.receipt && typeof tampered.receipt === 'object'
       ? tampered.receipt
@@ -247,12 +250,14 @@ async function loadTamperedReceipt() {
       throw new Error('Sample receipt format is not supported.');
     }
 
-    if (typeof target.timestamp === 'string') {
-      target.timestamp = `${target.timestamp}.tampered`;
+    if (typeof target.output?.summary === 'string') {
+      target.output.summary = `${target.output.summary} TAMPERED`;
+    } else if (typeof target.output === 'string') {
+      target.output = 'TAMPERED OUTPUT';
+    } else if (typeof target.result?.action === 'string') {
+      target.result.action = `${target.result.action} TAMPERED`;
     } else if (typeof target.verb === 'string') {
-      target.verb = `${target.verb}_tampered`;
-    } else if (typeof target.result?.text === 'string') {
-      target.result.text = `${target.result.text} [tampered]`;
+      target.verb = `${target.verb} TAMPERED`;
     } else {
       throw new Error('No supported signed field was found to tamper.');
     }
