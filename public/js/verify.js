@@ -250,22 +250,23 @@ async function loadTamperedReceipt() {
       throw new Error('Sample receipt format is not supported.');
     }
 
-    if (typeof target.output?.summary === 'string') {
-      target.output.summary = `${target.output.summary} TAMPERED`;
-    } else if (typeof target.output === 'string') {
-      target.output = 'TAMPERED OUTPUT';
-    } else if (typeof target.result?.action === 'string') {
-      target.result.action = `${target.result.action} TAMPERED`;
-    } else if (typeof target.verb === 'string') {
-      target.verb = `${target.verb} TAMPERED`;
+    if (typeof target.verb === 'string') {
+      target.verb = `${target.verb}-tampered`;
     } else {
-      throw new Error('No supported signed field was found to tamper.');
+      target.tampered_demo_marker = 'TAMPERED';
     }
 
-    els.receiptInput.value = JSON.stringify(tampered, null, 2);
+    const tamperedJson = JSON.stringify(tampered, null, 2);
+    console.log('Assigning tampered receipt to textarea');
+    els.receiptInput.value = tamperedJson;
+    console.log('Tampered receipt assigned to textarea');
+
     resetToNeutralState('Tampered sample loaded. Click Verify to detect mismatch.');
   } catch (e) {
-    setVerdict(false, e.message);
+    console.error('Failed to load tampered receipt:', e);
+    const message = e?.message || String(e);
+    els.resultNote.textContent = message;
+    setVerdict(false, message);
   }
   els.loadTamperedBtn.disabled = false;
   els.loadTamperedBtn.textContent = 'Load Tampered';
