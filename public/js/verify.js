@@ -236,12 +236,28 @@ async function loadTamperedReceipt() {
     const resp = await fetch('/examples/sample-receipt.json', { cache: 'no-store' });
     if (!resp.ok) throw new Error('Sample receipt could not be loaded.');
     const data = await resp.json();
+    const tampered = JSON.parse(JSON.stringify(data));
+    const target = tampered?.receipt && typeof tampered.receipt === 'object'
+      ? tampered.receipt
+      : tampered?.final_receipt && typeof tampered.final_receipt === 'object'
+        ? tampered.final_receipt
+        : tampered;
 
-    if (typeof data === 'object' && data && !Array.isArray(data)) {
-      data.timestamp = '2026-04-27T00:00:01Z';
+    if (!target || typeof target !== 'object' || Array.isArray(target)) {
+      throw new Error('Sample receipt format is not supported.');
     }
 
-    els.receiptInput.value = JSON.stringify(data, null, 2);
+    if (typeof target.timestamp === 'string') {
+      target.timestamp = `${target.timestamp}.tampered`;
+    } else if (typeof target.verb === 'string') {
+      target.verb = `${target.verb}_tampered`;
+    } else if (typeof target.result?.text === 'string') {
+      target.result.text = `${target.result.text} [tampered]`;
+    } else {
+      throw new Error('No supported signed field was found to tamper.');
+    }
+
+    els.receiptInput.value = JSON.stringify(tampered, null, 2);
     resetToNeutralState('Tampered sample loaded. Click Verify to detect mismatch.');
   } catch (e) {
     setVerdict(false, e.message);
