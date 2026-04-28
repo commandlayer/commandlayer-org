@@ -24,3 +24,12 @@ This `docs/` tree is the lightweight repo-facing companion:
 - The Markdown docs in this repo are short reference notes for contributors, reviewers, and source control readers.
 - The canonical **contract authority** lives in the upstream protocol repos; published `/schemas/...` paths in this repo are mirrors of those versioned artifacts, not a separate source of protocol truth.
 - Runtime and SDK repos should implement and consume those artifacts without becoming competing authorities over contract meaning.
+
+
+## Project architecture
+
+- **VerifyAgent.eth:** public Commons verifier (MIT) — https://github.com/commandlayer/verifyagent
+- **Runtime:** executes agent actions and emits signed receipts
+- **SDK:** wraps agents and provides receipt tooling
+- **Agent Cards:** identity and capability metadata
+- **CommandLayer Commercial:** hosted runtime, paid APIs, x402, indexing, dashboards, and support

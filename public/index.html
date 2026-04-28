@@ -1391,6 +1391,16 @@
     </div>
 
   </div>
+
+  <div class="section-lead" style="margin-top:24px; max-width:980px; text-align:left;">
+    <strong>VerifyAgent.eth answers:</strong> “Is this receipt valid?” ·
+    <strong>Runtime answers:</strong> “What action ran?” ·
+    <strong>SDK answers:</strong> “How do developers create and verify receipts?” ·
+    <strong>Agent Cards answer:</strong> “What is this agent and what can it do?” ·
+    <strong>Commercial answers:</strong> “How do teams run and verify at scale?”
+    <br /><br />
+    VerifyAgent.eth public repo: <a href="https://github.com/commandlayer/verifyagent" target="_blank" rel="noopener">github.com/commandlayer/verifyagent ↗</a>
+  </div>
 </section>
 
 <hr class="divider" />
@@ -1561,9 +1571,9 @@
 ═══════════════════════════════════════════════════ -->
 <section>
   <div class="section-label">Technical architecture</div>
-  <h2 class="section-h2">Three Tiers.<br /><em>One Namespace.</em></h2>
+  <h2 class="section-h2">Project Architecture.<br /><em>Clear layer boundaries.</em></h2>
   <p class="section-lead">
-    The verb namespace runs from free-tier commons to commercial x402 — all bound to ENS agent identity.
+    VerifyAgent.eth is the public trust layer. Runtime executes actions. SDK gives developer tooling. Agent Cards define identity/capabilities. Commercial provides hosted scale.
   </p>
 
   <div class="arch-grid">
@@ -1571,7 +1581,7 @@
       <div class="arch-icon">⬡</div>
       <div class="arch-title">Commons</div>
       <div class="arch-body">
-        10 foundational agent actions available free — analyze, summarize, parse, fetch, and more. Every action is signed. Every result is proof anyone can verify.
+        Public contract semantics and shared receipt model that runtimes execute and verifiers check.
       </div>
       <span class="arch-pill commons">free · open · signed</span>
     </div>
@@ -1579,7 +1589,7 @@
       <div class="arch-icon">◈</div>
       <div class="arch-title">Commercial</div>
       <div class="arch-body">
-        Premium actions gated by agent-native micropayment. The receipt proves what the payment bought — no invoice, no escrow dispute, no he-said-she-said.
+        Hosted infrastructure for teams: runtime hosting, paid APIs, x402 billing, indexing, dashboards, and enterprise support.
       </div>
       <span class="arch-pill commercial">pay-per-action</span>
     </div>
@@ -1587,7 +1597,7 @@
       <div class="arch-icon">◎</div>
       <div class="arch-title">Agent Cards</div>
       <div class="arch-body">
-        Structured identity published on-chain. Every agent declares what it can do, who signs for it, and how to verify it. Discoverable by machines and humans alike.
+        Agent identity and capability metadata: verbs, schema versions, endpoints, and signer references.
       </div>
       <span class="arch-pill cards">on-chain identity</span>
     </div>

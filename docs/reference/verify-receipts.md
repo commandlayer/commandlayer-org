@@ -1,6 +1,6 @@
 # How to verify receipts
 
-Receipt verification should be boring.
+Receipt verification should be boring. The public VerifyAgent.eth verifier lives at https://github.com/commandlayer/verifyagent and gives anyone a Commons-grade way to check receipts.
 
 The goal is not to trust a runtime because it says something happened. The goal is to check whether a published contract result is well-formed and whether any attached proof material matches it.
 
