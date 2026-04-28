@@ -2,17 +2,18 @@
 
 const EXPECTED_ENS_SIGNER = 'runtime.commandlayer.eth';
 const CHECK_LABELS = [
-  ['schema_valid', 'Schema valid'],
-  ['canonical_hash_matched', 'Canonical hash matched'],
-  ['ed25519_signature_valid', 'Ed25519 signature valid'],
-  ['ens_key_resolved', 'ENS key resolved'],
-  ['signer_matched', 'Signer matched'],
+  ['schema_valid', '1) Parse receipt schema'],
+  ['canonical_hash_matched', '2) Recompute canonical hash'],
+  ['ed25519_signature_valid', '3) Verify Ed25519 signature'],
+  ['ens_key_resolved', '4) Resolve signer public key from ENS'],
+  ['signer_matched', '5) Match signer identity'],
 ];
 
 const els = {
   receiptInput: document.getElementById('receiptInput'),
   verifyBtn: document.getElementById('verifyBtn'),
   loadSampleBtn: document.getElementById('loadSampleBtn'),
+  loadTamperedBtn: document.getElementById('loadTamperedBtn'),
   resultCard: document.getElementById('resultCard'),
   resultState: document.getElementById('resultState'),
   resultNote: document.getElementById('resultNote'),
@@ -31,26 +32,37 @@ function esc(v) {
 
 function renderChecks(checks) {
   els.checksList.innerHTML = CHECK_LABELS.map(([key, label]) => {
-    const ok = checks[key] === true;
-    return `<li class="check-item"><span>${label}</span><span class="check-status ${ok ? 'ok' : 'bad'}">${ok ? 'PASS' : 'FAIL'}</span></li>`;
+    const status = checks[key];
+    const ok = status === true;
+    const bad = status === false;
+    return `<li class="check-item"><span>${label}</span><span class="check-status ${ok ? 'ok' : bad ? 'bad' : 'neutral'}">${ok ? 'PASS' : bad ? 'FAIL' : '—'}</span></li>`;
   }).join('');
 }
 
 function renderMeta(meta) {
   const rows = [
-    ['Signer ENS', meta.signerEns || '—'],
+    ['Signer ENS', meta.signerEns || '—', true],
+    ['Public Key Source', meta.publicKeySource || 'ENS text record', true],
     ['Receipt ID', meta.receiptId || '—'],
     ['Verb/Action', meta.verb || '—'],
     ['Timestamp', meta.timestamp || '—'],
     ['Hash', meta.hash || '—'],
   ];
 
-  els.metaRows.innerHTML = rows.map(([k, v]) => (
-    `<div class="row"><div class="k">${esc(k)}</div><div class="v code">${esc(v)}</div></div>`
+  els.metaRows.innerHTML = rows.map(([k, v, highlight]) => (
+    `<div class="row ${highlight ? 'meta-highlight' : ''}"><div class="k">${esc(k)}</div><div class="v code">${esc(v)}</div></div>`
   )).join('');
 }
 
-function setVerdict(ok, note) {
+function setVerdict(ok, note, isIdle = false) {
+  if (isIdle) {
+    els.resultState.className = 'result-state idle';
+    els.resultState.textContent = '—';
+    els.resultCard.style.background = '#f9fbff';
+    els.resultCard.style.borderColor = 'var(--line)';
+    els.resultNote.textContent = note;
+    return;
+  }
   els.resultState.className = `result-state ${ok ? 'verified' : 'invalid'}`;
   els.resultState.textContent = ok ? 'VERIFIED' : 'INVALID';
   els.resultNote.textContent = note;
@@ -94,6 +106,7 @@ function runStructuralChecks(parsed) {
     },
     meta: {
       signerEns: signerMatched ? EXPECTED_ENS_SIGNER : (signer || metadata?.ens || null),
+      publicKeySource: 'ENS text record',
       receiptId: receipt?.receipt_id || receipt?.id || metadata?.receipt_id || null,
       verb: receipt?.verb || receipt?.action || receipt?.x402?.verb || metadata?.verb || null,
       timestamp: receipt?.timestamp || receipt?.created_at || metadata?.timestamp || null,
@@ -125,6 +138,7 @@ async function runBackendVerify(parsed) {
     },
     meta: {
       signerEns: signer,
+      publicKeySource: 'ENS resolver response',
       receiptId: data?.receipt_id || data?.receipt?.receipt_id || data?.normalized_receipt?.receipt_id || null,
       verb: data?.receipt?.verb || data?.normalized_receipt?.verb || null,
       timestamp: data?.receipt?.timestamp || data?.normalized_receipt?.timestamp || null,
@@ -175,7 +189,7 @@ async function verifyReceipt() {
   renderMeta(result.meta);
 
   els.verifyBtn.disabled = false;
-  els.verifyBtn.textContent = 'Verify Receipt';
+  els.verifyBtn.textContent = 'Verify';
 }
 
 async function loadSampleReceipt() {
@@ -190,17 +204,42 @@ async function loadSampleReceipt() {
     setVerdict(false, e.message);
   }
   els.loadSampleBtn.disabled = false;
-  els.loadSampleBtn.textContent = 'Load Sample Receipt';
+  els.loadSampleBtn.textContent = 'Load Sample';
+}
+
+async function loadTamperedReceipt() {
+  els.loadTamperedBtn.disabled = true;
+  els.loadTamperedBtn.textContent = 'Loading...';
+  try {
+    const resp = await fetch('/examples/sample-receipt.json', { cache: 'no-store' });
+    if (!resp.ok) throw new Error('Sample receipt could not be loaded.');
+    const data = await resp.json();
+    if (data?.receipt?.metadata?.proof?.hash_sha256) {
+      data.receipt.metadata.proof.hash_sha256 = `${data.receipt.metadata.proof.hash_sha256}00`;
+    } else if (data?.receipt?.metadata?.proof?.hash) {
+      data.receipt.metadata.proof.hash = `${data.receipt.metadata.proof.hash}00`;
+    } else {
+      data.metadata = data.metadata || {};
+      data.metadata.tampered = true;
+    }
+    els.receiptInput.value = JSON.stringify(data, null, 2);
+  } catch (e) {
+    setVerdict(false, e.message);
+  }
+  els.loadTamperedBtn.disabled = false;
+  els.loadTamperedBtn.textContent = 'Load Tampered';
 }
 
 els.verifyBtn.addEventListener('click', verifyReceipt);
 els.loadSampleBtn.addEventListener('click', loadSampleReceipt);
+els.loadTamperedBtn.addEventListener('click', loadTamperedReceipt);
 
 renderChecks({
-  schema_valid: false,
-  canonical_hash_matched: false,
-  ed25519_signature_valid: false,
-  ens_key_resolved: false,
-  signer_matched: false,
+  schema_valid: null,
+  canonical_hash_matched: null,
+  ed25519_signature_valid: null,
+  ens_key_resolved: null,
+  signer_matched: null,
 });
-renderMeta({ signerEns: EXPECTED_ENS_SIGNER });
+renderMeta({ signerEns: EXPECTED_ENS_SIGNER, publicKeySource: 'ENS text record' });
+setVerdict(false, 'Load a sample receipt, then tamper it to see invalid proof detection.', true);
