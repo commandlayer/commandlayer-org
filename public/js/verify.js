@@ -14,6 +14,7 @@ const els = {
   verifyBtn: document.getElementById('verifyBtn'),
   loadSampleBtn: document.getElementById('loadSampleBtn'),
   loadTamperedBtn: document.getElementById('loadTamperedBtn'),
+  clearBtn: document.getElementById('clearBtn'),
   resultCard: document.getElementById('resultCard'),
   resultState: document.getElementById('resultState'),
   resultNote: document.getElementById('resultNote'),
@@ -68,6 +69,25 @@ function setVerdict(ok, note, isIdle = false) {
   els.resultNote.textContent = note;
   els.resultCard.style.background = ok ? 'var(--green-soft)' : 'var(--red-soft)';
   els.resultCard.style.borderColor = ok ? 'rgba(13,159,98,.35)' : 'rgba(217,45,32,.35)';
+}
+
+function resetToNeutralState(note = 'Run verification to see verdict.') {
+  renderChecks({
+    schema_valid: null,
+    canonical_hash_matched: null,
+    ed25519_signature_valid: null,
+    ens_key_resolved: null,
+    signer_matched: null,
+  });
+  renderMeta({
+    signerEns: null,
+    publicKeySource: null,
+    receiptId: null,
+    verb: null,
+    timestamp: null,
+    hash: null,
+  });
+  setVerdict(false, note, true);
 }
 
 function extractReceipt(raw) {
@@ -214,14 +234,13 @@ async function loadTamperedReceipt() {
     const resp = await fetch('/examples/sample-receipt.json', { cache: 'no-store' });
     if (!resp.ok) throw new Error('Sample receipt could not be loaded.');
     const data = await resp.json();
-    if (data?.receipt?.metadata?.proof?.hash_sha256) {
-      data.receipt.metadata.proof.hash_sha256 = `${data.receipt.metadata.proof.hash_sha256}00`;
-    } else if (data?.receipt?.metadata?.proof?.hash) {
-      data.receipt.metadata.proof.hash = `${data.receipt.metadata.proof.hash}00`;
+
+    if (typeof data?.result?.ok === 'boolean') {
+      data.result.ok = !data.result.ok;
     } else {
-      data.metadata = data.metadata || {};
-      data.metadata.tampered = true;
+      data.status = data.status === 'ok' ? 'tampered' : 'ok';
     }
+
     els.receiptInput.value = JSON.stringify(data, null, 2);
   } catch (e) {
     setVerdict(false, e.message);
@@ -230,16 +249,14 @@ async function loadTamperedReceipt() {
   els.loadTamperedBtn.textContent = 'Load Tampered';
 }
 
+function clearVerifierState() {
+  els.receiptInput.value = '';
+  resetToNeutralState('Run verification to see verdict.');
+}
+
 els.verifyBtn.addEventListener('click', verifyReceipt);
 els.loadSampleBtn.addEventListener('click', loadSampleReceipt);
 els.loadTamperedBtn.addEventListener('click', loadTamperedReceipt);
+els.clearBtn.addEventListener('click', clearVerifierState);
 
-renderChecks({
-  schema_valid: null,
-  canonical_hash_matched: null,
-  ed25519_signature_valid: null,
-  ens_key_resolved: null,
-  signer_matched: null,
-});
-renderMeta({ signerEns: EXPECTED_ENS_SIGNER, publicKeySource: 'ENS text record' });
-setVerdict(false, 'Load a sample receipt, then tamper it to see invalid proof detection.', true);
+resetToNeutralState('Load a sample receipt, then tamper it to see invalid proof detection.');
