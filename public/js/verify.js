@@ -9,18 +9,19 @@ const CHECK_LABELS = [
   ['signer_matched', '5) Match signer identity'],
 ];
 
-const els = {
-  receiptInput: document.getElementById('receiptInput'),
-  verifyBtn: document.getElementById('verifyBtn'),
-  loadSampleBtn: document.getElementById('loadSampleBtn'),
-  loadTamperedBtn: document.getElementById('loadTamperedBtn'),
-  clearBtn: document.getElementById('clearBtn'),
-  resultCard: document.getElementById('resultCard'),
-  resultState: document.getElementById('resultState'),
-  resultNote: document.getElementById('resultNote'),
-  checksList: document.getElementById('checksList'),
-  metaRows: document.getElementById('metaRows'),
-};
+const REQUIRED_ELEMENT_IDS = [
+  'receiptInput',
+  'verifyBtn',
+  'loadSampleBtn',
+  'loadTamperedBtn',
+  'clearBtn',
+  'resultCard',
+  'resultState',
+  'resultNote',
+  'checksList',
+  'metaRows',
+];
+let els = null;
 
 function esc(v) {
   return String(v ?? '')
@@ -220,6 +221,7 @@ async function loadSampleReceipt() {
     if (!resp.ok) throw new Error('Sample receipt could not be loaded.');
     const data = await resp.json();
     els.receiptInput.value = JSON.stringify(data, null, 2);
+    resetToNeutralState('Sample loaded. Click Verify to validate.');
   } catch (e) {
     setVerdict(false, e.message);
   }
@@ -235,13 +237,12 @@ async function loadTamperedReceipt() {
     if (!resp.ok) throw new Error('Sample receipt could not be loaded.');
     const data = await resp.json();
 
-    if (typeof data?.result?.ok === 'boolean') {
-      data.result.ok = !data.result.ok;
-    } else {
-      data.status = data.status === 'ok' ? 'tampered' : 'ok';
+    if (typeof data === 'object' && data && !Array.isArray(data)) {
+      data.timestamp = '2026-04-27T00:00:01Z';
     }
 
     els.receiptInput.value = JSON.stringify(data, null, 2);
+    resetToNeutralState('Tampered sample loaded. Click Verify to detect mismatch.');
   } catch (e) {
     setVerdict(false, e.message);
   }
@@ -254,9 +255,34 @@ function clearVerifierState() {
   resetToNeutralState('Run verification to see verdict.');
 }
 
-els.verifyBtn.addEventListener('click', verifyReceipt);
-els.loadSampleBtn.addEventListener('click', loadSampleReceipt);
-els.loadTamperedBtn.addEventListener('click', loadTamperedReceipt);
-els.clearBtn.addEventListener('click', clearVerifierState);
+function resolveElements() {
+  const missing = [];
+  const resolved = {};
+  for (const id of REQUIRED_ELEMENT_IDS) {
+    resolved[id] = document.getElementById(id);
+    if (!resolved[id]) missing.push(id);
+  }
+  if (missing.length) {
+    console.warn(`[verify.js] Missing required element(s): ${missing.join(', ')}. Verify page handlers were not attached.`);
+    return null;
+  }
+  return resolved;
+}
 
-resetToNeutralState('Load a sample receipt, then tamper it to see invalid proof detection.');
+function initVerifyPage() {
+  els = resolveElements();
+  if (!els) return;
+
+  els.verifyBtn.addEventListener('click', verifyReceipt);
+  els.loadSampleBtn.addEventListener('click', loadSampleReceipt);
+  els.loadTamperedBtn.addEventListener('click', loadTamperedReceipt);
+  els.clearBtn.addEventListener('click', clearVerifierState);
+
+  resetToNeutralState('Load a sample receipt, then tamper it to see invalid proof detection.');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initVerifyPage, { once: true });
+} else {
+  initVerifyPage();
+}
