@@ -142,7 +142,7 @@ footer a:hover{color:var(--accent);}
 <div class="page-wrap">
   <div class="doc-eyebrow">▸ docs</div>
   <h1 class="doc-h1">Getting started with<br /><em>CommandLayer</em></h1>
-  <p class="doc-lead">This docs hub follows the public CommandLayer story in the right order: execute, emit receipt, verify. Start with Commons for the contract, use Runtime for proof production, and use Agent Cards for identity and discovery.</p>
+  <p class="doc-lead">This docs hub follows the public CommandLayer story in the right order: execute, emit receipt, verify. Start with Commons for contracts, use Runtime for execution, use SDK for developer receipt tooling, use Agent Cards for identity/discovery, and use VerifyAgent.eth as the public verifier (MIT): https://github.com/commandlayer/verifyagent.</p>
 
   <div class="badge-row">
     <span class="v-badge accent">Commons v1.1.0 · MIT · authoritative</span>
@@ -180,7 +180,7 @@ footer a:hover{color:var(--accent);}
 
   <div class="doc-section">
     <h2 class="doc-h2">How the pieces fit together</h2>
-    <p class="doc-p">CommandLayer defines machine intent and canonical receipts. Commons and Commercial verbs give you the vocabulary and contract, Agent Cards bind that vocabulary to agents, and Runtime turns it into execution with optional metadata and guarantees.</p>
+    <p class="doc-p">CommandLayer defines machine intent and canonical receipts. VerifyAgent.eth answers receipt validity, Runtime answers what executed, SDK answers how developers generate and verify receipts, Agent Cards answer who an agent is and what it supports, and Commercial answers how teams operate at hosted scale.</p>
 
     <div class="feat-grid">
       <div class="feat-cell">
@@ -192,8 +192,8 @@ footer a:hover{color:var(--accent);}
         <div class="fc-body">Economic flows — <code>authorize</code>, <code>checkout</code>, <code>purchase</code>, <code>ship</code>, <code>verify</code> — that extend Commons with commerce-oriented schemas. Schemas public and portable.</div>
       </div>
       <div class="feat-cell">
-        <div class="fc-title">Agent Cards &amp; Runtime</div>
-        <div class="fc-body">Agent Cards bind ENS names to verbs, schema versions, and routing details. Runtime endpoints execute those verbs with receipts and guarantees, while the verb language and schemas stay free and stable.</div>
+        <div class="fc-title">VerifyAgent.eth, Agent Cards, Runtime, SDK</div>
+        <div class="fc-body">VerifyAgent.eth is the public verifier for receipts. Agent Cards bind ENS names to verbs/schema versions/endpoints. Runtime executes verbs and signs receipts. SDK wraps agents and provides programmatic receipt tooling.</div>
       </div>
     </div>
   </div>

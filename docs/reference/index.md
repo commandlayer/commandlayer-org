@@ -6,7 +6,7 @@ Use it when you need a concise explanation of:
 
 - what a canonical receipt is
 - how verification works
-- how Commons, Commercial, Agent Cards, and Runtime fit together
+- how VerifyAgent.eth, Commons, Commercial, Agent Cards, SDK, and Runtime fit together
 - which surfaces are live versus strategic
 
 ## Core references

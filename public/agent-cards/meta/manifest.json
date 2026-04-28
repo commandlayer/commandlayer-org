@@ -37,7 +37,7 @@
       "source_repo": "https://github.com/commandlayer/protocol-commercial",
       "source_tag": "v1.1.0",
       "shape": "flat",
-      "count": 5,
+      "count": 4,
       "entry_pattern": "x402://<agent>/<verb>/v1.1.0",
       "schema_root": "https://commandlayer.org/schemas/v1.1.0/commercial"
     }
@@ -104,20 +104,6 @@
       "schema_request": "https://commandlayer.org/schemas/v1.1.0/commercial/ship/ship.request.schema.json",
       "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commercial/ship/ship.receipt.schema.json",
       "entry": "x402://shipagent.eth/ship/v1.1.0",
-      "status": "protocol_reference",
-      "networks": [
-        "eip155:1"
-      ]
-    },
-    {
-      "id": "verifyagent.eth",
-      "class": "commercial",
-      "verb": "verify",
-      "version": "1.1.0",
-      "agent_card": "https://commandlayer.org/agent-cards/agents/v1.1.0/commercial/verifyagent.eth.json",
-      "schema_request": "https://commandlayer.org/schemas/v1.1.0/commercial/verify/verify.request.schema.json",
-      "schema_receipt": "https://commandlayer.org/schemas/v1.1.0/commercial/verify/verify.receipt.schema.json",
-      "entry": "x402://verifyagent.eth/verify/v1.1.0",
       "status": "protocol_reference",
       "networks": [
         "eip155:1"

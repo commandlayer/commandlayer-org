@@ -18,7 +18,7 @@ Agent Cards tell clients:
 
 Agent Cards do **not** redefine request or receipt semantics.
 
-The contract still lives in Commons or Commercial schemas. Agent Cards sit above that layer and help clients find compatible agents.
+The contract still lives in Commons or Commercial schemas. Agent Cards sit above that layer and help clients find compatible agents. VerifyAgent.eth is separate: it is the public verifier layer, not an Agent Card.
 
 ## Identity role
 

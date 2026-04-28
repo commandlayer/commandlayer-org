@@ -2,7 +2,7 @@
 
 Public website and proof surface for CommandLayer.
 
-CommandLayer creates signed receipts. VerifyAgent verifies whether those receipts are real.
+CommandLayer Runtime executes agent actions and creates signed receipts. VerifyAgent.eth is the public Commons verifier that checks whether those receipts are valid or tampered.
 
 CommandLayer is a trust layer for autonomous agent execution:
 
@@ -10,6 +10,15 @@ CommandLayer is a trust layer for autonomous agent execution:
 - **Commercial** is a separate commerce-oriented contract line that remains payment-aware.
 - **Agent Cards** handle discovery and routing across both lines.
 - **Runtime** executes contracts and may attach proof metadata without redefining the canonical receipt.
+
+
+## Project Architecture
+
+- **VerifyAgent.eth** answers: **“Is this receipt valid?”** It is the public Commons verifier, published under MIT at https://github.com/commandlayer/verifyagent.
+- **Runtime** answers: **“What action ran?”** It is the execution engine that runs agent actions and emits signed receipts.
+- **SDK** answers: **“How do developers create and verify receipts?”** It wraps agents and provides receipt generation, signing, and programmatic verification tooling.
+- **Agent Cards** answer: **“What is this agent and what can it do?”** They provide identity, capabilities, endpoints, supported verbs, and signer references.
+- **Commercial** answers: **“How do teams run and verify at scale?”** It provides hosted runtime infrastructure, paid APIs, x402 billing surfaces, indexing, dashboards, monitoring, and enterprise support.
 
 ## Documentation authority
 

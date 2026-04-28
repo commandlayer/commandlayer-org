@@ -101,7 +101,7 @@ footer a:hover{color:var(--accent);}
 <div class="page-wrap">
   <div class="doc-eyebrow">▸ repositories</div>
   <h1 class="doc-h1">Repositories</h1>
-  <p class="doc-lead">CommandLayer is one system with separate repos for separate layers. Read this page top-down: Commons and Commercial define the contract, Agent Cards define discovery, runtimes prove execution, and public surfaces explain the stack.</p>
+  <p class="doc-lead">CommandLayer is one system with separate repos for separate layers. Read this page top-down: VerifyAgent.eth handles public verification, Commons/Commercial define contracts, Runtime executes actions, SDK supports developers, Agent Cards handle discovery, and Commercial infrastructure handles scale.</p>
 
   <hr class="doc-divider" />
 
@@ -137,6 +137,16 @@ footer a:hover{color:var(--accent);}
         </div>
         <div class="repo-desc">The discovery and identity layer. Agent Cards say who an agent is, which verbs and versions it supports, and where clients should route requests without redefining the contract itself.</div>
         <div class="repo-pills"><span class="repo-pill">Apache-2.0</span><span class="repo-pill">Identity + routing</span><span class="repo-pill">IPFS-pinned</span></div>
+      </div>
+    </div>
+    <div class="repo-card">
+      <div class="repo-inner">
+        <div class="repo-top">
+          <a href="https://github.com/commandlayer/verifyagent" target="_blank" rel="noopener" class="repo-name">verifyagent ↗</a>
+          <span class="repo-tier tier-tooling">verification</span>
+        </div>
+        <div class="repo-desc">Public Commons verifier for CommandLayer receipts. Anyone can paste a receipt, resolve signer identity through ENS, and verify whether the receipt is valid or tampered with.</div>
+        <div class="repo-pills"><span class="repo-pill">MIT</span><span class="repo-pill">Public verifier</span><span class="repo-pill">Commons trust layer</span></div>
       </div>
     </div>
     <div class="repo-card">
@@ -187,7 +197,7 @@ footer a:hover{color:var(--accent);}
   <p class="doc-p">Do not read these repos as separate products. They are one stack with a strict boundary.</p>
   <div class="arch-card">
     <div class="arch-title">Canonical receipt first</div>
-    <div class="arch-body">Commons and Commercial define the canonical request/receipt surfaces. Agent Cards describe discovery and routing. <strong>Runtime layers may add execution evidence, but proof fields sit around canonical contracts rather than inside the contract definition layer.</strong></div>
+    <div class="arch-body">VerifyAgent.eth answers “Is this receipt valid?” Runtime answers “What action ran?” SDK answers “How do developers create and verify receipts?” Agent Cards answer “What is this agent and what can it do?” Commercial answers “How do teams run and verify at scale?”</div>
   </div>
 </div>
 
