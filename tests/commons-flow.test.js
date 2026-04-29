@@ -342,7 +342,9 @@ function initVerifyPage() {
   resetToNeutralState('Load a sample receipt, then tamper it to see invalid proof detection.');
 }
 
-if (typeof document !== 'undefined') {
+const hasDom = typeof document !== 'undefined' && typeof window !== 'undefined';
+
+if (hasDom) {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', initVerifyPage, { once: true });
   } else {
