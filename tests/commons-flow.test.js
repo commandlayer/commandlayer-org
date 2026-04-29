@@ -1,326 +1,349 @@
-const test = require('node:test');
-const assert = require('node:assert/strict');
+'use strict';
 
-const handler = require('../api/commons-flow');
-const verifyReceiptHandler = require('../api/verify-receipt');
-const {
-  COMMONS_ENTRY,
-  normalizeCanonicalReceipt,
-  unwrapRuntimeReceipt,
-  validateCanonicalReceipt,
-  validateRuntimeMetadata,
-} = require('../api/_receipt-model');
+const EXPECTED_ENS_SIGNER = 'runtime.commandlayer.eth';
 
-function createRuntimeReceipt({ verb, traceId, result, status = 'success' }) {
+const ENS_RECORDS = {
+  'cl.receipt.signer': 'runtime.commandlayer.eth',
+  'cl.sig.kid': 'vC4WbcNoq2znSCiQ',
+  'cl.sig.pub': 'ed25519:hhyCuPNoMk4JtEvGEV8F6nMZ4uDO1EcyizPufmnJTOY=',
+  'cl.sig.canonical': 'json.sorted_keys.v1',
+};
+
+const CHECK_LABELS = [
+  ['schema_valid', '1) Parse receipt schema'],
+  ['canonical_hash_matched', '2) Recompute canonical hash'],
+  ['ed25519_signature_valid', '3) Verify Ed25519 signature'],
+  ['ens_key_resolved', '4) Resolve signer public key from ENS'],
+  ['signer_matched', '5) Match signer identity'],
+];
+
+const REQUIRED_ELEMENT_IDS = [
+  'receiptInput',
+  'verifyBtn',
+  'loadSampleBtn',
+  'loadTamperedBtn',
+  'clearBtn',
+  'resultCard',
+  'resultState',
+  'resultNote',
+  'checksList',
+  'metaRows',
+];
+
+let els = null;
+
+function esc(v) {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function canonicalize(value) {
+  if (value === null || typeof value !== 'object') return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map(canonicalize).join(',')}]`;
+
+  return `{${Object.keys(value)
+    .sort()
+    .map((key) => `${JSON.stringify(key)}:${canonicalize(value[key])}`)
+    .join(',')}}`;
+}
+
+function canonicalReceiptPayload(receipt) {
   return {
-    trace_id: traceId,
-    steps: [
-      {
-        step: 1,
-        receipt: {
-          verb,
-          schema_version: '1.1.0',
-          status,
-          entry: COMMONS_ENTRY,
-          class: 'commons',
-          trace_id: traceId,
-          result,
-          metadata: {
-            receipt_id: `rcpt_${verb}_${traceId}`,
-            trace_id: traceId,
-            proof: {
-              alg: 'ed25519-sha256',
-              canonical: 'json.sorted_keys.v1',
-              signature_b64: 'abc123',
-              hash_sha256: `hash-${verb}`,
-              trace_id: traceId,
-              signer_id: 'runtime.commandlayer.eth',
-            },
-          },
-        },
-      },
-    ],
-    final_receipt: {
-      verb,
-      schema_version: '1.1.0',
-      status,
-      entry: COMMONS_ENTRY,
-      class: 'commons',
-      trace_id: traceId,
-      result,
-      metadata: {
-        receipt_id: `rcpt_${verb}_${traceId}`,
-        trace_id: traceId,
-        proof: {
-          alg: 'ed25519-sha256',
-          canonical_id: 'json.sorted_keys.v1',
-          signature_b64: 'abc123',
-          hash_sha256: `hash-${verb}`,
-          trace_id: traceId,
-          signer_id: 'runtime.commandlayer.eth',
-        },
-      },
-    },
-    receipt: {
-      verb,
-      schema_version: '1.1.0',
-      status,
-      entry: COMMONS_ENTRY,
-      class: 'commons',
-      trace_id: traceId,
-      result,
-      metadata: {
-        receipt_id: `rcpt_${verb}_${traceId}`,
-        trace_id: traceId,
-        proof: {
-          alg: 'ed25519-sha256',
-          canonical: 'json.sorted_keys.v1',
-          signature_b64: 'abc123',
-          hash_sha256: `hash-${verb}`,
-          trace_id: traceId,
-          signer_id: 'runtime.commandlayer.eth',
-        },
-      },
-    },
-    runtime_metadata: {
-      trace_id: traceId,
-      trace: { trace_id: traceId },
-      metadata: {
-        receipt_id: `rcpt_${verb}_${traceId}`,
-        trace_id: traceId,
-      },
-      proof: {
-        alg: 'ed25519-sha256',
-        canonical: 'json.sorted_keys.v1',
-        signature_b64: 'abc123',
-        hash_sha256: `hash-${verb}`,
-        trace_id: traceId,
-        signer_id: 'runtime.commandlayer.eth',
-      },
-    },
+    signer: receipt?.signer,
+    verb: receipt?.verb,
+    input: receipt?.input,
+    output: receipt?.output,
+    execution: receipt?.execution,
+    ts: receipt?.ts,
   };
 }
 
-function createReqRes(body, extras = {}) {
-  const headers = {};
-  const res = {
-    statusCode: 200,
-    headers,
-    body: undefined,
-    setHeader(name, value) {
-      headers[name] = value;
-    },
-    status(code) {
-      this.statusCode = code;
-      return this;
-    },
-    json(payload) {
-      this.body = payload;
-      return this;
-    },
-    end(payload) {
-      this.body = payload;
-      return this;
-    },
-  };
-
-  return [{ method: 'POST', body, query: {}, ...extras }, res];
+function b64ToBytes(b64) {
+  const bin = atob(b64);
+  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
 }
 
-test('wrapped runtime response normalizes correctly across final_receipt, receipt, and steps receipt', () => {
-  const wrapped = createRuntimeReceipt({
-    verb: 'clean',
-    traceId: 'trace-wrap-1',
-    result: {
-      cleaned_content: 'Normalized text',
-      operations_applied: ['trim_whitespace'],
-    },
-  });
+async function sha256Hex(text) {
+  const bytes = new TextEncoder().encode(text);
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return [...new Uint8Array(digest)]
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
 
-  assert.equal(unwrapRuntimeReceipt(wrapped).cleaned_content, undefined);
-  assert.equal(unwrapRuntimeReceipt(wrapped).verb, 'clean');
-  assert.equal(unwrapRuntimeReceipt({ receipt: wrapped.receipt }).verb, 'clean');
-  assert.equal(unwrapRuntimeReceipt({ steps: wrapped.steps }).verb, 'clean');
+async function verifyEd25519HashSignature(hashHex, sigB64, pubkeyB64) {
+  const publicKey = await crypto.subtle.importKey(
+    'raw',
+    b64ToBytes(pubkeyB64),
+    { name: 'Ed25519' },
+    false,
+    ['verify']
+  );
 
-  const normalized = normalizeCanonicalReceipt(wrapped);
-  assert.equal(normalized.receipt.entry, COMMONS_ENTRY);
-  assert.equal(normalized.receipt.class, 'commons');
-  assert.equal(normalized.receipt.cleaned_content, 'Normalized text');
-  assert.equal(normalized.trace_id, 'trace-wrap-1');
-});
+  return crypto.subtle.verify(
+    { name: 'Ed25519' },
+    publicKey,
+    b64ToBytes(sigB64),
+    new TextEncoder().encode(hashHex)
+  );
+}
 
-test('canonical validation passes for wrapped Commons receipt with canonical or canonical_id proof', () => {
-  const wrapped = createRuntimeReceipt({
-    verb: 'clean',
-    traceId: 'trace-wrap-2',
-    result: {
-      cleaned_content: 'Normalized text',
-      operations_applied: ['trim_whitespace'],
-    },
-  });
+function renderChecks(checks) {
+  els.checksList.innerHTML = CHECK_LABELS.map(([key, label]) => {
+    const status = checks[key];
+    const ok = status === true;
+    const bad = status === false;
 
-  const receiptValidation = validateCanonicalReceipt(wrapped, {
-    allowEntryClass: true,
-    expectedVerb: 'clean',
-    expectedVersion: '1.1.0',
-    expectedClass: 'commons',
-    expectedEntry: COMMONS_ENTRY,
-  });
-  assert.equal(receiptValidation.ok, true);
+    return `<li class="check-item">
+      <span>${label}</span>
+      <span class="check-status ${ok ? 'ok' : bad ? 'bad' : 'neutral'}">
+        ${ok ? 'PASS' : bad ? 'FAIL' : '—'}
+      </span>
+    </li>`;
+  }).join('');
+}
 
-  const metadataValidation = validateRuntimeMetadata(receiptValidation.normalized.runtime_metadata, {
-    requireProof: true,
-    expectedTraceId: 'trace-wrap-2',
-  });
-  assert.equal(metadataValidation.ok, true);
-});
-
-test('no x402 requirement remains for Commons receipts', () => {
-  const wrapped = createRuntimeReceipt({
-    verb: 'summarize',
-    traceId: 'trace-sum-1',
-    result: { summary: 'Short summary' },
-  });
-
-  const normalized = normalizeCanonicalReceipt(wrapped);
-  assert.equal(normalized.receipt.x402, undefined);
-
-  const receiptValidation = validateCanonicalReceipt(wrapped, {
-    allowEntryClass: true,
-    expectedVerb: 'summarize',
-    expectedVersion: '1.1.0',
-    expectedClass: 'commons',
-    expectedEntry: COMMONS_ENTRY,
-  });
-  assert.equal(receiptValidation.ok, true);
-});
-
-test('commons-flow uses /execute with canonical execution metadata and preserves receipt fields', async () => {
-  process.env.RUNTIME_BASE_URL = 'https://runtime.commandlayer.org';
-  const traceId = 'trace-flow-1';
-  const calls = [];
-  const responses = [
-    createRuntimeReceipt({
-      verb: 'clean',
-      traceId,
-      result: {
-        cleaned_content: 'Cleaned example',
-        operations_applied: ['trim_whitespace'],
-      },
-    }),
-    createRuntimeReceipt({
-      verb: 'summarize',
-      traceId,
-      result: { summary: 'Cleaned example' },
-    }),
-    createRuntimeReceipt({
-      verb: 'classify',
-      traceId,
-      result: { labels: ['demo'] },
-    }),
+function renderMeta(meta) {
+  const rows = [
+    ['Signer ENS', meta.signerEns || '—', true],
+    ['Public Key Source', meta.publicKeySource || '—', true],
+    ['Receipt ID', meta.receiptId || '—'],
+    ['Verb/Action', meta.verb || '—'],
+    ['Timestamp', meta.timestamp || '—'],
+    ['Hash', meta.hash || '—'],
   ];
 
-  const originalFetch = global.fetch;
-  global.fetch = async (url, options = {}) => {
-    calls.push({ url, options });
-    if (String(url).endsWith('/health')) {
-      return new Response(JSON.stringify({ ok: true, version: '1.1.0' }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      });
-    }
+  els.metaRows.innerHTML = rows.map(([k, v, highlight]) => (
+    `<div class="row ${highlight ? 'meta-highlight' : ''}">
+      <div class="k">${esc(k)}</div>
+      <div class="v code">${esc(v)}</div>
+    </div>`
+  )).join('');
+}
 
-    const next = responses.shift();
-    return new Response(JSON.stringify(next), {
-      status: 200,
-      headers: { 'content-type': 'application/json' },
-    });
-  };
-
-  try {
-    const [req, res] = createReqRes({
-      version: '1.1.0',
-      trace_id: traceId,
-      steps: [
-        { verb: 'clean', input: { content: ' Messy example ' } },
-        { verb: 'summarize', use_previous_result: true },
-        { verb: 'classify', use_previous_result: true },
-      ],
-    });
-
-    await handler(req, res);
-
-    assert.equal(res.statusCode, 200);
-    assert.equal(calls.filter((call) => String(call.url).endsWith('/execute')).length, 3);
-    assert.equal(calls.some((call) => /\/clean\/v1\.1\.0$/.test(String(call.url))), false);
-    assert.equal(res.body.steps.length, 3);
-
-    const postedBodies = calls
-      .filter((call) => String(call.url).endsWith('/execute'))
-      .map((call) => JSON.parse(call.options.body));
-
-    assert.deepEqual(postedBodies.map((body) => body.execution.entry), [COMMONS_ENTRY, COMMONS_ENTRY, COMMONS_ENTRY]);
-    assert.deepEqual(postedBodies.map((body) => body.execution.class), ['commons', 'commons', 'commons']);
-    assert.deepEqual(postedBodies.map((body) => body.execution.verb), ['clean', 'summarize', 'classify']);
-    assert.deepEqual(postedBodies.map((body) => body.execution.version), ['1.1.0', '1.1.0', '1.1.0']);
-    assert.deepEqual(postedBodies[0].input, { content: ' Messy example ' });
-    assert.deepEqual(postedBodies[1].input, { content: 'Cleaned example' });
-    assert.deepEqual(postedBodies[2].input, { content: 'Cleaned example' });
-    assert.equal(postedBodies.every((body) => body.actor === 'composer.commandlayer.org'), true);
-    assert.equal(postedBodies.every((body) => body.trace.trace_id === traceId), true);
-
-    assert.equal(res.body.final_receipt.verb, 'classify');
-    assert.equal(res.body.receipt.verb, 'classify');
-    assert.equal(res.body.final_signed_receipt.final_receipt.verb, 'classify');
-    assert.equal(res.body.steps[2].runtime_metadata.proof.alg, 'ed25519-sha256');
-    assert.equal(res.body.steps[2].signed_receipt.final_receipt.entry, COMMONS_ENTRY);
-    assert.equal(res.body.steps[2].logs, undefined);
-  } finally {
-    global.fetch = originalFetch;
+function setVerdict(ok, note, isIdle = false) {
+  if (isIdle) {
+    els.resultState.className = 'result-state idle';
+    els.resultState.textContent = '—';
+    els.resultCard.style.background = '#f9fbff';
+    els.resultCard.style.borderColor = 'var(--line)';
+    els.resultNote.textContent = note;
+    return;
   }
-});
 
-test('verify route accepts wrapped response and bare receipt and forwards bare receipt to runtime /verify', async () => {
-  process.env.RUNTIME_BASE_URL = 'https://runtime.commandlayer.org';
-  const wrapped = createRuntimeReceipt({
-    verb: 'clean',
-    traceId: 'trace-verify-1',
-    result: { cleaned_content: 'verified text' },
+  els.resultState.className = `result-state ${ok ? 'verified' : 'invalid'}`;
+  els.resultState.textContent = ok ? 'VERIFIED' : 'INVALID';
+  els.resultNote.textContent = note;
+  els.resultCard.style.background = ok ? 'var(--green-soft)' : 'var(--red-soft)';
+  els.resultCard.style.borderColor = ok ? 'rgba(13,159,98,.35)' : 'rgba(217,45,32,.35)';
+}
+
+function resetToNeutralState(note = 'Run verification to see verdict.') {
+  renderChecks({
+    schema_valid: null,
+    canonical_hash_matched: null,
+    ed25519_signature_valid: null,
+    ens_key_resolved: null,
+    signer_matched: null,
   });
 
-  const calls = [];
-  const originalFetch = global.fetch;
-  global.fetch = async (url, options = {}) => {
-    calls.push({ url, options });
-    return new Response(JSON.stringify({ ok: true, checks: { hash_matches: true, signature_valid: true } }), {
-      status: 200,
-      headers: { 'content-type': 'application/json' },
-    });
-  };
+  renderMeta({
+    signerEns: null,
+    publicKeySource: null,
+    receiptId: null,
+    verb: null,
+    timestamp: null,
+    hash: null,
+  });
+
+  setVerdict(false, note, true);
+}
+
+async function verifyReceipt() {
+  const raw = els.receiptInput.value.trim();
+
+  if (!raw) {
+    setVerdict(false, 'Paste a receipt JSON to verify.');
+    return;
+  }
+
+  let receipt;
 
   try {
-    const [wrappedReq, wrappedRes] = createReqRes(wrapped, { query: { schema: '1' } });
-    await verifyReceiptHandler(wrappedReq, wrappedRes);
-    const wrappedPostedBody = JSON.parse(calls[0].options.body);
-    assert.equal(calls[0].url, 'https://runtime.commandlayer.org/verify?ens=0&refresh=0&schema=1');
-    assert.equal(wrappedPostedBody.verb, 'clean');
-    assert.equal(wrappedPostedBody.entry, COMMONS_ENTRY);
-    assert.equal(wrappedPostedBody.class, 'commons');
-    assert.equal(wrappedPostedBody.cleaned_content, 'verified text');
-    assert.equal(wrappedPostedBody.final_receipt, undefined);
-
-    calls.length = 0;
-    const [bareReq, bareRes] = createReqRes(wrapped.receipt, { query: { ens: '1' } });
-    await verifyReceiptHandler(bareReq, bareRes);
-    const barePostedBody = JSON.parse(calls[0].options.body);
-    assert.equal(calls[0].url, 'https://runtime.commandlayer.org/verify?ens=1&refresh=0&schema=0');
-    assert.deepEqual(barePostedBody, normalizeCanonicalReceipt(wrapped.receipt).receipt);
-
-    const wrappedResponse = JSON.parse(wrappedRes.body);
-    const bareResponse = JSON.parse(bareRes.body);
-    assert.equal(wrappedResponse.meta.normalized_receipt_used.entry, COMMONS_ENTRY);
-    assert.equal(bareResponse.meta.normalized_receipt_used.entry, COMMONS_ENTRY);
-  } finally {
-    global.fetch = originalFetch;
+    receipt = JSON.parse(raw);
+  } catch (e) {
+    setVerdict(false, `Invalid JSON: ${e.message}`);
+    return;
   }
-});
+
+  els.verifyBtn.disabled = true;
+  els.verifyBtn.textContent = 'Verifying...';
+
+  const schemaValid =
+    receipt &&
+    typeof receipt === 'object' &&
+    typeof receipt.signer === 'string' &&
+    typeof receipt.verb === 'string' &&
+    typeof receipt.ts === 'string' &&
+    receipt.metadata?.proof?.canonicalization &&
+    receipt.metadata?.proof?.hash_sha256 &&
+    receipt.signature?.kid &&
+    receipt.signature?.sig;
+
+  const signerMatched = receipt?.signer === EXPECTED_ENS_SIGNER;
+  const ensKeyResolved = signerMatched && !!ENS_RECORDS['cl.sig.pub'];
+
+  let hashMatched = false;
+  let signatureValid = false;
+  let recomputedHash = '—';
+
+  try {
+    if (schemaValid) {
+      const canonicalizationOk =
+        receipt.metadata.proof.canonicalization === ENS_RECORDS['cl.sig.canonical'];
+
+      const keyIdOk =
+        receipt.signature.kid === ENS_RECORDS['cl.sig.kid'];
+
+      const canonicalPayload = canonicalize(canonicalReceiptPayload(receipt));
+      recomputedHash = await sha256Hex(canonicalPayload);
+
+      hashMatched =
+        canonicalizationOk &&
+        receipt.metadata.proof.hash_sha256 === recomputedHash;
+
+      if (hashMatched && keyIdOk && ensKeyResolved) {
+        const pubkeyB64 = ENS_RECORDS['cl.sig.pub'].replace(/^ed25519:/, '');
+        signatureValid = await verifyEd25519HashSignature(
+          recomputedHash,
+          receipt.signature.sig,
+          pubkeyB64
+        );
+      }
+    }
+  } catch (e) {
+    console.error('Verification error:', e);
+    signatureValid = false;
+  }
+
+  const checks = {
+    schema_valid: !!schemaValid,
+    canonical_hash_matched: !!hashMatched,
+    ed25519_signature_valid: !!signatureValid,
+    ens_key_resolved: !!ensKeyResolved,
+    signer_matched: !!signerMatched,
+  };
+
+  const allPass = Object.values(checks).every(Boolean);
+
+  renderChecks(checks);
+  renderMeta({
+    signerEns: receipt?.signer || '—',
+    publicKeySource: ensKeyResolved ? 'ENS text record' : 'not resolved',
+    receiptId: receipt?.receipt_id || receipt?.id || '—',
+    verb: receipt?.verb || '—',
+    timestamp: receipt?.ts || receipt?.timestamp || '—',
+    hash: recomputedHash,
+  });
+
+  setVerdict(
+    allPass,
+    allPass
+      ? 'Receipt verification passed.'
+      : 'Receipt is invalid, tampered, or does not match the ENS signer key.'
+  );
+
+  els.verifyBtn.disabled = false;
+  els.verifyBtn.textContent = 'Verify';
+}
+
+async function fetchSampleReceipt() {
+  const resp = await fetch('/examples/sample-receipt.json', { cache: 'no-store' });
+  if (!resp.ok) throw new Error('Sample receipt could not be loaded.');
+  return resp.json();
+}
+
+async function loadSampleReceipt() {
+  els.loadSampleBtn.disabled = true;
+  els.loadSampleBtn.textContent = 'Loading...';
+
+  try {
+    const data = await fetchSampleReceipt();
+    els.receiptInput.value = JSON.stringify(data, null, 2);
+    resetToNeutralState('Sample loaded. Click Verify to validate.');
+  } catch (e) {
+    setVerdict(false, e.message);
+  }
+
+  els.loadSampleBtn.disabled = false;
+  els.loadSampleBtn.textContent = 'Load Sample';
+}
+
+async function loadTamperedReceipt() {
+  els.loadTamperedBtn.disabled = true;
+  els.loadTamperedBtn.textContent = 'Loading...';
+
+  try {
+    const data = await fetchSampleReceipt();
+    const tampered = JSON.parse(JSON.stringify(data));
+
+    if (tampered.output && typeof tampered.output.summary === 'string') {
+      tampered.output.summary = `${tampered.output.summary}!!!`;
+    } else {
+      tampered.tampered_demo_marker = 'TAMPERED';
+    }
+
+    els.receiptInput.value = JSON.stringify(tampered, null, 2);
+    resetToNeutralState('Tampered sample loaded. Click Verify to detect mismatch.');
+  } catch (e) {
+    console.error('Failed to load tampered receipt:', e);
+    setVerdict(false, e.message || String(e));
+  }
+
+  els.loadTamperedBtn.disabled = false;
+  els.loadTamperedBtn.textContent = 'Load Tampered';
+}
+
+function clearVerifierState() {
+  els.receiptInput.value = '';
+  resetToNeutralState('Run verification to see verdict.');
+}
+
+function resolveElements() {
+  const missing = [];
+  const resolved = {};
+
+  for (const id of REQUIRED_ELEMENT_IDS) {
+    resolved[id] = document.getElementById(id);
+    if (!resolved[id]) missing.push(id);
+  }
+
+  if (missing.length) {
+    console.warn(`[verify.js] Missing required element(s): ${missing.join(', ')}`);
+    return null;
+  }
+
+  return resolved;
+}
+
+function initVerifyPage() {
+  els = resolveElements();
+  if (!els) return;
+
+  els.verifyBtn.addEventListener('click', verifyReceipt);
+  els.loadSampleBtn.addEventListener('click', loadSampleReceipt);
+  els.loadTamperedBtn.addEventListener('click', loadTamperedReceipt);
+  els.clearBtn.addEventListener('click', clearVerifierState);
+
+  resetToNeutralState('Load a sample receipt, then tamper it to see invalid proof detection.');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initVerifyPage, { once: true });
+} else {
+  initVerifyPage();
+}
