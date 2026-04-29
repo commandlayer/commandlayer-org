@@ -1,6 +1,6 @@
 'use strict';
 
-import { verifyReceipt as verifyReceiptWithAgent } from 'https://cdn.jsdelivr.net/gh/commandlayer/verifyagent@main/src/index.js';
+import { verifyReceipt as verifyReceiptWithAgent } from 'https://cdn.jsdelivr.net/gh/commandlayer/verifyagent@main/src/verify.js';
 
 const EXPECTED_ENS_SIGNER = 'runtime.commandlayer.eth';
 const CHECK_LABELS = [
