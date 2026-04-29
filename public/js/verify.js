@@ -206,8 +206,15 @@ async function verifyReceiptAction() {
 
   const { proof } = extractReceipt(parsed);
   const hashHex = proof?.hash_sha256 || proof?.hash || null;
-  const signatureB64 = proof?.signature_b64 || proof?.signature || null;
-  const publicKeyB64 = verification?.publicKeyB64 || verification?.public_key_b64 || null;
+  const signatureB64 =
+    parsed?.signature?.sig ||
+    proof?.signature_b64 ||
+    proof?.signature ||
+    null;
+  const publicKeyB64 =
+    verification?.publicKeyB64 ||
+    verification?.public_key_b64 ||
+    'hhyCuPNoMk4JtEvGEV8F6nMZ4uDO1EcyizPufmnJTOY=';
 
   if (hashHex && signatureB64 && publicKeyB64) {
     try {
