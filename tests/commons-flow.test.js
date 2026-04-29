@@ -342,8 +342,10 @@ function initVerifyPage() {
   resetToNeutralState('Load a sample receipt, then tamper it to see invalid proof detection.');
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initVerifyPage, { once: true });
-} else {
-  initVerifyPage();
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initVerifyPage, { once: true });
+  } else {
+    initVerifyPage();
+  }
 }
