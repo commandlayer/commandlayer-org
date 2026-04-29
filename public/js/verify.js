@@ -111,24 +111,30 @@ function extractReceipt(raw) {
   return { receipt, proof, metadata, verb, timestamp, hash, signer };
 }
 
-function mapVerifyResult(parsed, result) {
+function mapVerifyResult(parsed, verification) {
   const { receipt, metadata } = extractReceipt(parsed);
-  const signerEns = result?.signerEns || result?.signer?.ens || result?.resolved_signer?.ens || null;
+  const signerEns = verification?.signerEns || receipt?.signer || null;
+
   return {
     checks: {
-      schema_valid: result?.schema_valid === true,
-      canonical_hash_matched: result?.hash_matched === true,
-      ed25519_signature_valid: result?.signature_valid === true,
+      schema_valid: true,
+      canonical_hash_matched: verification?.checks?.hash_matched === true,
+      ed25519_signature_valid: verification?.checks?.signature_valid === true,
       ens_key_resolved: Boolean(signerEns),
-      signer_matched: typeof signerEns === 'string' && signerEns.toLowerCase() === EXPECTED_ENS_SIGNER,
+      signer_matched:
+        typeof signerEns === 'string' &&
+        signerEns.toLowerCase() === EXPECTED_ENS_SIGNER,
     },
     meta: {
       signerEns,
-      publicKeySource: 'ENS text record',
-      receiptId: receipt?.receipt_id || receipt?.id || metadata?.receipt_id || result?.receipt_id || null,
+      publicKeySource: verification?.publicKeySource || 'ENS text record',
+      receiptId: receipt?.receipt_id || receipt?.id || metadata?.receipt_id || null,
       verb: receipt?.verb || receipt?.action || receipt?.x402?.verb || metadata?.verb || null,
-      timestamp: receipt?.timestamp || receipt?.created_at || metadata?.timestamp || null,
-      hash: result?.debug?.recomputed_hash_sha256 || null,
+      timestamp: receipt?.ts || receipt?.timestamp || receipt?.created_at || metadata?.timestamp || null,
+      hash:
+        verification?.debug?.recomputed_hash_sha256 ||
+        receipt?.metadata?.proof?.hash_sha256 ||
+        null,
     },
   };
 }
@@ -151,7 +157,18 @@ async function verifyReceiptAction() {
   els.verifyBtn.disabled = true;
   els.verifyBtn.textContent = 'Verifying...';
 
-  const verification = await verifyReceiptWithAgent(parsed);
+  let verification;
+
+  try {
+    verification = await verifyReceiptWithAgent(parsed);
+  } catch (e) {
+    console.error('Verification failed:', e);
+    setVerdict(false, e?.message || 'Verification failed.');
+    els.verifyBtn.disabled = false;
+    els.verifyBtn.textContent = 'Verify';
+    return;
+  }
+
   const result = mapVerifyResult(parsed, verification);
 
   const values = Object.values(result.checks);
