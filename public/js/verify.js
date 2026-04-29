@@ -1,5 +1,7 @@
 'use strict';
 
+import { verifyReceipt as verifyReceiptWithAgent } from 'https://cdn.jsdelivr.net/gh/commandlayer/verifyagent@main/src/index.js';
+
 const EXPECTED_ENS_SIGNER = 'runtime.commandlayer.eth';
 const CHECK_LABELS = [
   ['schema_valid', '1) Parse receipt schema'],
@@ -109,68 +111,29 @@ function extractReceipt(raw) {
   return { receipt, proof, metadata, verb, timestamp, hash, signer };
 }
 
-function runStructuralChecks(parsed) {
-  const { receipt, proof, metadata, signer } = extractReceipt(parsed);
-  const schemaValid = typeof receipt === 'object' && !!receipt && !!(receipt.verb || receipt.action || receipt.x402?.verb);
-  const canonicalHashMatched = typeof (proof?.hash_sha256 || proof?.hash) === 'string' && (proof?.hash_sha256 || proof?.hash).length >= 16;
-  const ed25519SignatureValid = typeof (proof?.signature_b64 || proof?.signature) === 'string' && (proof?.signature_b64 || proof?.signature).length >= 16;
-  const ensKeyResolved = (signer || metadata?.ens || '').toLowerCase().includes('.eth');
-  const signerMatched = (signer || '').toLowerCase() === EXPECTED_ENS_SIGNER;
-
+function mapVerifyResult(parsed, result) {
+  const { receipt, metadata } = extractReceipt(parsed);
+  const signerEns = result?.signerEns || result?.signer?.ens || result?.resolved_signer?.ens || null;
   return {
     checks: {
-      schema_valid: schemaValid,
-      canonical_hash_matched: canonicalHashMatched,
-      ed25519_signature_valid: ed25519SignatureValid,
-      ens_key_resolved: ensKeyResolved,
-      signer_matched: signerMatched,
+      schema_valid: result?.schema_valid === true,
+      canonical_hash_matched: result?.hash_matched === true,
+      ed25519_signature_valid: result?.signature_valid === true,
+      ens_key_resolved: Boolean(signerEns),
+      signer_matched: typeof signerEns === 'string' && signerEns.toLowerCase() === EXPECTED_ENS_SIGNER,
     },
     meta: {
-      signerEns: signerMatched ? EXPECTED_ENS_SIGNER : (signer || metadata?.ens || null),
+      signerEns,
       publicKeySource: 'ENS text record',
-      receiptId: receipt?.receipt_id || receipt?.id || metadata?.receipt_id || null,
+      receiptId: receipt?.receipt_id || receipt?.id || metadata?.receipt_id || result?.receipt_id || null,
       verb: receipt?.verb || receipt?.action || receipt?.x402?.verb || metadata?.verb || null,
       timestamp: receipt?.timestamp || receipt?.created_at || metadata?.timestamp || null,
-      hash: proof?.hash_sha256 || proof?.hash || metadata?.hash || null,
+      hash: result?.debug?.recomputed_hash_sha256 || null,
     },
   };
 }
 
-async function runBackendVerify(parsed) {
-  const resp = await fetch('/api/verify-receipt?ens=1&schema=1', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(parsed),
-  });
-
-  const data = await resp.json();
-  if (!resp.ok || data?.ok === false) {
-    throw new Error(data?.error || `Verification failed with status ${resp.status}`);
-  }
-
-  const signer = data?.signer?.ens || data?.resolved_signer?.ens || data?.identity?.ens || EXPECTED_ENS_SIGNER;
-  const out = {
-    checks: {
-      schema_valid: data?.checks?.schema_valid === true,
-      canonical_hash_matched: data?.checks?.hash_matches === true,
-      ed25519_signature_valid: data?.checks?.signature_valid === true,
-      ens_key_resolved: data?.checks?.ens_match === true || !!signer,
-      signer_matched: data?.checks?.ens_match === true || signer === EXPECTED_ENS_SIGNER,
-    },
-    meta: {
-      signerEns: signer,
-      publicKeySource: 'ENS resolver response',
-      receiptId: data?.receipt_id || data?.receipt?.receipt_id || data?.normalized_receipt?.receipt_id || null,
-      verb: data?.receipt?.verb || data?.normalized_receipt?.verb || null,
-      timestamp: data?.receipt?.timestamp || data?.normalized_receipt?.timestamp || null,
-      hash: data?.receipt?.metadata?.proof?.hash_sha256 || data?.normalized_receipt?.metadata?.proof?.hash_sha256 || null,
-    },
-  };
-
-  return out;
-}
-
-async function verifyReceipt() {
+async function verifyReceiptAction() {
   const raw = els.receiptInput.value.trim();
   if (!raw) {
     setVerdict(false, 'Paste a receipt JSON to verify.');
@@ -188,12 +151,8 @@ async function verifyReceipt() {
   els.verifyBtn.disabled = true;
   els.verifyBtn.textContent = 'Verifying...';
 
-  let result;
-  try {
-    result = await runBackendVerify(parsed);
-  } catch (_) {
-    result = runStructuralChecks(parsed);
-  }
+  const verification = await verifyReceiptWithAgent(parsed);
+  const result = mapVerifyResult(parsed, verification);
 
   const values = Object.values(result.checks);
   const allPass = values.length > 0 && values.every(Boolean);
@@ -202,7 +161,7 @@ async function verifyReceipt() {
     allPass,
     allPass
       ? 'Receipt verification passed.'
-      : 'Structural checks verify the agent surface. Cryptographic checks verify the receipt proof.'
+      : 'Receipt verification failed: signature and/or canonical hash mismatch.'
   );
   renderChecks(result.checks);
 
@@ -295,7 +254,7 @@ function initVerifyPage() {
   els = resolveElements();
   if (!els) return;
 
-  els.verifyBtn.addEventListener('click', verifyReceipt);
+  els.verifyBtn.addEventListener('click', verifyReceiptAction);
   els.loadSampleBtn.addEventListener('click', loadSampleReceipt);
   els.loadTamperedBtn.addEventListener('click', loadTamperedReceipt);
   els.clearBtn.addEventListener('click', clearVerifierState);
