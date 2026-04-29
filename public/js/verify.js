@@ -11,6 +11,40 @@ const CHECK_LABELS = [
   ['signer_matched', '5) Match signer identity'],
 ];
 
+
+const ED25519_DER_PREFIX = '302a300506032b6570032100';
+
+function bytesToHex(bytes) {
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+function hexToBytes(hex) {
+  const normalized = String(hex || '').replace(/^0x/, '').trim();
+  if (!normalized || normalized.length % 2 !== 0) {
+    throw new Error('Invalid hex string length.');
+  }
+  const out = new Uint8Array(normalized.length / 2);
+  for (let i = 0; i < normalized.length; i += 2) {
+    out[i / 2] = Number.parseInt(normalized.slice(i, i + 2), 16);
+  }
+  return out;
+}
+
+async function verifyEd25519HashSignature(publicKeyB64, signatureB64, hashHex) {
+  const rawPublicKey = Uint8Array.from(atob(publicKeyB64), (c) => c.charCodeAt(0));
+  if (rawPublicKey.length !== 32) {
+    throw new Error(`Invalid Ed25519 public key length: expected 32 bytes, got ${rawPublicKey.length}.`);
+  }
+
+  const spkiHex = `${ED25519_DER_PREFIX}${bytesToHex(rawPublicKey)}`;
+  const spki = hexToBytes(spkiHex);
+  const key = await crypto.subtle.importKey('spki', spki, { name: 'Ed25519' }, false, ['verify']);
+
+  const signature = Uint8Array.from(atob(signatureB64), (c) => c.charCodeAt(0));
+  const message = new TextEncoder().encode(hashHex);
+  return crypto.subtle.verify('Ed25519', key, signature, message);
+}
+
 const REQUIRED_ELEMENT_IDS = [
   'receiptInput',
   'verifyBtn',
@@ -167,6 +201,27 @@ async function verifyReceiptAction() {
     els.verifyBtn.disabled = false;
     els.verifyBtn.textContent = 'Verify';
     return;
+  }
+
+
+  const { proof } = extractReceipt(parsed);
+  const hashHex = proof?.hash_sha256 || proof?.hash || null;
+  const signatureB64 = proof?.signature_b64 || proof?.signature || null;
+  const publicKeyB64 = verification?.publicKeyB64 || verification?.public_key_b64 || null;
+
+  if (hashHex && signatureB64 && publicKeyB64) {
+    try {
+      const signatureValid = await verifyEd25519HashSignature(publicKeyB64, signatureB64, hashHex);
+      verification = {
+        ...verification,
+        checks: {
+          ...(verification?.checks || {}),
+          signature_valid: signatureValid,
+        },
+      };
+    } catch (e) {
+      console.warn('Website Ed25519 verification fallback failed:', e);
+    }
   }
 
   const result = mapVerifyResult(parsed, verification);
