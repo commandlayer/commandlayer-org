@@ -173,7 +173,7 @@ async function verifyReceiptAction() {
 }
 
 async function fetchSampleReceipt() {
-  const resp = await fetch('/examples/sample-receipt.json', { cache: 'no-store' });
+  const resp = await fetch(`/examples/sample-receipt.json?v=${Date.now()}`);
   if (!resp.ok) throw new Error('Sample receipt could not be loaded.');
   return resp.json();
 }
@@ -209,11 +209,11 @@ async function loadTamperedReceipt() {
       throw new Error('Sample receipt format is not supported.');
     }
 
-    if (typeof target.verb === 'string') {
-      target.verb = `${target.verb}-tampered`;
-    } else {
-      target.tampered_demo_marker = 'TAMPERED';
+    if (typeof target?.output?.summary !== 'string') {
+      throw new Error('Sample receipt is missing output.summary string.');
     }
+
+    target.output.summary = `${target.output.summary}!!!`;
 
     const tamperedJson = JSON.stringify(tampered, null, 2);
     console.log('Assigning tampered receipt to textarea');

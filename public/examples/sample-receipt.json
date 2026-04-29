@@ -1,22 +1,28 @@
 {
-  "receipt_id": "rcpt_demo_receipt_0001",
-  "verb": "parse",
-  "version": "1.1.0",
-  "timestamp": "2026-04-27T00:00:00Z",
-  "entry": "https://runtime.commandlayer.org/execute",
-  "status": "ok",
+  "signer": "runtime.commandlayer.eth",
+  "verb": "agent.execute",
+  "ts": "2026-04-29T01:32:57.167Z",
+  "input": {
+    "task": "summarize",
+    "content": "hello world"
+  },
+  "output": {
+    "summary": "hello world",
+    "tokens_used": 12
+  },
+  "execution": {
+    "runtime": "wrapped-agent-demo",
+    "run_id": "run_1777426377167"
+  },
   "metadata": {
-    "ens": "parseagent.eth",
-    "agent_id": "parseagent.eth",
     "proof": {
-      "signer_id": "runtime.commandlayer.eth",
-      "kid": "runtime.commandlayer.eth#cl.sig.kid",
-      "hash_sha256": "8ccf55df2467967f73f5a8f6ad47431142819438dfdbbe7d387dd2e2dc7ecf95",
-      "signature_b64": "MEUCIA2f20uYcJhfD1dPq3d7bxf1zY5T5yQj1vQ9W9s3qVztAiEA4w1UMW0x13Qlb9QJcgVJ5J9h0f3x6dJ3m0QkJ0n1xD4="
+      "canonicalization": "json.sorted_keys.v1",
+      "hash_sha256": "4ff674e92434833a00a8f9aac6941a7962b19bf7472f6d4a184ae54168dfc379"
     }
   },
-  "result": {
-    "action": "parse",
-    "ok": true
+  "signature": {
+    "alg": "ed25519",
+    "kid": "vC4WbcNoq2znSCiQ",
+    "sig": "kpnRCnN2Eg7d3g/nqvRXpEed7qS6Y9/JLyXyU2iQwvP6G2D/h75bcQgKRD2yJaJ/yVN/Ug7//ngrnga8UxUbDw=="
   }
 }
