@@ -62,7 +62,7 @@
 
     .hero-frame {
       position: relative;
-      width: min(96vw, 1875px);
+      width: min(100%, 1800px);
       border-radius: 22px;
       border: 1px solid rgba(150, 175, 255, 0.32);
       background: rgba(10, 16, 31, 0.55);
@@ -70,10 +70,18 @@
       overflow: hidden;
     }
 
+    .hero-frame picture {
+      display: block;
+      width: 100%;
+      max-width: 1800px;
+      margin: 0 auto;
+      aspect-ratio: 16 / 9;
+    }
+
     .hero-frame img {
       display: block;
       width: 100%;
-      max-height: calc(100vh - 140px);
+      height: auto;
       object-fit: contain;
       object-position: center center;
       margin: 0 auto;
@@ -117,7 +125,6 @@
       .nav-wrap { flex-direction: column; justify-content:center; gap: 8px; height: 94px; }
       .nav-links { gap: 12px; font-size: 13px; flex-wrap: wrap; justify-content:center; }
       .hero-frame { border-radius: 16px; }
-      .hero-frame img { max-height: calc(100vh - 190px); }
       .hero-actions {
         padding: 0 4px;
         justify-content: center;
@@ -144,7 +151,18 @@
   <main class="container">
     <section class="hero">
       <div class="hero-frame">
-        <img src="/hero-reference.png" alt="CommandLayer proof and verification reference" />
+        <picture>
+          <source srcset="/hero-reference.webp" type="image/webp">
+          <img
+            src="/hero-reference.png"
+            alt="CommandLayer VerifyAgent flow"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+            width="1800"
+            height="1013"
+          />
+        </picture>
         <div class="hero-actions">
           <a class="btn btn-primary" href="/verify.html">Verify a Receipt</a>
           <a class="btn btn-secondary" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">View SDK</a>
