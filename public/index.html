@@ -119,23 +119,75 @@
     .btn-primary { background: linear-gradient(130deg, var(--blue), var(--purple)); color:white; }
     .btn-secondary { border:1px solid var(--line); color: var(--text); background: rgba(8, 13, 26, 0.72); }
 
+    .sections {
+      margin-top: 34px;
+      display: grid;
+      gap: 22px;
+    }
+
     .supporting {
-      margin-top: 28px;
-      padding: 20px;
-      border-radius: 16px;
+      padding: 24px;
+      border-radius: 18px;
       border: 1px solid var(--line);
-      background: rgba(11, 18, 33, 0.58);
+      background: linear-gradient(160deg, rgba(12, 19, 36, 0.78), rgba(9, 14, 27, 0.62));
       backdrop-filter: blur(9px);
+      box-shadow: 0 18px 48px rgba(5, 11, 30, 0.42);
     }
 
     .supporting h2 {
-      margin: 0 0 10px;
+      margin: 0;
       font-size: clamp(1.35rem, 2.3vw, 1.9rem);
       line-height: 1.2;
     }
 
-    .supporting p { margin: 0 0 12px; color: var(--muted); }
-    .supporting-links { display: flex; flex-wrap: wrap; gap: 14px; font-size: 0.94rem; }
+    .section-label {
+      margin: 0 0 8px;
+      color: #9dc0ff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.01em;
+    }
+
+    .supporting p { margin: 10px 0 0; color: var(--muted); max-width: 78ch; }
+    .card-grid { margin-top: 16px; display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+    .mini-card {
+      border: 1px solid rgba(167, 188, 255, 0.22);
+      border-radius: 14px;
+      background: rgba(13, 22, 43, 0.72);
+      padding: 14px;
+    }
+    .mini-card h3 { margin: 0; font-size: 1rem; }
+    .mini-card p { margin: 8px 0 0; font-size: 0.93rem; }
+    .code-card {
+      margin-top: 16px;
+      border: 1px solid rgba(143, 205, 255, 0.3);
+      border-radius: 14px;
+      background: linear-gradient(150deg, rgba(10, 18, 34, 0.88), rgba(13, 25, 45, 0.74));
+      overflow: auto;
+    }
+    .code-card pre {
+      margin: 0;
+      padding: 16px;
+      font-size: 0.88rem;
+      color: #d8e7ff;
+      line-height: 1.5;
+    }
+    .section-actions { margin-top: 16px; display:flex; flex-wrap:wrap; gap: 10px; }
+    .note { margin-top: 12px; color: #9ec8ff; font-size: 0.92rem; }
+    .endpoint-grid { margin-top: 16px; display:grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+    .endpoint-card {
+      border: 1px solid rgba(152, 174, 255, 0.24);
+      border-radius: 14px;
+      background: rgba(12, 21, 39, 0.74);
+      padding: 14px;
+    }
+    .endpoint-card code { color: #8dffce; font-weight: 600; }
+    .endpoint-card pre {
+      margin: 10px 0 0;
+      font-size: 0.82rem;
+      color: #cce0ff;
+      white-space: pre-wrap;
+    }
 
     footer { margin-top: 20px; padding: 20px 0 10px; border-top: 1px solid rgba(255,255,255,0.12); }
     .foot-links { display:flex; gap:16px; flex-wrap:wrap; font-size: 13px; }
@@ -209,24 +261,88 @@
       </div>
     </section>
 
-    <section class="supporting">
-      <h2>Agents don’t make claims — they produce proof.</h2>
-      <p>CommandLayer wraps agent actions into signed receipts that can be verified through VerifyAgent.eth.</p>
-      <div class="supporting-links">
-        <a href="/verify.html">Public verifier: /verify.html</a>
-        <a href="/api/verify">API verifier: /api/verify</a>
-        <a href="/api/agents/verifyagent">Callable VerifyAgent: /api/agents/verifyagent</a>
-      </div>
-    </section>
+    <div class="sections">
+      <section class="supporting">
+        <p class="section-label">SDK + VerifyAgent.eth</p>
+        <h2>Wrap any agent. Verify every action.</h2>
+        <p>Use the agent-sdk to wrap an agent action, emit a signed CommandLayer receipt, and verify it through VerifyAgent.eth.</p>
+        <div class="code-card">
+<pre><code>import { CommandLayer } from "@commandlayer/agent-sdk";
+
+const cl = new CommandLayer({
+  agent: "exampleagent.eth",
+  privateKey: process.env.CL_PRIVATE_KEY_PEM,
+  keyId: "v1"
+});
+
+const result = await cl.wrap("summarize", async () => {
+  return { summary: "hello world" };
+});
+
+const verified = await cl.verify(result.receipt);
+console.log(verified.status);</code></pre>
+        </div>
+        <div class="section-actions">
+          <a class="btn btn-primary" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">View SDK</a>
+          <a class="btn btn-secondary" href="https://github.com/commandlayer/agent-sdk#full-proof-demo" target="_blank" rel="noopener">Run Full Demo</a>
+        </div>
+        <p class="note">SDK package structure is ready. npm package coming soon.</p>
+      </section>
+
+      <section class="supporting">
+        <p class="section-label">How verification works</p>
+        <div class="card-grid">
+          <article class="mini-card">
+            <h3>1. Canonicalize</h3>
+            <p>Rebuild deterministic JSON with json.sorted_keys.v1.</p>
+          </article>
+          <article class="mini-card">
+            <h3>2. Hash</h3>
+            <p>Recompute SHA-256 and compare with metadata.proof.hash_sha256.</p>
+          </article>
+          <article class="mini-card">
+            <h3>3. Resolve</h3>
+            <p>Resolve signer identity and key metadata through ENS when available.</p>
+          </article>
+          <article class="mini-card">
+            <h3>4. Verify</h3>
+            <p>Validate the Ed25519 signature and return VERIFIED or INVALID.</p>
+          </article>
+        </div>
+        <p>If the output changes, the proof breaks.</p>
+      </section>
+
+      <section class="supporting">
+        <p class="section-label">Public verification APIs</p>
+        <div class="endpoint-grid">
+          <article class="endpoint-card">
+            <h3><code>POST /api/verify</code></h3>
+            <p>Raw receipt verification.</p>
+<pre>curl -X POST /api/verify \
+  -H "content-type: application/json" \
+  -d '{"receipt":{...}}'</pre>
+          </article>
+          <article class="endpoint-card">
+            <h3><code>POST /api/agents/verifyagent</code></h3>
+            <p>Callable VerifyAgent.eth verification interface.</p>
+<pre>curl -X POST /api/agents/verifyagent \
+  -H "content-type: application/json" \
+  -d '{"receipt":{...}}'</pre>
+          </article>
+        </div>
+        <div class="section-actions">
+          <a class="btn btn-primary" href="/verify.html">Open Verifier</a>
+          <a class="btn btn-secondary" href="/docs/wrap-your-agent.md">View Docs</a>
+        </div>
+      </section>
+    </div>
 
     <footer>
       <div class="foot-links">
-        <a href="/verify.html">Verify</a>
-        <a href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">SDK</a>
-        <a href="/docs/wrap-your-agent.md">Docs</a>
-        <a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a>
         <a href="/roadmap.html">Runtime</a>
         <a href="/agent-cards.html">Agent Cards</a>
+        <a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a>
+        <a href="/verify.html">Verify</a>
       </div>
     </footer>
   </main>
