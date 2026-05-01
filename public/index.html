@@ -46,42 +46,59 @@
     }
 
     .nav-wrap { height: 68px; display:flex; align-items:center; justify-content:space-between; }
+
+    :root { --nav-height: 68px; --cta-space: 84px; }
     .brand { display:flex; align-items:center; gap: 10px; font-weight: 700; text-decoration:none; color:var(--text); }
     .brand img { width: 24px; height: 24px; }
     .nav-links { display:flex; gap: 20px; font-size: 14px; }
     .nav-links a, .supporting a, footer a { color: var(--muted); text-decoration:none; }
     .nav-links a:hover, .supporting a:hover, footer a:hover { color: var(--text); }
 
-    main { padding: 18px 0 72px; }
+    main { padding: 0 0 32px; }
 
     .hero {
-      margin-top: 10px;
+      min-height: calc(100vh - var(--nav-height));
       display: flex;
+      align-items: center;
       justify-content: center;
+      padding: 8px 0 8px;
     }
 
     .hero-frame {
       position: relative;
-      width: min(100%, 1800px);
+      width: min(100vw, 1900px);
+      max-width: 100%;
+      min-height: calc(100vh - var(--nav-height));
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
       border-radius: 22px;
       border: 1px solid rgba(150, 175, 255, 0.32);
       background: rgba(10, 16, 31, 0.55);
       box-shadow: 0 28px 80px rgba(76, 125, 255, 0.2), 0 30px 65px rgba(0, 0, 0, 0.45);
       overflow: hidden;
+      padding: 16px 12px 12px;
     }
 
     .hero-frame picture {
-      display: block;
-      width: 100%;
-      max-width: 1800px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: min(100vw, 1900px);
+      max-width: 100%;
+      max-height: calc(100vh - var(--nav-height) - var(--cta-space));
       margin: 0 auto;
-      aspect-ratio: 16 / 9;
+      overflow: hidden;
     }
 
     .hero-frame img {
       display: block;
-      width: 100%;
+      width: min(100vw, 1900px);
+      max-width: 100%;
       height: auto;
+      max-height: calc(100vh - var(--nav-height) - var(--cta-space));
       object-fit: contain;
       object-position: center center;
       margin: 0 auto;
@@ -89,11 +106,13 @@
     }
 
     .hero-actions {
-      margin-top: 16px;
+      margin-top: 0;
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
       justify-content: center;
+      width: 100%;
+      padding: 8px 10px 10px;
     }
 
     .btn { padding: 11px 16px; border-radius: 10px; font-weight: 600; text-decoration:none; display:inline-block; }
@@ -121,10 +140,30 @@
     footer { margin-top: 20px; padding: 20px 0 10px; border-top: 1px solid rgba(255,255,255,0.12); }
     .foot-links { display:flex; gap:16px; flex-wrap:wrap; font-size: 13px; }
 
+    @media (max-height: 760px) {
+      .hero-frame {
+        justify-content: flex-end;
+        padding-bottom: 0;
+      }
+
+      .hero-actions {
+        position: absolute;
+        left: 50%;
+        bottom: 12px;
+        transform: translateX(-50%);
+        width: min(96%, 560px);
+        border: 1px solid rgba(255,255,255,0.16);
+        border-radius: 14px;
+        background: rgba(8, 12, 24, 0.64);
+        backdrop-filter: blur(8px);
+      }
+    }
+
     @media (max-width: 760px) {
+      :root { --nav-height: 94px; --cta-space: 132px; }
       .nav-wrap { flex-direction: column; justify-content:center; gap: 8px; height: 94px; }
       .nav-links { gap: 12px; font-size: 13px; flex-wrap: wrap; justify-content:center; }
-      .hero-frame { border-radius: 16px; }
+      .hero-frame { border-radius: 16px; padding: 10px 8px 8px; }
       .hero-actions {
         padding: 0 4px;
         justify-content: center;
