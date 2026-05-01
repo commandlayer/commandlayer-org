@@ -62,7 +62,7 @@
 
     .hero-frame {
       position: relative;
-      width: min(96vw, 1640px);
+      width: min(96vw, 1875px);
       border-radius: 22px;
       border: 1px solid rgba(150, 175, 255, 0.32);
       background: rgba(10, 16, 31, 0.55);
@@ -81,13 +81,11 @@
     }
 
     .hero-actions {
-      position: absolute;
-      left: clamp(14px, 4vw, 36px);
-      bottom: clamp(14px, 4vw, 32px);
+      margin-top: 16px;
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
-      max-width: calc(100% - 28px);
+      justify-content: center;
     }
 
     .btn { padding: 11px 16px; border-radius: 10px; font-weight: 600; text-decoration:none; display:inline-block; }
@@ -121,12 +119,12 @@
       .hero-frame { border-radius: 16px; }
       .hero-frame img { max-height: calc(100vh - 190px); }
       .hero-actions {
-        position: static;
-        padding: 12px;
-        justify-content: flex-start;
-        background: linear-gradient(180deg, transparent, rgba(5, 7, 13, 0.75));
+        padding: 0 4px;
+        justify-content: center;
+        flex-direction: column;
+        align-items: stretch;
       }
-      .btn { font-size: 0.92rem; }
+      .btn { font-size: 0.92rem; text-align: center; }
     }
   </style>
 </head>
