@@ -84,3 +84,11 @@ curl -X POST https://www.commandlayer.org/api/agents/verifyagent \
 ```
 
 If input or output is changed after signing, the recomputed hash will not match and verification returns `INVALID`.
+
+## ERC-8004-ready discovery record
+
+VerifyAgent.eth is published as an **ERC-8004-ready** and **discoverable verification service** metadata record:
+
+- `/sdk-records/verifyagent.eth.json`
+
+This is service metadata for discovery/readiness and does not claim on-chain ERC-8004 registration by itself.

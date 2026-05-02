@@ -1,0 +1,32 @@
+{
+  "name": "VerifyAgent.eth",
+  "ens": "verifyagent.eth",
+  "type": "verifier",
+  "description": "Public verifier for CommandLayer signed agent receipts.",
+  "entrypoint": "https://www.commandlayer.org/api/agents/verifyagent",
+  "verify_api": "https://www.commandlayer.org/api/verify",
+  "ui": "https://www.commandlayer.org/verify.html",
+  "sdk": {
+    "name": "@commandlayer/agent-sdk",
+    "install": "npm install @commandlayer/agent-sdk",
+    "github": "https://github.com/commandlayer/agent-sdk",
+    "version": "1.0.0"
+  },
+  "receipt": {
+    "canonicalization": "json.sorted_keys.v1",
+    "hash": "sha256",
+    "signature": "ed25519",
+    "signer": "runtime.commandlayer.eth"
+  },
+  "capabilities": [
+    "verify_receipt",
+    "detect_tampering",
+    "resolve_ens_signer",
+    "validate_ed25519_signature"
+  ],
+  "erc8004": {
+    "status": "ready",
+    "role": "validation_service",
+    "note": "This record is designed to make VerifyAgent.eth discoverable as a receipt verification service for agent builders."
+  }
+}
