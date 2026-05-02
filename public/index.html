@@ -229,6 +229,30 @@
       white-space: pre-wrap;
     }
 
+    .demo-path-card {
+      margin-top: 8px;
+      border: 1px dashed rgba(155, 176, 255, 0.3);
+      border-radius: 12px;
+      background: rgba(9, 14, 27, 0.45);
+      padding: 14px;
+    }
+    .demo-path-card h3 {
+      margin: 0;
+      font-size: 1rem;
+      color: #d7e4ff;
+    }
+    .demo-path-card ol {
+      margin: 10px 0 0;
+      padding-left: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .demo-path-note {
+      margin: 10px 0 0;
+      font-size: 0.92rem;
+      color: #b9ceff;
+    }
+
     footer { margin-top: 20px; padding: 20px 0 10px; border-top: 1px solid rgba(255,255,255,0.12); }
     .foot-links {
       display: flex;
@@ -387,6 +411,24 @@ console.log(verified.status);</code></pre>
         <p>VerifyAgent.eth is the public verifier for CommandLayer receipts.</p>
       </section>
 
+
+
+      <section class="supporting" aria-label="Demo path">
+        <p class="section-label">Recording helper</p>
+        <div class="demo-path-card">
+          <h3>Demo path</h3>
+          <ol>
+            <li>Install SDK</li>
+            <li>Run agent</li>
+            <li>Emit receipt</li>
+            <li>Verify receipt</li>
+            <li>Tamper output</li>
+            <li>See INVALID</li>
+          </ol>
+          <p class="demo-path-note">Original receipt verification: VERIFIED<br />Tampered receipt verification: INVALID</p>
+          <p class="note"><a href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">View SDK full demo</a> -&gt; https://github.com/commandlayer/agent-sdk</p>
+        </div>
+      </section>
       <section class="supporting">
         <p class="section-label">Public verification APIs</p>
         <div class="endpoint-grid">
