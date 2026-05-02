@@ -58,7 +58,11 @@
   main { padding: 36px 0 60px; }
   .hero h1 { margin: 0 0 10px; font-size: clamp(34px, 5vw, 54px); line-height: 1.04; }
   .subcopy { margin: 0 0 10px; color: #c2d2ff; max-width: 900px; line-height: 1.5; }
-  .helper { margin: 0 0 22px; color: #9ec8ff; font-size: 14px; }
+  .helper { margin: 0 0 14px; color: #9ec8ff; font-size: 14px; }
+  .steps { margin: 0 0 16px; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+  .step { background: rgba(255,255,255,0.08); border: 1px solid rgba(178, 194, 255, 0.28); border-radius: 12px; padding: 10px 12px; color: #e6eeff; font-size: 14px; }
+  .step-num { display: inline-block; margin-right: 6px; color: #9ec8ff; font-weight: 700; }
+  .note { margin: 0 0 24px; color: #b9c7eb; font-size: 12px; line-height: 1.5; }
   .layout { display: grid; grid-template-columns: 1.15fr .85fr; gap: 18px; }
   .card { background: var(--card); color: var(--card-ink); border: 1px solid var(--card-line); border-radius: 16px; box-shadow: 0 12px 34px rgba(8, 16, 34, 0.45), 0 0 0 1px rgba(76, 125, 255, 0.08); padding: 18px; }
   .label { display: block; font-size: 12px; color: var(--card-sub); margin-bottom: 8px; }
@@ -90,6 +94,7 @@
   .foot-links a:hover { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
   @media (max-width: 900px) {
     .layout { grid-template-columns: 1fr; }
+    .steps { grid-template-columns: 1fr; }
     .nav-wrap { height: auto; min-height: 68px; padding: 10px 0; flex-direction: column; gap: 8px; }
     .nav-links { gap: 12px; font-size: 13px; flex-wrap: wrap; justify-content: center; }
   }
@@ -114,10 +119,15 @@
 <main class="container">
   <section class="hero">
     <h1>VerifyAgent.eth</h1>
-    <p class="subcopy">Agents don’t make claims — they produce proof. Wrap → sign → verify. VerifyAgent.eth is the public verifier for CommandLayer receipts.</p>
+    <p class="subcopy">VerifyAgent.eth is the public verifier for CommandLayer receipts.</p>
+    <p class="subcopy">Paste a receipt, verify it, then tamper with it to see the proof break.</p>
     <p class="helper"><strong>SDK install:</strong> <code>npm install @commandlayer/agent-sdk</code></p>
-    <p class="helper">Load Sample → Verify should return <strong>VERIFIED</strong>. Load Tampered → Verify should return <strong>INVALID</strong>.</p>
-    <p class="helper">If the output changes, the proof breaks. Tampering returns <strong>INVALID</strong>.</p>
+    <ol class="steps" aria-label="Verification steps">
+      <li class="step"><span class="step-num">1.</span>Load Sample</li>
+      <li class="step"><span class="step-num">2.</span>Click Verify → <strong>VERIFIED</strong></li>
+      <li class="step"><span class="step-num">3.</span>Load Tampered → <strong>INVALID</strong></li>
+    </ol>
+    <p class="note">This demo uses an ENS-compatible fallback for runtime.commandlayer.eth. Unknown signers do not verify through fallback.</p>
   </section>
 
   <section class="layout">
