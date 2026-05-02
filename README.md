@@ -1,91 +1,55 @@
 # commandlayer-org
 
-Public website and proof surface for CommandLayer.
+Public verification surface for CommandLayer.
 
-CommandLayer Runtime executes agent actions and creates signed receipts. VerifyAgent.eth is the public Commons verifier that checks whether those receipts are valid or tampered.
+CommandLayer turns any agent action into a signed, verifiable receipt.
 
-CommandLayer is a trust layer for autonomous agent execution:
+VerifyAgent.eth is the public verifier that checks whether a receipt is valid or has been tampered with.
 
-- **Commons** is the canonical open contract layer and current-line builder default.
-- **Commercial** is a separate commerce-oriented contract line that remains payment-aware.
-- **Agent Cards** handle discovery and routing across both lines.
-- **Runtime** executes contracts and may attach proof metadata without redefining the canonical receipt.
+Agents don’t make claims — they produce proof.
 
+## What is live
 
-## Project Architecture
+- Verifier UI: https://www.commandlayer.org/verify.html
+- Raw verifier API: POST https://www.commandlayer.org/api/verify
+- Callable VerifyAgent endpoint: POST https://www.commandlayer.org/api/agents/verifyagent
+- SDK: https://github.com/commandlayer/agent-sdk
+- npm: `npm install @commandlayer/agent-sdk`
 
-- **VerifyAgent.eth** answers: **“Is this receipt valid?”** It is the public Commons verifier, published under MIT at https://github.com/commandlayer/verifyagent.
-- **Runtime** answers: **“What action ran?”** It is the execution engine that runs agent actions and emits signed receipts.
-- **SDK** answers: **“How do developers create and verify receipts?”** It wraps agents and provides receipt generation, signing, and programmatic verification tooling.
-- **Agent Cards** answer: **“What is this agent and what can it do?”** They provide identity, capabilities, endpoints, supported verbs, and signer references.
-- **Commercial** answers: **“How do teams run and verify at scale?”** It provides hosted runtime infrastructure, paid APIs, x402 billing surfaces, indexing, dashboards, monitoring, and enterprise support.
+## Core flow
 
-## Documentation authority
+Agent action  
+→ SDK wraps action  
+→ signed receipt is emitted  
+→ VerifyAgent verifies receipt  
+→ VERIFIED or INVALID
 
-This repo intentionally has two documentation surfaces with different roles:
+If the receipt output is changed after signing, verification fails.
 
-- **Primary public docs:** the website pages in `public/`, especially `public/docs.html`, `public/commons.html`, `public/commercial.html`, `public/runtime.html`, and `public/repositories.html`
-- **Secondary repo reference:** the concise Markdown notes in `docs/` for contributors and reviewers
+## Repos
 
-Those surfaces explain CommandLayer, but they do **not** own the protocol itself.
+- **agent-sdk**: wrap any agent action and emit a signed receipt
+- **verifyagent**: reference verifier and tamper-detection demo
+- **commandlayer-org**: hosted UI, public APIs, and docs
 
-### Source-of-truth hierarchy
+## Developer quickstart
 
-1. **Protocol repos own protocol truth.** `protocol-commons`, `protocol-commercial`, and `agent-cards` define the canonical contract, extension, and discovery artifacts.
-2. **Published schema artifacts in this repo are mirrors/publishing outputs.** They should match the canonical upstream protocol repos exactly and should never become an independent authority.
-3. **Runtime repos own execution behavior, not contract meaning.** `runtime-core` and runtime implementations may validate, serialize, sign, and prove receipts, but they must not redefine schema semantics.
-4. **SDKs own client ergonomics, not protocol truth.** They consume pinned artifacts and verification rules from the protocol layer.
-5. **Website copy is the public explanation layer.** It should teach the stack faithfully, but if it drifts from the protocol repos, the protocol repos win and the site must be updated to mirror them.
+```ts
+import { CommandLayer } from "@commandlayer/agent-sdk";
 
-If drift is discovered, fix the canonical protocol/discovery repo first when the contract itself is wrong, then immediately update this repo's published schemas and site copy so the public mirror becomes accurate again.
+const cl = new CommandLayer({
+  agent: "runtime.commandlayer.eth",
+  privateKey: process.env.CL_PRIVATE_KEY_PEM,
+  keyId: "vC4WbcNoq2znSCiQ"
+});
 
-## What this repo contains
+const result = await cl.wrap("summarize", async () => {
+  return { summary: "hello world" };
+});
 
-- `public/` — static HTML pages, schema publishing paths, Agent Card examples, and demo assets
-- `api/` — Vercel serverless endpoints used by the live demo and composer
-- `docs/` — short repo-side reference notes that complement the public site docs
-
-This repo should teach one architectural story consistently:
-
-1. Commons v1.1.0 is the active current line and the minimum verifiable receipt model.
-2. Commercial v1.1.0 is a separate payment-aware extension for economic flows.
-3. Agent Cards define discovery and routing without changing contract semantics.
-4. Runtime executes the contract and may add proof, trace, or orchestration metadata around the receipt.
-
-## Version policy
-
-- **Commons:** `v1.1.0` is the current builder target across the site and demo composer.
-- **Commercial:** `v1.1.0` is the current commercial release across docs, schemas, demos, and runtime flows.
-- **Agent Cards:** `v1.1.0` is the current card format across the registry, manifests, and linked examples.
-- **Runtime:** execution layer, not a schema version line.
-- **Compatibility:** published older paths remain live for verification and pinned integrations.
-
-## Local development
-
-### Install
-
-```bash
-npm install
+const verified = await cl.verify(result.receipt);
+console.log(verified.status);
 ```
-
-### Run locally
-
-```bash
-vercel dev
-```
-
-If you use another local workflow, keep the site static-first and preserve published URL paths.
-
-## Deployment note
-
-Published URLs are part of the protocol surface.
-
-Do not rename or move stable public paths for:
-
-- docs pages
-- schema URLs
-- Agent Card URLs
-- demo surfaces
 
 ## Public verification APIs
 
@@ -111,15 +75,6 @@ Do not rename or move stable public paths for:
   "key_id": "..."
 }
 ```
-
-The verifier:
-
-- rebuilds the canonical receipt payload
-- recomputes the SHA-256 hash
-- compares it to `metadata.proof.hash_sha256`
-- resolves signer key metadata from ENS when available
-- validates the Ed25519 signature
-- returns `VERIFIED` or `INVALID`
 
 ### 2) `POST /api/agents/verifyagent`
 
@@ -170,4 +125,41 @@ curl -X POST https://www.commandlayer.org/api/agents/verifyagent \
   --data-binary @verifyagent-body.json
 ```
 
-If input or output is changed after signing, the recomputed hash will not match and verification returns `INVALID`.
+## What verification checks
+
+- canonical JSON payload using `json.sorted_keys.v1`
+- SHA-256 hash matches `metadata.proof.hash_sha256`
+- Ed25519 signature validates
+- signer key metadata resolves through ENS when available
+- tampered input/output returns `INVALID`
+
+## Advanced protocol layers
+
+CommandLayer also includes deeper protocol and discovery work, including Commons, Agent Cards, Runtime, and Commercial extensions. These are supporting layers. The current public demo focuses on the proof loop: signed receipts and public verification.
+
+## Local development
+
+### Install
+
+```bash
+npm install
+```
+
+### Run locally
+
+```bash
+vercel dev
+```
+
+If you use another local workflow, keep the site static-first and preserve published URL paths.
+
+## Deployment note
+
+Published URLs are part of the protocol surface.
+
+Do not rename or move stable public paths for:
+
+- docs pages
+- schema URLs
+- Agent Card URLs
+- demo surfaces
