@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CommandLayer Docs — Wrap Your Agent</title>
+  <link rel="icon" href="/icon2.png" />
+  <style>
+    :root { --bg:#07090d; --panel:#111827; --text:#e6edf6; --muted:#9fb3cc; --accent:#00d4ff; --border:#273244; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background:var(--bg); color:var(--text); line-height:1.6; }
+    nav { display:flex; gap:16px; padding:14px 20px; border-bottom:1px solid var(--border); align-items:center; flex-wrap:wrap; }
+    nav a { color:var(--text); text-decoration:none; opacity:.9; }
+    nav a:hover { color:var(--accent); }
+    main { max-width:900px; margin:0 auto; padding:28px 20px 60px; }
+    h1,h2,h3 { font-family: Arial, sans-serif; margin: 18px 0 10px; }
+    p, li { color:var(--muted); }
+    code { color:#9bf7b0; }
+    pre { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:14px; overflow:auto; }
+    .callout { border:1px solid rgba(0,212,255,.35); background: rgba(0,212,255,.08); border-radius:8px; padding:12px 14px; }
+  </style>
+</head>
+<body>
+  <nav>
+    <a href="/index.html">Home</a>
+    <a href="/verify.html">Verify</a>
+    <a href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">SDK</a>
+    <a href="/docs/wrap-your-agent.html">Wrap Docs</a>
+  </nav>
+  <main>
+    <h1>Wrap Your Agent</h1>
+    <p>Turn any agent action into a signed, verifiable receipt. Agents do not make claims — they produce proof.</p>
+
+    <h2>Install</h2>
+    <pre><code>npm install @commandlayer/agent-sdk</code></pre>
+
+    <h2>Quickstart</h2>
+    <pre><code>import { CommandLayer } from "@commandlayer/agent-sdk";
+
+const cl = new CommandLayer({
+  agent: "runtime.commandlayer.eth",
+  privateKey: process.env.CL_PRIVATE_KEY_PEM,
+  keyId: "v1",
+  verifierUrl: "https://www.commandlayer.org/api/verify"
+});
+
+const result = await cl.wrap("summarize", async () => {
+  return { summary: "hello world" };
+});
+
+// wrap returns output + receipt
+console.log(result.output);
+console.log(result.receipt);
+
+const verified = await cl.verify(result.receipt);
+console.log(verified.status);</code></pre>
+
+    <h2>What wrap returns</h2>
+    <ul>
+      <li><code>output</code>: your agent function result.</li>
+      <li><code>receipt</code>: signed CommandLayer receipt for independent verification.</li>
+    </ul>
+
+    <h2>Verification endpoints</h2>
+    <ul>
+      <li><code>/api/verify</code> (default verifier endpoint).</li>
+      <li><code>/api/agents/verifyagent</code> (VerifyAgent.eth callable endpoint).</li>
+      <li>Browser verifier: <code>/verify.html</code>.</li>
+    </ul>
+
+    <div class="callout">
+      <strong>SDK links:</strong> use <a href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">https://github.com/commandlayer/agent-sdk</a> and install with <code>npm install @commandlayer/agent-sdk</code>.
+    </div>
+  </main>
+</body>
+</html>
