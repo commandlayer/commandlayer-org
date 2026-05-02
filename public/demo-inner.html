@@ -830,7 +830,7 @@ function getSignerFromNormalized(normalized) {
     || normalized?.receipt?.signer
     || normalized?.receipt?.proof?.signer_id
     || normalized?.receipt?.metadata?.proof?.signer_id
-    || 'commercial-runtime.commandlayer.eth';
+    || 'runtime.commandlayer.eth';
 }
 
 function getReceiptIdFromNormalized(normalized) {
