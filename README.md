@@ -1,8 +1,9 @@
 # commandlayer-org
 
-CommandLayer turns any agent action into a signed, verifiable receipt.
-VerifyAgent.eth checks whether that receipt is valid or tampered.
 Agents don’t make claims — they produce proof.
+Wrap → sign → verify.
+CommandLayer turns any agent action into a signed, verifiable receipt.
+VerifyAgent.eth is the public verifier for CommandLayer receipts.
 
 ## Shipped proof flow
 
@@ -19,7 +20,7 @@ Agent action
 → VerifyAgent verifies receipt  
 → VERIFIED or INVALID
 
-If the receipt output is changed after signing, verification fails.
+If the output changes, the proof breaks.
 
 ## Repos
 
