@@ -28,7 +28,7 @@ This `docs/` tree is the lightweight repo-facing companion:
 
 ## Project architecture
 
-- **VerifyAgent.eth:** public receipt verifier (MIT) — https://github.com/commandlayer/verifyagent
+- **VerifyAgent.eth:** Public verifier for CommandLayer receipts (MIT) — https://github.com/commandlayer/verifyagent
 - **Runtime:** executes agent actions and emits signed receipts
 - **SDK:** wraps agents and provides receipt tooling
 - **Agent Cards:** identity and capability metadata
