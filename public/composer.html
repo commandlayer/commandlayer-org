@@ -1434,7 +1434,7 @@ function buildVerifyCurl(receipt) {
     .replace(/'/g, "'\\''");
 
   return `curl -sS --max-time 20 \\
-  -X POST "https://runtime.commandlayer.org/verify?ens=1&strict_kid=1" \\
+  -X POST "https://www.commandlayer.org/api/verify" \\
   -H "Content-Type: application/json" \\
   --data-binary '${body}'`;
 }
