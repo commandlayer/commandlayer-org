@@ -42,13 +42,19 @@ function renderChecks(result) {
 function renderMeta(result) {
   const rows = [
     ['status', result.status],
+    ['reason', result.reason],
+    ['signer', result.signer],
+    ['verb', result.verb],
+    ['hash', result.hash],
     ['hash_matches', result.hash_matches],
     ['signature_valid', result.signature_valid],
     ['ens_resolved', result.ens_resolved],
-    ['signer', result.signer],
-    ['verb', result.verb],
     ['key_id', result.key_id],
   ];
+
+  if (result.public_key_source != null) {
+    rows.push(['public_key_source', result.public_key_source]);
+  }
 
   els.metaRows.innerHTML = rows.map(([k, v]) => (
     `<div class="row"><div class="k">${esc(k)}</div><div class="v code">${esc(v == null ? '—' : String(v))}</div></div>`
@@ -73,7 +79,18 @@ function setVerdict(ok, note, isIdle = false) {
 
 function resetToNeutralState(note = 'Run verification to see verdict.') {
   renderChecks({ status: null, hash_matches: null, signature_valid: null, ens_resolved: null });
-  renderMeta({ status: null, hash_matches: null, signature_valid: null, ens_resolved: null, signer: null, verb: null, key_id: null });
+  renderMeta({
+    status: null,
+    reason: null,
+    signer: null,
+    verb: null,
+    hash: null,
+    hash_matches: null,
+    signature_valid: null,
+    ens_resolved: null,
+    key_id: null,
+    public_key_source: null,
+  });
   setVerdict(false, note, true);
 }
 
