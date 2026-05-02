@@ -288,8 +288,8 @@
     <div class="sections">
       <section class="supporting">
         <p class="section-label">SDK + VerifyAgent.eth</p>
-        <h2>Wrap any agent. Verify every action.</h2>
-        <p>Use the agent-sdk to wrap an agent action, emit a signed CommandLayer receipt, and verify it through VerifyAgent.eth.</p>
+        <h2>Agents don’t make claims — they produce proof.</h2>
+        <p>Wrap → sign → verify. Wrap any agent action, emit a signed CommandLayer receipt, and verify it with VerifyAgent.eth.</p>
         <div class="code-card">
 <pre><code>import { CommandLayer } from "@commandlayer/agent-sdk";
 
@@ -332,6 +332,7 @@ console.log(verified.status);</code></pre>
           </article>
         </div>
         <p>If the output changes, the proof breaks.</p>
+        <p>VerifyAgent.eth is the public verifier for CommandLayer receipts.</p>
       </section>
 
       <section class="supporting">

@@ -114,10 +114,10 @@
 <main class="container">
   <section class="hero">
     <h1>VerifyAgent.eth</h1>
-    <p class="subcopy">Paste a CommandLayer receipt. VerifyAgent rebuilds the canonical payload, checks the hash, resolves the signer key, and validates the Ed25519 signature.</p>
+    <p class="subcopy">Agents don’t make claims — they produce proof. Wrap → sign → verify. VerifyAgent.eth is the public verifier for CommandLayer receipts.</p>
     <p class="helper"><strong>SDK install:</strong> <code>npm install @commandlayer/agent-sdk</code></p>
     <p class="helper">Load Sample → Verify should return <strong>VERIFIED</strong>. Load Tampered → Verify should return <strong>INVALID</strong>.</p>
-    <p class="helper"><strong>ERC-8004-ready discovery record:</strong> VerifyAgent.eth is published as a discoverable verification service. <a href="/sdk-records/verifyagent.eth.json">View record</a>.</p>
+    <p class="helper">If the output changes, the proof breaks. Tampering returns <strong>INVALID</strong>.</p>
   </section>
 
   <section class="layout">

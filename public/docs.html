@@ -122,19 +122,8 @@ footer a:hover{color:var(--accent);}
   <a href="https://www.commandlayer.org/" class="nav-brand"><img src="https://www.commandlayer.org/icon2.png" alt="CommandLayer" />CommandLayer</a>
   <ul class="nav-center">
     <li><a href="/index.html">Home</a></li>
-    <li><a href="/composer.html">Commons Demo</a></li>
-    <li><a href="/demo-inner.html">Commerce Demo</a></li>
     <li><a href="/verify.html">Verifier</a></li>
     <li><a href="/quickstart.html">Quickstart</a></li>
-    <li class="nav-dropdown">
-      <button class="nav-dropdown-toggle">Docs ▾</button>
-      <div class="nav-dropdown-menu">
-        <a href="/commons.html">Commons</a>
-        <a href="/commercial.html">Commercial</a>
-        <a href="/agent-cards.html">Agent Cards</a>
-        <a href="/runtime.html">Runtime</a>
-      </div>
-    </li>
   </ul>
   <div class="nav-right"><a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a></div>
 </nav>
@@ -142,20 +131,20 @@ footer a:hover{color:var(--accent);}
 <div class="page-wrap">
   <div class="doc-eyebrow">▸ docs</div>
   <h1 class="doc-h1">Getting started with<br /><em>CommandLayer</em></h1>
-  <p class="doc-lead">This docs hub follows the public CommandLayer story in the right order: execute, emit receipt, verify. Start with Commons for contracts, use Runtime for execution, use SDK for developer receipt tooling, use Agent Cards for identity/discovery, and use VerifyAgent.eth as the public verifier (MIT): https://github.com/commandlayer/verifyagent.</p>
+  <p class="doc-lead">Agents don’t make claims — they produce proof. Wrap → sign → verify. VerifyAgent.eth is the public verifier for CommandLayer receipts.</p>
 
   <div class="badge-row">
-    <span class="v-badge accent">Commons v1.1.0 · MIT · authoritative</span>
-    <span class="v-badge accent">Commercial v1.1.0 · Apache-2.0 · authoritative</span>
-    <span class="v-badge accent">Agent Cards v1.1.0 · Apache-2.0 · authoritative</span>
-    <span class="v-badge green">Build new integrations on v1.1.0</span>
+    <span class="v-badge green">Wrap → sign → verify</span>
+    <span class="v-badge accent">If the output changes, the proof breaks.</span>
+    <span class="v-badge accent">Tampering returns INVALID.</span>
   </div>
 
   <div class="hero-actions">
-    <a href="https://www.commandlayer.org/commons.html" class="btn btn-primary">Explore the Commons Contract →</a>
+    <a href="https://www.commandlayer.org/verify.html" class="btn btn-primary">Verify a receipt now →</a>
     <a href="#summarize-example" class="btn btn-outline">Jump to summarize flow ↓</a>
   </div>
   <p class="doc-p"><strong>Install the SDK:</strong> <code>npm install @commandlayer/agent-sdk</code></p>
+  <p class="doc-p">If the output changes, the proof breaks.</p>
   <p class="doc-p">If you need to work on SDK internals locally, use the GitHub repository as a secondary path.</p>
 
   <hr class="doc-divider" />
@@ -181,8 +170,8 @@ footer a:hover{color:var(--accent);}
   <hr class="doc-divider" />
 
   <div class="doc-section">
-    <h2 class="doc-h2">How the pieces fit together</h2>
-    <p class="doc-p">CommandLayer defines machine intent and canonical receipts. VerifyAgent.eth answers receipt validity, Runtime answers what executed, SDK answers how developers generate and verify receipts, Agent Cards answer who an agent is and what it supports, and Commercial answers how teams operate at hosted scale.</p>
+    <h2 class="doc-h2">Verification in four steps</h2>
+    <p class="doc-p">1) Wrap any agent action. 2) Emit a signed receipt. 3) Verify with VerifyAgent.eth. 4) If the output changes, the proof breaks and verification returns INVALID.</p>
 
     <div class="feat-grid">
       <div class="feat-cell">
