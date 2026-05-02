@@ -13,23 +13,22 @@
     nav a { color:var(--text); text-decoration:none; opacity:.9; }
     nav a:hover { color:var(--accent); }
     main { max-width:900px; margin:0 auto; padding:28px 20px 60px; }
-    h1,h2,h3 { font-family: Arial, sans-serif; margin: 18px 0 10px; }
+    h1,h2 { font-family: Arial, sans-serif; margin: 18px 0 10px; }
     p, li { color:var(--muted); }
     code { color:#9bf7b0; }
     pre { background:var(--panel); border:1px solid var(--border); border-radius:8px; padding:14px; overflow:auto; }
-    .callout { border:1px solid rgba(0,212,255,.35); background: rgba(0,212,255,.08); border-radius:8px; padding:12px 14px; }
   </style>
 </head>
 <body>
   <nav>
     <a href="/index.html">Home</a>
     <a href="/verify.html">Verify</a>
-    <a href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">SDK</a>
     <a href="/docs/wrap-your-agent.html">Wrap Docs</a>
   </nav>
+
   <main>
     <h1>Wrap Your Agent</h1>
-    <p>The clean developer path: wrap your agent action once, return proof every time.</p>
+    <p>Use the SDK to wrap your agent execution and emit a verifiable receipt.</p>
 
     <h2>Install</h2>
     <pre><code>npm install @commandlayer/agent-sdk</code></pre>
@@ -40,8 +39,7 @@
 const cl = new CommandLayer({
   agent: "runtime.commandlayer.eth",
   privateKey: process.env.CL_PRIVATE_KEY_PEM,
-  keyId: "vC4WbcNoq2znSCiQ",
-  verifierUrl: "https://www.commandlayer.org/api/verify"
+  keyId: "vC4WbcNoq2znSCiQ"
 });
 
 const { output, receipt } = await cl.wrap("summarize", async () => {
@@ -51,29 +49,19 @@ const { output, receipt } = await cl.wrap("summarize", async () => {
 console.log(output);
 console.log(receipt);</code></pre>
 
-    <h2>What <code>wrap()</code> returns</h2>
+    <h2><code>wrap()</code> return values</h2>
     <ul>
-      <li><code>output</code>: your agent function result.</li>
-      <li><code>receipt</code>: signed CommandLayer receipt for independent verification.</li>
+      <li><code>output</code>: the result from your wrapped function.</li>
+      <li><code>receipt</code>: the signed proof payload for verification.</li>
     </ul>
 
-    <h2>What verification checks</h2>
+    <h2>Verify receipts</h2>
     <ul>
-      <li>canonical hash</li>
-      <li>Ed25519 signature</li>
-      <li>ENS-compatible signer metadata</li>
-      <li>tamper detection</li>
-    </ul>
-
-    <h2>Try it</h2>
-    <ul>
-      <li><a href="/verify.html"><code>/verify.html</code></a></li>
       <li><code>/api/verify</code></li>
       <li><code>/api/agents/verifyagent</code></li>
     </ul>
 
-    <h2>Full demo</h2>
-    <pre><code>npm run example:demo</code></pre>
+    <p>Open <a href="/verify.html">/verify.html</a> to verify a receipt in the browser.</p>
   </main>
 </body>
 </html>
