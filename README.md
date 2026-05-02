@@ -1,19 +1,14 @@
 # commandlayer-org
 
-Public verification surface for CommandLayer.
-
 CommandLayer turns any agent action into a signed, verifiable receipt.
-
-VerifyAgent.eth is the public verifier that checks whether a receipt is valid or has been tampered with.
-
+VerifyAgent.eth checks whether that receipt is valid or tampered.
 Agents don’t make claims — they produce proof.
 
-## What is live
+## Shipped proof flow
 
 - Verifier UI: https://www.commandlayer.org/verify.html
 - Raw verifier API: POST https://www.commandlayer.org/api/verify
 - Callable VerifyAgent endpoint: POST https://www.commandlayer.org/api/agents/verifyagent
-- SDK: https://github.com/commandlayer/agent-sdk
 - npm: `npm install @commandlayer/agent-sdk`
 
 ## Core flow
