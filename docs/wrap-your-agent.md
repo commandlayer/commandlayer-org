@@ -1,6 +1,11 @@
-# Wrap Your AgentTurn any agent action into a signed, verifiable receipt.
+# Wrap Your Agent
+
+Turn any agent action into a signed, verifiable receipt.
+
 This is the core primitive of CommandLayer:
+
 **Agents don’t make claims — they produce proof.**
+
 ---
 
 ## Install
