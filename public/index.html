@@ -105,6 +105,46 @@
       background: rgba(9, 14, 27, 0.35);
     }
 
+    .proof-strip {
+      width: min(1100px, 100%);
+      margin-top: 8px;
+      padding: 12px 14px;
+      border: 1px solid rgba(168, 191, 255, 0.3);
+      border-radius: 14px;
+      background: rgba(9, 15, 29, 0.82);
+    }
+
+    .proof-strip-title {
+      margin: 0 0 8px;
+      color: #9dc0ff;
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .proof-steps {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .proof-steps li {
+      border: 1px solid rgba(159, 180, 255, 0.25);
+      border-radius: 10px;
+      background: rgba(12, 21, 39, 0.74);
+      padding: 8px 10px;
+      font-size: 0.9rem;
+    }
+
+    .proof-line {
+      margin: 12px 0 0;
+      font-size: clamp(1.2rem, 2.3vw, 1.8rem);
+      font-weight: 800;
+      letter-spacing: 0.01em;
+    }
+
     .hero-actions {
       margin-top: 0;
       display: flex;
@@ -236,6 +276,8 @@
       .nav-wrap { flex-direction: column; justify-content:center; gap: 8px; height: 94px; }
       .nav-links { gap: 12px; font-size: 13px; flex-wrap: wrap; justify-content:center; }
       .hero-frame { border-radius: 16px; padding: 10px 8px 8px; }
+      .proof-steps { grid-template-columns: 1fr; }
+      .proof-line { font-size: 1.15rem; }
       .hero-actions {
         padding: 0 4px;
         justify-content: center;
@@ -278,6 +320,16 @@
             height="1013"
           />
         </picture>
+        <section class="proof-strip" aria-label="What just happened">
+          <p class="proof-strip-title">What just happened?</p>
+          <ol class="proof-steps">
+            <li>1. Agent runs</li>
+            <li>2. SDK signs receipt</li>
+            <li>3. VerifyAgent checks proof</li>
+            <li>4. Tamper = INVALID</li>
+          </ol>
+          <p class="proof-line">If the output changes, the proof breaks.</p>
+        </section>
         <div class="hero-actions">
           <a class="btn btn-primary" href="/verify.html">Verify a Receipt</a>
           <a class="btn btn-secondary" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">View SDK</a>
