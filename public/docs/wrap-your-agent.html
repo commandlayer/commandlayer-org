@@ -46,8 +46,9 @@ const { output, receipt } = await cl.wrap("summarize", async () => {
   return { summary: "hello world" };
 });
 
+const check = await cl.verify(receipt);
 console.log(output);
-console.log(receipt);</code></pre>
+console.log(check.valid);</code></pre>
 
     <h2><code>wrap()</code> return values</h2>
     <ul>
@@ -55,13 +56,8 @@ console.log(receipt);</code></pre>
       <li><code>receipt</code>: the signed proof payload for verification.</li>
     </ul>
 
-    <h2>Verify receipts</h2>
-    <ul>
-      <li><code>/api/verify</code></li>
-      <li><code>/api/agents/verifyagent</code></li>
-    </ul>
-
-    <p>Open <a href="/verify.html">/verify.html</a> to verify a receipt in the browser.</p>
+    <h2><code>verify()</code></h2>
+    <p>Use <code>verify()</code> to validate receipt signatures in-app, or open <a href="/verify.html">/verify.html</a> to verify a receipt in the browser.</p>
   </main>
 </body>
 </html>
