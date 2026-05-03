@@ -1,6 +1,22 @@
 'use strict';
 
 const { verifyReceipt } = require('../../lib/verifyReceipt');
+const MAX_JSON_BODY_BYTES = 1024 * 1024; // 1 MiB
+
+function isOversizedJsonBody(req) {
+  const contentLengthHeader = req?.headers?.['content-length'] || req?.headers?.['Content-Length'];
+  const parsedContentLength = Number.parseInt(String(contentLengthHeader || ''), 10);
+  if (Number.isFinite(parsedContentLength) && parsedContentLength > MAX_JSON_BODY_BYTES) {
+    return true;
+  }
+
+  if (!req?.body || typeof req.body !== 'object') return false;
+  try {
+    return Buffer.byteLength(JSON.stringify(req.body), 'utf8') > MAX_JSON_BODY_BYTES;
+  } catch {
+    return false;
+  }
+}
 
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -31,6 +47,22 @@ module.exports = async function handler(req, res) {
       status: 'INVALID',
       result: {
         reason: 'Missing receipt in request body.',
+        hash: null,
+        hash_matches: false,
+        signature_valid: false,
+        ens_resolved: false,
+      },
+    });
+  }
+
+  if (isOversizedJsonBody(req)) {
+    return res.status(413).json({
+      agent: 'verifyagent.eth',
+      action: 'verify_receipt',
+      ok: false,
+      status: 'INVALID',
+      result: {
+        reason: 'JSON request body too large.',
         hash: null,
         hash_matches: false,
         signature_valid: false,

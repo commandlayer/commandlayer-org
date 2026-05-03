@@ -62,3 +62,25 @@ test('POST /api/verify missing body => 400', async () => {
   assert.equal(res.statusCode, 400);
   assert.equal(res.body.ok, false);
 });
+
+test('GET /api/verify => 405', async () => {
+  const req = { method: 'GET', body: sampleReceipt };
+  const res = makeRes();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 405);
+  assert.equal(res.headers.allow, 'POST');
+  assert.equal(res.body.ok, false);
+});
+
+test('POST /api/verify oversized body => 413', async () => {
+  const req = { method: 'POST', body: sampleReceipt, headers: { 'content-length': String(2 * 1024 * 1024) } };
+  const res = makeRes();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 413);
+  assert.equal(res.body.ok, false);
+  assert.equal(res.body.status, 'INVALID');
+});
