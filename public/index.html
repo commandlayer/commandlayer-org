@@ -105,6 +105,32 @@
       background: rgba(9, 14, 27, 0.35);
     }
 
+
+    .hero-copy {
+      width: min(1100px, 100%);
+      text-align: center;
+      padding: 8px 10px 0;
+    }
+
+    .hero-kicker {
+      margin: 0;
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      font-weight: 800;
+      color: #f5f8ff;
+    }
+
+    .hero-chain {
+      margin: 10px 0 0;
+      color: #bdd1ff;
+      font-weight: 600;
+      font-size: clamp(0.95rem, 1.6vw, 1.18rem);
+    }
+
+    .hero-trust {
+      margin: 10px 0 0;
+      font-size: clamp(1.05rem, 2.1vw, 1.4rem);
+      font-weight: 700;
+    }
     .proof-strip {
       width: min(1100px, 100%);
       margin-top: 8px;
@@ -332,6 +358,11 @@
   <main class="container">
     <section class="hero">
       <div class="hero-frame">
+        <div class="hero-copy">
+          <p class="hero-kicker">Verifiable execution for AI agents.</p>
+          <p class="hero-chain">Every action → signed receipt · Every receipt → ENS identity · Anyone → can verify</p>
+          <p class="hero-trust">Trust the proof. Not the agent.</p>
+        </div>
         <picture>
           <source srcset="/hero-reference.webp" type="image/webp">
           <img
@@ -408,7 +439,7 @@ console.log(verified.status);</code></pre>
           </article>
         </div>
         <p>If the output changes, the proof breaks.</p>
-        <p>VerifyAgent.eth is the public verifier for receipts produced by ENS-named agents.</p>
+        <p>VerifyAgent.eth is the public verification layer for CommandLayer receipts.</p>
     <p class="ens-note">VerifyAgent resolves signer keys from ENS TXT records.<br>For the hackathon demo, <code>runtime.commandlayer.eth</code> is supported via a labeled fallback resolver that mirrors the ENS record structure.<br>The verification flow is designed to operate against live ENS records.</p>
       </section>
 
