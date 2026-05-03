@@ -3,7 +3,7 @@
 Agents don’t make claims — they produce proof.
 Wrap → sign → verify.
 CommandLayer turns any agent action into a signed, verifiable receipt.
-VerifyAgent.eth is the public verifier for CommandLayer receipts.
+VerifyAgent.eth is the public verifier for receipts produced by ENS-named agents.
 
 ## Shipped proof flow
 
@@ -16,8 +16,8 @@ VerifyAgent.eth is the public verifier for CommandLayer receipts.
 
 Agent action  
 → SDK wraps action  
-→ signed receipt is emitted  
-→ VerifyAgent verifies receipt  
+→ signed receipt is emitted with ENS identity  
+→ VerifyAgent resolves signer identity from ENS and verifies receipt  
 → VERIFIED or INVALID
 
 If the output changes, the proof breaks.
@@ -126,12 +126,21 @@ curl -X POST https://www.commandlayer.org/api/agents/verifyagent \
 - canonical JSON payload using `json.sorted_keys.v1`
 - SHA-256 hash matches `metadata.proof.hash_sha256`
 - Ed25519 signature validates
-- signer key metadata resolves through ENS when available
+- signer identity and verification metadata resolve from ENS (`cl.sig.pub`, `cl.sig.kid`, `cl.sig.canonical`, `cl.receipt.signer`)
 - tampered input/output returns `INVALID`
 
-## Advanced protocol layers
+VerifyAgent resolves signer keys from ENS TXT records.
+For the hackathon demo, `runtime.commandlayer.eth` is supported via a labeled fallback resolver that mirrors the ENS record structure.
+The verification flow is designed to operate against live ENS records.
 
-CommandLayer also includes deeper protocol and discovery work, including Commons, Agent Cards, Runtime, and Commercial extensions. These are supporting layers. The current public demo focuses on the proof loop: signed receipts and public verification.
+## Scope
+
+CommandLayer focuses on a single primitive: verifiable agent execution.
+
+Every action produces a signed receipt.
+Every receipt can be independently verified.
+
+The current public demo focuses on this proof loop.
 
 ## Local development
 
@@ -159,3 +168,5 @@ Do not rename or move stable public paths for:
 - schema URLs
 - Agent Card URLs
 - demo surfaces
+
+CommandLayer is designed for ENS-named agents to be verifiable and discoverable, with identity and verification metadata resolved directly from ENS.
