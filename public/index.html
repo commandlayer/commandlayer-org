@@ -408,7 +408,8 @@ console.log(verified.status);</code></pre>
           </article>
         </div>
         <p>If the output changes, the proof breaks.</p>
-        <p>VerifyAgent.eth is the public verifier for CommandLayer receipts.</p>
+        <p>VerifyAgent.eth is the public verifier for receipts produced by ENS-named agents.</p>
+    <p class="ens-note">VerifyAgent resolves signer keys from ENS TXT records.<br>For the hackathon demo, <code>runtime.commandlayer.eth</code> is supported via a labeled fallback resolver that mirrors the ENS record structure.<br>The verification flow is designed to operate against live ENS records.</p>
       </section>
 
 

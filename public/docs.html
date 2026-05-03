@@ -132,7 +132,8 @@ footer a:hover{color:var(--accent);}
 <div class="page-wrap">
   <div class="doc-eyebrow">▸ docs</div>
   <h1 class="doc-h1">Getting started with<br /><em>CommandLayer</em></h1>
-  <p class="doc-lead">Agents don’t make claims — they produce proof. Wrap → sign → verify. VerifyAgent.eth is the public verifier for CommandLayer receipts.</p>
+  <p class="doc-lead">Agents don’t make claims — they produce proof. Wrap → sign → verify. VerifyAgent.eth is the public verifier for receipts produced by ENS-named agents.</p>
+    <p class="ens-note">VerifyAgent resolves signer keys from ENS TXT records.<br>For the hackathon demo, <code>runtime.commandlayer.eth</code> is supported via a labeled fallback resolver that mirrors the ENS record structure.<br>The verification flow is designed to operate against live ENS records.</p>
 
   <div class="badge-row">
     <span class="v-badge green">Wrap → sign → verify</span>
@@ -185,7 +186,7 @@ footer a:hover{color:var(--accent);}
       </div>
       <div class="feat-cell">
         <div class="fc-title">VerifyAgent.eth, Agent Cards, Runtime, SDK</div>
-        <div class="fc-body">VerifyAgent.eth is the public verifier for receipts. Agent Cards bind ENS names to verbs/schema versions/endpoints. Runtime executes verbs and signs receipts. SDK wraps agents and provides programmatic receipt tooling.</div>
+        <div class="fc-body">VerifyAgent.eth is the public verifier for CommandLayer receipts. Agent Cards bind ENS names to verbs/schema versions/endpoints. Runtime executes verbs and signs receipts. SDK wraps agents and provides programmatic receipt tooling.</div>
       </div>
     </div>
   </div>
