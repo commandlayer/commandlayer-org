@@ -119,14 +119,13 @@
 <main class="container">
   <section class="hero">
     <h1>VerifyAgent.eth</h1>
-    <p class="subcopy">VerifyAgent.eth is the public verifier for receipts produced by ENS-named agents.</p>
+    <p class="subcopy">VerifyAgent.eth is the public verification layer for CommandLayer receipts.</p>
     <p class="ens-note">VerifyAgent resolves signer keys from ENS TXT records.<br>For the hackathon demo, <code>runtime.commandlayer.eth</code> is supported via a labeled fallback resolver that mirrors the ENS record structure.<br>The verification flow is designed to operate against live ENS records.</p>
     <p class="subcopy">Paste a receipt, verify it, then tamper with it to see the proof break.</p>
     <p class="helper"><strong>SDK install:</strong> <code>npm install @commandlayer/agent-sdk</code></p>
     <ol class="steps" aria-label="Verification steps">
-      <li class="step"><span class="step-num">1.</span>Load Sample</li>
-      <li class="step"><span class="step-num">2.</span>Click Verify → <strong>VERIFIED</strong></li>
-      <li class="step"><span class="step-num">3.</span>Load Tampered → <strong>INVALID</strong></li>
+      <li class="step"><span class="step-num">1.</span>Load Sample → <strong>VALID</strong> proof</li>
+      <li class="step"><span class="step-num">2.</span>Tamper Output → <strong>INVALID</strong> proof</li>
     </ol>
     <p class="note">This demo uses an ENS-compatible fallback for runtime.commandlayer.eth. Unknown signers do not verify through fallback.</p>
   </section>
