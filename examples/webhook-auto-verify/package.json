@@ -1,0 +1,14 @@
+{
+  "name": "webhook-auto-verify-demo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Demo Express webhook that auto-verifies CommandLayer receipts.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
