@@ -10,19 +10,21 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800;14..32,900&display=swap" rel="stylesheet" />
   <style>
+    /* ── Light theme: ENS white + Stripe navy typography ── */
     :root {
-      --bg: #06080f;
-      --surface: #0d1423;
-      --surface-2: #111d35;
-      --border: rgba(110, 150, 255, 0.13);
-      --border-hi: rgba(110, 150, 255, 0.28);
-      --text: #eef2ff;
-      --text-2: #c8d4f0;
-      --muted: #7a8aad;
-      --blue: #4c7dff;
-      --purple: #7c5cfc;
-      --gradient: linear-gradient(135deg, #4c7dff 0%, #7c5cfc 100%);
-      --glow-purple: rgba(124, 92, 252, 0.22);
+      --bg:        #FFFFFF;
+      --surface:   #F7F8FF;
+      --surface-2: #EEF1FB;
+      --border:    rgba(15, 23, 42, 0.08);
+      --border-hi: rgba(82, 152, 255, 0.3);
+      --text:      #0F172A;   /* Stripe dark navy */
+      --text-2:    #334155;
+      --muted:     #64748B;
+      --blue:      #5298FF;   /* ENS blue */
+      --purple:    #635BFF;   /* Stripe blurple */
+      --indigo:    #818CF8;
+      --gradient:  linear-gradient(135deg, #5298FF 0%, #635BFF 100%);
+      --glow:      rgba(99, 91, 255, 0.14);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,23 +40,23 @@
     }
 
     .container {
-      width: min(1200px, 90vw);
+      width: min(1160px, 90vw);
       margin: 0 auto;
     }
 
-    /* ── NAVIGATION ─────────────────────────── */
+    /* ── NAVIGATION ──────────────────────────────── */
     nav {
       position: sticky;
       top: 0;
       z-index: 100;
-      background: rgba(6, 8, 15, 0.82);
+      background: rgba(255, 255, 255, 0.9);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
     }
 
     .nav-inner {
-      height: 64px;
+      height: 62px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -70,6 +72,7 @@
       text-decoration: none;
       color: var(--text);
       flex-shrink: 0;
+      letter-spacing: -0.01em;
     }
 
     .brand img { width: 22px; height: 22px; }
@@ -93,7 +96,7 @@
 
     .nav-links a:hover {
       color: var(--text);
-      background: rgba(255, 255, 255, 0.06);
+      background: var(--surface);
     }
 
     .nav-actions {
@@ -103,7 +106,7 @@
       flex-shrink: 0;
     }
 
-    /* ── BUTTONS ─────────────────────────────── */
+    /* ── BUTTONS ─────────────────────────────────── */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -113,34 +116,46 @@
       font-size: 14px;
       font-weight: 600;
       text-decoration: none;
-      cursor: pointer;
       border: none;
-      transition: all 0.2s;
+      cursor: pointer;
+      transition: all 0.18s ease;
       white-space: nowrap;
       font-family: inherit;
+      letter-spacing: -0.01em;
     }
 
     .btn-primary {
       background: var(--gradient);
       color: #fff;
+      box-shadow: 0 1px 3px rgba(99,91,255,0.25), 0 4px 12px rgba(99,91,255,0.15);
     }
 
     .btn-primary:hover {
-      opacity: 0.88;
+      opacity: 0.9;
       transform: translateY(-1px);
-      box-shadow: 0 8px 28px var(--glow-purple);
+      box-shadow: 0 4px 16px rgba(99,91,255,0.3);
     }
 
     .btn-secondary {
       background: transparent;
       color: var(--text-2);
-      border: 1px solid var(--border-hi);
+      border: 1px solid rgba(15,23,42,0.18);
     }
 
     .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.06);
+      background: var(--surface);
       color: var(--text);
-      border-color: rgba(110, 150, 255, 0.42);
+      border-color: rgba(82,152,255,0.35);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--purple);
+      border: 2px solid var(--purple);
+    }
+
+    .btn-outline:hover {
+      background: rgba(99,91,255,0.06);
     }
 
     .btn-lg {
@@ -149,46 +164,47 @@
       border-radius: 12px;
     }
 
-    /* ── HERO ──────────────────────────────────── */
+    /* ── HERO ────────────────────────────────────── */
     .hero {
       position: relative;
-      padding: 96px 0 72px;
+      padding: 100px 0 96px;
+      text-align: center;
       overflow: hidden;
-    }
-
-    /* radial glow blobs */
-    .hero::before {
-      content: '';
-      position: absolute;
-      top: -160px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 1000px;
-      height: 700px;
+      /* Subtle ENS-style light gradient wash */
       background:
-        radial-gradient(ellipse at 28% 42%, rgba(76, 125, 255, 0.16) 0%, transparent 58%),
-        radial-gradient(ellipse at 72% 32%, rgba(124, 92, 252, 0.16) 0%, transparent 58%);
+        radial-gradient(ellipse 80% 60% at 15% 0%, rgba(82,152,255,0.07) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 85% 5%, rgba(99,91,255,0.07) 0%, transparent 55%),
+        #FFFFFF;
+    }
+
+    /* ENS-style decorative bracket shapes */
+    .hero-deco {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 110px;
+      height: 220px;
+      border: 2px solid rgba(82,152,255,0.18);
+      border-radius: 12px;
       pointer-events: none;
     }
 
-    /* subtle dot-grid */
-    .hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image:
-        radial-gradient(rgba(110, 150, 255, 0.18) 1px, transparent 1px);
-      background-size: 32px 32px;
-      pointer-events: none;
-      mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 0%, transparent 100%);
-      -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black 0%, transparent 100%);
+    .hero-deco-l {
+      left: calc(50% - 600px);
+      border-right: none;
+      border-radius: 12px 0 0 12px;
+    }
+
+    .hero-deco-r {
+      right: calc(50% - 600px);
+      border-left: none;
+      border-radius: 0 12px 12px 0;
     }
 
     .hero-inner {
       position: relative;
       z-index: 1;
-      text-align: center;
-      max-width: 840px;
+      max-width: 800px;
       margin: 0 auto;
     }
 
@@ -196,14 +212,15 @@
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 5px 14px;
+      padding: 5px 14px 5px 10px;
       border-radius: 100px;
-      border: 1px solid var(--border-hi);
-      background: rgba(76, 125, 255, 0.08);
-      color: #7baeff;
+      border: 1px solid rgba(82,152,255,0.3);
+      background: rgba(82,152,255,0.06);
+      color: var(--purple);
       font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 30px;
+      font-weight: 600;
+      margin-bottom: 28px;
+      letter-spacing: -0.005em;
     }
 
     .badge-dot {
@@ -211,36 +228,38 @@
       height: 6px;
       border-radius: 50%;
       background: var(--blue);
-      animation: blink 2.2s ease-in-out infinite;
+      animation: pulse 2.4s ease-in-out infinite;
+      flex-shrink: 0;
     }
 
-    @keyframes blink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.8); }
     }
 
     .hero-h1 {
-      font-size: clamp(2.6rem, 6vw, 4.4rem);
+      font-size: clamp(2.8rem, 6.5vw, 5rem);
       font-weight: 800;
-      line-height: 1.06;
-      letter-spacing: -0.034em;
+      line-height: 1.02;
+      letter-spacing: -0.04em;
       color: var(--text);
       margin-bottom: 24px;
     }
 
+    /* ENS + Stripe gradient text */
     .grad {
-      background: linear-gradient(130deg, #7baeff 0%, #a78bfa 52%, #67e8f9 100%);
+      background: linear-gradient(130deg, #5298FF 0%, #635BFF 55%, #818CF8 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
 
     .hero-sub {
-      font-size: clamp(1rem, 2vw, 1.18rem);
+      font-size: clamp(1rem, 2vw, 1.2rem);
       color: var(--muted);
-      max-width: 540px;
-      margin: 0 auto 38px;
-      line-height: 1.68;
+      max-width: 520px;
+      margin: 0 auto 40px;
+      line-height: 1.72;
       font-weight: 400;
     }
 
@@ -249,65 +268,147 @@
       justify-content: center;
       gap: 12px;
       flex-wrap: wrap;
-      margin-bottom: 64px;
+      margin-bottom: 72px;
     }
 
-    /* product screenshot frame */
-    .hero-frame {
+    /* ── RECEIPT PREVIEW CARD ─────────────────────── */
+    .receipt-preview {
       position: relative;
       z-index: 1;
-      border-radius: 18px;
-      border: 1px solid var(--border-hi);
+      max-width: 780px;
+      margin: 0 auto;
+      border-radius: 20px;
+      border: 1px solid rgba(15,23,42,0.1);
+      background: #FFFFFF;
       overflow: hidden;
       box-shadow:
-        0 0 0 1px rgba(76, 125, 255, 0.07),
-        0 32px 80px rgba(0, 0, 0, 0.65),
-        0 0 80px rgba(76, 125, 255, 0.1);
+        0 1px 3px rgba(0,0,0,0.06),
+        0 24px 64px rgba(15,23,42,0.1),
+        0 0 0 1px rgba(82,152,255,0.06);
+      text-align: left;
     }
 
-    .frame-chrome {
+    .rp-chrome {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       padding: 11px 16px;
       border-bottom: 1px solid var(--border);
-      background: rgba(13, 20, 35, 0.95);
+      background: var(--surface);
     }
 
-    .chrome-dot {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-    }
+    .rp-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .rp-dot:nth-child(1) { background: #FF5F57; }
+    .rp-dot:nth-child(2) { background: #FEBC2E; }
+    .rp-dot:nth-child(3) { background: #28C840; }
 
-    .chrome-dot:nth-child(1) { background: #ff5f57; }
-    .chrome-dot:nth-child(2) { background: #febc2e; }
-    .chrome-dot:nth-child(3) { background: #28c840; }
-
-    .chrome-label {
+    .rp-title {
       flex: 1;
       text-align: center;
       font-size: 12px;
       color: var(--muted);
-      font-weight: 500;
+      font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
     }
 
-    .hero-frame img {
-      display: block;
-      width: 100%;
-      height: auto;
+    .rp-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
     }
 
-    /* ── HOW IT WORKS ───────────────────────── */
+    .rp-pane {
+      padding: 20px 22px;
+    }
+
+    .rp-pane + .rp-pane {
+      border-left: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .rp-pane-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    /* JSON colors on light bg */
+    .rp-pane pre {
+      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+      font-size: 12.5px;
+      line-height: 1.85;
+      color: #334155;
+    }
+
+    .j-key   { color: #0F172A; font-weight: 600; }
+    .j-str   { color: #16A34A; }
+    .j-hash  { color: #7C3AED; }
+    .j-brace { color: #94A3B8; }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: rgba(16,185,129,0.07);
+      border: 1px solid rgba(16,185,129,0.22);
+    }
+
+    .status-dot-green {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      animation: pulse 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    .status-text { font-size: 14px; font-weight: 700; color: #059669; }
+    .status-sub  { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+    .rp-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+    }
+
+    .rp-step:last-child { border-bottom: none; }
+
+    .rp-step-n {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(82,152,255,0.1);
+      border: 1px solid rgba(82,152,255,0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--blue);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .rp-step-title { font-weight: 600; color: var(--text-2); }
+    .rp-step-desc  { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+    /* ── HOW IT WORKS ─────────────────────────────── */
     .how-section {
       border-top: 1px solid var(--border);
       padding: 80px 0;
+      background: var(--surface);
     }
 
     .how-label {
       text-align: center;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.09em;
       text-transform: uppercase;
       color: var(--muted);
@@ -317,7 +418,6 @@
     .how-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 0;
       position: relative;
     }
 
@@ -325,11 +425,11 @@
       content: '';
       position: absolute;
       top: 23px;
-      left: calc(12.5% + 16px);
-      right: calc(12.5% + 16px);
+      left: calc(12.5% + 14px);
+      right: calc(12.5% + 14px);
       height: 1px;
-      background: linear-gradient(90deg, var(--blue), var(--purple));
-      opacity: 0.35;
+      background: linear-gradient(90deg, #5298FF, #635BFF);
+      opacity: 0.25;
     }
 
     .how-step { text-align: center; padding: 0 20px; }
@@ -338,8 +438,8 @@
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      border: 1px solid var(--border-hi);
-      background: var(--surface);
+      border: 1px solid rgba(82,152,255,0.3);
+      background: #FFFFFF;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -349,30 +449,32 @@
       margin: 0 auto 18px;
       position: relative;
       z-index: 1;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
     }
 
     .how-title {
-      font-weight: 600;
+      font-weight: 700;
       font-size: 15px;
       color: var(--text);
       margin-bottom: 8px;
+      letter-spacing: -0.015em;
     }
 
-    .how-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
+    .how-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
 
-    /* ── SHARED SECTION STYLES ──────────────── */
+    /* ── SHARED SECTION ───────────────────────────── */
     .section {
       padding: 96px 0;
       border-top: 1px solid var(--border);
     }
 
+    .section-alt {
+      background: var(--surface);
+    }
+
     .section-eyebrow {
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: var(--blue);
@@ -380,10 +482,10 @@
     }
 
     .section-h2 {
-      font-size: clamp(1.8rem, 3.2vw, 2.75rem);
+      font-size: clamp(1.9rem, 3.2vw, 2.8rem);
       font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -0.026em;
+      line-height: 1.06;
+      letter-spacing: -0.03em;
       color: var(--text);
       margin-bottom: 16px;
     }
@@ -394,7 +496,7 @@
       line-height: 1.72;
     }
 
-    /* ── CODE SPLIT ─────────────────────────── */
+    /* ── CODE SPLIT ───────────────────────────────── */
     .split {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -406,7 +508,7 @@
       display: flex;
       flex-direction: column;
       gap: 11px;
-      margin-top: 30px;
+      margin-top: 28px;
     }
 
     .check-row {
@@ -424,18 +526,19 @@
       border-radius: 100px;
       font-size: 11px;
       font-weight: 700;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.24);
-      color: #10b981;
+      background: rgba(16,185,129,0.08);
+      border: 1px solid rgba(16,185,129,0.22);
+      color: #059669;
       flex-shrink: 0;
     }
 
+    /* Keep code blocks dark — standard terminal convention on light pages */
     .code-wrap {
       border-radius: 16px;
-      border: 1px solid var(--border-hi);
-      background: #0b1220;
+      border: 1px solid rgba(15,23,42,0.1);
+      background: #0D1526;
       overflow: hidden;
-      box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55), 0 0 48px rgba(76, 125, 255, 0.07);
+      box-shadow: 0 4px 6px rgba(0,0,0,0.04), 0 20px 48px rgba(15,23,42,0.14);
     }
 
     .code-chrome {
@@ -443,44 +546,44 @@
       align-items: center;
       gap: 7px;
       padding: 11px 16px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
-      background: rgba(255, 255, 255, 0.025);
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.03);
     }
 
     .code-dot { width: 11px; height: 11px; border-radius: 50%; }
-    .code-dot:nth-child(1) { background: #ff5f57; }
-    .code-dot:nth-child(2) { background: #febc2e; }
-    .code-dot:nth-child(3) { background: #28c840; }
+    .code-dot:nth-child(1) { background: #FF5F57; }
+    .code-dot:nth-child(2) { background: #FEBC2E; }
+    .code-dot:nth-child(3) { background: #28C840; }
 
     .code-filename {
       font-size: 12px;
-      color: var(--muted);
+      color: #64748B;
       margin-left: 5px;
-      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
+      font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
     }
 
     .code-wrap pre {
       margin: 0;
       padding: 22px 24px;
       font-size: 13px;
-      line-height: 1.75;
+      line-height: 1.82;
       overflow-x: auto;
       font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', Consolas, monospace;
     }
 
-    .t-kw  { color: #c792ea; }
-    .t-str { color: #c3e88d; }
-    .t-cmt { color: #4a5e70; font-style: italic; }
-    .t-fn  { color: #82aaff; }
-    .t-prop { color: #f78c6c; }
-    .t-op  { color: #89ddff; }
-    .t-var { color: #eeffff; }
+    .t-kw   { color: #818CF8; }
+    .t-str  { color: #86EFAC; }
+    .t-cmt  { color: #334155; font-style: italic; }
+    .t-fn   { color: #7AADFF; }
+    .t-prop { color: #FDA4AF; }
+    .t-op   { color: #94A3B8; }
+    .t-var  { color: #E2E8F0; }
 
-    /* ── FEATURES GRID ──────────────────────── */
+    /* ── FEATURES GRID ────────────────────────────── */
     .features-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      gap: 18px;
       margin-top: 48px;
     }
 
@@ -488,13 +591,13 @@
       padding: 26px 24px;
       border-radius: 16px;
       border: 1px solid var(--border);
-      background: var(--surface);
+      background: #FFFFFF;
       transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
     }
 
     .feat-card:hover {
-      border-color: var(--border-hi);
-      box-shadow: 0 8px 32px rgba(76, 125, 255, 0.1);
+      border-color: rgba(82,152,255,0.3);
+      box-shadow: 0 8px 28px rgba(99,91,255,0.08);
       transform: translateY(-2px);
     }
 
@@ -502,8 +605,8 @@
       width: 40px;
       height: 40px;
       border-radius: 10px;
-      background: rgba(76, 125, 255, 0.1);
-      border: 1px solid rgba(76, 125, 255, 0.2);
+      background: rgba(82,152,255,0.08);
+      border: 1px solid rgba(82,152,255,0.18);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -516,6 +619,7 @@
       font-size: 15px;
       color: var(--text);
       margin-bottom: 8px;
+      letter-spacing: -0.015em;
     }
 
     .feat-desc {
@@ -527,16 +631,16 @@
     .feat-desc code {
       font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
       font-size: 11.5px;
-      color: #7baeff;
-      background: rgba(76, 125, 255, 0.1);
+      color: var(--purple);
+      background: rgba(99,91,255,0.07);
       padding: 1px 5px;
       border-radius: 4px;
     }
 
-    .verified { color: #10b981; font-weight: 600; }
-    .invalid  { color: #f87171; font-weight: 600; }
+    .verified { color: #059669; font-weight: 600; }
+    .invalid  { color: #DC2626; font-weight: 600; }
 
-    /* ── API SECTION ────────────────────────── */
+    /* ── API SECTION ──────────────────────────────── */
     .api-top {
       display: flex;
       align-items: flex-start;
@@ -545,29 +649,27 @@
       flex-wrap: wrap;
     }
 
-    .api-actions {
-      display: flex;
-      gap: 10px;
-      flex-shrink: 0;
-      margin-top: 6px;
-    }
+    .api-actions { display: flex; gap: 10px; flex-shrink: 0; margin-top: 6px; }
 
     .endpoint-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
+      gap: 18px;
       margin-top: 40px;
     }
 
     .ep-card {
       border-radius: 16px;
       border: 1px solid var(--border);
-      background: var(--surface);
+      background: #FFFFFF;
       overflow: hidden;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .ep-card:hover { border-color: var(--border-hi); }
+    .ep-card:hover {
+      border-color: rgba(82,152,255,0.3);
+      box-shadow: 0 4px 20px rgba(99,91,255,0.07);
+    }
 
     .ep-header {
       display: flex;
@@ -575,6 +677,7 @@
       gap: 10px;
       padding: 14px 18px;
       border-bottom: 1px solid var(--border);
+      background: var(--surface);
     }
 
     .ep-method {
@@ -582,7 +685,7 @@
       font-weight: 700;
       padding: 3px 8px;
       border-radius: 6px;
-      background: rgba(76, 125, 255, 0.14);
+      background: rgba(82,152,255,0.1);
       color: var(--blue);
       letter-spacing: 0.03em;
     }
@@ -590,7 +693,8 @@
     .ep-path {
       font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
       font-size: 13px;
-      color: #8dffce;
+      color: #16A34A;
+      font-weight: 600;
     }
 
     .ep-desc {
@@ -605,54 +709,67 @@
       padding: 14px 18px;
       font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
       font-size: 12px;
-      color: #cce0ff;
+      color: #334155;
       white-space: pre;
       overflow-x: auto;
-      line-height: 1.7;
+      line-height: 1.75;
+      background: #F8FAFC;
     }
 
-    /* ── CTA BANNER ─────────────────────────── */
+    /* ── CTA BANNER ───────────────────────────────── */
     .cta-section {
       border-top: 1px solid var(--border);
       padding: 96px 0;
+      background: var(--text);   /* dark panel on light page — Stripe pattern */
     }
 
     .cta-box {
-      border-radius: 24px;
-      background: linear-gradient(135deg, rgba(76, 125, 255, 0.1), rgba(124, 92, 252, 0.1));
-      border: 1px solid rgba(110, 150, 255, 0.24);
-      padding: 80px 48px;
-      text-align: center;
       position: relative;
+      text-align: center;
       overflow: hidden;
     }
 
+    /* subtle light grid on dark cta */
     .cta-box::before {
       content: '';
       position: absolute;
-      top: -80px;
+      inset: -40px;
+      background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 28px 28px;
+      pointer-events: none;
+    }
+
+    .cta-box::after {
+      content: '';
+      position: absolute;
+      top: -30%;
       left: 50%;
       transform: translateX(-50%);
-      width: 600px;
+      width: 700px;
       height: 400px;
-      background: radial-gradient(ellipse, rgba(124, 92, 252, 0.14) 0%, transparent 70%);
+      background:
+        radial-gradient(ellipse at 35% 50%, rgba(82,152,255,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 65% 40%, rgba(99,91,255,0.18) 0%, transparent 60%);
       pointer-events: none;
     }
 
     .cta-box h2 {
-      font-size: clamp(1.9rem, 3.5vw, 3rem);
+      font-size: clamp(2rem, 3.5vw, 3.2rem);
       font-weight: 800;
-      letter-spacing: -0.028em;
-      line-height: 1.08;
+      letter-spacing: -0.034em;
+      line-height: 1.06;
       margin-bottom: 16px;
       position: relative;
+      z-index: 1;
+      color: #FFFFFF;
     }
 
     .cta-box p {
       font-size: 1.05rem;
-      color: var(--muted);
+      color: rgba(255,255,255,0.55);
       margin-bottom: 36px;
       position: relative;
+      z-index: 1;
     }
 
     .cta-actions {
@@ -661,12 +778,38 @@
       gap: 12px;
       flex-wrap: wrap;
       position: relative;
+      z-index: 1;
     }
 
-    /* ── FOOTER ─────────────────────────────── */
+    .btn-white {
+      background: #FFFFFF;
+      color: var(--text);
+      font-weight: 700;
+    }
+
+    .btn-white:hover {
+      background: #F1F5F9;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+
+    .btn-ghost-white {
+      background: transparent;
+      color: rgba(255,255,255,0.75);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .btn-ghost-white:hover {
+      background: rgba(255,255,255,0.08);
+      color: #FFFFFF;
+      border-color: rgba(255,255,255,0.35);
+    }
+
+    /* ── FOOTER ───────────────────────────────────── */
     footer {
       border-top: 1px solid var(--border);
       padding: 64px 0 36px;
+      background: var(--bg);
     }
 
     .footer-grid {
@@ -687,19 +830,14 @@
 
     .footer-col-title {
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.07em;
       text-transform: uppercase;
       color: var(--text-2);
       margin-bottom: 16px;
     }
 
-    .footer-links {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      list-style: none;
-    }
+    .footer-links { display: flex; flex-direction: column; gap: 10px; list-style: none; }
 
     .footer-links a {
       font-size: 14px;
@@ -720,10 +858,16 @@
       color: var(--muted);
     }
 
-    /* ── RESPONSIVE ─────────────────────────── */
+    /* ── RESPONSIVE ───────────────────────────────── */
+    @media (max-width: 1100px) {
+      .hero-deco { display: none; }
+    }
+
     @media (max-width: 960px) {
       .how-grid { grid-template-columns: repeat(2, 1fr); gap: 36px; }
       .how-grid::before { display: none; }
+      .rp-body { grid-template-columns: 1fr; }
+      .rp-pane + .rp-pane { border-left: none; border-top: 1px solid var(--border); }
       .split { grid-template-columns: 1fr; gap: 40px; }
       .features-grid { grid-template-columns: repeat(2, 1fr); }
       .endpoint-grid { grid-template-columns: 1fr; }
@@ -737,9 +881,8 @@
       .how-grid { grid-template-columns: 1fr; }
       .features-grid { grid-template-columns: 1fr; }
       .footer-grid { grid-template-columns: 1fr; }
-      .cta-box { padding: 52px 24px; }
       .section { padding: 72px 0; }
-      .hero { padding: 72px 0 56px; }
+      .hero { padding: 72px 0 64px; }
       .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
       .api-top { flex-direction: column; }
     }
@@ -747,7 +890,7 @@
 </head>
 <body>
 
-  <!-- ── NAV ─────────────────────────────────── -->
+  <!-- ── NAV ─────────────────────────────────────── -->
   <nav>
     <div class="container nav-inner">
       <a class="brand" href="/"><img src="/icon2.png" alt="CommandLayer logo" />CommandLayer</a>
@@ -764,43 +907,98 @@
     </div>
   </nav>
 
-  <!-- ── HERO ────────────────────────────────── -->
+  <!-- ── HERO ─────────────────────────────────────── -->
   <section class="hero">
+    <span class="hero-deco hero-deco-l" aria-hidden="true"></span>
+    <span class="hero-deco hero-deco-r" aria-hidden="true"></span>
+
     <div class="container">
       <div class="hero-inner">
         <div class="hero-badge">
           <span class="badge-dot"></span>
-          AI Agent Verification Protocol
+          Ecosystem
         </div>
         <h1 class="hero-h1">
-          <span class="grad">Verifiable</span> execution<br>for AI agents.
+          Trusted by the<br><span class="grad">New Internet.</span>
         </h1>
         <p class="hero-sub">
-          Every action signed. Every receipt provable. Every proof public.<br>
-          CommandLayer makes AI agent outputs independently verifiable — for anyone.
+          CommandLayer is a community of builders making AI agent outputs
+          verifiable. It's not just about trust — it's about proof.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary btn-lg" href="/verify.html">Verify a Receipt</a>
-          <a class="btn btn-secondary btn-lg" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">View SDK &rarr;</a>
+          <a class="btn btn-outline btn-lg" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">Integration Docs</a>
         </div>
       </div>
 
-      <div class="hero-frame">
-        <div class="frame-chrome">
-          <span class="chrome-dot"></span>
-          <span class="chrome-dot"></span>
-          <span class="chrome-dot"></span>
-          <span class="chrome-label">CommandLayer — VerifyAgent.eth</span>
+      <!-- Receipt preview (no image) -->
+      <div class="receipt-preview">
+        <div class="rp-chrome">
+          <span class="rp-dot"></span>
+          <span class="rp-dot"></span>
+          <span class="rp-dot"></span>
+          <span class="rp-title">VerifyAgent.eth — receipt.json</span>
         </div>
-        <picture>
-          <source srcset="/hero-reference.webp" type="image/webp" />
-          <img src="/hero-reference.png" alt="CommandLayer VerifyAgent flow" loading="eager" fetchpriority="high" width="1800" height="1013" />
-        </picture>
+        <div class="rp-body">
+          <div class="rp-pane">
+            <div class="rp-pane-label">Signed receipt</div>
+<pre><span class="j-brace">{</span>
+  <span class="j-key">"agent"</span>:   <span class="j-str">"runtime.commandlayer.eth"</span>,
+  <span class="j-key">"action"</span>:  <span class="j-str">"summarize"</span>,
+  <span class="j-key">"keyId"</span>:   <span class="j-str">"vC4WbcNoq2znSCiQ"</span>,
+  <span class="j-key">"hash"</span>:    <span class="j-hash">"sha256:a4f8c2d1e9b3..."</span>,
+  <span class="j-key">"sig"</span>:     <span class="j-hash">"ed25519:9xKmR7pL..."</span>,
+  <span class="j-key">"output"</span>:  <span class="j-brace">{</span>
+    <span class="j-key">"summary"</span>: <span class="j-str">"hello world"</span>
+  <span class="j-brace">}</span>
+<span class="j-brace">}</span></pre>
+          </div>
+          <div class="rp-pane">
+            <div class="rp-pane-label">Verification result</div>
+            <div class="status-row">
+              <span class="status-dot-green"></span>
+              <div>
+                <div class="status-text">VERIFIED</div>
+                <div class="status-sub">Ed25519 signature valid &middot; ENS resolved</div>
+              </div>
+            </div>
+            <div style="margin-top: 14px;">
+              <div class="rp-step">
+                <div class="rp-step-n">1</div>
+                <div>
+                  <div class="rp-step-title">Canonicalized</div>
+                  <div class="rp-step-desc">JSON sorted &amp; serialized</div>
+                </div>
+              </div>
+              <div class="rp-step">
+                <div class="rp-step-n">2</div>
+                <div>
+                  <div class="rp-step-title">Hash matched</div>
+                  <div class="rp-step-desc">SHA-256 ✓ byte-for-byte</div>
+                </div>
+              </div>
+              <div class="rp-step">
+                <div class="rp-step-n">3</div>
+                <div>
+                  <div class="rp-step-title">ENS resolved</div>
+                  <div class="rp-step-desc">runtime.commandlayer.eth ✓</div>
+                </div>
+              </div>
+              <div class="rp-step">
+                <div class="rp-step-n">4</div>
+                <div>
+                  <div class="rp-step-title">Signature valid</div>
+                  <div class="rp-step-desc">Ed25519 verified against pubkey</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ── HOW IT WORKS ─────────────────────────── -->
+  <!-- ── HOW IT WORKS ──────────────────────────────── -->
   <div class="how-section">
     <div class="container">
       <p class="how-label">How it works</p>
@@ -829,13 +1027,13 @@
     </div>
   </div>
 
-  <!-- ── CODE SECTION ─────────────────────────── -->
+  <!-- ── CODE SECTION ──────────────────────────────── -->
   <section class="section">
     <div class="container">
       <div class="split">
         <div>
           <p class="section-eyebrow">SDK + VerifyAgent.eth</p>
-          <h2 class="section-h2">Agents don't make claims&nbsp;— they produce proof.</h2>
+          <h2 class="section-h2">Agents don't make claims&nbsp;—<br>they produce proof.</h2>
           <p class="section-p">Three steps: wrap, sign, verify. Add CommandLayer to any agent and emit signed receipts that anyone can independently check.</p>
           <div class="feature-checks">
             <div class="check-row"><span class="check-pill">✓</span> Ed25519 cryptographic signatures</div>
@@ -859,7 +1057,7 @@
 <span class="t-kw">const</span> <span class="t-var">cl</span> = <span class="t-kw">new</span> <span class="t-fn">CommandLayer</span>({
   <span class="t-prop">agent</span>: <span class="t-str">"runtime.commandlayer.eth"</span>,
   <span class="t-prop">privateKey</span>: process.<span class="t-fn">env</span>.<span class="t-var">CL_PRIVATE_KEY_PEM</span>,
-  <span class="t-prop">keyId</span>: <span class="t-str">"vC4WbcNoq2znSCiQ"</span>
+  <span class="t-prop">keyId</span>:  <span class="t-str">"vC4WbcNoq2znSCiQ"</span>
 });
 
 <span class="t-cmt">// Wrap any agent action</span>
@@ -875,10 +1073,10 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
     </div>
   </section>
 
-  <!-- ── VERIFICATION PIPELINE ─────────────────── -->
-  <section class="section">
+  <!-- ── VERIFICATION PIPELINE ─────────────────────── -->
+  <section class="section section-alt">
     <div class="container">
-      <div style="text-align: center; max-width: 600px; margin: 0 auto 0;">
+      <div style="text-align: center; max-width: 600px; margin: 0 auto;">
         <p class="section-eyebrow">Verification pipeline</p>
         <h2 class="section-h2">Four steps to cryptographic certainty</h2>
         <p class="section-p">Every receipt runs through a deterministic pipeline — canonical hashing, signature validation, and on-chain identity resolution.</p>
@@ -918,14 +1116,14 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
     </div>
   </section>
 
-  <!-- ── API SECTION ───────────────────────────── -->
+  <!-- ── API SECTION ───────────────────────────────── -->
   <section class="section">
     <div class="container">
       <div class="api-top">
         <div>
           <p class="section-eyebrow">Public verification APIs</p>
-          <h2 class="section-h2">Open endpoints. No auth required.</h2>
-          <p class="section-p" style="max-width: 44ch;">Two interfaces — a raw receipt endpoint and the VerifyAgent.eth callable entry point.</p>
+          <h2 class="section-h2">Open endpoints.<br>No auth required.</h2>
+          <p class="section-p" style="max-width: 40ch;">Two interfaces — a raw receipt endpoint and the VerifyAgent.eth callable entry point.</p>
         </div>
         <div class="api-actions">
           <a class="btn btn-primary" href="/verify.html">Open Verifier</a>
@@ -957,21 +1155,21 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
     </div>
   </section>
 
-  <!-- ── CTA BANNER ───────────────────────────── -->
+  <!-- ── CTA BANNER (dark panel on light page) ─────── -->
   <section class="cta-section">
     <div class="container">
       <div class="cta-box">
         <h2>Trust the proof.<br><span class="grad">Not the agent.</span></h2>
         <p>Start adding cryptographic verification to your AI agent actions in minutes.</p>
         <div class="cta-actions">
-          <a class="btn btn-primary btn-lg" href="/verify.html">Verify a Receipt</a>
-          <a class="btn btn-secondary btn-lg" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">View SDK on GitHub</a>
+          <a class="btn btn-white btn-lg" href="/verify.html">Verify a Receipt</a>
+          <a class="btn btn-ghost-white btn-lg" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">View SDK on GitHub</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ── FOOTER ────────────────────────────────── -->
+  <!-- ── FOOTER ─────────────────────────────────────── -->
   <footer>
     <div class="container">
       <div class="footer-grid">
