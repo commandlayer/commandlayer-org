@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CLAS Trust Verification v1 | CommandLayer</title>
+  <meta name="description" content="CLAS Trust Verification v1: machine-readable standards for verification, approvals, signatures, permissions, and trust decisions." />
+  <link rel="icon" href="/icon2.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg-0:#05070d; --bg-1:#0b1221; --bg-2:#11182b; --text:#eaf0ff; --muted:#9aa6c8; --line:rgba(178,194,255,.22); --line-soft:rgba(178,194,255,.16); --blue:#4c7dff; --purple:#9061ff; --gold:#ffd166; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text); background:radial-gradient(circle at 10% 0%, #172347 0%, transparent 40%),radial-gradient(circle at 85% 20%, #2a1e4d 0%, transparent 38%),linear-gradient(140deg, var(--bg-0), var(--bg-1) 45%, var(--bg-2)); min-height:100vh; overflow-x:hidden; }
+    .container { width:min(1100px, 92vw); margin:0 auto; }
+    nav { position:sticky; top:0; z-index:10; background:rgba(5,7,13,.74); border-bottom:1px solid rgba(255,255,255,.08); backdrop-filter:blur(8px); }
+    .nav-wrap { height:68px; display:flex; align-items:center; justify-content:space-between; }
+    .brand { display:flex; align-items:center; gap:10px; font-weight:700; color:var(--text); text-decoration:none; }
+    .brand img { width:24px; height:24px; }
+    .nav-links { display:flex; gap:20px; font-size:14px; }
+    .nav-links a { color:var(--muted); text-decoration:none; padding:6px 2px; border-bottom:2px solid transparent; }
+    .nav-links a:hover { color:var(--text); }
+    .nav-links a.active { color:#dce6ff; border-bottom-color:rgba(144,97,255,.85); }
+    main { padding:36px 0 56px; }
+    .hero,.card { border:1px solid var(--line); border-radius:16px; background:linear-gradient(160deg, rgba(12,19,36,.8), rgba(9,14,27,.66)); }
+    .hero { padding:28px; margin-bottom:16px; }
+    h1 { margin:0 0 10px; font-size:clamp(30px, 5vw, 52px); line-height:1.05; }
+    .subtitle { margin:0; color:#c2d2ff; font-size:clamp(1rem, 1.9vw, 1.22rem); }
+    .card { padding:18px; margin-bottom:16px; }
+    h2 { margin:0 0 10px; font-size:1.16rem; }
+    p { margin:0 0 10px; color:var(--muted); line-height:1.6; }
+    .grid { display:grid; gap:14px; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); }
+    .verb { border:1px solid var(--line-soft); border-radius:12px; padding:12px; background:rgba(255,255,255,.02); }
+    .verb h3 { margin:0 0 6px; font-size:1rem; color:#f2f6ff; }
+    .verb p { margin:0; font-size:.94rem; }
+    .pipeline { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:#a6fff3; font-weight:700; font-size:1.03rem; }
+    ul { margin:0; padding-left:18px; display:grid; gap:8px; color:#d6e4ff; }
+    .quote { border-left:3px solid rgba(156,180,255,.6); padding:8px 12px; margin:10px 0; color:#cfe1ff; background:rgba(20,31,56,.56); border-radius:6px; }
+    .quote strong { color:var(--gold); }
+    .link-list a { color:#9ec8ff; text-decoration:none; font-weight:600; }
+    .link-list a:hover { text-decoration:underline; text-underline-offset:2px; }
+    footer { padding:16px 0 28px; border-top:1px solid var(--line-soft); margin-top:24px; }
+    .foot-links { display:flex; justify-content:center; gap:28px; font-size:13px; flex-wrap:wrap; }
+    .foot-links a { color:rgba(234,240,255,.72); text-decoration:none; }
+    .foot-links a:hover { color:var(--text); text-decoration:underline; }
+    @media (max-width:900px){ .nav-wrap{height:auto;min-height:68px;padding:10px 0;flex-direction:column;gap:8px;} .nav-links{gap:12px;font-size:13px;flex-wrap:wrap;justify-content:center;} }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="container nav-wrap">
+      <a href="/" class="brand"><img src="/icon2.png" alt="CommandLayer" />CommandLayer</a>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/verify.html">Verify</a>
+        <a href="/sdk-records.html">Discovery</a>
+        <a href="/ambient-verification.html">Ambient</a>
+        <a href="/how-it-works.html">How It Works</a>
+        <a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="hero">
+      <h1>CLAS Trust Verification v1</h1>
+      <p class="subtitle">A machine-readable standard for verifiable actions, approvals, signatures, permissions, attestations, and trust decisions.</p>
+    </section>
+
+    <section class="card">
+      <h2>Canonical verbs</h2>
+      <div class="grid">
+        <article class="verb"><h3>verify</h3><p>Confirm whether proof data and trust semantics are valid for an action.</p></article>
+        <article class="verb"><h3>authenticate</h3><p>Establish who produced the action or proof artifact.</p></article>
+        <article class="verb"><h3>authorize</h3><p>Determine whether an actor is allowed to perform the requested action.</p></article>
+        <article class="verb"><h3>attest</h3><p>Issue a claim that a condition, fact, or action outcome is true.</p></article>
+        <article class="verb"><h3>sign</h3><p>Apply a cryptographic signature over canonicalized action evidence.</p></article>
+        <article class="verb"><h3>permit</h3><p>Represent policy-based permission to continue an action flow.</p></article>
+        <article class="verb"><h3>grant</h3><p>Assign explicit rights, capabilities, or scopes to another party.</p></article>
+        <article class="verb"><h3>approve</h3><p>Accept a request after checks, policy, or workflow requirements pass.</p></article>
+        <article class="verb"><h3>reject</h3><p>Deny a request when checks, policy, or constraints are not satisfied.</p></article>
+        <article class="verb"><h3>endorse</h3><p>Publicly support a claim or signer based on trust and verification evidence.</p></article>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Shared proof model</h2>
+      <ul>
+        <li><strong>canonicalization</strong>: deterministic normalization that guarantees stable bytes for hashing and signing.</li>
+        <li><strong>hash</strong>: digest of canonicalized action payload used as the integrity anchor.</li>
+        <li><strong>signature_alg</strong>: declared signing algorithm used to verify the proof.</li>
+        <li><strong>signature</strong>: cryptographic output proving possession of the signer key.</li>
+        <li><strong>key_id</strong>: key reference used to resolve and validate the expected public key.</li>
+        <li><strong>signer</strong>: identity string representing the actor that issued the signed proof.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Verification pipeline</h2>
+      <p class="pipeline">Parse → Schema → Hash → Signature → Signer</p>
+      <p>Schema validation is necessary for structural correctness, but cryptographic verification is required for trust-grade validity.</p>
+    </section>
+
+    <section class="card link-list">
+      <h2>Artifacts</h2>
+      <p><a href="/schemas/v1.1.0/commons/manifest.json">Commons manifest</a></p>
+      <p><a href="/schemas/v1.1.0/commercial/manifest.json">Commercial manifest</a></p>
+      <p><a href="/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json">Example schema (summarize.receipt)</a></p>
+      <p><a href="/examples/sample-receipt.json">Receipt example</a></p>
+      <p>OpenAPI: not currently published in <code>/public</code>.</p>
+      <p>MCP: not currently published in <code>/public</code>.</p>
+    </section>
+
+    <section class="card">
+      <h2>Relationship to VerifyAgent</h2>
+      <p>VerifyAgent is the reference verifier for CLAS Trust Verification receipts and demonstrates one portable implementation of verification semantics.</p>
+      <div class="quote">VerifyAgent is a <strong>reference verifier</strong>, not the only possible verifier.</div>
+    </section>
+
+    <section class="card">
+      <h2>Relationship to ENS / ERC-8004</h2>
+      <ul>
+        <li>CLAS is network-agnostic and can operate across different identity and execution environments.</li>
+        <li>ENS/ERC-8004 can be used for identity, discovery, reputation, and validation records.</li>
+        <li>ENS/ERC-8004 are not hard dependencies for CLAS trust semantics.</li>
+      </ul>
+    </section>
+
+    <section class="card link-list">
+      <h2>Related links</h2>
+      <p><a href="/verify.html">/verify.html</a></p>
+      <p><a href="/how-it-works.html">/how-it-works.html</a></p>
+      <p><a href="/ambient-verification.html">/ambient-verification.html</a></p>
+      <p><a href="/sdk-records.html">/sdk-records.html</a></p>
+    </section>
+
+    <section class="card">
+      <h2>Careful wording and interoperability notes</h2>
+      <div class="quote"><strong>Schema-valid does not always mean cryptographically valid.</strong></div>
+      <div class="quote">CLAS defines semantics; implementations can vary while preserving verifier outcomes.</div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot-links">
+      <a href="/verify.html">Verify</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/ambient-verification.html">Ambient verification</a>
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/sdk-records.html">Discovery record</a>
+    </div>
+  </footer>
+</body>
+</html>
