@@ -1,0 +1,5 @@
+{
+  "rewrites": [
+    { "source": "/verify/r/:receipt_id", "destination": "/verify/r/index.html" }
+  ]
+}
