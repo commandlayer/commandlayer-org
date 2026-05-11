@@ -35,8 +35,12 @@ module.exports = async function handler(req, res) {
     return res.status(413).json({ ok: false, status: 'INVALID', reason: 'JSON request body too large.' });
   }
 
+  const payload = req.body && typeof req.body === 'object' && !Array.isArray(req.body) && req.body.receipt
+    ? req.body.receipt
+    : req.body;
+
   try {
-    const result = await verifyReceipt(req.body);
+    const result = await verifyReceipt(payload);
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ ok: false, status: 'INVALID', reason: `Unexpected verification failure: ${error.message}` });

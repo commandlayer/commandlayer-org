@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Embeddable Verify Badge Demo</title>
+  <style>
+    body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 0; background:#f4f7fb; color:#1c2b43; }
+    main { max-width: 780px; margin: 40px auto; padding: 0 16px; }
+    h1 { margin: 0 0 10px; }
+    p { color:#4c5d78; }
+    .panel { background:#fff; border:1px solid #dbe3ef; border-radius:12px; padding:16px; margin:16px 0; }
+    pre { background:#0f1a2f; color:#ebf1ff; padding:12px; border-radius:8px; overflow:auto; font-size:12px; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Embeddable Verification Badge v1</h1>
+    <p>Use the badge snippet on any page to fetch and verify a receipt using VerifyAgent.</p>
+
+    <div class="panel">
+      <h2>Valid receipt badge</h2>
+      <div class="cl-verify-badge" data-cl-receipt-url="/receipts/demo-valid-receipt.json"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Tampered receipt badge</h2>
+      <div class="cl-verify-badge" data-cl-receipt-url="/receipts/demo-tampered-receipt.json"></div>
+    </div>
+
+    <div class="panel">
+      <h2>Embed snippet</h2>
+      <pre>&lt;div class="cl-verify-badge" data-cl-receipt-url="/receipts/demo-valid-receipt.json"&gt;&lt;/div&gt;
+&lt;script src="/js/verify-badge.js"&gt;&lt;/script&gt;</pre>
+    </div>
+  </main>
+
+  <script src="/js/verify-badge.js"></script>
+</body>
+</html>

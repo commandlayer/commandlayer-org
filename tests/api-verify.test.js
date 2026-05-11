@@ -37,6 +37,18 @@ test('POST /api/verify with valid sample => VERIFIED', async () => {
   assert.equal(res.body.ens_resolved, true);
 });
 
+
+
+test('POST /api/verify with wrapped receipt payload => VERIFIED', async () => {
+  const req = { method: 'POST', body: { receipt: sampleReceipt } };
+  const res = makeRes();
+
+  await handler(req, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.ok, true);
+  assert.equal(res.body.status, 'VERIFIED');
+});
 test('POST /api/verify with tampered receipt => INVALID', async () => {
   const tampered = structuredClone(sampleReceipt);
   tampered.output.summary = `${tampered.output.summary}!!!`;
