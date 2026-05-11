@@ -1,0 +1,28 @@
+{
+  "signer": "runtime.commandlayer.eth",
+  "verb": "agent.execute",
+  "ts": "2026-04-29T01:32:57.167Z",
+  "input": {
+    "task": "summarize",
+    "content": "hello world"
+  },
+  "output": {
+    "summary": "hello world",
+    "tokens_used": 12
+  },
+  "execution": {
+    "runtime": "wrapped-agent-demo",
+    "run_id": "run_1777426377167"
+  },
+  "metadata": {
+    "proof": {
+      "canonicalization": "json.sorted_keys.v1",
+      "hash_sha256": "4ff674e92434833a00a8f9aac6941a7962b19bf7472f6d4a184ae54168dfc379"
+    }
+  },
+  "signature": {
+    "alg": "ed25519",
+    "kid": "vC4WbcNoq2znSCiQ",
+    "sig": "kpnRCnN2Eg7d3g/nqvRXpEed7qS6Y9/JLyXyU2iQwvP6G2D/h75bcQgKRD2yJaJ/yVN/Ug7//ngrnga8UxUbDw=="
+  }
+}
