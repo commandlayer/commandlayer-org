@@ -1,0 +1,20 @@
+{
+  "event": "artifact.receipt.submitted",
+  "receipt": {
+    "$schema": "https://www.commandlayer.org/schemas/v1.1.0/commons/recorded-live-artifact/recorded-live-artifact.receipt.schema.json",
+    "payload": {
+      "artifact": "The response summarized climate data by region and period. (tampered)",
+      "context": "Demo verification sample",
+      "timestamp": "2026-05-11T00:00:00.000Z"
+    },
+    "recipient": {
+      "did": "did:pkh:eip155:1:0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266",
+      "name": "example.org"
+    },
+    "proof": {
+      "alg": "keccak256",
+      "hash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+      "sig": "0x2222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222"
+    }
+  }
+}
