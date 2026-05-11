@@ -368,35 +368,173 @@
     .status-text { font-size: 14px; font-weight: 700; color: #059669; }
     .status-sub  { font-size: 12px; color: var(--muted); margin-top: 1px; }
 
+    /* ── INTERACTIVE VERIFICATION STEPS ─────────── */
     .rp-step {
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      padding: 9px 0;
+      padding: 9px 8px;
+      margin: 0 -8px;
       border-bottom: 1px solid var(--border);
+      border-radius: 8px;
       font-size: 13px;
+      opacity: 0.35;
+      transition: opacity 0.35s ease, background 0.35s ease;
     }
 
     .rp-step:last-child { border-bottom: none; }
+
+    .rp-step.is-active {
+      opacity: 1;
+      background: rgba(82,152,255,0.055);
+    }
+
+    .rp-step.is-done {
+      opacity: 1;
+    }
 
     .rp-step-n {
       width: 20px;
       height: 20px;
       border-radius: 50%;
-      background: rgba(82,152,255,0.1);
-      border: 1px solid rgba(82,152,255,0.25);
+      background: rgba(148,163,184,0.12);
+      border: 1px solid rgba(148,163,184,0.3);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 10px;
       font-weight: 700;
-      color: var(--blue);
+      color: var(--muted);
       flex-shrink: 0;
       margin-top: 1px;
+      transition: background 0.3s, border-color 0.3s, color 0.3s, transform 0.2s;
     }
+
+    .rp-step.is-active .rp-step-n {
+      background: rgba(82,152,255,0.15);
+      border-color: var(--blue);
+      color: var(--blue);
+      animation: stepPing 0.7s ease-in-out infinite;
+    }
+
+    .rp-step.is-done .rp-step-n {
+      background: rgba(16,185,129,0.12);
+      border-color: rgba(16,185,129,0.4);
+      color: #059669;
+      animation: none;
+    }
+
+    @keyframes stepPing {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+
+    .rp-step-body { flex: 1; min-width: 0; }
 
     .rp-step-title { font-weight: 600; color: var(--text-2); }
     .rp-step-desc  { font-size: 12px; color: var(--muted); margin-top: 1px; }
+
+    /* green check icon, appears when done */
+    .rp-step-check {
+      margin-left: auto;
+      flex-shrink: 0;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.4);
+      transition: opacity 0.28s ease, transform 0.28s cubic-bezier(0.34,1.56,0.64,1);
+    }
+
+    .rp-step-check svg { width: 10px; height: 10px; }
+
+    .rp-step.is-done .rp-step-check {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* status badge animation states */
+    .status-row {
+      transition: background 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
+    }
+
+    .status-row.is-pending {
+      background: rgba(148,163,184,0.07);
+      border-color: rgba(148,163,184,0.2);
+    }
+
+    .status-row.is-verified {
+      background: rgba(16,185,129,0.07);
+      border-color: rgba(16,185,129,0.22);
+      box-shadow: 0 0 20px rgba(16,185,129,0.1);
+    }
+
+    .status-dot-green {
+      transition: background 0.5s ease;
+    }
+
+    /* bottom verified bar */
+    .rp-verified-bar {
+      border-top: 1px solid var(--border);
+      padding: 12px 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      background: var(--surface);
+      transition: color 0.5s ease, background 0.5s ease, border-color 0.5s ease;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;
+    }
+
+    .rp-verified-bar.is-verified {
+      color: #059669;
+      background: rgba(16,185,129,0.05);
+      border-color: rgba(16,185,129,0.15);
+    }
+
+    .rp-bar-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 1.5px solid currentColor;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.5;
+      transition: opacity 0.5s ease, box-shadow 0.5s ease;
+      flex-shrink: 0;
+    }
+
+    .rp-bar-icon svg { width: 11px; height: 11px; }
+
+    .rp-verified-bar.is-verified .rp-bar-icon {
+      opacity: 1;
+      box-shadow: 0 0 8px rgba(16,185,129,0.4);
+    }
+
+    .rp-progress {
+      flex: 1;
+      height: 3px;
+      border-radius: 2px;
+      background: rgba(148,163,184,0.15);
+      overflow: hidden;
+    }
+
+    .rp-progress-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, #10B981, #34D399);
+      transition: width 0.4s ease;
+    }
 
     /* ── HOW IT WORKS ─────────────────────────────── */
     .how-section {
@@ -955,44 +1093,65 @@
           </div>
           <div class="rp-pane">
             <div class="rp-pane-label">Verification result</div>
-            <div class="status-row">
-              <span class="status-dot-green"></span>
+            <div class="status-row is-pending" id="rp-status">
+              <span class="status-dot-green" id="rp-dot" style="background:#94A3B8"></span>
               <div>
-                <div class="status-text">VERIFIED</div>
-                <div class="status-sub">Ed25519 signature valid &middot; ENS resolved</div>
+                <div class="status-text" id="rp-status-text">Waiting…</div>
+                <div class="status-sub" id="rp-status-sub">Ready to verify</div>
               </div>
             </div>
             <div style="margin-top: 14px;">
-              <div class="rp-step">
+              <div class="rp-step" data-step="0">
                 <div class="rp-step-n">1</div>
-                <div>
-                  <div class="rp-step-title">Canonicalized</div>
+                <div class="rp-step-body">
+                  <div class="rp-step-title">Canonicalize</div>
                   <div class="rp-step-desc">JSON sorted &amp; serialized</div>
                 </div>
+                <div class="rp-step-check" aria-hidden="true">
+                  <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
               </div>
-              <div class="rp-step">
+              <div class="rp-step" data-step="1">
                 <div class="rp-step-n">2</div>
-                <div>
+                <div class="rp-step-body">
                   <div class="rp-step-title">Hash matched</div>
-                  <div class="rp-step-desc">SHA-256 ✓ byte-for-byte</div>
+                  <div class="rp-step-desc">SHA-256 byte-for-byte</div>
+                </div>
+                <div class="rp-step-check" aria-hidden="true">
+                  <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
               </div>
-              <div class="rp-step">
+              <div class="rp-step" data-step="2">
                 <div class="rp-step-n">3</div>
-                <div>
+                <div class="rp-step-body">
                   <div class="rp-step-title">ENS resolved</div>
-                  <div class="rp-step-desc">runtime.commandlayer.eth ✓</div>
+                  <div class="rp-step-desc">runtime.commandlayer.eth</div>
+                </div>
+                <div class="rp-step-check" aria-hidden="true">
+                  <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
               </div>
-              <div class="rp-step">
+              <div class="rp-step" data-step="3">
                 <div class="rp-step-n">4</div>
-                <div>
+                <div class="rp-step-body">
                   <div class="rp-step-title">Signature valid</div>
                   <div class="rp-step-desc">Ed25519 verified against pubkey</div>
+                </div>
+                <div class="rp-step-check" aria-hidden="true">
+                  <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- animated bottom bar -->
+        <div class="rp-verified-bar" id="rp-bar">
+          <div class="rp-bar-icon" id="rp-bar-icon">
+            <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div class="rp-progress"><div class="rp-progress-fill" id="rp-fill"></div></div>
+          <span id="rp-bar-text">Verifying…</span>
         </div>
       </div>
     </div>
@@ -1208,5 +1367,93 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
     </div>
   </footer>
 
+  <script>
+    (function () {
+      const steps      = document.querySelectorAll('.rp-step[data-step]');
+      const statusRow  = document.getElementById('rp-status');
+      const statusText = document.getElementById('rp-status-text');
+      const statusSub  = document.getElementById('rp-status-sub');
+      const statusDot  = document.getElementById('rp-dot');
+      const bar        = document.getElementById('rp-bar');
+      const fill       = document.getElementById('rp-fill');
+      const barText    = document.getElementById('rp-bar-text');
+      const preview    = document.querySelector('.receipt-preview');
+
+      if (!preview || !steps.length) return;
+
+      let tids = [];
+      let active = false;
+
+      function wait(ms) {
+        return new Promise(r => { const t = setTimeout(r, ms); tids.push(t); });
+      }
+
+      function clearAll() {
+        tids.forEach(clearTimeout);
+        tids = [];
+      }
+
+      function reset() {
+        steps.forEach(s => { s.classList.remove('is-active', 'is-done'); });
+        statusRow.className  = 'status-row is-pending';
+        statusDot.style.background = '#94A3B8';
+        statusText.textContent = 'Waiting…';
+        statusSub.textContent  = 'Ready to verify';
+        bar.className  = 'rp-verified-bar';
+        barText.textContent = 'Verifying…';
+        fill.style.width = '0%';
+      }
+
+      async function run() {
+        if (active) return;
+        active = true;
+        reset();
+
+        await wait(500);
+
+        /* mark "running" in status */
+        statusText.textContent = 'Verifying…';
+        statusSub.textContent  = 'Running pipeline';
+
+        const total = steps.length;
+        for (let i = 0; i < total; i++) {
+          steps[i].classList.add('is-active');
+          fill.style.width = ((i / total) * 100) + '%';
+          await wait(700);
+          steps[i].classList.remove('is-active');
+          steps[i].classList.add('is-done');
+          fill.style.width = (((i + 1) / total) * 100) + '%';
+          await wait(120);
+        }
+
+        /* all done — light everything green */
+        await wait(180);
+        statusDot.style.background = '#10B981';
+        statusRow.className = 'status-row is-verified';
+        statusText.textContent = 'VERIFIED';
+        statusSub.textContent  = 'Ed25519 valid · ENS resolved';
+        bar.className = 'rp-verified-bar is-verified';
+        barText.textContent = 'Proof complete';
+
+        await wait(3200);
+
+        active = false;
+        run();
+      }
+
+      /* trigger when card enters viewport */
+      const io = new IntersectionObserver(entries => {
+        if (entries[0].isIntersecting) {
+          run();
+        } else {
+          clearAll();
+          active = false;
+          reset();
+        }
+      }, { threshold: 0.35 });
+
+      io.observe(preview);
+    })();
+  </script>
 </body>
 </html>
