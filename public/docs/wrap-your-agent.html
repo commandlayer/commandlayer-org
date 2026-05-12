@@ -12,7 +12,7 @@
   <link rel="stylesheet" href="/css/site.css" />
   <style>
     .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}.nav-links a.active{color:var(--text);background:var(--surface)}
-    .doc-shell{padding:64px 0 88px}.doc-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}.doc-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 6px 20px rgba(99,91,255,.04);margin-bottom:18px}.doc-card h2{font-size:1.25rem;margin-bottom:10px;letter-spacing:-.02em}.doc-card p,.doc-card li{color:var(--text-2);line-height:1.7}.doc-card ul{padding-left:20px}.code-panel{background:#0E1322;color:#E2E8F0;border-radius:14px;border:1px solid rgba(30,41,59,.3);padding:18px;overflow:auto;font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.code-panel code{color:inherit}.side-card{position:sticky;top:112px;background:linear-gradient(180deg,#F9FAFF 0%,#F3F6FF 100%);border:1px solid var(--border);border-radius:18px;padding:20px}.side-card h3{margin-bottom:8px}.side-card p{color:var(--text-2);font-size:.95rem;line-height:1.6}.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:28px}.flow-step{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;font-weight:700;color:var(--text-2);font-size:13px}.flow-step span{display:block;color:var(--purple);font-size:12px;margin-bottom:4px}.inline-link{color:var(--purple);font-weight:700;text-decoration:none}.inline-link:hover{text-decoration:underline}@media(max-width:900px){.doc-grid{grid-template-columns:1fr}.side-card{position:static}.flow{grid-template-columns:1fr}.doc-shell{padding:42px 0 64px}}
+    .doc-shell{padding:64px 0 88px}.doc-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}.doc-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 6px 20px rgba(99,91,255,.04);margin-bottom:18px}.doc-card h2{font-size:1.25rem;margin-bottom:10px;letter-spacing:-.02em}.doc-card h3{font-size:1.02rem;margin:18px 0 8px}.doc-card p,.doc-card li{color:var(--text-2);line-height:1.7}.doc-card ul{padding-left:20px}.code-panel{background:#0E1322;color:#E2E8F0;border-radius:14px;border:1px solid rgba(30,41,59,.3);padding:18px;overflow:auto;font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.code-panel code{color:inherit}.side-card{position:sticky;top:112px;background:linear-gradient(180deg,#F9FAFF 0%,#F3F6FF 100%);border:1px solid var(--border);border-radius:18px;padding:20px}.side-card h3{margin-bottom:8px}.side-card p,.side-card li{color:var(--text-2);font-size:.95rem;line-height:1.6}.side-card ul{padding-left:18px;margin-top:8px}.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:28px}.flow-step{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;font-weight:700;color:var(--text-2);font-size:13px}.flow-step span{display:block;color:var(--purple);font-size:12px;margin-bottom:4px}.inline-link{color:var(--purple);font-weight:700;text-decoration:none}.inline-link:hover{text-decoration:underline}.path-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.path-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}.path-card strong{display:block;color:var(--text);font-size:1.04rem;margin-bottom:6px}.rule-box{border-left:4px solid var(--purple);background:linear-gradient(180deg,#F9FAFF 0%,#F3F6FF 100%);border-radius:0 14px 14px 0;padding:16px;margin:14px 0}.stack-list{display:grid;gap:10px;margin-top:10px}.stack-item{border:1px solid var(--border);border-radius:14px;padding:14px;background:#fff}.stack-item strong{color:var(--text)}@media(max-width:900px){.doc-grid,.path-grid{grid-template-columns:1fr}.side-card{position:static}.flow{grid-template-columns:1fr}.doc-shell{padding:42px 0 64px}}
   </style>
 </head>
 <body>
@@ -33,8 +33,8 @@
 <section class="hero">
   <div class="container">
     <div class="hero-badge"><span class="badge-dot"></span>Builder Guide</div>
-    <h1 class="hero-h1">Wrap your agent. <span class="grad">Emit a receipt.</span></h1>
-    <p class="hero-sub">Add verifiable CommandLayer receipts to an agent action, then verify the receipt in-app or through the public verifier.</p>
+    <h1 class="hero-h1">Wrap first. <span class="grad">Use schemas when you need interoperability.</span></h1>
+    <p class="hero-sub">Most builders do not need to download every schema. Pick the capabilities your agent supports, emit receipts, and verify the proof.</p>
     <div class="hero-actions">
       <a class="btn btn-primary btn-lg" href="/verify.html">Open verifier</a>
       <a class="btn btn-secondary btn-lg" href="/capabilities.html">Explore capabilities</a>
@@ -43,6 +43,50 @@
 </section>
 
 <main class="container doc-shell">
+  <section class="doc-card">
+    <h2>Two ways developers use CommandLayer</h2>
+    <div class="path-grid">
+      <div class="path-card">
+        <strong>1. Just wrap my agent</strong>
+        <p>You already have an agent and just want receipts. Use the SDK wrapper and let CommandLayer handle receipt structure, canonicalization, hash, signature, verifier calls, and proof objects.</p>
+        <pre class="code-panel"><code>wrap("summarize", async () => {
+  return { summary: "..." };
+});</code></pre>
+      </div>
+      <div class="path-card">
+        <strong>2. Build against a capability</strong>
+        <p>You want your agent to support a known capability like <code>summarize</code>, <code>authorize</code>, <code>verify</code>, <code>attest</code>, <code>ship</code>, or <code>invoice</code>. Follow that capability's schemas, examples, agent card, discovery record, and verifier expectations.</p>
+      </div>
+    </div>
+    <div class="rule-box">
+      <strong>The simple rule:</strong> use only the schemas for the capabilities your agent supports. If your agent only summarizes text, you need the summarize request schema, summarize receipt schema, and shared proof schema — not ship, refund, approve, kyc, broadcast, or inventory.
+    </div>
+  </section>
+
+  <section class="doc-card">
+    <h2>How the stack fits together</h2>
+    <p>Capabilities are the menu of possible actions. Schemas are the contracts for each action. The SDK wraps an agent action and emits receipts. The verifier checks those receipts. Your agent only uses the capabilities it actually performs.</p>
+    <div class="stack-list">
+      <div class="stack-item"><strong>Layer 1 — Shared proof schema.</strong> Every receipt needs canonicalization, hash, signature_alg, signature, key_id, and signer.</div>
+      <div class="stack-item"><strong>Layer 2 — Capability schemas.</strong> Each capability has its own request and receipt shape, such as verify.request.schema.json or authorize.receipt.schema.json.</div>
+      <div class="stack-item"><strong>Layer 3 — SDK.</strong> The SDK helps developers use schemas without manually assembling every proof object.</div>
+      <div class="stack-item"><strong>Layer 4 — Verifier.</strong> VerifyAgent checks shape, hash, signature, signer, and whether the capability verb makes sense.</div>
+    </div>
+  </section>
+
+  <section class="doc-card">
+    <h2>Should schemas be downloaded?</h2>
+    <p>Not usually. The better model is to resolve, fetch, or pin schemas by capability and version.</p>
+    <pre class="code-panel"><code>capability: summarize
+version: 1.0.0
+
+schemas:
+  summarize.request.schema.json
+  summarize.receipt.schema.json
+  shared-proof.schema.json</code></pre>
+    <p>Later, discovery can expose those through ENS records, agent cards, MCP, OpenAPI, manifests, and a capability registry.</p>
+  </section>
+
   <div class="flow">
     <div class="flow-step"><span>01</span>Install SDK</div>
     <div class="flow-step"><span>02</span>Wrap action</div>
@@ -96,8 +140,14 @@ console.log(check.valid);</code></pre>
     </div>
 
     <aside class="side-card">
-      <h3>Receipt path</h3>
-      <p>CommandLayer turns an agent action into a portable proof object.</p>
+      <h3>Best developer experience</h3>
+      <p>Do not download 200 schemas and figure out the protocol yourself.</p>
+      <ul>
+        <li>Choose what your agent can do.</li>
+        <li>Wrap it.</li>
+        <li>Emit a receipt.</li>
+        <li>Verify it.</li>
+      </ul>
       <p style="margin-top:12px"><strong>Action</strong> → schema → output → receipt → verifier → proof URL.</p>
       <div class="hero-actions" style="justify-content:flex-start;margin:18px 0 0">
         <a class="btn btn-primary" href="/verify.html">Try verifier</a>
