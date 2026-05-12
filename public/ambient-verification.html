@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Ambient Machine-Action Verification | CommandLayer</title>
-  <meta name="description" content="Explore manual, URL, badge, and webhook-driven ambient verification for CommandLayer receipts." />
+  <meta name="description" content="Move from manual receipt checks to ambient machine-action verification across URLs, badges, webhooks, SDK calls, and agent workflows." />
   <link rel="icon" href="/icon2.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,18 +18,15 @@
     .subtitle { margin:0; color: var(--text-2); font-size: clamp(1rem, 1.9vw, 1.22rem); }
     .grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin: 16px 0; }
     .feat-card { padding: 18px; }
+    .flow { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:#0f766e; font-weight:700; line-height:1.8; }
+    .checks { padding-left:18px; color:#334155; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
     h2 { margin:0 0 10px; font-size:1.16rem; }
-    h3 { margin:0 0 8px; font-size:1rem; color:var(--text); }
     p { margin:0 0 10px; color: var(--muted); line-height:1.6; }
-    ol, ul { margin:0; padding-left:20px; display:grid; gap:8px; color:var(--text-2); }
-    .pipeline, .checks { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    .pipeline { color:#0f766e; font-weight:700; line-height:1.8; }
-    .checks { padding-left:18px; color:#334155; }
-    .verb { border:1px solid var(--border); border-radius:12px; padding:12px; background:var(--surface); }
     .quote { border-left:3px solid var(--blue); padding:8px 12px; margin:10px 0; color:#334155; background:#f3f6ff; border-radius:6px; }
     .quote strong { color: var(--purple); }
-    .link, .link-list a { color:#3b82f6; text-decoration:none; font-weight:600; }
-    .link:hover, .link-list a:hover { text-decoration:underline; text-underline-offset:2px; }
+    .link, .link-list a, .cta-row a { color:#3b82f6; text-decoration:none; font-weight:600; }
+    .link:hover, .link-list a:hover, .cta-row a:hover { text-decoration:underline; text-underline-offset:2px; }
+    .cta-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
     footer { padding: 16px 0 28px; margin-top: 24px; }
     .foot-links { display:flex; justify-content:center; gap:28px; font-size:13px; flex-wrap:wrap; }
     .foot-links a { color: var(--muted); text-decoration:none; }
@@ -54,37 +51,27 @@
   <main class="container">
     <section class="hero">
       <h1>Ambient Machine-Action Verification</h1>
-      <p class="subtitle">Verification should happen automatically, not manually.</p>
+      <p class="subtitle">Systems can verify machine-action receipts automatically through URLs, badges, webhooks, SDKs, and agent-to-agent flows.</p>
     </section>
 
-    <section class="grid" aria-label="Verification surfaces">
-      <article class="feat-card"><h2>Manual verifier</h2><p>Paste a receipt and inspect each verification check.</p><a class="link" href="/verify.html">Open /verify.html →</a></article>
-      <article class="feat-card"><h2>Verification URLs</h2><p>Share links that encode a verification result workflow.</p><a class="link" href="/verify/r/demo-valid-receipt">Open demo-valid-receipt →</a><br/><a class="link" href="/verify/r/demo-tampered-receipt">Open demo-tampered-receipt →</a></article>
-      <article class="feat-card"><h2>Embeddable badge</h2><p>Render verified/invalid status directly in another page.</p><a class="link" href="/verify-badge-demo.html">Open /verify-badge-demo.html →</a></article>
-      <article class="feat-card"><h2>Webhook auto-verification</h2><p>Trigger verification automatically in backend flows.</p><a class="link" href="https://github.com/commandlayer/agent-sdk/tree/main/examples/webhook-auto-verify" target="_blank" rel="noopener">View webhook-auto-verify example ↗</a></article>
-    </section>
-
-
-    <section class="feat-card" style="margin-bottom:16px;">
-      <h2>From manual verification to ambient verification</h2>
-      <p>The same receipt can be verified manually, loaded from a proof URL, checked by a badge, consumed by a webhook, or validated by another agent.</p>
-      <ul class="link-list">
-        <li><a href="/verify.html">Manual verifier</a></li>
-        <li><a href="/verify/r/demo-valid-receipt">Proof URL demo</a></li>
-        <li><a href="/verify-badge-demo.html">Badge verification demo</a></li>
-        <li><a href="https://github.com/commandlayer-org/commandlayer-org/blob/main/schemas/trust-verification/verify/verify.openapi.yaml" target="_blank" rel="noopener">Webhook/API verification surface (OpenAPI)</a></li>
-      </ul>
+    <section aria-label="Four verification surfaces">
+      <h2>Four verification surfaces</h2>
+      <div class="grid">
+        <article class="feat-card"><h2>Manual Verifier</h2><p>Manual inspection is useful for debugging and spot checks.</p><a class="link" href="/verify.html">Open /verify.html →</a></article>
+        <article class="feat-card"><h2>Verification URLs</h2><p>Receipt-specific URLs let systems and humans open the same verification result directly.</p><a class="link" href="/verify/r/demo-valid-receipt">Open valid receipt URL →</a><br/><a class="link" href="/verify/r/demo-tampered-receipt">Open tampered receipt URL →</a></article>
+        <article class="feat-card"><h2>Embedded Badges</h2><p>Display verification status where decisions are made.</p><a class="link" href="/verify-badge-demo.html">Open /verify-badge-demo.html →</a></article>
+        <article class="feat-card"><h2>Webhook Auto-Verification</h2><p>For backend automation, use webhook consumers to verify receipts on arrival.</p><p>Example/planned path: <code>examples/webhook-auto-verify</code></p></article>
+      </div>
     </section>
 
     <section class="feat-card" style="margin-bottom:16px;">
-      <h2>Trust pipeline</h2>
-      <p class="pipeline">Parse → Schema → Hash → Signature → Signer</p>
-      <p>Verification checks are computed from receipt data, signer records, hashes, and signatures.</p>
-      <div class="quote"><strong>Schema-valid does not always mean cryptographically valid.</strong></div>
+      <h2>Ambient flow</h2>
+      <p class="flow">Receipt reference → fetch receipt → verify checks → accept/reject action</p>
+      <p>The verifier can run inside a website, backend job, webhook consumer, SDK call, or agent-to-agent workflow.</p>
     </section>
 
-    <section class="feat-card">
-      <h2>Core checks</h2>
+    <section class="feat-card" style="margin-bottom:16px;">
+      <h2>Trust checks</h2>
       <ul class="checks">
         <li>schema_valid</li>
         <li>hash_matched</li>
@@ -93,7 +80,36 @@
         <li>signer_matched</li>
         <li>trust_verb</li>
       </ul>
-      <div class="quote">Ambient verification means systems can verify receipts automatically without requiring manual copy/paste.</div>
+      <div class="quote"><strong>A schema-valid receipt only means the receipt has the expected shape. Cryptographic validity still depends on hash, signature, and signer checks.</strong></div>
+      <div class="quote">Schema-valid does not always mean cryptographically valid.</div>
+    </section>
+
+    <section aria-label="Developer use cases">
+      <h2>Developer use cases</h2>
+      <div class="grid">
+        <article class="feat-card"><h2>webhook filtering</h2><p>Route or block incoming events based on verification checks.</p></article>
+        <article class="feat-card"><h2>website badges</h2><p>Show verification state directly in user-facing pages.</p></article>
+        <article class="feat-card"><h2>automated receipt checks</h2><p>Run verification as part of backend decision logic.</p></article>
+        <article class="feat-card"><h2>agent-to-agent validation</h2><p>Let one agent verify another agent's receipt before acting.</p></article>
+        <article class="feat-card"><h2>audit trails</h2><p>Store verification outputs for compliance and review.</p></article>
+        <article class="feat-card"><h2>dashboard/history pipelines</h2><p>Feed verification states into reporting and historical analytics.</p></article>
+      </div>
+    </section>
+
+    <section class="feat-card" style="margin-top:16px;">
+      <h2>Careful wording</h2>
+      <ul class="link-list">
+        <li>Ambient verification should happen automatically, not manually.</li>
+        <li>Ambient verification does not require manual copy/paste.</li>
+        <li>Schema-valid does not always mean cryptographically valid.</li>
+        <li>CLAS is network-agnostic; ENS/ERC-8004 can assist discovery and identity but are not required for every verification flow.</li>
+      </ul>
+      <div class="cta-row">
+        <a href="/verify/r/demo-valid-receipt">Try verification URL →</a>
+        <a href="/verify-badge-demo.html">Open badge demo →</a>
+        <a href="/how-it-works.html">Read how it works →</a>
+        <a href="/docs/wrap-your-agent.html">Wrap your agent →</a>
+      </div>
     </section>
   </main>
 
