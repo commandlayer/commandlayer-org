@@ -9,46 +9,36 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
   <style>
-    :root { --bg-0:#05070d; --bg-1:#0b1221; --bg-2:#11182b; --text:#eaf0ff; --muted:#9aa6c8; --line:rgba(178,194,255,.22); --line-soft:rgba(178,194,255,.16); --blue:#4c7dff; --purple:#9061ff; --green:#2bd794; --gold:#ffd166; }
-    * { box-sizing:border-box; }
-    body { margin:0; font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif; color:var(--text); background:radial-gradient(circle at 10% 0%, #172347 0%, transparent 40%),radial-gradient(circle at 85% 20%, #2a1e4d 0%, transparent 38%),linear-gradient(140deg, var(--bg-0), var(--bg-1) 45%, var(--bg-2)); min-height:100vh; overflow-x:hidden; }
-    .container { width:min(1100px, 92vw); margin:0 auto; }
-    nav { position:sticky; top:0; z-index:10; background:rgba(5,7,13,.74); border-bottom:1px solid rgba(255,255,255,.08); backdrop-filter:blur(8px); }
-    .nav-wrap { height:68px; display:flex; align-items:center; justify-content:space-between; }
-    .brand { display:flex; align-items:center; gap:10px; font-weight:700; color:var(--text); text-decoration:none; }
-    .brand img { width:24px; height:24px; }
-    .nav-links { display:flex; gap:20px; font-size:14px; }
-    .nav-links a { color:var(--muted); text-decoration:none; padding:6px 2px; border-bottom:2px solid transparent; }
-    .nav-links a:hover { color:var(--text); }
-    .nav-links a.active { color:#dce6ff; border-bottom-color:rgba(144,97,255,.85); }
-    main { padding:36px 0 56px; }
-    .hero,.card { border:1px solid var(--line); border-radius:16px; background:linear-gradient(160deg, rgba(12,19,36,.8), rgba(9,14,27,.66)); }
-    .hero { padding:28px; margin-bottom:16px; }
-    h1 { margin:0 0 10px; font-size:clamp(30px, 5vw, 52px); line-height:1.05; }
-    .subtitle { margin:0; color:#c2d2ff; font-size:clamp(1rem, 1.9vw, 1.22rem); }
-    .grid { display:grid; gap:16px; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); margin:16px 0; }
-    .card { padding:18px; }
+    .nav-links a.active { color: var(--text); background: var(--surface); }
+    main { padding: 36px 0 56px; }
+    .hero { padding: 28px; margin: 0 0 16px; text-align: left; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%); }
+    .hero h1 { margin:0 0 10px; font-size: clamp(30px, 5vw, 52px); line-height:1.05; }
+    .subtitle { margin:0; color: var(--text-2); font-size: clamp(1rem, 1.9vw, 1.22rem); }
+    .grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin: 16px 0; }
+    .feat-card { padding: 18px; }
     h2 { margin:0 0 10px; font-size:1.16rem; }
-    p { margin:0 0 10px; color:var(--muted); line-height:1.6; }
-    ol { margin:0; padding-left:20px; color:#d6e4ff; display:grid; gap:8px; }
-    .pipeline { font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:#a6fff3; font-weight:700; line-height:1.8; }
-    .layer-list { margin:0; padding-left:18px; display:grid; gap:8px; color:#d6e4ff; }
-    .layer-list strong { color:#f2f6ff; }
-    .quote { border-left:3px solid rgba(156,180,255,.6); padding:8px 12px; margin:10px 0; color:#cfe1ff; background:rgba(20,31,56,.56); border-radius:6px; }
-    .quote strong { color:var(--gold); }
-    .link-list a { color:#9ec8ff; text-decoration:none; font-weight:600; }
-    .link-list a:hover { text-decoration:underline; text-underline-offset:2px; }
-    footer { padding:16px 0 28px; border-top:1px solid var(--line-soft); margin-top:24px; }
+    h3 { margin:0 0 8px; font-size:1rem; color:var(--text); }
+    p { margin:0 0 10px; color: var(--muted); line-height:1.6; }
+    ol, ul { margin:0; padding-left:20px; display:grid; gap:8px; color:var(--text-2); }
+    .pipeline, .checks { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .pipeline { color:#0f766e; font-weight:700; line-height:1.8; }
+    .checks { padding-left:18px; color:#334155; }
+    .verb { border:1px solid var(--border); border-radius:12px; padding:12px; background:var(--surface); }
+    .quote { border-left:3px solid var(--blue); padding:8px 12px; margin:10px 0; color:#334155; background:#f3f6ff; border-radius:6px; }
+    .quote strong { color: var(--purple); }
+    .link, .link-list a { color:#3b82f6; text-decoration:none; font-weight:600; }
+    .link:hover, .link-list a:hover { text-decoration:underline; text-underline-offset:2px; }
+    footer { padding: 16px 0 28px; margin-top: 24px; }
     .foot-links { display:flex; justify-content:center; gap:28px; font-size:13px; flex-wrap:wrap; }
-    .foot-links a { color:rgba(234,240,255,.72); text-decoration:none; }
-    .foot-links a:hover { color:var(--text); text-decoration:underline; }
-    @media (max-width:900px){ .nav-wrap{height:auto;min-height:68px;padding:10px 0;flex-direction:column;gap:8px;} .nav-links{gap:12px;font-size:13px;flex-wrap:wrap;justify-content:center;} }
+    .foot-links a { color: var(--muted); text-decoration:none; }
+    .foot-links a:hover { color: var(--text); text-decoration:underline; }
   </style>
 </head>
 <body>
   <nav>
-    <div class="container nav-wrap">
+    <div class="container nav-inner">
       <a href="/" class="brand"><img src="/icon2.png" alt="CommandLayer" />CommandLayer</a>
       <div class="nav-links">
         <a href="/">Home</a>
@@ -67,7 +57,7 @@
       <p class="subtitle">Agents create signed receipts. VerifyAgent checks the receipt, signer, hash, signature, and trust semantics.</p>
     </section>
 
-    <section class="card" style="margin-bottom:16px;">
+    <section class="feat-card" style="margin-bottom:16px;">
       <h2>Five-step verification flow</h2>
       <ol>
         <li>Agent executes an action.</li>
@@ -78,12 +68,12 @@
       </ol>
     </section>
 
-    <section class="card" style="margin-bottom:16px;">
+    <section class="feat-card" style="margin-bottom:16px;">
       <h2>Diagram view</h2>
       <p class="pipeline">CLAS Standard<br/>→ Agent SDK<br/>→ Signed Receipt<br/>→ VerifyAgent<br/>→ Verification Result</p>
     </section>
 
-    <section class="card" style="margin-bottom:16px;">
+    <section class="feat-card" style="margin-bottom:16px;">
       <h2>Layer-by-layer explanation</h2>
       <ul class="layer-list">
         <li><strong>CLAS</strong>: action and receipt semantics.</li>
@@ -95,24 +85,24 @@
     </section>
 
     <section class="grid" aria-label="Manual and ambient verification">
-      <article class="card">
+      <article class="feat-card">
         <h2>Manual Verification</h2>
         <p>Paste a receipt into the verifier to inspect each check and verdict.</p>
       </article>
-      <article class="card">
+      <article class="feat-card">
         <h2>Ambient Verification</h2>
         <p>Use verification URLs, embedded badges, and webhooks so verification runs automatically where actions are consumed.</p>
       </article>
     </section>
 
-    <section class="card" style="margin-bottom:16px;">
+    <section class="feat-card" style="margin-bottom:16px;">
       <h2>Important verification semantics</h2>
       <div class="quote"><strong>Schema-valid does not always mean cryptographically valid.</strong></div>
       <div class="quote">ENS/ERC-8004 are discovery and identity layers, not hard dependencies.</div>
       <div class="quote">VerifyAgent is a reference verifier, not the only possible verifier.</div>
     </section>
 
-    <section class="card link-list">
+    <section class="feat-card link-list">
       <h2>Related links</h2>
       <p><a href="/verify.html">/verify.html</a></p>
       <p><a href="/ambient-verification.html">/ambient-verification.html</a></p>
