@@ -9,306 +9,107 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
   <style>
-    :root {
-      --bg-0: #05070d;
-      --bg-1: #0b1221;
-      --bg-2: #11182b;
-      --text: #eaf0ff;
-      --muted: #9aa6c8;
-      --line: rgba(178, 194, 255, 0.22);
-      --line-soft: rgba(178, 194, 255, 0.16);
-      --blue: #4c7dff;
-      --purple: #9061ff;
-      --green: #2bd794;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 10% 0%, #172347 0%, transparent 40%),
-        radial-gradient(circle at 85% 20%, #2a1e4d 0%, transparent 38%),
-        linear-gradient(140deg, var(--bg-0), var(--bg-1) 45%, var(--bg-2));
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    .container { width: min(1200px, 92vw); margin: 0 auto; }
-
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: rgba(5, 7, 13, 0.74);
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      backdrop-filter: blur(8px);
-    }
-
-    .nav-wrap { height: 68px; display: flex; align-items: center; justify-content: space-between; }
-    .brand { display:flex; align-items:center; gap: 10px; font-weight: 700; text-decoration:none; color:var(--text); }
-    .brand img { width: 24px; height: 24px; }
-    .nav-links { display:flex; gap: 20px; font-size: 14px; }
-    .nav-links a { color: var(--muted); text-decoration:none; padding: 6px 2px; border-bottom: 2px solid transparent; }
-    .nav-links a:hover { color: var(--text); }
-    .nav-links a.active { color: #dce6ff; border-bottom-color: rgba(144, 97, 255, 0.85); }
-
-    main { padding: 36px 0 60px; }
-    .hero-layout { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 18px; align-items: stretch; }
-
-    .glass {
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: linear-gradient(160deg, rgba(12, 19, 36, 0.8), rgba(9, 14, 27, 0.66));
-      backdrop-filter: blur(9px);
-      box-shadow: 0 18px 48px rgba(5, 11, 30, 0.42);
-    }
-
-    .hero-copy { padding: 26px; }
-    .hero-copy h1 { margin: 0 0 12px; font-size: clamp(30px, 5vw, 52px); line-height: 1.05; }
-    .headline { margin: 0 0 10px; color: #c7d6ff; font-weight: 600; font-size: clamp(1rem, 1.9vw, 1.25rem); }
-    .proof-line { margin: 0 0 12px; font-size: clamp(1.05rem, 2.2vw, 1.35rem); font-weight: 800; }
-    .hero-copy p { margin: 0; color: var(--muted); line-height: 1.6; }
-
-    .badges { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 10px; }
-    .badge {
-      border: 1px solid rgba(155, 176, 255, 0.36);
-      border-radius: 999px;
-      padding: 7px 12px;
-      font-size: 12px;
-      color: #d8e8ff;
-      background: rgba(20, 31, 56, 0.72);
-    }
-
-    .visual { padding: 20px; display: grid; gap: 12px; position: relative; overflow: hidden; }
-    .visual::before {
-      content: "";
-      position: absolute;
-      inset: -2px;
-      border-radius: 18px;
-      padding: 1px;
-      background: linear-gradient(130deg, rgba(76, 125, 255, 0.95), rgba(144, 97, 255, 0.9), rgba(43, 215, 148, 0.7));
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-    }
-
-    .shield {
-      margin: 0;
-      font-size: clamp(2.6rem, 5vw, 4rem);
-      text-align: center;
-      color: #7cb5ff;
-      text-shadow: 0 0 22px rgba(76, 125, 255, 0.9);
-    }
-
-    .visual-title {
-      margin: 0;
-      text-align: center;
-      font-weight: 800;
-      font-size: 1.25rem;
-      background: linear-gradient(120deg, #9fc6ff, #c6b4ff, #7ef2c4);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    .visual-sub { margin: 0; text-align: center; color: #b5c9f9; font-size: 0.8rem; letter-spacing: 0.08em; }
-    .visual-state { margin: 0; text-align: center; color: var(--green); font-weight: 800; letter-spacing: 0.09em; }
-
-    .flow {
-      margin: 2px 0 0;
-      border: 1px solid rgba(156, 180, 255, 0.28);
-      border-radius: 12px;
-      background: rgba(10, 18, 34, 0.66);
-      padding: 10px;
-      text-align: center;
-      color: #d5e5ff;
-      font-size: 0.92rem;
-      line-height: 1.45;
-    }
-
-    .sections { margin-top: 20px; display: grid; gap: 16px; }
-    .card { padding: 20px; }
-    .card h2 { margin: 0 0 10px; font-size: 1.2rem; }
-    .card p { margin: 0; color: var(--muted); }
-
-    .path {
-      margin: 8px 0 14px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.93rem;
-      color: #a6fff3;
-    }
-
-    .btn {
-      display: inline-block;
-      padding: 10px 14px;
-      border-radius: 10px;
-      font-weight: 600;
-      text-decoration: none;
-      color: #fff;
-      background: linear-gradient(130deg, var(--blue), var(--purple));
-    }
-
-    .two-col { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
-
-    .endpoint code,
-    .mono {
-      display: block;
-      margin-bottom: 8px;
-      color: #8dffce;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
-    .link-list { margin: 12px 0 0; padding-left: 16px; }
-    .link-list a { color: #9ec8ff; }
-
-    .caps {
-      margin: 0;
-      padding-left: 18px;
-      display: grid;
-      gap: 6px;
-      color: #d4e3ff;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    }
-
-    .profile {
-      margin: 0;
-      display: grid;
-      gap: 7px;
-      font-size: 0.95rem;
-    }
-
-    .profile div { display: grid; grid-template-columns: 170px 1fr; gap: 10px; }
-    .profile strong { color: #c6d8ff; }
-    .profile span { color: #a6fff3; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-
-    footer { padding: 16px 0 28px; border-top: 1px solid var(--line-soft); margin-top: 26px; }
-    .foot-links { display: flex; align-items: center; justify-content: center; gap: 28px; font-size: 13px; }
-    .foot-links a { color: rgba(234, 240, 255, 0.72); text-decoration: none; }
-    .foot-links a:hover { color: var(--text); text-decoration: underline; text-underline-offset: 2px; }
-
-    @media (max-width: 900px) {
-      .hero-layout { grid-template-columns: 1fr; }
-      .nav-wrap { height: auto; min-height: 68px; padding: 10px 0; flex-direction: column; gap: 8px; }
-      .nav-links { gap: 12px; font-size: 13px; flex-wrap: wrap; justify-content: center; }
-      .profile div { grid-template-columns: 1fr; }
-    }
+    .records-grid { margin-top: 38px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .records-grid .feat-card code,
+    .records-grid .feat-card .mono { display:block; margin:8px 0; color:#1d4ed8; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    .link-list { margin:8px 0 0; padding-left:16px; }
+    .link-list a { color: var(--purple); }
+    .caps { margin:8px 0 0; padding-left:18px; color:var(--text-2); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    .profile { margin-top:8px; display:grid; gap:7px; font-size:.95rem; }
+    .profile div { display:grid; grid-template-columns:160px 1fr; gap:10px; }
+    .profile span { color:#1e3a8a; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
   </style>
 </head>
 <body>
   <nav>
-    <div class="container nav-wrap">
-      <a href="/" class="brand">
-        <img src="/icon2.png" alt="CommandLayer" />
-        CommandLayer
-      </a>
+    <div class="container nav-inner">
+      <a href="/" class="brand"><img src="/icon2.png" alt="CommandLayer" />CommandLayer</a>
       <div class="nav-links">
         <a href="/">Home</a>
         <a href="/verify.html">Verify</a>
         <a href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">SDK</a>
-        <a href="/sdk-records.html" class="active">Discovery</a>
+        <a href="/sdk-records.html">Discovery</a>
         <a href="/docs/wrap-your-agent.html">Docs</a>
         <a href="/ambient-verification.html">Ambient</a>
-        <a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a>
       </div>
     </div>
   </nav>
 
-  <main class="container">
-    <section class="hero-layout">
-      <div class="glass hero-copy">
-        <h1>VerifyAgent.eth Discovery Record</h1>
-        <p class="headline">Public verification layer for CommandLayer receipts.</p>
-        <p class="proof-line">Agents don’t make claims — they produce proof.</p>
-        <p>Agents and apps can discover VerifyAgent.eth’s callable verification endpoint, SDK package, and receipt capabilities.</p>
-        <div class="badges" aria-label="Record tags">
-          <span class="badge">ERC-8004-ready</span>
-          <span class="badge">verification_service</span>
-          <span class="badge">runtime.commandlayer.eth</span>
-          <span class="badge">@commandlayer/agent-sdk</span>
-        </div>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge"><span class="badge-dot"></span>Registry & Discovery</div>
+      <h1 class="hero-h1">VerifyAgent.eth <span class="grad">Discovery Record</span></h1>
+      <p class="hero-sub">Agents and apps can discover VerifyAgent.eth’s callable verification endpoint, SDK package, and receipt capabilities.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/sdk-records/verifyagent.eth.json">Open JSON Record</a>
+        <a class="btn btn-secondary" href="/verify/r/demo-valid-receipt">View Demo Verification Report</a>
       </div>
-      <aside class="glass visual" aria-label="Verification flow">
-        <p class="shield" aria-hidden="true">🛡️✅</p>
-        <h2 class="visual-title">VerifyAgent.eth</h2>
-        <p class="visual-sub">PUBLIC VERIFICATION LAYER</p>
-        <p class="visual-state">VERIFIED</p>
-        <p class="flow">Agents / Apps → CommandLayer Receipt → VerifyAgent.eth → VERIFIED</p>
-      </aside>
-    </section>
-
-    <section class="sections">
-      <article class="glass card">
-        <h2>Discovery JSON</h2>
-        <p>Path:</p>
-        <p class="path">/sdk-records/verifyagent.eth.json</p>
-        <a class="btn" href="/sdk-records/verifyagent.eth.json">Open JSON Record</a>
-      </article>
-
-      <article class="two-col">
-        <div class="glass card endpoint">
-          <h2>Callable endpoints</h2>
-          <code>POST /api/agents/verifyagent</code>
-          <p>Callable verification interface for agents and apps.</p>
-        </div>
-        <div class="glass card endpoint">
-          <h2>Raw verifier API</h2>
-          <code>POST /api/verify</code>
-          <div class="path" style="margin-top:8px;">Try URL verification: <a href="/verify/r/demo-valid-receipt">/verify/r/demo-valid-receipt</a></div>
-          <p>Raw receipt verification API.</p>
-        </div>
-      </article>
-
-      <article class="glass card">
-        <h2>SDK</h2>
-        <span class="mono">@commandlayer/agent-sdk</span>
-        <span class="mono">npm install @commandlayer/agent-sdk</span>
-        <ul class="link-list">
-          <li><a href="https://www.npmjs.com/package/@commandlayer/agent-sdk" target="_blank" rel="noopener">npm package</a></li>
-          <li><a href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">GitHub</a></li>
-        </ul>
-      </article>
-
-      <article class="glass card">
-        <h2>Capabilities</h2>
-        <ul class="caps">
-          <li>verify_receipt</li>
-          <li>detect_tampering</li>
-          <li>resolve_ens_signer</li>
-          <li>validate_ed25519_signature</li>
-          <li>return_verified_or_invalid</li>
-        </ul>
-      </article>
-
-      <article class="glass card">
-        <h2>Receipt profile</h2>
-        <div class="profile">
-          <div><strong>signer:</strong><span>runtime.commandlayer.eth</span></div>
-          <div><strong>key_id:</strong><span>vC4WbcNoq2znSCiQ</span></div>
-          <div><strong>canonicalization:</strong><span>json.sorted_keys.v1</span></div>
-          <div><strong>hash:</strong><span>sha256</span></div>
-          <div><strong>signature:</strong><span>ed25519</span></div>
-        </div>
-      </article>
-
-      <article class="glass card">
-        <h2>ERC-8004 note</h2>
-        <p>VerifyAgent.eth is ERC-8004-ready and discoverable through ENS TXT records + JSON metadata.</p>
-      </article>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container foot-links">
-      <a href="/commons.html">Commons</a>
-      <a href="/agent-cards.html">Agent Cards</a>
-      <a href="/runtime.html">Runtime</a>
     </div>
-  </footer>
+  </section>
+
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-eyebrow">Discovery Surface</div>
+      <h2 class="section-h2">Discovery endpoints, artifacts, and compatibility.</h2>
+      <p class="section-p">VerifyAgent.eth is ERC-8004-ready and discoverable through ENS TXT records plus JSON metadata.</p>
+
+      <div class="records-grid">
+        <article class="feat-card">
+          <h3 class="feat-title">VerifyAgent discovery</h3>
+          <p class="feat-desc">Canonical discovery metadata path and callable verification routes.</p>
+          <code>/sdk-records/verifyagent.eth.json</code>
+          <code>POST /api/agents/verifyagent</code>
+          <code>POST /api/verify</code>
+        </article>
+
+        <article class="feat-card">
+          <h3 class="feat-title">CLAS artifacts</h3>
+          <p class="feat-desc">CommandLayer SDK distribution and implementation references.</p>
+          <span class="mono">@commandlayer/agent-sdk</span>
+          <span class="mono">npm install @commandlayer/agent-sdk</span>
+          <ul class="link-list">
+            <li><a href="https://www.npmjs.com/package/@commandlayer/agent-sdk" target="_blank" rel="noopener">npm package</a></li>
+            <li><a href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">GitHub repository</a></li>
+          </ul>
+        </article>
+
+        <article class="feat-card">
+          <h3 class="feat-title">ENS discovery</h3>
+          <p class="feat-desc">Profile fields advertised for signer and cryptographic compatibility.</p>
+          <div class="profile">
+            <div><strong>signer:</strong><span>runtime.commandlayer.eth</span></div>
+            <div><strong>key_id:</strong><span>vC4WbcNoq2znSCiQ</span></div>
+            <div><strong>canonicalization:</strong><span>json.sorted_keys.v1</span></div>
+            <div><strong>hash:</strong><span>sha256</span></div>
+            <div><strong>signature:</strong><span>ed25519</span></div>
+          </div>
+        </article>
+
+        <article class="feat-card">
+          <h3 class="feat-title">ERC-8004 alignment</h3>
+          <p class="feat-desc">Capabilities exposed to agents and apps through the verification service.</p>
+          <ul class="caps">
+            <li>verify_receipt</li>
+            <li>detect_tampering</li>
+            <li>resolve_ens_signer</li>
+            <li>validate_ed25519_signature</li>
+            <li>return_verified_or_invalid</li>
+          </ul>
+        </article>
+
+        <article class="feat-card">
+          <h3 class="feat-title">Ambient verification links</h3>
+          <p class="feat-desc">Direct entry points to report and ambient verification pages.</p>
+          <ul class="link-list">
+            <li><a href="/verify/r/demo-valid-receipt">/verify/r/demo-valid-receipt</a></li>
+            <li><a href="/verify/r/demo-tampered-receipt">/verify/r/demo-tampered-receipt</a></li>
+            <li><a href="/ambient-verification.html">Ambient verification overview</a></li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
 </body>
 </html>
