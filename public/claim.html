@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Claim an Agent Namespace | CommandLayer</title>
+  <meta name="description" content="Prepare an agent namespace claim: select capabilities, draft discovery records, and generate verifier metadata for CommandLayer." />
+  <link rel="icon" href="/icon2.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
+  <style>
+    .nav-links a.active { color: var(--text); background: var(--surface); }
+    main { padding: 36px 0 60px; }
+    .hero { padding: 30px; margin-bottom: 16px; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(180deg,#fff 0%,#f8faff 100%); }
+    h1 { margin: 0 0 10px; font-size: clamp(30px, 5vw, 52px); line-height: 1.05; }
+    .subtitle { margin: 0 0 18px; color: var(--text-2); line-height: 1.65; font-size: clamp(1rem, 1.8vw, 1.16rem); max-width: 860px; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    .section-card { margin-top: 16px; padding: 18px; border: 1px solid var(--border); border-radius: 14px; background: #fff; box-shadow: 0 1px 2px rgba(15,23,42,.04), 0 6px 20px rgba(99,91,255,.04); }
+    .section-card h2 { margin: 0 0 12px; font-size: 1.15rem; }
+    .steps, .caps { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+    .item { border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: var(--surface); color: var(--text-2); }
+    .item strong { color: var(--text); display: block; margin-bottom: 4px; }
+    .form-grid { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .field { display: grid; gap: 6px; }
+    label { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 700; }
+    input, select, textarea { width: 100%; border: 1px solid rgba(15,23,42,.16); border-radius: 10px; padding: 10px 12px; font: 13px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #112b52; background: #fbfdff; }
+    textarea { min-height: 90px; resize: vertical; }
+    .records { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+    pre { margin: 0; background: #0e1322; color: #e2e8f0; border: 1px solid rgba(30,41,59,.3); border-radius: 12px; padding: 12px; font: 12px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; overflow: auto; }
+    .tiers { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .tier { border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: var(--surface); }
+    .tier h3 { margin: 0 0 4px; font-size: 1rem; }
+    .tier p { margin: 0; color: var(--text-2); }
+    .soon { color: var(--purple); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
+    .careful p { margin: 0 0 8px; color: var(--text-2); line-height: 1.6; }
+    .cta { text-align: center; }
+    footer { padding: 16px 0 28px; margin-top: 24px; }
+    .foot-links { display: flex; justify-content: center; gap: 26px; flex-wrap: wrap; font-size: 13px; }
+    .foot-links a { color: var(--muted); text-decoration: none; }
+    .foot-links a:hover { color: var(--text); text-decoration: underline; }
+    @media (max-width: 900px) { .form-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="brand"><img src="/icon2.png" alt="CommandLayer" />CommandLayer</a>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/capabilities.html">Capabilities</a>
+        <a href="/verify.html">Verifier</a>
+        <a href="/sdk-records.html">SDK</a>
+        <a href="/docs/wrap-your-agent.html">Docs</a>
+        <a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Claim an agent namespace.</h1>
+      <p class="subtitle">Prepare an agent identity, choose supported capabilities, and generate the records needed for discovery and verification.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="#claim-form">Prepare claim</a>
+        <a class="btn btn-secondary" href="/capabilities.html">View capabilities</a>
+      </div>
+    </section>
+
+    <section class="section-card">
+      <h2>How claiming works</h2>
+      <div class="steps">
+        <div class="item"><strong>1. Choose an agent name</strong>Start with the namespace you want systems to resolve.</div>
+        <div class="item"><strong>2. Select supported capabilities</strong>Declare only verbs your runtime can actually support.</div>
+        <div class="item"><strong>3. Generate discovery records</strong>Prepare machine-readable identity and capability metadata.</div>
+        <div class="item"><strong>4. Publish verifier metadata</strong>Advertise where receipts can be checked programmatically.</div>
+        <div class="item"><strong>5. Appear in a registry</strong>Publish records when your registry process is ready.</div>
+        <div class="item"><strong>6. Emit signed receipts</strong>Use your signer to produce verifiable outputs.</div>
+      </div>
+    </section>
+
+    <section class="section-card" id="claim-form">
+      <h2>Claim form scaffold</h2>
+      <div class="form-grid">
+        <div class="field"><label>Agent namespace</label><input value="verifyagent.eth" readonly /></div>
+        <div class="field"><label>Capability family</label><select><option>trust-verification</option></select></div>
+        <div class="field"><label>Supported capabilities</label><input value="verify, authenticate, authorize, attest" readonly /></div>
+        <div class="field"><label>Contact / sponsor</label><input value="runtime.commandlayer.eth" readonly /></div>
+        <div class="field"><label>Verifier endpoint</label><input value="https://www.commandlayer.org/verify.html" readonly /></div>
+        <div class="field"><label>Proof URL pattern</label><input value="/verify/r/{receipt_id}" readonly /></div>
+        <div class="field"><label>Additional namespace examples</label><textarea readonly>authorizeagent.eth
+attestagent.eth
+runtime.commandlayer.eth</textarea></div>
+      </div>
+    </section>
+
+    <section class="section-card">
+      <h2>Capability selection</h2>
+      <div class="caps">
+        <div class="item">verify</div><div class="item">authenticate</div><div class="item">authorize</div><div class="item">attest</div><div class="item">sign</div><div class="item">permit</div><div class="item">grant</div><div class="item">approve</div><div class="item">reject</div><div class="item">endorse</div>
+      </div>
+    </section>
+
+    <section class="section-card">
+      <h2>Generated records preview</h2>
+      <div class="records">
+        <div><strong>Agent card JSON</strong><pre>{"name":"verifyagent.eth","family":"trust-verification","capabilities":["verify","authenticate","authorize","attest"]}</pre></div>
+        <div><strong>ENS TXT records</strong><pre>cl.capabilities=verify,authenticate,authorize,attest
+cl.verifier=https://www.commandlayer.org/verify.html
+cl.proof_url=/verify/r/{receipt_id}</pre></div>
+        <div><strong>Discovery record JSON</strong><pre>{"type":"commandlayer.discovery","agent":"verifyagent.eth","status":"draft"}</pre></div>
+        <div><strong>SDK config</strong><pre>agent: "verifyagent.eth"
+capability_family: "trust-verification"
+verifier: "https://www.commandlayer.org/verify.html"</pre></div>
+      </div>
+    </section>
+
+    <section class="section-card">
+      <h2>Pricing / tier preview</h2>
+      <div class="tiers">
+        <article class="tier"><h3>Free</h3><p>Prepare records.</p></article>
+        <article class="tier"><h3>Builder</h3><p>Hosted verifier tools. <span class="soon">Planned / coming soon</span></p></article>
+        <article class="tier"><h3>Studio</h3><p>Registry/profile tools. <span class="soon">Planned / coming soon</span></p></article>
+        <article class="tier"><h3>Enterprise</h3><p>Custom verification infrastructure. <span class="soon">Planned / coming soon</span></p></article>
+      </div>
+    </section>
+
+    <section class="section-card careful">
+      <h2>Careful wording</h2>
+      <p>CLAS receipts are network-agnostic.</p>
+      <p>ENS and ERC-8004 can assist discovery and identity, but they are not required for receipt verification.</p>
+      <p>This page currently prepares claim metadata; live registration and checkout are not enabled yet.</p>
+    </section>
+
+    <section class="section-card cta">
+      <h2>Next steps</h2>
+      <div class="actions" style="justify-content:center;">
+        <a class="btn btn-primary" href="#claim-form">Prepare claim</a>
+        <a class="btn btn-secondary" href="/capabilities.html">View capabilities</a>
+        <a class="btn btn-secondary" href="/verify.html">Verify a receipt</a>
+        <a class="btn btn-secondary" href="/how-it-works.html">Read how it works</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot-links">
+      <a href="/claim.html">Claim</a>
+      <a href="/verify.html">Verify</a>
+      <a href="/docs.html">Docs</a>
+      <a href="/how-it-works.html">How it works</a>
+      <a href="/sdk-records.html">Discovery record</a>
+    </div>
+  </footer>
+</body>
+</html>
