@@ -4,33 +4,50 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Receipt Verification URL — CommandLayer</title>
+  <link rel="stylesheet" href="/css/site.css" />
   <style>
-    body{font-family:Inter,system-ui,sans-serif;background:#0b0f14;color:#e6edf3;margin:0}
-    main{max-width:900px;margin:32px auto;padding:0 16px}
-    .card{background:#111827;border:1px solid #334155;border-radius:12px;padding:16px;margin-bottom:16px}
+    .report-shell { padding: 44px 0 72px; }
+    .report-card { background:#fff; border:1px solid var(--border); border-radius:16px; padding:18px; margin-bottom:16px; box-shadow:0 1px 2px rgba(15,23,42,.04),0 6px 20px rgba(99,91,255,.04); }
     .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-weight:700}
-    .ok{background:#064e3b;color:#bbf7d0}.bad{background:#7f1d1d;color:#fecaca}.muted{color:#9ca3af}
+    .ok{background:#dcfce7;color:#166534}.bad{background:#fee2e2;color:#991b1b}.muted{color:var(--muted)}
     .checks li{margin:6px 0}.row{display:flex;gap:8px;flex-wrap:wrap}
-    button,a.btn{background:#2563eb;color:#fff;border:none;border-radius:8px;padding:8px 12px;text-decoration:none;display:inline-block;cursor:pointer}
-    pre{white-space:pre-wrap;word-break:break-word;background:#020617;padding:12px;border-radius:8px;border:1px solid #334155}
+    button,a.btn{cursor:pointer}
+    button{background:var(--gradient);color:#fff;border:none;border-radius:10px;padding:10px 16px;font:inherit;font-weight:600}
+    a.btn{padding:10px 16px}
+    pre{white-space:pre-wrap;word-break:break-word;background:#0E1322;color:#F8FAFC;padding:12px;border-radius:10px;border:1px solid #334155}
   </style>
 </head>
 <body>
-  <main>
-    <h1>Verify receipt URL</h1>
-    <p class="muted">Verification checks are computed from the receipt, signer records, hash, and signature.</p>
-    <p class="muted">Schema-valid does not always mean cryptographically valid.</p>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="brand"><img src="/icon2.png" alt="CommandLayer" />CommandLayer</a>
+      <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/verify.html">Verify</a>
+        <a href="/verify/r/demo-valid-receipt">Report</a>
+      </div>
+    </div>
+  </nav>
 
-    <div class="card" id="statusCard"><div id="statusText">loading</div></div>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-badge"><span class="badge-dot"></span>Shareable Proof</div>
+      <h1 class="hero-h1">Verification <span class="grad">Report</span></h1>
+      <p class="hero-sub">Verification checks are computed from the receipt, signer records, hash, and signature. Schema-valid does not always mean cryptographically valid.</p>
+    </div>
+  </section>
 
-    <div class="card" id="resultCard" hidden>
+  <main class="container report-shell">
+    <div class="report-card" id="statusCard"><div id="statusText">loading</div></div>
+
+    <div class="report-card" id="resultCard" hidden>
       <div><strong>receipt_id:</strong> <code id="receiptIdDisplay">-</code></div>
       <div id="verdict" style="margin-top:10px"></div>
       <ul class="checks" id="checks"></ul>
       <div class="row">
         <button id="copyUrlBtn">Copy verification URL</button>
         <button id="toggleRawBtn">View raw receipt</button>
-        <a class="btn" href="/verify.html">Back to /verify.html</a>
+        <a class="btn btn-secondary" href="/verify.html">Back to /verify.html</a>
       </div>
       <pre id="rawReceipt" hidden></pre>
     </div>
