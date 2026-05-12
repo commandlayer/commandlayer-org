@@ -57,7 +57,9 @@
     }
 
     .nav-inner {
-      height: 62px;
+      min-height: 88px;
+      height: auto;
+      padding: 10px 0;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -77,9 +79,10 @@
     }
 
     .brand img {
-      height: 34px;
+      height: 68px;
       width: auto;
       object-fit: contain;
+      display: block;
     }
 
     .nav-links {
@@ -210,10 +213,10 @@
     }
 
     .hero-logo {
-      width: clamp(64px, 10vw, 88px);
+      width: min(300px, 70vw);
       height: auto;
       object-fit: contain;
-      margin: 0 auto 20px;
+      margin: 0 auto 24px;
       display: block;
     }
 
