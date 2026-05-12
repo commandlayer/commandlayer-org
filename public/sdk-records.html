@@ -56,6 +56,16 @@
       <h2 class="section-h2">Discovery endpoints, artifacts, and compatibility.</h2>
       <p class="section-p">VerifyAgent.eth is ERC-8004-ready and discoverable through ENS TXT records plus JSON metadata.</p>
 
+
+      <section class="feat-card" style="margin-top:18px;">
+        <h3 class="feat-title">SDK emits canonical receipts</h3>
+        <p class="feat-desc">The SDK emits version <code>"1.0.0"</code>, family <code>"trust-verification"</code>, short verb receipts, and canonical proof fields. Fully-qualified capability names like <code>clas.trust-verification.verify</code> are used for catalog/discovery, while receipts use <code>verb: "verify"</code>.</p>
+        <ul class="link-list">
+          <li><a href="https://github.com/commandlayer-org/commandlayer-org/blob/main/schemas/trust-verification/capabilities.json" target="_blank" rel="noopener">Capability catalog</a></li>
+          <li><a href="https://github.com/commandlayer-org/commandlayer-org/blob/main/schemas/trust-verification/discovery/verifyagent.discovery.json" target="_blank" rel="noopener">Discovery record</a></li>
+          <li><a href="https://github.com/commandlayer-org/commandlayer-org/blob/main/schemas/trust-verification/verify/verify.mcp.tool.schema.json" target="_blank" rel="noopener">MCP tool schema</a></li>
+        </ul>
+      </section>
       <div class="records-grid">
         <article class="feat-card">
           <h3 class="feat-title">VerifyAgent discovery</h3>
@@ -73,6 +83,7 @@
           <ul class="link-list">
             <li><a href="https://www.npmjs.com/package/@commandlayer/agent-sdk" target="_blank" rel="noopener">npm package</a></li>
             <li><a href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">GitHub repository</a></li>
+                      <li><a href="https://github.com/commandlayer-org/commandlayer-org/blob/main/schemas/trust-verification/verify/verify.openapi.yaml" target="_blank" rel="noopener">Verify OpenAPI schema</a></li>
           </ul>
         </article>
 
