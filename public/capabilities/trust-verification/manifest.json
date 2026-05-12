@@ -1,0 +1,38 @@
+{
+  "id": "trust-verification",
+  "name": "Trust & Verification",
+  "version": "1.0.0",
+  "status": "v1 active",
+  "description": "Identity, permission, attestation, signing, approval, rejection, endorsement, and independent verification receipts.",
+  "capabilities": [
+    "verify",
+    "authenticate",
+    "authorize",
+    "attest",
+    "sign",
+    "permit",
+    "grant",
+    "approve",
+    "reject",
+    "endorse"
+  ],
+  "proof": {
+    "canonicalization": "json.sorted_keys.v1",
+    "hash": "sha256",
+    "signature_alg": "ed25519",
+    "required_fields": ["canonicalization", "hash", "signature_alg", "signature", "key_id", "signer"]
+  },
+  "verifier": {
+    "interactive": "/verify.html",
+    "api": "/api/verify",
+    "proof_url_pattern": "/verify/r/{receipt_id}"
+  },
+  "sdk": {
+    "package": "@commandlayer/agent-sdk",
+    "install": "npm install @commandlayer/agent-sdk"
+  },
+  "discovery": {
+    "agent_card": "/agent-cards/verifyagent.json",
+    "sdk_record": "/sdk-records/verifyagent.eth.json"
+  }
+}
