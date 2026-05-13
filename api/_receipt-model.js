@@ -243,10 +243,10 @@ function validateRuntimeMetadata(runtimeMetadata, options = {}) {
     if (!proof) {
       errors.push({ message: 'runtime_metadata.proof is required.' });
     } else {
-      if (proof.alg !== 'ed25519-sha256') {
-        errors.push({ message: `runtime_metadata.proof.alg must be ed25519-sha256 (got ${proof.alg || 'missing'}).` });
+      if (proof.alg !== 'ed25519') {
+        errors.push({ message: `runtime_metadata.proof.alg must be ed25519 (got ${proof.alg || 'missing'}).` });
       }
-      const canonicalId = proof.canonical || proof.canonical_id || null;
+      const canonicalId = proof.canonical || proof.canonicalization || null;
       if (canonicalId !== CANONICAL_PROOF_ID) {
         errors.push({ message: `runtime_metadata.proof canonical id must be ${CANONICAL_PROOF_ID} (got ${canonicalId || 'missing'}).` });
       }
