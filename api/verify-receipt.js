@@ -147,10 +147,6 @@ module.exports = async function handler(req, res) {
   const schema = qflag(req.query?.schema, '0');
   const verifyUrl = `${RUNTIME_BASE}/verify?ens=${ens}&refresh=${refresh}&schema=${schema}`;
 
-  console.log('[verify-receipt] runtime verify target', JSON.stringify({ runtime_url: verifyUrl }));
-  console.log('[verify-receipt] outgoing verify body', JSON.stringify({ body: bareReceipt }));
-  console.log('[verify-receipt] normalized receipt', JSON.stringify({ normalized_receipt: bareReceipt }));
-
   try {
     const upstream = await fetchTextWithTimeout(verifyUrl, {
       method: 'POST',
@@ -165,8 +161,6 @@ module.exports = async function handler(req, res) {
       : { ok: false, error: 'Non-JSON response from runtime /verify', raw: String(upstream.text || '').slice(0, 2000) };
     const normalizedChecks = normalizeChecks(data, schema === '1');
 
-    console.log('[verify-receipt] raw verify response', JSON.stringify({ runtime_url: verifyUrl, body: data }));
-
     return res.status(upstream.status).end(
       JSON.stringify(
         {
@@ -179,13 +173,6 @@ module.exports = async function handler(req, res) {
             runtime_status: upstream.status,
             runtime_content_type: upstream.contentType,
             normalized_receipt_used: bareReceipt,
-          },
-          logs: {
-            runtime_url: verifyUrl,
-            outgoing_request_body: bareReceipt,
-            raw_runtime_response_body: data,
-            normalized_receipt_chosen: bareReceipt,
-            canonical_validation_failure_reason: data?.error || null,
           },
         },
         null,
@@ -204,13 +191,6 @@ module.exports = async function handler(req, res) {
             runtime: `${RUNTIME_BASE}/verify`,
             verify: { ens, refresh, schema },
             normalized_receipt_used: bareReceipt,
-          },
-          logs: {
-            runtime_url: verifyUrl,
-            outgoing_request_body: bareReceipt,
-            raw_runtime_response_body: null,
-            normalized_receipt_chosen: bareReceipt,
-            canonical_validation_failure_reason: e?.message || String(e),
           },
         },
         null,

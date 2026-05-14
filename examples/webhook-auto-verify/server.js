@@ -25,21 +25,15 @@ app.post("/webhook", async (req, res) => {
       body: JSON.stringify({ receipt }),
     });
 
-    const verifyJson = await verifyResponse.json();
-    const checks = verifyJson?.checks || {};
-    const verified = Boolean(verifyJson?.verified);
+    if (!verifyResponse.ok && verifyResponse.status !== 200) {
+      return res.status(502).json({
+        status: "rejected",
+        reason: "Verification service returned unexpected status",
+      });
+    }
 
-    console.log("[webhook] verification checks", {
-      event,
-      schema_valid: checks.schema_valid,
-      hash_matched: checks.hash_matched,
-      hash_matches: checks.hash_matches,
-      signature_valid: checks.signature_valid,
-      signer_resolved: checks.signer_resolved,
-      ens_resolved: checks.ens_resolved,
-      signer_matched: checks.signer_matched,
-      trust_verb: checks.trust_verb,
-    });
+    const verifyJson = await verifyResponse.json();
+    const verified = Boolean(verifyJson?.ok);
 
     if (verified) {
       return res.status(200).json({
@@ -52,17 +46,17 @@ app.post("/webhook", async (req, res) => {
       status: "rejected",
       event,
       reason: "Receipt verification failed",
-      checks,
+      checks: verifyJson?.checks || {},
     });
   } catch (error) {
-    console.error("[webhook] verification request failed", error);
     return res.status(502).json({
       status: "rejected",
       reason: "Verification service unavailable",
+      detail: error && error.message ? error.message : "Unknown error",
     });
   }
 });
 
 app.listen(PORT, () => {
-  console.log(`Webhook auto-verify demo listening on http://localhost:${PORT}`);
+  process.stdout.write(`Webhook auto-verify demo listening on port ${PORT}\n`);
 });
