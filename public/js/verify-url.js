@@ -49,12 +49,12 @@ async function run() {
       return;
     }
     if (!receiptRes.ok) {
-      setStatus('error');
+      setStatus(`error: Receipt fetch failed (${receiptRes.status})`);
       return;
     }
     receipt = await receiptRes.json();
-  } catch {
-    setStatus('error');
+  } catch (fetchErr) {
+    setStatus(`error: ${fetchErr && fetchErr.message ? fetchErr.message : 'Could not load receipt'}`);
     return;
   }
 
@@ -67,11 +67,11 @@ async function run() {
     const payload = await verifyRes.json();
     const result = payload?.result ?? payload?.verification ?? payload;
     if (!verifyRes.ok || !result || typeof result !== 'object') {
-      setStatus('error');
+      setStatus(`error: Verification failed (${verifyRes.status})`);
       return;
     }
 
-    const isValid = Boolean(result.valid ?? result.ok ?? result.verified);
+    const isValid = Boolean(result.ok ?? result.valid ?? result.verified);
     verdict.innerHTML = `<span class="pill ${isValid ? 'ok' : 'bad'}">${isValid ? 'VERIFIED' : 'INVALID'}</span>`;
 
     checksList.innerHTML = CHECK_KEYS.map((key) => {
@@ -83,17 +83,24 @@ async function run() {
     rawReceipt.textContent = JSON.stringify(receipt, null, 2);
     resultCard.hidden = false;
     setStatus(isValid ? 'VERIFIED' : 'INVALID');
-  } catch {
-    setStatus('error');
+  } catch (verifyErr) {
+    setStatus(`error: ${verifyErr && verifyErr.message ? verifyErr.message : 'Verification request failed'}`);
   }
 }
 
 copyUrlBtn?.addEventListener('click', async () => {
-  await navigator.clipboard.writeText(window.location.href);
-  copyUrlBtn.textContent = 'Copied';
-  setTimeout(() => {
-    copyUrlBtn.textContent = 'Copy verification URL';
-  }, 1500);
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+    copyUrlBtn.textContent = 'Copied';
+    setTimeout(() => {
+      copyUrlBtn.textContent = 'Copy verification URL';
+    }, 1500);
+  } catch {
+    copyUrlBtn.textContent = 'Copy failed';
+    setTimeout(() => {
+      copyUrlBtn.textContent = 'Copy verification URL';
+    }, 1500);
+  }
 });
 
 toggleRawBtn?.addEventListener('click', () => {

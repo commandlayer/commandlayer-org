@@ -124,7 +124,6 @@ async function verifyReceiptAction() {
       throw new Error(result?.reason || 'Verification request failed.');
     }
   } catch (e) {
-    console.error('Verification failed:', e);
     setVerdict(false, e?.message || 'Verification failed.');
     els.verifyBtn.disabled = false;
     els.verifyBtn.textContent = 'Verify';
@@ -195,7 +194,7 @@ function resolveElements() {
     if (!resolved[id]) missing.push(id);
   }
   if (missing.length) {
-    console.warn(`[verify.js] Missing required element(s): ${missing.join(', ')}. Verify page handlers were not attached.`);
+    // Missing DOM elements — verify page handlers not attached (expected in non-verify page contexts)
     return null;
   }
   return resolved;
