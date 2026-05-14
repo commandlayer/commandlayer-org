@@ -48,8 +48,7 @@
     .tier { border: 1px solid var(--border); border-radius: 12px; padding: 12px; background: var(--surface); }
     .tier h3 { margin: 0 0 4px; font-size: 1rem; }
     .tier p { margin: 0; color: var(--text-2); }
-    .soon { color: var(--purple); font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .03em; }
-    .careful p { margin: 0 0 8px; color: var(--text-2); line-height: 1.6; }
+    .protocol-note p { margin: 0 0 8px; color: var(--text-2); line-height: 1.6; }
     .cta { text-align: center; }
     footer { padding: 24px 0 34px; border-top: 1px solid var(--border); background: #fff; }
     .foot-links { display: flex; justify-content: center; gap: 26px; flex-wrap: wrap; font-size: 13px; }
@@ -115,7 +114,7 @@
         <div class="field"><label>Verifier endpoint</label><input value="https://www.commandlayer.org/verify.html" readonly /></div>
         <div class="field"><label>Proof URL pattern</label><input value="/verify/r/{receipt_id}" readonly /></div>
         <div class="field"><label>Additional namespace examples</label><textarea readonly>authorizeagent.eth
-attestagent.eth
+attetagent.eth
 runtime.commandlayer.eth</textarea></div>
       </div>
     </section>
@@ -145,17 +144,16 @@ verifier: "https://www.commandlayer.org/verify.html"</pre></div>
       <h2>Pricing / tier preview</h2>
       <div class="tiers">
         <article class="tier"><h3>Free</h3><p>Prepare records.</p></article>
-        <article class="tier"><h3>Builder</h3><p>Hosted verifier tools. <span class="soon">Planned / coming soon</span></p></article>
-        <article class="tier"><h3>Studio</h3><p>Registry/profile tools. <span class="soon">Planned / coming soon</span></p></article>
-        <article class="tier"><h3>Enterprise</h3><p>Custom verification infrastructure. <span class="soon">Planned / coming soon</span></p></article>
+        <article class="tier"><h3>Builder</h3><p>Hosted verifier tools and endpoint management.</p></article>
+        <article class="tier"><h3>Studio</h3><p>Registry and profile management tools.</p></article>
+        <article class="tier"><h3>Enterprise</h3><p>Custom verification infrastructure and SLA support.</p></article>
       </div>
     </section>
 
-    <section class="section-card careful">
-      <h2>Careful wording</h2>
+    <section class="section-card protocol-note">
+      <h2>Protocol notes</h2>
       <p>CLAS receipts are network-agnostic.</p>
       <p>ENS and ERC-8004 can assist discovery and identity, but they are not required for receipt verification.</p>
-      <p>This page currently prepares claim metadata; live registration and checkout are not enabled yet.</p>
     </section>
 
     <section class="section-card cta">
