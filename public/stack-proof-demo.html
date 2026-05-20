@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0" />
+<title>CommandLayer — Stack Proof Demo (Local/Dev)</title>
+<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
+<style>
+:root{--bg:#07090d;--surface:#0f1623;--border:#1f2f45;--text:#cfe3fb;--dim:#6e89a8;--accent:#00d4ff;--ok:#00e676;--bad:#ff6b6b;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);line-height:1.6}
+main{max-width:980px;margin:0 auto;padding:40px 24px 70px}
+a{color:var(--accent)} h1,h2,h3{line-height:1.2}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin:14px 0}
+pre{background:#0b1019;border:1px solid var(--border);border-radius:8px;padding:14px;overflow:auto;font-size:12px}
+.flow{font-size:18px;color:#fff} .ok{color:var(--ok);font-weight:700} .bad{color:var(--bad);font-weight:700}
+ul li{margin:8px 0}.note{color:var(--dim)}
+</style>
+</head>
+<body>
+<main>
+  <p><a href="/docs.html">← Back to docs</a></p>
+  <h1>Canonical Stack Proof Demo <span class="note">(local/dev)</span></h1>
+  <p>This page documents the <strong>developer-facing proof flow</strong> for CommandLayer in local/dev environments. It is not a claim that production runtime endpoints are currently reachable.</p>
+
+  <div class="card">
+    <h2>Canonical flow</h2>
+    <p class="flow">MCP sign request → runtime signs receipt → VerifyAgent verifies → tampered receipt invalidates</p>
+  </div>
+
+  <h2>Canonical proof envelope</h2>
+  <pre>{
+  "receipt": {
+    "request_id": "req_demo_123",
+    "agent": "runtime.commandlayer.eth",
+    "verb": "summarize",
+    "result": {
+      "summary": "CommandLayer signs verifiable runtime receipts."
+    }
+  },
+  "metadata": {
+    "proof": {
+      "canonicalization": "json.sorted_keys.v1",
+      "hash": {
+        "alg": "SHA-256",
+        "value": "1e26...demo...f9"
+      },
+      "signature": {
+        "alg": "Ed25519",
+        "value": "z6Mkh...demo-signature"
+      }
+    }
+  }
+}</pre>
+
+  <div class="card">
+    <h3>Expected verification outcomes</h3>
+    <ul>
+      <li>VerifyAgent result: <span class="ok">VERIFIED</span></li>
+      <li>Tampered result: <span class="bad">INVALID</span></li>
+    </ul>
+  </div>
+
+  <h2>Run it locally</h2>
+  <div class="card">
+    <ul>
+      <li><strong>runtime</strong>: run <code>npm test</code>; use your local sign endpoint to emit signed receipts in dev.</li>
+      <li><strong>verifyagent</strong>: run <code>npm run e2e:runtime</code> against locally generated receipts.</li>
+      <li><strong>mcp-server</strong>: run <code>npm test</code>; use the local sign bridge for MCP→runtime handoff.</li>
+    </ul>
+  </div>
+
+  <h2>Architecture (text diagram)</h2>
+  <pre>CLAS            = contract
+runtime-core    = crypto truth
+runtime         = signer / executor
+MCP             = bridge
+VerifyAgent     = verifier
+agent-sdk       = developer wrapper</pre>
+
+  <h2>Warnings</h2>
+  <div class="card">
+    <ul>
+      <li><strong>MCP is not the trust root.</strong></li>
+      <li><strong>schema-valid is not verified.</strong> Verification requires canonical hash + signature checks.</li>
+      <li><strong>Production runtime must use a key matching ENS TXT records.</strong></li>
+    </ul>
+  </div>
+
+  <p class="note">Production availability should not be claimed as live until <code>runtime.commandlayer.org</code> is publicly reachable.</p>
+</main>
+</body>
+</html>
