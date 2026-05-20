@@ -28,7 +28,7 @@ function renderChecks(result) {
     ['Status', result.status],
     ['Hash Matches', result.hash_matches],
     ['Signature Valid', result.signature_valid],
-    ['ENS Resolved', result.ens_resolved],
+    ['Signer Identity Checked', result.signer_identity_checked ?? result.ens_resolved],
   ];
 
   els.checksList.innerHTML = checks.map(([label, value]) => {
@@ -43,13 +43,16 @@ function renderMeta(result) {
   const rows = [
     ['status', result.status],
     ['reason', result.reason],
-    ['signer', result.signer],
+    ['signer_id', result.signer_id ?? result.signer],
     ['verb', result.verb],
-    ['hash', result.hash],
+    ['canonicalization', result.canonicalization],
+    ['hash_alg', result.hash_alg],
+    ['hash_value', result.hash_value ?? result.hash],
     ['hash_matches', result.hash_matches],
+    ['signature_alg', result.signature_alg],
     ['signature_valid', result.signature_valid],
-    ['ens_resolved', result.ens_resolved],
-    ['key_id', result.key_id],
+    ['kid', result.kid ?? result.key_id],
+    ['signer_identity_checked', result.signer_identity_checked ?? result.ens_resolved],
   ];
 
   if (result.public_key_source != null) {
@@ -78,17 +81,20 @@ function setVerdict(ok, note, isIdle = false) {
 }
 
 function resetToNeutralState(note = 'Run verification to see verdict.') {
-  renderChecks({ status: null, hash_matches: null, signature_valid: null, ens_resolved: null });
+  renderChecks({ status: null, hash_matches: null, signature_valid: null, signer_identity_checked: null });
   renderMeta({
     status: null,
     reason: null,
-    signer: null,
+    signer_id: null,
     verb: null,
-    hash: null,
+    canonicalization: null,
+    hash_alg: null,
+    hash_value: null,
     hash_matches: null,
+    signature_alg: null,
     signature_valid: null,
-    ens_resolved: null,
-    key_id: null,
+    kid: null,
+    signer_identity_checked: null,
     public_key_source: null,
   });
   setVerdict(false, note, true);
