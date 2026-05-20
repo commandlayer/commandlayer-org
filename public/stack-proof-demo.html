@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>CommandLayer — Stack Proof Demo (Local/Dev)</title>
+<title>CommandLayer — Stack Proof Demo (Production Verified)</title>
 <link rel="icon" href="https://www.commandlayer.org/icon2.png" />
 <style>
 :root{--bg:#07090d;--surface:#0f1623;--border:#1f2f45;--text:#cfe3fb;--dim:#6e89a8;--accent:#00d4ff;--ok:#00e676;--bad:#ff6b6b;--mono:'JetBrains Mono',monospace}
@@ -19,54 +19,49 @@ ul li{margin:8px 0}.note{color:var(--dim)}
 <body>
 <main>
   <p><a href="/docs.html">← Back to docs</a></p>
-  <h1>Canonical Stack Proof Demo <span class="note">(local/dev)</span></h1>
-  <p>This page documents the <strong>developer-facing proof flow</strong> for CommandLayer in local/dev environments. It is not a claim that production runtime endpoints are currently reachable.</p>
+  <h1>Canonical Stack Proof Demo <span class="note">(production runtime verified)</span></h1>
+  <p>This page documents the <strong>verified production runtime proof flow</strong> for CommandLayer. MCP local E2E now passes against the production runtime signer endpoint.</p>
 
   <div class="card">
     <h2>Canonical flow</h2>
-    <p class="flow">MCP sign request → runtime signs receipt → VerifyAgent verifies → tampered receipt invalidates</p>
+    <p class="flow">MCP sign request → runtime signs receipt → verifier validates → tampered receipt invalidates</p>
+    <p class="note">Honest caveat: <strong>MCP is a bridge, not the signer.</strong> The runtime signs. The verifier validates.</p>
   </div>
 
-  <h2>Canonical proof envelope</h2>
+  <h2>Production proof outcome</h2>
+  <div class="card">
+    <ul>
+      <li><strong>STEP 1</strong>: <span class="ok">SIGNED</span></li>
+      <li><strong>STEP 2</strong>: <span class="ok">VERIFIED</span></li>
+      <li><strong>STEP 3</strong>: <span class="bad">TAMPERED INVALID</span></li>
+    </ul>
+    <p class="note">Verification response includes <code>hash_matches=true</code> and <code>signature_valid=true</code>. Tampered response includes <code>hash_matches=false</code>, <code>signature_valid=false</code>, and <code>signature_error=hash_mismatch</code>.</p>
+  </div>
+
+  <h2>Canonical proof envelope (production signer)</h2>
   <pre>{
-  "receipt": {
-    "request_id": "req_demo_123",
-    "agent": "runtime.commandlayer.eth",
-    "verb": "summarize",
-    "result": {
-      "summary": "CommandLayer signs verifiable runtime receipts."
-    }
-  },
   "metadata": {
     "proof": {
       "canonicalization": "json.sorted_keys.v1",
       "hash": {
-        "alg": "SHA-256",
-        "value": "1e26...demo...f9"
+        "alg": "SHA-256"
       },
       "signature": {
         "alg": "Ed25519",
-        "value": "z6Mkh...demo-signature"
-      }
+        "kid": "vC4WbcNoq2znSCiQ"
+      },
+      "signer_id": "runtime.commandlayer.eth"
     }
   }
 }</pre>
 
+  <h2>Run the proof</h2>
   <div class="card">
-    <h3>Expected verification outcomes</h3>
-    <ul>
-      <li>VerifyAgent result: <span class="ok">VERIFIED</span></li>
-      <li>Tampered result: <span class="bad">INVALID</span></li>
-    </ul>
-  </div>
-
-  <h2>Run it locally</h2>
-  <div class="card">
-    <ul>
-      <li><strong>runtime</strong>: run <code>npm test</code>; use your local sign endpoint to emit signed receipts in dev.</li>
-      <li><strong>verifyagent</strong>: run <code>npm run e2e:runtime</code> against locally generated receipts.</li>
-      <li><strong>mcp-server</strong>: run <code>npm test</code>; use the local sign bridge for MCP→runtime handoff.</li>
-    </ul>
+    <pre>cd mcp-server
+export COMMANDLAYER_RUNTIME_URL=https://runtime-production-214f.up.railway.app
+unset COMMANDLAYER_VERIFY_URL
+unset COMMANDLAYER_VERIFY_PATH
+npm run e2e:local</pre>
   </div>
 
   <h2>Architecture (text diagram)</h2>
@@ -81,12 +76,12 @@ agent-sdk       = developer wrapper</pre>
   <div class="card">
     <ul>
       <li><strong>MCP is not the trust root.</strong></li>
-      <li><strong>schema-valid is not verified.</strong> Verification requires canonical hash + signature checks.</li>
-      <li><strong>Production runtime must use a key matching ENS TXT records.</strong></li>
+      <li><strong>Schema-valid is not verified.</strong> Verification requires canonical hash + signature checks.</li>
+      <li><strong>Do not treat the website verifier as production-canonical until <code>/api/verify</code> is validated end-to-end.</strong></li>
     </ul>
   </div>
 
-  <p class="note">Production availability should not be claimed as live until <code>runtime.commandlayer.org</code> is publicly reachable.</p>
+  <p class="note">Production signing proof is verified at <code>https://runtime-production-214f.up.railway.app</code> with signer key <code>kid=vC4WbcNoq2znSCiQ</code>. Keep verifier claims scoped to validated endpoints only.</p>
 </main>
 </body>
 </html>
