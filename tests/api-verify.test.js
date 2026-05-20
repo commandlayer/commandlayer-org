@@ -22,32 +22,29 @@ const sampleReceipt = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', 'examples', 'sample-receipt.json'), 'utf8')
 );
 
-test('POST /api/verify with valid sample => VERIFIED', async () => {
+test('POST /api/verify with legacy sample => INVALID', async () => {
   const req = { method: 'POST', body: sampleReceipt };
   const res = makeRes();
 
   await handler(req, res);
 
   assert.equal(res.statusCode, 200);
-  assert.equal(res.body.ok, true);
-  assert.equal(res.body.status, 'VERIFIED');
-  assert.equal(res.body.reason, 'Receipt verification passed.');
-  assert.equal(res.body.hash_matches, true);
-  assert.equal(res.body.signature_valid, true);
-  assert.equal(res.body.ens_resolved, true);
+  assert.equal(res.body.ok, false);
+  assert.equal(res.body.status, 'INVALID');
+  assert.equal(res.body.debug.has_legacy_top_level_proof, true);
 });
 
 
 
-test('POST /api/verify with wrapped receipt payload => VERIFIED', async () => {
+test('POST /api/verify with wrapped legacy receipt payload => INVALID', async () => {
   const req = { method: 'POST', body: { receipt: sampleReceipt } };
   const res = makeRes();
 
   await handler(req, res);
 
   assert.equal(res.statusCode, 200);
-  assert.equal(res.body.ok, true);
-  assert.equal(res.body.status, 'VERIFIED');
+  assert.equal(res.body.ok, false);
+  assert.equal(res.body.status, 'INVALID');
 });
 test('POST /api/verify with tampered receipt => INVALID', async () => {
   const tampered = structuredClone(sampleReceipt);

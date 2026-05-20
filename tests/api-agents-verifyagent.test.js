@@ -22,7 +22,7 @@ const sampleReceipt = JSON.parse(
   fs.readFileSync(path.join(__dirname, '..', 'examples', 'sample-receipt.json'), 'utf8')
 );
 
-test('POST /api/agents/verifyagent with valid sample => VERIFIED', async () => {
+test('POST /api/agents/verifyagent with legacy sample => INVALID', async () => {
   const req = { method: 'POST', body: { task: 'verify this receipt', receipt: sampleReceipt } };
   const res = makeRes();
 
@@ -31,12 +31,9 @@ test('POST /api/agents/verifyagent with valid sample => VERIFIED', async () => {
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.agent, 'verifyagent.eth');
   assert.equal(res.body.action, 'verify_receipt');
-  assert.equal(res.body.ok, true);
-  assert.equal(res.body.status, 'VERIFIED');
-  assert.equal(res.body.result.reason, 'Receipt verification passed.');
-  assert.equal(res.body.result.hash_matches, true);
-  assert.equal(res.body.result.signature_valid, true);
-  assert.equal(res.body.result.ens_resolved, true);
+  assert.equal(res.body.ok, false);
+  assert.equal(res.body.status, 'INVALID');
+  assert.equal(res.body.result.reason, 'Receipt is invalid, tampered, or does not match the signer key metadata.');
 });
 
 test('POST /api/agents/verifyagent with tampered receipt => INVALID', async () => {
