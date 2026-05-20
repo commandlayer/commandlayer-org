@@ -1,297 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" /><meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>CommandLayer — Getting started with CommandLayer</title>
-<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
-<style>
-:root{--bg:#07090d;--surface:#0b0f18;--panel:#101828;--border:#1b2a3b;--border-hi:#273d54;--text:#c8d8ea;--dim:#476080;--dimmer:#253040;--accent:#00d4ff;--accent2:#0099cc;--green:#00e676;--gold:#ffd54f;--mono:'JetBrains Mono',monospace;--sans:'Syne',sans-serif;}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{scroll-behavior:smooth;}
-body{background:var(--bg);color:var(--text);font-family:var(--mono);font-size:13px;line-height:1.6;overflow-x:hidden;}
-body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;background-image:repeating-linear-gradient(0deg,transparent,transparent 79px,rgba(0,212,255,0.022) 79px,rgba(0,212,255,0.022) 80px);}
-nav{position:sticky;top:0;z-index:100;background:rgba(7,9,13,0.93);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:54px;}
-.nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text);font-family:var(--sans);font-weight:800;font-size:15px;letter-spacing:-0.02em;}
-.nav-brand img{width:26px;height:26px;}
-.nav-center{display:flex;align-items:center;gap:4px;list-style:none;}
-.nav-center a{color:var(--text);text-decoration:none;font-size:12px;padding:5px 10px;border-radius:4px;transition:all .15s;}
-.nav-center a:hover{color:var(--text);background:rgba(255,255,255,.04);}
-.nav-center a.active{color:var(--accent);}
-.nav-dropdown{position:relative;}
-.nav-dropdown-toggle{color:var(--text);font-size:12px;font-family:var(--mono);padding:5px 10px;border-radius:4px;cursor:pointer;background:none;border:none;display:flex;align-items:center;gap:4px;transition:color .15s;}
-.nav-dropdown-toggle:hover{color:var(--text);}
-.nav-dropdown-menu{display:none;position:absolute;top:100%;left:0;min-width:150px;background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:6px;margin-top:4px;z-index:200;box-shadow:0 8px 24px rgba(0,0,0,.4);}
-.nav-dropdown:hover .nav-dropdown-menu{display:flex;flex-direction:column;}
-.nav-dropdown-menu a{color:var(--text);text-decoration:none;font-size:12px;padding:6px 10px;border-radius:3px;transition:all .12s;}
-.nav-dropdown-menu a:hover{color:var(--accent);background:rgba(0,212,255,.06);}
-.nav-right{display:flex;align-items:center;}
-.nav-github{color:var(--text);text-decoration:none;font-size:12px;padding:5px 12px;border:1px solid var(--border);border-radius:4px;transition:all .15s;}
-.nav-github:hover{border-color:var(--accent);color:var(--accent);}
-.page-wrap{position:relative;z-index:1;max-width:900px;margin:0 auto;padding:60px 32px 80px;}
-.doc-eyebrow{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin-bottom:14px;}
-.doc-h1{font-family:var(--sans);font-size:clamp(26px,4vw,46px);font-weight:800;letter-spacing:-.04em;color:#fff;line-height:1.05;margin-bottom:18px;}
-.doc-h1 em{color:var(--accent);font-style:normal;}
-.doc-lead{font-size:15px;color:var(--dim);line-height:1.75;max-width:640px;margin-bottom:24px;}
-.doc-lead strong{color:var(--text);font-weight:500;}
-.doc-divider{border:none;border-top:1px solid var(--border);margin:40px 0;}
-.doc-h2{font-family:var(--sans);font-size:22px;font-weight:800;letter-spacing:-.02em;color:#fff;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid var(--border);}
-.doc-h3{font-family:var(--sans);font-size:15px;font-weight:700;color:var(--text);margin:20px 0 10px;}
-.doc-p{font-size:13px;color:var(--dim);line-height:1.8;margin-bottom:14px;}
-.doc-p strong{color:var(--text);font-weight:500;}
-.doc-p code{color:var(--green);font-size:12px;}
-.doc-p a{color:var(--accent);text-decoration:none;}
-.doc-p a:hover{text-decoration:underline;}
-.doc-section{margin-bottom:48px;}
-/* version badges */
-.badge-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:32px;}
-.v-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:3px;font-size:11px;border:1px solid var(--border);color:var(--dim);background:var(--surface);}
-.v-badge.accent{border-color:rgba(0,212,255,.3);color:var(--accent);background:rgba(0,212,255,.06);}
-.v-badge.green{border-color:rgba(0,230,118,.3);color:var(--green);background:rgba(0,230,118,.06);}
-/* ordered steps */
-.step-list{display:flex;flex-direction:column;gap:0;margin-bottom:20px;}
-.step-row{display:flex;gap:14px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border);}
-.step-row:last-child{border-bottom:none;}
-.step-n{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:1px solid var(--accent);color:var(--accent);background:rgba(0,212,255,.07);margin-top:1px;}
-.step-body{flex:1;font-size:13px;color:var(--dim);line-height:1.7;}
-.step-body strong{color:var(--text);}
-.step-body code{color:var(--green);}
-.step-body a{color:var(--accent);text-decoration:none;}
-.step-body a:hover{text-decoration:underline;}
-/* code block */
-.code-block{background:var(--surface);border:1px solid var(--border);border-radius:5px;overflow:hidden;margin-bottom:20px;}
-.code-header{background:var(--panel);border-bottom:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;justify-content:space-between;}
-.code-lang{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--dimmer);}
-.code-label{font-size:11px;color:var(--dim);}
-.btn-copy{background:transparent;border:1px solid var(--border);border-radius:3px;color:var(--dimmer);font-family:var(--mono);font-size:10px;padding:3px 9px;cursor:pointer;transition:all .15s;}
-.btn-copy:hover{border-color:var(--accent);color:var(--accent);}
-.btn-copy.copied{border-color:var(--green);color:var(--green);}
-pre.code-pre{padding:14px;font-size:12px;line-height:1.75;overflow-x:auto;color:var(--dim);}
-pre.code-pre .key{color:var(--accent2);}
-pre.code-pre .str{color:#a8d8a8;}
-pre.code-pre .cmt{color:var(--dimmer);}
-pre.code-pre .kw{color:var(--gold);}
-/* feature grid */
-.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:5px;overflow:hidden;margin-bottom:24px;}
-.feat-cell{background:var(--surface);padding:20px;transition:background .2s;}
-.feat-cell:hover{background:var(--panel);}
-.fc-title{font-family:var(--sans);font-size:13px;font-weight:700;color:#fff;margin-bottom:6px;}
-.fc-body{font-size:12px;color:var(--dim);line-height:1.65;}
-.fc-body code{color:var(--green);}
-.fc-body a{color:var(--accent);text-decoration:none;}
-.fc-body a:hover{text-decoration:underline;}
-/* callout */
-.callout{border-radius:4px;padding:12px 16px;font-size:12px;line-height:1.7;margin-bottom:20px;display:flex;gap:10px;}
-.callout.info{background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);color:var(--text);}
-.callout.green{background:rgba(0,230,118,.06);border:1px solid rgba(0,230,118,.2);color:var(--text);}
-.callout-icon{font-size:14px;flex-shrink:0;margin-top:1px;}
-.callout a{color:var(--accent);text-decoration:none;}
-/* hero actions */
-.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:40px;}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:4px;font-family:var(--mono);font-size:12px;font-weight:500;cursor:pointer;border:none;transition:all .15s;text-decoration:none;white-space:nowrap;}
-.btn-primary{background:var(--accent);color:#06090e;font-weight:700;}
-.btn-primary:hover{background:#00bcde;}
-.btn-outline{background:transparent;color:var(--text);border:1px solid var(--border);}
-.btn-outline:hover{border-color:var(--accent);color:var(--accent);}
-/* next links */
-.next-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:20px;}
-.next-card{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:18px;text-decoration:none;transition:all .2s;display:block;}
-.next-card:hover{border-color:var(--accent);transform:translateY(-2px);}
-.nc-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin-bottom:6px;}
-.nc-title{font-family:var(--sans);font-size:14px;font-weight:700;color:#fff;margin-bottom:4px;}
-.nc-body{font-size:11px;color:var(--dim);line-height:1.6;}
-footer{position:relative;z-index:1;border-top:1px solid var(--border);padding:20px 32px;display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--dim);flex-wrap:wrap;gap:10px;}
-footer a{color:var(--text);text-decoration:none;transition:color .15s;}
-footer a:hover{color:var(--accent);}
-.footer-links{display:flex;gap:20px;flex-wrap:wrap;}
-::-webkit-scrollbar{width:4px;height:4px;}
-::-webkit-scrollbar-track{background:var(--bg);}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-</style>
-<meta property="og:title" content="CommandLayer — Getting started with CommandLayer" />
-<meta property="og:description" content="CommandLayer: verifiable agent execution with signed receipts, ENS identity, and ERC-8004 proof on Base." />
-<meta property="og:image" content="https://www.commandlayer.org/icon2.png" />
-<meta property="og:url" content="https://www.commandlayer.org/docs.html" />
-<meta property="og:type" content="website" />
-<meta name="twitter:card" content="summary" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CommandLayer Docs — Build Verifiable Agent Actions</title>
+  <meta name="description" content="Build with CommandLayer by wrapping actions, emitting canonical receipts, and verifying proof." />
+  <link rel="icon" href="/icon2.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet" />
+  <style>
+    :root { --bg:#fff; --surface:#f7f8ff; --surface-2:#eef1fb; --border:rgba(15,23,42,.1); --text:#0f172a; --text-2:#334155; --muted:#64748b; --blue:#5298ff; --purple:#635bff; --gradient:linear-gradient(135deg,#5298ff 0%,#635bff 100%); }
+    *{box-sizing:border-box;margin:0;padding:0} body{font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    .container{width:min(1120px,92vw);margin:0 auto}
+    nav{position:sticky;top:0;z-index:100;background:rgba(255,255,255,.92);border-bottom:1px solid var(--border);backdrop-filter:blur(16px)}
+    .nav-inner{min-height:82px;padding:10px 0;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    .brand img{height:62px}.brand{display:flex;align-items:center;text-decoration:none;color:var(--text);font-weight:700}
+    .nav-links{display:flex;align-items:center;gap:2px;list-style:none;flex-wrap:wrap}
+    .nav-links a,.nav-drop-toggle{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;padding:7px 12px;border-radius:8px;background:none;border:none;cursor:pointer;font-family:inherit}
+    .nav-links a:hover,.nav-drop:hover .nav-drop-toggle,.nav-drop:focus-within .nav-drop-toggle{color:var(--text);background:var(--surface)}
+    .nav-drop{position:relative}
+    .nav-drop-menu{display:none;position:absolute;left:0;top:100%;background:#fff;border:1px solid var(--border);border-radius:10px;min-width:260px;padding:8px;box-shadow:0 16px 40px rgba(15,23,42,.12)}
+    .nav-drop:hover .nav-drop-menu,.nav-drop:focus-within .nav-drop-menu{display:grid;gap:3px}
+    .nav-drop-menu a{display:block;padding:8px 10px}
+    .hero{padding:80px 0 36px}.eyebrow{color:var(--purple);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px}
+    h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.05;letter-spacing:-.03em;margin-bottom:18px}
+    .lead{font-size:18px;color:var(--text-2);max-width:840px}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+    .btn{display:inline-flex;padding:11px 18px;border-radius:10px;text-decoration:none;font-weight:600;font-size:14px}
+    .btn-primary{background:var(--gradient);color:#fff}.btn-secondary{border:1px solid var(--border);color:var(--text-2)}
+    section{padding:26px 0} h2{font-size:28px;letter-spacing:-.02em;margin-bottom:14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px;text-decoration:none;color:inherit;display:block}
+    .card:hover{border-color:rgba(82,152,255,.5)} .card h3{font-size:17px;margin-bottom:6px} .card p{color:var(--text-2);font-size:14px}
+    .trust-list{display:grid;gap:6px;color:var(--text-2);padding-left:18px}
+    pre{background:#0f172a;color:#dbeafe;padding:16px;border-radius:12px;overflow:auto;font-size:13px}
+    .paths{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+    .path{background:var(--surface-2);border:1px solid var(--border);border-radius:14px;padding:16px}
+    footer{margin-top:46px;border-top:1px solid var(--border);padding:30px 0 40px;background:#fcfcff}
+    .foot-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:20px}.foot-grid h4{font-size:14px;margin-bottom:8px}.foot-grid a{display:block;color:var(--text-2);text-decoration:none;padding:3px 0}
+    @media (max-width:760px){.nav-drop{width:100%}.nav-drop-menu{position:static;display:grid;margin-top:2px;min-width:0;box-shadow:none}.nav-inner{align-items:flex-start}}
+  </style>
 </head>
 <body>
-<nav>
-  <a href="https://www.commandlayer.org/" class="nav-brand"><img src="https://www.commandlayer.org/icon2.png" alt="CommandLayer" />CommandLayer</a>
-  <ul class="nav-center">
-    <li><a href="/index.html">Home</a></li>
-    <li><a href="/verify.html">Verifier</a></li>
-    <li><a href="/quickstart.html">Quickstart</a></li>
-    <li><a href="/docs/wrap-your-agent.html">Wrap Your Agent</a></li>
-    <li><a href="/ambient-verification.html">Ambient Verify</a></li>
-    <li><a href="/how-it-works.html">How It Works</a></li>
-      <li><a href="/claim.html">Claim</a></li>
-  </ul>
-  <div class="nav-right"><a href="https://github.com/commandlayer" class="nav-github">GitHub ↗</a></div>
-</nav>
-
-<div class="page-wrap">
-  <div class="doc-eyebrow">▸ docs</div>
-  <h1 class="doc-h1">Getting started with<br /><em>CommandLayer</em></h1>
-  <p class="doc-lead">Agents don’t make claims — they produce proof. Wrap → sign → verify. VerifyAgent.eth is the public verifier for receipts produced by ENS-named agents.</p>
-    <p class="ens-note">VerifyAgent resolves signer keys from ENS TXT records.<br>For the hackathon demo, <code>runtime.commandlayer.eth</code> is supported via a labeled fallback resolver that mirrors the ENS record structure.<br>The verification flow is designed to operate against live ENS records.</p>
-
-  <div class="badge-row">
-    <span class="v-badge green">Wrap → sign → verify</span>
-    <span class="v-badge accent">If the output changes, the proof breaks.</span>
-    <span class="v-badge accent">Tampering returns INVALID.</span>
-  </div>
-
-  <div class="hero-actions">
-    <a href="https://www.commandlayer.org/verify.html" class="btn btn-primary">Verify a receipt now →</a>
-    <a href="#summarize-example" class="btn btn-outline">Jump to summarize flow ↓</a>
-    <a href="/stack-proof-demo.html" class="btn btn-outline">Stack proof demo (local/dev) →</a>
-  </div>
-  <p class="doc-p"><strong>Install the SDK:</strong> <code>npm install @commandlayer/agent-sdk</code></p>
-  <p class="doc-p">If the output changes, the proof breaks.</p>
-  <p class="doc-p">If you need to work on SDK internals locally, use the GitHub repository as a secondary path.</p>
-
-  <hr class="doc-divider" />
-
-  <div class="doc-section">
-    <h2 class="doc-h2">One flow you can implement today</h2>
-    <p class="doc-p">At minimum, you only need two things to integrate: a <strong>verb</strong> and its <strong>schemas</strong>. If you also want others to discover and route to your agent, you publish an <strong>Agent Card</strong>. Runtime is the proving surface: it executes those contracts and may add optional <code>runtime_metadata</code> without changing semantics.</p>
-
-    <div class="step-list">
-      <div class="step-row"><div class="step-n">1</div><div class="step-body">Pick a Commons verb (e.g. <code>summarize</code>).</div></div>
-      <div class="step-row"><div class="step-n">2</div><div class="step-body">Take its <code>*.request</code> and <code>*.receipt</code> schemas as your contract.</div></div>
-      <div class="step-row"><div class="step-n">3</div><div class="step-body">Validate payloads with any JSON Schema 2020-12 validator.</div></div>
-      <div class="step-row"><div class="step-n">4</div><div class="step-body">Describe your agent with an <a href="https://www.commandlayer.org/agent-cards.html">Agent Card</a> so it can be discovered and routed to.</div></div>
-      <div class="step-row"><div class="step-n">5</div><div class="step-body">Runtime can change routing, policy, and guarantees — the semantic contract stays stable and Commons remains the public truth.</div></div>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/index.html" class="brand"><img src="/logo-banner-new.png" alt="CommandLayer" /></a>
+      <ul class="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/protocol.html">Protocol</a></li>
+        <li><a href="/capabilities.html">Capabilities</a></li>
+        <li><a href="/verify.html">Verifier</a></li>
+        <li><a href="/sdk-records.html">SDK</a></li>
+        <li class="nav-drop">
+          <button class="nav-drop-toggle" aria-haspopup="true">Docs ▾</button>
+          <div class="nav-drop-menu">
+            <a href="/docs.html">Docs Home</a><a href="/docs/wrap-your-agent.html">Wrap Your Agent</a><a href="/stack-proof-demo.html">Production Proof</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP Bridge</a><a href="/schemas.html">Schemas</a><a href="/api.html">API Reference</a><a href="/trust-verification.html">Trust Verification</a><a href="/claim.html">Claim / Namespace Activation</a>
+          </div>
+        </li>
+        <li><a href="/claim.html">Claim</a></li>
+        <li><a href="https://github.com/commandlayer" target="_blank" rel="noreferrer">GitHub</a></li>
+      </ul>
     </div>
-
-    <div class="callout green">
-      <span class="callout-icon">→</span>
-      <span><strong>Real verbs, real receipts</strong> — the same shapes across agents, runtimes, and payment rails. <a href="https://www.commandlayer.org/composer.html">See it live →</a></span>
-    </div>
-  </div>
-
-  <hr class="doc-divider" />
-
-  <div class="doc-section">
-    <h2 class="doc-h2">Verification in four steps</h2>
-    <p class="doc-p">1) Wrap any agent action. 2) Emit a signed receipt. 3) Verify with VerifyAgent.eth. 4) If the output changes, the proof breaks and verification returns INVALID.</p>
-
-    <div class="feat-grid">
-      <div class="feat-cell">
-        <div class="fc-title">Commons verbs</div>
-        <div class="fc-body">Universal verbs like <code>summarize</code>, <code>analyze</code>, <code>parse</code>, and <code>fetch</code>. Each has a strict <code>*.request</code> and <code>*.receipt</code> JSON Schema you can plug into any agent.</div>
-      </div>
-      <div class="feat-cell">
-        <div class="fc-title">Commercial verbs</div>
-        <div class="fc-body">Economic flows — <code>authorize</code>, <code>checkout</code>, <code>purchase</code>, <code>ship</code>, <code>verify</code> — that extend Commons with commerce-oriented schemas. Schemas public and portable.</div>
-      </div>
-      <div class="feat-cell">
-        <div class="fc-title">VerifyAgent.eth, Agent Cards, Runtime, SDK</div>
-        <div class="fc-body">VerifyAgent.eth is the public verifier for CommandLayer receipts. Agent Cards bind ENS names to verbs/schema versions/endpoints. Runtime executes verbs and signs receipts. SDK wraps agents and provides programmatic receipt tooling.</div>
-      </div>
-    </div>
-  </div>
-
-  <hr class="doc-divider" />
-
-  <div class="doc-section" id="summarize-example">
-    <h2 class="doc-h2">Example: calling <code style="color:var(--accent);font-size:inherit;">summarize</code></h2>
-    <p class="doc-p">A typical integration: the client builds a <code>summarize.request</code> payload, validates it against the Commons schema, sends it to an agent endpoint, and receives a <code>summarize.receipt</code>. The same pattern applies to every Commons verb.</p>
-
-    <h3 class="doc-h3">1. Inspect the schemas</h3>
-    <p class="doc-p">Both schemas are public and versioned under the v1.1.0 path: <code>https://commandlayer.org/schemas/v1.1.0/commons/summarize/</code></p>
-    <p class="doc-p">
-      <a href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json" target="_blank">summarize.request.schema.json ↗</a> &nbsp;·&nbsp;
-      <a href="https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json" target="_blank">summarize.receipt.schema.json ↗</a>
-    </p>
-
-    <h3 class="doc-h3">2. Validate before sending</h3>
-    <div class="code-block">
-      <div class="code-header"><span class="code-lang">javascript</span><span class="code-label">Node.js · Ajv (any JSON Schema 2020-12 validator works)</span><button class="btn-copy" onclick="copyCode('c1',this)">copy</button></div>
-      <pre class="code-pre" id="c1"><span class="kw">import</span> Ajv <span class="kw">from</span> <span class="str">"ajv"</span>;
-<span class="kw">const</span> ajv = <span class="kw">new</span> Ajv({ strict: <span class="str">true</span> });
-<span class="kw">const</span> schema = <span class="kw">await</span> fetch(
-  <span class="str">"https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json"</span>
-).then(r => r.json());
-<span class="kw">const</span> validate = ajv.compile(schema);
-<span class="kw">if</span> (!validate(payload)) {
-  console.error(<span class="str">"Invalid summarize.request"</span>, validate.errors);
-}</pre>
-    </div>
-
-    <h3 class="doc-h3">3. Send &amp; receive a receipt</h3>
-    <div class="code-block">
-      <div class="code-header"><span class="code-lang">javascript</span><span class="code-label">send request · validate receipt</span><button class="btn-copy" onclick="copyCode('c2',this)">copy</button></div>
-      <pre class="code-pre" id="c2"><span class="kw">const</span> res = <span class="kw">await</span> fetch(<span class="str">"https://runtime.commandlayer.org/summarize/v1.1.0"</span>, {
-  method: <span class="str">"POST"</span>,
-  headers: { <span class="str">"content-type"</span>: <span class="str">"application/json"</span> },
-  body: JSON.stringify(payload)
-});
-<span class="kw">const</span> receipt = <span class="kw">await</span> res.json();
-<span class="cmt">// validate against summarize.receipt.schema.json</span></pre>
-    </div>
-  </div>
-
-  <hr class="doc-divider" />
-
-  <div class="doc-section">
-    <h2 class="doc-h2">Defining your own Agent Card</h2>
-    <p class="doc-p">If you operate an agent and want others to discover and call it, describe it with an Agent Card JSON file and host it at a stable URL. Commons cards live under <code>/agent-cards/agents/v1.1.0/commons/&lt;ens&gt;.json</code>.</p>
-
-    <div class="code-block">
-      <div class="code-header"><span class="code-lang">json</span><span class="code-label">Commons agent card template · summarizeagent.eth</span><button class="btn-copy" onclick="copyCode('c3',this)">copy</button></div>
-      <pre class="code-pre" id="c3">{
-  <span class="key">"$schema"</span>: <span class="str">"https://commandlayer.org/agent-cards/schemas/v1.1.0/agent.card.schema.json"</span>,
-  <span class="key">"id"</span>: <span class="str">"summarizeagent.eth"</span>,
-  <span class="key">"owner"</span>: <span class="str">"commandlayer.eth"</span>,
-  <span class="key">"ens"</span>: <span class="str">"summarizeagent.eth"</span>,
-  <span class="key">"version"</span>: <span class="str">"1.1.0"</span>,
-  <span class="key">"status"</span>: <span class="str">"protocol_reference"</span>,
-  <span class="key">"class"</span>: <span class="str">"commons"</span>,
-  <span class="key">"implements"</span>: [<span class="str">"summarize"</span>],
-  <span class="key">"schemas"</span>: {
-    <span class="key">"request"</span>: <span class="str">"https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.request.schema.json"</span>,
-    <span class="key">"receipt"</span>: <span class="str">"https://commandlayer.org/schemas/v1.1.0/commons/summarize/summarize.receipt.schema.json"</span>
-  },
-  <span class="key">"entry"</span>: <span class="str">"https://runtime.commandlayer.org/execute"</span>
-}</pre>
-    </div>
-
-    <div class="callout info">
-      <span class="callout-icon">ℹ</span>
-      <span>Commercial agents follow the same pattern under <code>/agent-cards/agents/v1.1.0/commercial/&lt;ens&gt;.json</code>, with verbs such as <code>authorize</code>, <code>checkout</code>, <code>purchase</code>, <code>ship</code>, and <code>verify</code>.</span>
-    </div>
-  </div>
-
-  <hr class="doc-divider" />
-
-  <div class="doc-section">
-    <h2 class="doc-h2">Where to go next</h2>
-    <p class="doc-p">You do not need the whole stack to start. One published verb and its schemas are enough.</p>
-    <div class="next-grid">
-      <a href="https://www.commandlayer.org/commons.html" class="next-card"><div class="nc-label">Contract</div><div class="nc-title">Commons</div><div class="nc-body">Browse the verb set and schema index.</div></a>
-      <a href="https://www.commandlayer.org/commercial.html" class="next-card"><div class="nc-label">Economic</div><div class="nc-title">Commercial</div><div class="nc-body">Review economic verbs and commerce flows.</div></a>
-      <a href="https://www.commandlayer.org/agent-cards.html" class="next-card"><div class="nc-label">Discovery</div><div class="nc-title">Agent Cards</div><div class="nc-body">See how Agent Cards are laid out.</div></a>
-      <a href="https://www.commandlayer.org/composer.html" class="next-card"><div class="nc-label">Live</div><div class="nc-title">Demo</div><div class="nc-body">Try the live flows with real signed receipts.</div></a>
-    </div>
-  </div>
-</div>
-
-<footer>
-  <span>Commons v1.1.0 · Commercial v1.1.0 · Agent Cards v1.1.0 · ERC-8004 registered</span>
-  <nav class="footer-links">
-    <a href="https://www.commandlayer.org/docs.html">Docs</a>
-    <a href="https://www.commandlayer.org/repositories.html">Repositories</a>
-    <a href="https://www.commandlayer.org/faq.html">FAQ</a>
-    <a href="https://www.commandlayer.org/about.html">About</a>
-    <a href="https://www.commandlayer.org/licensing.html">Licensing</a>
   </nav>
-</footer>
-<script>
-function copyCode(id,btn){navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>{btn.textContent='copied ✓';btn.classList.add('copied');setTimeout(()=>{btn.textContent='copy';btn.classList.remove('copied');},2000);});}
-</script>
+
+  <main class="container">
+    <section class="hero">
+      <div class="eyebrow">Docs</div>
+      <h1>Build verifiable agent actions.</h1>
+      <p class="lead">CommandLayer docs cover the protocol model, SDK integration, runtime signing, MCP bridging, verifier checks, schemas, and capability activation.</p>
+      <div class="actions">
+        <a class="btn btn-primary" href="/docs/wrap-your-agent.html">Wrap Your Agent</a>
+        <a class="btn btn-secondary" href="/stack-proof-demo.html">View Production Proof</a>
+      </div>
+    </section>
+
+    <section>
+      <h2>Start here</h2>
+      <div class="grid">
+        <a class="card" href="/protocol.html"><h3>Protocol Overview</h3><p>Explain CLAS, receipts, and trust boundaries.</p></a>
+        <a class="card" href="/docs/wrap-your-agent.html"><h3>Wrap Your Agent</h3><p>Use the SDK to wrap actions and emit canonical receipts.</p></a>
+        <a class="card" href="/verify.html"><h3>Verify Receipts</h3><p>Paste a receipt or verify programmatically.</p></a>
+        <a class="card" href="/stack-proof-demo.html"><h3>Production Proof</h3><p>MCP → runtime → verifier → tamper invalid.</p></a>
+        <a class="card" href="/capabilities.html"><h3>Capabilities</h3><p>Explore Trust Verification v1 and future capability families.</p></a>
+        <a class="card" href="/sdk-records.html"><h3>SDK</h3><p>Install @commandlayer/agent-sdk@1.2.0.</p></a>
+      </div>
+    </section>
+
+    <section>
+      <h2>Architecture docs</h2>
+      <div class="grid">
+        <a class="card" href="/protocol.html"><h3>CLAS</h3><p>Core protocol model and semantics.</p></a>
+        <a class="card" href="/runtime-core.html"><h3>runtime-core</h3><p>Deterministic canonicalization and signing internals.</p></a>
+        <a class="card" href="/runtime.html"><h3>runtime</h3><p>Production runtime behavior and receipt emission.</p></a>
+        <a class="card" href="/mcp.html"><h3>MCP bridge</h3><p>Protocol bridge from MCP clients to runtime actions.</p></a>
+        <a class="card" href="/verifyagent.html"><h3>VerifyAgent</h3><p>Public verifier flow and validation checks.</p></a>
+        <a class="card" href="/sdk-records.html"><h3>agent-sdk</h3><p>Application integration and wrapping utilities.</p></a>
+      </div>
+      <ul class="trust-list">
+        <li>Runtime signs.</li><li>Verifier validates.</li><li>MCP bridges.</li><li>SDK wraps.</li><li>Schema-valid alone is not verified.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Canonical proof model</h2>
+      <p class="lead" style="font-size:15px;margin-bottom:14px;">Runtime production is live, runtime signs canonical Trust Verification receipts, and MCP E2E against production runtime passes: STEP 1 SIGNED · STEP 2 VERIFIED · STEP 3 TAMPERED INVALID.</p>
+      <pre>metadata.proof.canonicalization = "json.sorted_keys.v1"
+metadata.proof.hash.alg = "SHA-256"
+metadata.proof.signature.alg = "Ed25519"
+metadata.proof.signature.kid = "vC4WbcNoq2znSCiQ"
+metadata.proof.signer_id = "runtime.commandlayer.eth"</pre>
+    </section>
+
+    <section>
+      <h2>Developer paths</h2>
+      <div class="paths">
+        <div class="path"><h3>Fast path</h3><p>Install SDK → wrap action → verify receipt.</p></div>
+        <div class="path"><h3>Protocol path</h3><p>Read protocol → inspect schemas → implement verifier.</p></div>
+        <div class="path"><h3>Capability path</h3><p>Choose capability family → define schema → publish metadata.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Reference links</h2>
+      <div class="grid">
+        <a class="card" href="/api.html"><h3>API Reference</h3></a><a class="card" href="/schemas.html"><h3>Schemas</h3></a><a class="card" href="/trust-verification.html"><h3>Trust Verification</h3></a><a class="card" href="/runtime.html"><h3>Runtime</h3></a><a class="card" href="/mcp.html"><h3>MCP Bridge</h3></a><a class="card" href="/claim.html"><h3>Claim</h3></a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container foot-grid">
+      <div><h4>Product</h4><a href="/protocol.html">Protocol</a><a href="/capabilities.html">Capabilities</a><a href="/verify.html">Verifier</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP</a><a href="/claim.html">Claim</a></div>
+      <div><h4>Developers</h4><a href="/docs.html">Docs</a><a href="/sdk-records.html">SDK</a><a href="/schemas.html">Schemas</a><a href="/api.html">API</a><a href="https://github.com/commandlayer">GitHub</a></div>
+      <div><h4>Proof</h4><a href="/stack-proof-demo.html">Production Proof</a><a href="/verifyagent.html">VerifyAgent</a><a href="/trust-verification.html">Trust Verification</a><a href="/canonical-receipts.html">Canonical Receipts</a></div>
+    </div>
+  </footer>
 </body>
 </html>
