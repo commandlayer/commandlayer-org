@@ -1017,7 +1017,14 @@
       .hero-deco { display: none; }
     }
 
-    @media (max-width: 960px) {
+    
+    .nav-item-dropdown { position: relative; }
+    .docs-toggle { cursor: default; }
+    .docs-menu { display:none; position:absolute; top:calc(100% + 8px); left:0; min-width:220px; background:#0b1326; border:1px solid var(--border); border-radius:10px; padding:8px 0; z-index:20; }
+    .docs-menu li { list-style:none; }
+    .docs-menu a { display:block; padding:8px 14px; white-space:nowrap; }
+    .nav-item-dropdown:hover .docs-menu, .nav-item-dropdown:focus-within .docs-menu { display:block; }
+@media (max-width: 960px) {
       .how-grid { grid-template-columns: repeat(2, 1fr); gap: 36px; }
       .how-grid::before { display: none; }
       .rp-body { grid-template-columns: 1fr; }
@@ -1031,6 +1038,9 @@
     @media (max-width: 600px) {
       .nav-inner { height: auto; padding: 12px 0; flex-wrap: wrap; gap: 10px; }
       .nav-links { gap: 0; flex-wrap: wrap; }
+      .nav-item-dropdown { width: 100%; }
+      .docs-menu { position: static; display: flex; flex-wrap: wrap; border: none; background: transparent; padding: 0; min-width: 0; }
+      .docs-menu a { white-space: normal; padding: 6px 10px; }
       .nav-actions .btn-secondary { display: none; }
       .how-grid { grid-template-columns: 1fr; }
       .features-grid { grid-template-columns: 1fr; }
@@ -1054,7 +1064,19 @@
         <li><a href="/capabilities.html">Capabilities</a></li>
         <li><a href="/verify.html">Verifier</a></li>
         <li><a href="/sdk-records.html">SDK</a></li>
-        <li><a href="/docs/wrap-your-agent.html">Docs</a></li>
+        <li class="nav-item-dropdown"><a class="docs-toggle" href="/docs.html">Docs</a>
+          <ul class="docs-menu">
+            <li><a href="/docs.html">Docs Home</a></li>
+            <li><a href="/docs/wrap-your-agent.html">Wrap Your Agent</a></li>
+            <li><a href="/stack-proof-demo.html">Production Proof</a></li>
+            <li><a href="/runtime.html">Runtime</a></li>
+            <li><a href="/mcp.html">MCP Bridge</a></li>
+            <li><a href="/schemas.html">Schemas</a></li>
+            <li><a href="/api.html">API Reference</a></li>
+            <li><a href="/trust-verification.html">Trust Verification</a></li>
+            <li><a href="/claim.html">Claim / Namespace Activation</a></li>
+          </ul>
+        </li>
         <li><a href="/claim.html">Claim</a></li>
         <li><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></li>
       </ul>
