@@ -19,7 +19,7 @@ ul li{margin:8px 0}.note{color:var(--dim)}
 <body>
 <main>
   <p><a href="/docs.html">← Back to docs</a></p>
-  <h1>Canonical Stack Proof Demo <span class="note">(production runtime verified)</span></h1>
+  <h1>Canonical Stack Proof Demo <span class="note">(Production runtime proof verified)</span></h1>
   <p>This page documents the <strong>verified production runtime proof flow</strong> for CommandLayer. MCP local E2E now passes against the production runtime signer endpoint.</p>
 
   <div class="card">
@@ -35,7 +35,7 @@ ul li{margin:8px 0}.note{color:var(--dim)}
       <li><strong>STEP 2</strong>: <span class="ok">VERIFIED</span></li>
       <li><strong>STEP 3</strong>: <span class="bad">TAMPERED INVALID</span></li>
     </ul>
-    <p class="note">Verification response includes <code>hash_matches=true</code> and <code>signature_valid=true</code>. Tampered response includes <code>hash_matches=false</code>, <code>signature_valid=false</code>, and <code>signature_error=hash_mismatch</code>.</p>
+    <p class="note">Verification response includes <code>hash_matches=true</code>, <code>signature_valid=true</code>, and <code>status=VALID</code>. Tampered response includes <code>hash_matches=false</code>, <code>signature_valid=false</code>, <code>signature_error=hash_mismatch</code>, and <code>status=INVALID</code>.</p>
   </div>
 
   <h2>Canonical proof envelope (production signer)</h2>
