@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Protocol | CommandLayer</title>
+<meta name="description" content="CommandLayer is a protocol stack for turning agent actions into signed, independently verifiable receipts." />
+<link rel="icon" href="/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/site.css" />
+<style>
+  .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}.nav-links a.active{color:var(--text);background:var(--surface)}
+  .hero{padding:84px 0 64px;background:radial-gradient(1200px 360px at 50% -10%,rgba(82,152,255,.15),transparent 70%),#fff;text-align:center}
+  .hero h1{font-size:clamp(2.3rem,5vw,4rem);line-height:1.06;letter-spacing:-.04em;margin:0 0 14px}
+  .hero p{max-width:860px;margin:0 auto;color:var(--text-2);font-size:1.08rem;line-height:1.7}
+  .hero-actions{margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .section{padding:56px 0}
+  .stack-grid,.boundaries-grid,.family-grid{display:grid;gap:14px}
+  .stack-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .boundaries-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .family-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 8px 22px rgba(99,91,255,.07)}
+  .card h3{margin:0 0 8px;font-size:1.04rem}
+  .card p{margin:0;color:var(--text-2);line-height:1.6}
+  .dark-block{background:#0E1322;color:#E2E8F0;border:1px solid rgba(30,41,59,.45);border-radius:14px;padding:16px;overflow:auto;font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .list{margin:0;padding-left:18px;color:var(--text-2);line-height:1.7}
+  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+  .node{padding:8px 10px;border-radius:999px;background:#eef4ff;border:1px solid #c8dafe;font-weight:700;color:#1e3a8a;font-size:13px}
+  .arrow{color:#64748b;font-weight:800}
+  .proof-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+  .cta-panel{background:linear-gradient(135deg,#5298FF 0%,#635BFF 100%);border-radius:18px;padding:26px;color:#fff;text-align:center}
+  .cta-panel p{margin:0 0 14px;color:#eaf3ff}
+  footer{padding:24px 0 34px;border-top:1px solid var(--border);background:#fff}
+  .foot-links{display:flex;align-items:center;justify-content:center;gap:28px;font-size:13px;flex-wrap:wrap}
+  .foot-links a{color:var(--muted);text-decoration:none}.foot-links a:hover{color:var(--purple)}
+  @media(max-width:900px){.stack-grid,.boundaries-grid,.family-grid,.proof-grid{grid-template-columns:1fr}.flow{align-items:flex-start}.hero{padding:62px 0 42px}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="container nav-inner">
+    <a href="/" class="brand"><img src="/commandlayer-logo.png" alt="CommandLayer" /><span>CommandLayer</span></a>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/protocol.html" class="active">Protocol</a>
+      <a href="/capabilities.html">Capabilities</a>
+      <a href="/verify.html">Verifier</a>
+      <a href="/sdk-records.html">SDK</a>
+      <a href="/docs/wrap-your-agent.html">Docs</a>
+      <a href="/claim.html">Claim</a>
+      <a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="container">
+      <p class="section-eyebrow">Protocol</p>
+      <h1>The receipt layer for verifiable agent actions.</h1>
+      <p>CommandLayer defines how agent actions are described, signed, transported, and verified — without making MCP, SDKs, or apps the trust root.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary btn-lg" href="/stack-proof-demo.html">View production proof</a>
+        <a class="btn btn-secondary btn-lg" href="/capabilities.html">Explore capabilities</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section"><div class="container">
+    <p class="section-eyebrow">Architecture stack</p>
+    <h2 class="section-h2">Protocol layers and trust ownership.</h2>
+    <div class="stack-grid">
+      <article class="card"><h3>CLAS</h3><p>Defines action and receipt contracts.</p></article>
+      <article class="card"><h3>runtime-core</h3><p>Canonicalization, hashing, signing, verification. Canonical crypto truth for receipts.</p></article>
+      <article class="card"><h3>runtime</h3><p>Executes actions and signs canonical receipts in production.</p></article>
+      <article class="card"><h3>MCP</h3><p>Bridge for MCP clients. Does not sign. Does not hold keys.</p></article>
+      <article class="card"><h3>VerifyAgent</h3><p>Verifier that checks hash/signature/proof validity and returns VALID or INVALID.</p></article>
+      <article class="card"><h3>agent-sdk</h3><p>Developer wrapper for emitting receipts from agent actions.</p></article>
+    </div>
+    <p class="section-p" style="margin-top:16px">commandlayer.org documents, demonstrates, and exposes verifier surfaces for this stack.</p>
+  </div></section>
+
+  <section class="section" style="background:#f8faff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)"><div class="container">
+    <p class="section-eyebrow">Canonical receipt model</p>
+    <div class="dark-block"><pre>{
+  "verb": "sign",
+  "class": "trust-verification",
+  "result": {
+    "payload": {
+      "message": "hello from MCP"
+    }
+  },
+  "metadata": {
+    "proof": {
+      "canonicalization": "json.sorted_keys.v1",
+      "hash": {
+        "alg": "SHA-256",
+        "value": "..."
+      },
+      "signature": {
+        "alg": "Ed25519",
+        "kid": "vC4WbcNoq2znSCiQ",
+        "value": "..."
+      },
+      "signer_id": "runtime.commandlayer.eth"
+    }
+  }
+}</pre></div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <p class="section-eyebrow">Trust boundaries</p>
+    <div class="boundaries-grid">
+      <article class="card"><h3>Runtime signs.</h3><p>Signing authority is runtime, not transport surfaces.</p></article>
+      <article class="card"><h3>Verifier verifies.</h3><p>Verification requires recomputed hash plus signature check.</p></article>
+      <article class="card"><h3>MCP bridges.</h3><p>MCP is integration plumbing and never the signer.</p></article>
+      <article class="card"><h3>SDK wraps.</h3><p>SDK helps developers emit receipts; it is not trust root.</p></article>
+      <article class="card"><h3>Schemas describe.</h3><p>Schema-valid does not mean verified.</p></article>
+      <article class="card"><h3>Apps consume.</h3><p>Apps consume verified results after proof checks pass.</p></article>
+    </div>
+    <ul class="list" style="margin-top:14px">
+      <li>MCP is not the signer.</li>
+      <li>Schema-valid does not mean verified.</li>
+      <li>A receipt is only verified when hash and signature checks pass.</li>
+      <li>Tampering must produce INVALID.</li>
+    </ul>
+  </div></section>
+
+  <section class="section" style="background:#f8faff"><div class="container">
+    <p class="section-eyebrow">Verification lifecycle</p>
+    <div class="flow">
+      <span class="node">Action requested</span><span class="arrow">→</span>
+      <span class="node">Runtime executes/signs</span><span class="arrow">→</span>
+      <span class="node">Receipt emitted</span><span class="arrow">→</span>
+      <span class="node">Verifier recomputes hash</span><span class="arrow">→</span>
+      <span class="node">Verifier checks Ed25519 signature</span><span class="arrow">→</span>
+      <span class="node">VALID or INVALID</span>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <p class="section-eyebrow">Production proof summary</p>
+    <div class="proof-grid">
+      <article class="card"><h3>STEP 1 SIGNED</h3><p>Runtime production is live and signs canonical Trust Verification receipts.</p></article>
+      <article class="card"><h3>STEP 2 VERIFIED</h3><p>hash_matches=true<br/>signature_valid=true</p></article>
+      <article class="card"><h3>STEP 3 TAMPERED INVALID</h3><p>tampered hash_matches=false<br/>tampered signature_error=hash_mismatch</p></article>
+    </div>
+    <p class="section-p" style="margin-top:14px">MCP E2E against production runtime passes: STEP 1 SIGNED, STEP 2 VERIFIED, STEP 3 TAMPERED INVALID.</p>
+  </div></section>
+
+  <section class="section" style="background:#f8faff"><div class="container">
+    <p class="section-eyebrow">Capability families</p>
+    <h2 class="section-h2">Expandable groups on top of protocol receipts.</h2>
+    <div class="family-grid">
+      <article class="card"><h3>Trust Verification v1</h3><p>verify, sign, attest, authorize, approve, reject, permit, grant, authenticate, endorse</p></article>
+      <article class="card"><h3>AI / Utility Actions</h3><p>summarize, classify, clean, parse, explain, analyze, format, convert, describe, fetch</p></article>
+      <article class="card"><h3>Future families</h3><p>commerce, identity, governance, data, messaging, payments, policy, compliance</p></article>
+    </div>
+  </div></section>
+
+  <section class="section"><div class="container">
+    <div class="cta-panel">
+      <h2 style="margin:0 0 8px">Build on the protocol.</h2>
+      <p>Use canonical metadata.proof receipts with json.sorted_keys.v1 + SHA-256 + Ed25519 under signer runtime.commandlayer.eth.</p>
+      <div class="hero-actions">
+        <a class="btn btn-ghost-white btn-lg" href="/stack-proof-demo.html">View proof</a>
+        <a class="btn btn-ghost-white btn-lg" href="/capabilities.html">Explore capabilities</a>
+        <a class="btn btn-ghost-white btn-lg" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">Install SDK</a>
+      </div>
+    </div>
+  </div></section>
+</main>
+
+<footer>
+  <div class="container foot-links">
+    <a href="/protocol.html">Protocol</a>
+    <a href="/capabilities.html">Capabilities</a>
+    <a href="/verify.html">Verifier</a>
+    <a href="/sdk-records.html">SDK</a>
+    <a href="/docs/wrap-your-agent.html">Docs</a>
+    <a href="/claim.html">Claim</a>
+  </div>
+</footer>
+</body>
+</html>
