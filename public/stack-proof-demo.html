@@ -1,87 +1,142 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1.0" />
-<title>CommandLayer — Stack Proof Demo (Production Verified)</title>
-<link rel="icon" href="https://www.commandlayer.org/icon2.png" />
-<style>
-:root{--bg:#07090d;--surface:#0f1623;--border:#1f2f45;--text:#cfe3fb;--dim:#6e89a8;--accent:#00d4ff;--ok:#00e676;--bad:#ff6b6b;--mono:'JetBrains Mono',monospace}
-*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);line-height:1.6}
-main{max-width:980px;margin:0 auto;padding:40px 24px 70px}
-a{color:var(--accent)} h1,h2,h3{line-height:1.2}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:16px 18px;margin:14px 0}
-pre{background:#0b1019;border:1px solid var(--border);border-radius:8px;padding:14px;overflow:auto;font-size:12px}
-.flow{font-size:18px;color:#fff} .ok{color:var(--ok);font-weight:700} .bad{color:var(--bad);font-weight:700}
-ul li{margin:8px 0}.note{color:var(--dim)}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CommandLayer Production Proof — Signed, Verified, Tamper-invalidated</title>
+  <meta name="description" content="Production proof story for CommandLayer: MCP bridges, runtime signs canonical metadata.proof receipts, verifier validates, tampering invalidates." />
+  <link rel="icon" href="/icon2.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#fff;--surface:#f7f8ff;--surface2:#eef1fb;--border:rgba(15,23,42,.1);--text:#0f172a;--text2:#334155;--muted:#64748b;--blue:#5298ff;--purple:#635bff;--grad:linear-gradient(135deg,#5298FF 0%,#635BFF 100%)}
+    *{box-sizing:border-box} body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
+    .container{width:min(1120px,92vw);margin:0 auto}
+    nav{position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);z-index:20}
+    .nav-inner{min-height:84px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand img{height:68px}.nav-links{display:flex;gap:2px}.nav-links a{padding:6px 13px;border-radius:8px;color:var(--muted);text-decoration:none;font-weight:500;font-size:14px}.nav-links a:hover,.nav-links a.active{color:var(--text);background:var(--surface)}
+    .hero{padding:88px 0 70px;text-align:center;background:radial-gradient(circle at 20% 0%,rgba(82,152,255,.08),transparent 38%),radial-gradient(circle at 80% 0%,rgba(99,91,255,.1),transparent 35%)}
+    .eyebrow{display:inline-block;padding:5px 12px;border:1px solid rgba(82,152,255,.32);background:rgba(82,152,255,.08);color:var(--purple);border-radius:999px;font-weight:700;font-size:12px}
+    h1{font-size:clamp(2rem,5.5vw,4rem);line-height:1.05;letter-spacing:-.03em;margin:20px 0 14px} .sub{max-width:760px;margin:0 auto;color:var(--text2);font-size:1.1rem}
+    .hero-actions{display:flex;justify-content:center;gap:10px;margin-top:28px;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;text-decoration:none;padding:12px 22px;border-radius:12px;font-weight:700;font-size:14px}
+    .btn-primary{background:var(--grad);color:#fff;box-shadow:0 6px 18px rgba(99,91,255,.22)} .btn-secondary{color:var(--text2);border:1px solid rgba(15,23,42,.18)}
+    .section{padding:30px 0 18px} h2{font-size:1.8rem;letter-spacing:-.02em;margin:0 0 14px}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+    .card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 2px 12px rgba(15,23,42,.05)}
+    .step{font-size:12px;font-weight:800;letter-spacing:.08em;color:var(--purple)}
+    .title{font-size:1.1rem;font-weight:800;margin-top:8px}.card p{margin:8px 0 0;color:var(--text2)}
+    .flow{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;align-items:stretch}
+    .node{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;text-align:center;font-weight:700;color:var(--text2)}
+    .arrow{text-align:center;color:var(--blue);font-weight:800;align-self:center}
+    .code{background:#0e1322;color:#e2e8f0;border-radius:14px;border:1px solid rgba(30,41,59,.35);padding:16px;overflow:auto;font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    footer{padding:36px 0 44px;color:var(--muted);font-size:14px}
+    @media(max-width:920px){.nav-links{flex-wrap:wrap;justify-content:flex-end}.grid-3,.split,.flow{grid-template-columns:1fr}.arrow{display:none}}
+  </style>
 </head>
 <body>
-<main>
-  <p><a href="/docs.html">← Back to docs</a></p>
-  <h1>Canonical Stack Proof Demo <span class="note">(Production runtime proof verified)</span></h1>
-  <p>This page documents the <strong>verified production runtime proof flow</strong> for CommandLayer. MCP local E2E now passes against the production runtime signer endpoint.</p>
+  <nav>
+    <div class="container nav-inner">
+      <a href="/" class="brand"><img src="/commandlayer-logo.png" alt="CommandLayer" /></a>
+      <div class="nav-links">
+        <a href="/">Home</a><a href="/protocol.html">Protocol</a><a href="/capabilities.html">Capabilities</a><a href="/verify.html">Verifier</a><a href="/sdk-records.html">SDK</a><a href="/docs/wrap-your-agent.html">Docs</a><a href="/claim.html">Claim</a><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </nav>
 
-  <div class="card">
-    <h2>Canonical flow</h2>
-    <p class="flow">MCP sign request → runtime signs receipt → verifier validates → tampered receipt invalidates</p>
-    <p class="note">Honest caveat: <strong>MCP is a bridge, not the signer.</strong> The runtime signs. The verifier validates.</p>
+  <header class="hero">
+    <div class="container">
+      <span class="eyebrow">Production Proof</span>
+      <h1>Signed. Verified. Tamper-invalidated.</h1>
+      <p class="sub">CommandLayer’s production runtime emits canonical <code>metadata.proof</code> receipts that can be independently verified. If the payload changes, verification fails.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/verify.html">Run the verifier</a>
+        <a class="btn btn-secondary" href="/capabilities.html">Explore capabilities</a>
+      </div>
+    </div>
+  </header>
+
+  <section class="section"><div class="container"><h2>Proof outcome</h2><div class="grid-3">
+    <article class="card"><div class="step">STEP 1 SIGNED</div><div class="title">Canonical receipt emitted</div><p>Runtime emits a canonical receipt.</p></article>
+    <article class="card"><div class="step">STEP 2 VERIFIED</div><div class="title">Verification checks pass</div><p>Verifier confirms hash and Ed25519 signature.</p></article>
+    <article class="card"><div class="step">STEP 3 TAMPERED INVALID</div><div class="title">Integrity failure detected</div><p>Changing the payload breaks the hash and signature.</p></article>
+  </div></div></section>
+
+  <section class="section"><div class="container"><h2>Architecture flow</h2><div class="flow">
+    <div class="node">MCP client</div><div class="arrow">→</div>
+    <div class="node">mcp.commandlayer.org</div><div class="arrow">→</div>
+    <div class="node">runtime.commandlayer.org</div><div class="arrow">→</div>
+    <div class="node">signed receipt</div><div class="arrow">→</div>
+    <div class="node">/verify</div><div class="arrow">→</div>
+    <div class="node">VALID or INVALID</div>
   </div>
+  <div class="card" style="margin-top:14px"><p><strong>MCP bridges.</strong> It does not sign.<br><strong>Runtime signs.</strong><br><strong>Verifier validates.</strong><br><strong>Tampering invalidates.</strong></p></div></div></section>
 
-  <h2>Production proof outcome</h2>
-  <div class="card">
-    <ul>
-      <li><strong>STEP 1</strong>: <span class="ok">SIGNED</span></li>
-      <li><strong>STEP 2</strong>: <span class="ok">VERIFIED</span></li>
-      <li><strong>STEP 3</strong>: <span class="bad">TAMPERED INVALID</span></li>
-    </ul>
-    <p class="note">Verification response includes <code>hash_matches=true</code>, <code>signature_valid=true</code>, and <code>status=VALID</code>. Tampered response includes <code>hash_matches=false</code>, <code>signature_valid=false</code>, <code>signature_error=hash_mismatch</code>, and <code>status=INVALID</code>.</p>
-  </div>
-
-  <h2>Canonical proof envelope (production signer)</h2>
-  <pre>{
+  <section class="section"><div class="container"><h2>Canonical receipt example</h2><pre class="code">{
+  "verb": "sign",
+  "class": "trust-verification",
+  "result": {
+    "payload": {
+      "subject": "local-e2e-proof-flow",
+      "message": "hello from MCP"
+    }
+  },
   "metadata": {
     "proof": {
       "canonicalization": "json.sorted_keys.v1",
       "hash": {
-        "alg": "SHA-256"
+        "alg": "SHA-256",
+        "value": "..."
       },
       "signature": {
         "alg": "Ed25519",
-        "kid": "vC4WbcNoq2znSCiQ"
+        "kid": "vC4WbcNoq2znSCiQ",
+        "value": "..."
       },
       "signer_id": "runtime.commandlayer.eth"
     }
   }
-}</pre>
+}</pre></div></section>
 
-  <h2>Run the proof</h2>
-  <div class="card">
-    <pre>cd mcp-server
+  <section class="section"><div class="container"><h2>Verification responses</h2><div class="split">
+    <div><h3>Valid response</h3><pre class="code">{
+  "ok": true,
+  "status": "VALID",
+  "checks": {
+    "hash_matches": true,
+    "signature_valid": true
+  }
+}</pre></div>
+    <div><h3>Tampered response</h3><pre class="code">{
+  "ok": false,
+  "status": "INVALID",
+  "checks": {
+    "hash_matches": false,
+    "signature_valid": false
+  },
+  "errors": {
+    "signature_error": "hash_mismatch"
+  }
+}</pre></div>
+  </div></div></section>
+
+  <section class="section"><div class="container"><h2>Run the proof locally</h2><pre class="code">cd mcp-server
 export COMMANDLAYER_RUNTIME_URL=https://runtime-production-214f.up.railway.app
 unset COMMANDLAYER_VERIFY_URL
 unset COMMANDLAYER_VERIFY_PATH
-npm run e2e:local</pre>
-  </div>
+npm run e2e:local
 
-  <h2>Architecture (text diagram)</h2>
-  <pre>CLAS            = contract
-runtime-core    = crypto truth
-runtime         = signer / executor
-MCP             = bridge
-VerifyAgent     = verifier
-agent-sdk       = developer wrapper</pre>
+Expected output:
+STEP 1 SIGNED
+STEP 2 VERIFIED
+STEP 3 TAMPERED INVALID</pre></div></section>
 
-  <h2>Warnings</h2>
-  <div class="card">
-    <ul>
-      <li><strong>MCP is not the trust root.</strong></li>
-      <li><strong>Schema-valid is not verified.</strong> Verification requires canonical hash + signature checks.</li>
-      <li><strong>Do not treat the website verifier as production-canonical until <code>/api/verify</code> is validated end-to-end.</strong></li>
-    </ul>
-  </div>
+  <section class="section"><div class="container split">
+    <article class="card"><h2>What this proves</h2><ul><li>The receipt was produced by the runtime signer.</li><li>The verifier recomputed the canonical hash.</li><li>The verifier checked the Ed25519 signature.</li><li>Tampering changes the hash and invalidates the signature.</li><li>This is stronger than “agent says it did the thing.”</li></ul></article>
+    <article class="card"><h2>What this does not claim</h2><ul><li>This page is the production proof story, not the paste-and-test verifier.</li><li><a href="/verify.html">/verify.html</a> is the interactive verifier.</li><li>MCP is not the trust root.</li><li>Schema-valid alone is not verified.</li><li>Website <code>/api/verify</code> should not be overclaimed unless separately validated.</li></ul></article>
+  </div></section>
 
-  <p class="note">Production signing proof is verified at <code>https://runtime-production-214f.up.railway.app</code> with signer key <code>kid=vC4WbcNoq2znSCiQ</code>. Keep verifier claims scoped to validated endpoints only.</p>
-</main>
+  <footer><div class="container">Production signer: <code>runtime.commandlayer.eth</code> • Key ID: <code>vC4WbcNoq2znSCiQ</code> • Canonicalization: <code>json.sorted_keys.v1</code> • Hash: <code>SHA-256</code> • Signature: <code>Ed25519</code>.</div></footer>
 </body>
 </html>
