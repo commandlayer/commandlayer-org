@@ -1,128 +1,79 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VerifyAgent.eth Discovery Record | CommandLayer</title>
-  <meta name="description" content="Discover VerifyAgent.eth callable verification endpoint, SDK package, and receipt capabilities for CommandLayer proofs." />
-  <link rel="icon" href="/icon2.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/site.css" />
-  <style>
-    .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}.nav-links a.active{color:var(--text);background:var(--surface)}
-    .records-grid { margin-top: 38px; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-    .records-grid .feat-card code,
-    .records-grid .feat-card .mono { display:block; margin:8px 0; color:#1d4ed8; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
-    .link-list { margin:8px 0 0; padding-left:16px; }
-    .link-list a { color: var(--purple); }
-    .caps { margin:8px 0 0; padding-left:18px; color:var(--text-2); font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
-    .profile { margin-top:8px; display:grid; gap:7px; font-size:.95rem; }
-    .profile div { display:grid; grid-template-columns:160px 1fr; gap:10px; }
-    .profile span { color:#1e3a8a; font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CommandLayer SDK | @commandlayer/agent-sdk</title>
+<meta name="description" content="@commandlayer/agent-sdk wraps agent actions, emits canonical metadata.proof receipts, and verifies them against CommandLayer verifiers." />
+<link rel="icon" href="/icon2.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/site.css" />
+<style>
+  .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}.nav-links a.active{color:var(--text);background:var(--surface)}
+  .sdk-hero{padding:76px 0 46px;text-align:center;background:#fff}.sdk-kicker{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:999px;border:1px solid rgba(82,152,255,.3);background:rgba(82,152,255,.06);color:var(--purple);font-size:13px;font-weight:700;margin-bottom:18px}
+  .sdk-h1{font-size:clamp(2.2rem,5.2vw,4.3rem);line-height:1.04;letter-spacing:-.04em;margin:0 0 16px;font-weight:800}
+  .sdk-sub{color:var(--text-2);font-size:clamp(1rem,2vw,1.2rem);max-width:860px;margin:0 auto 20px;line-height:1.65}
+  .hero-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:14px}.hero-btn{display:inline-flex;padding:10px 14px;border-radius:12px;border:1px solid var(--border);text-decoration:none;color:var(--text-2);font-weight:700;background:#fff}
+  .hero-btn.primary{background:var(--gradient);color:#fff;border-color:rgba(99,91,255,.5)}
+  .status{margin:24px auto 0;max-width:900px;text-align:left;background:#f8fbff;border:1px solid #d8e5ff;border-radius:14px;padding:14px 16px;color:var(--text-2);font-size:14px;line-height:1.55}
+  .section{padding:46px 0;background:#fff}.section-alt{background:linear-gradient(180deg,#fbfcff 0%,#f4f7ff 100%);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}.card{border:1px solid var(--border);border-radius:14px;padding:14px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .code{margin-top:14px;background:#0f172a;color:#dbeafe;border-radius:14px;padding:14px;overflow:auto;font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .list{margin-top:12px;padding-left:20px;color:var(--text-2)} .list li{margin:6px 0}
+  .cta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
+  .cta{display:block;border:1px solid var(--border);border-radius:12px;padding:12px;text-decoration:none;background:#fff;color:var(--text)}
+  .cta:hover{border-color:rgba(99,91,255,.35);background:#faf9ff}
+  footer{padding:30px 0 36px;border-top:1px solid var(--border);background:#fff}.footer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}.footer-col h4{margin:0 0 10px}.footer-col a{display:block;color:var(--muted);text-decoration:none;margin-bottom:6px}
+  @media(max-width:960px){.footer-grid{grid-template-columns:1fr}}
+</style>
 </head>
 <body>
-  <nav>
-    <div class="container nav-inner">
-      <a href="/" class="brand"><img src="/commandlayer-logo.png" alt="CommandLayer" /><span>CommandLayer</span></a>
-      <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/capabilities.html">Capabilities</a>
-        <a href="/verify.html">Verifier</a>
-        <a href="/sdk-records.html" class="active">SDK</a>
-        <a href="/docs/wrap-your-agent.html">Docs</a>
-        <a href="/claim.html">Claim</a>
-      <a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
-  </nav>
+<nav><div class="container nav-inner"><a href="/" class="brand"><img src="/commandlayer-logo.png" alt="CommandLayer" /><span>CommandLayer</span></a><div class="nav-links"><a href="/">Home</a><a href="/protocol.html">Protocol</a><a href="/capabilities.html">Capabilities</a><a href="/verify.html">Verifier</a><a href="/sdk-records.html" class="active">SDK</a><a href="/docs/wrap-your-agent.html">Docs</a><a href="/claim.html">Claim</a><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></div></div></nav>
+<main>
+<section class="sdk-hero"><div class="container"><div class="sdk-kicker">SDK</div><h1 class="sdk-h1">Add verifiable receipts to agent actions.</h1><p class="sdk-sub">@commandlayer/agent-sdk wraps agent actions and emits canonical metadata.proof receipts that can be checked by CommandLayer verifiers.</p><div class="hero-actions"><a class="hero-btn primary" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">View SDK on GitHub</a><a class="hero-btn" href="/verify.html">Verify a receipt</a></div><div class="status"><strong>Wrap an agent action, emit a canonical receipt, and verify the proof.</strong><br/>Runtime production is live. Runtime signs canonical Trust Verification receipts. MCP E2E against production runtime passes: STEP 1 SIGNED, STEP 2 VERIFIED, STEP 3 TAMPERED INVALID. Runtime signer: <code>signer_id = runtime.commandlayer.eth</code>, <code>kid = vC4WbcNoq2znSCiQ</code>. Canonical proof: <code>metadata.proof.canonicalization = json.sorted_keys.v1</code>, <code>metadata.proof.hash.alg = SHA-256</code>, <code>metadata.proof.signature.alg = Ed25519</code>.</div></div></section>
 
-  <section class="hero">
-    <div class="container">
-      <div class="hero-badge"><span class="badge-dot"></span>Registry & Discovery</div>
-      <h1 class="hero-h1">VerifyAgent.eth <span class="grad">Discovery Record</span></h1>
-      <p class="hero-sub">Agents and apps can discover VerifyAgent.eth’s callable verification endpoint, SDK package, and receipt capabilities.</p>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="/sdk-records/verifyagent.eth.json">Open JSON Record</a>
-        <a class="btn btn-secondary" href="/verify/r/demo-valid-receipt">View Demo Verification Report</a>
-      </div>
-    </div>
-  </section>
+<section class="section section-alt"><div class="container"><div class="section-eyebrow">Install</div><h2 class="section-h2">Install the SDK package.</h2><pre class="code">npm install @commandlayer/agent-sdk
 
-  <section class="section section-alt">
-    <div class="container">
-      <div class="section-eyebrow">Discovery Surface</div>
-      <h2 class="section-h2">Discovery endpoints, artifacts, and compatibility.</h2>
-      <p class="section-p">VerifyAgent.eth is ERC-8004-ready and discoverable through ENS TXT records plus JSON metadata.</p>
+@commandlayer/agent-sdk@1.2.0</pre></div></section>
 
+<section class="section"><div class="container"><div class="section-eyebrow">Quickstart</div><h2 class="section-h2">Canonical SDK configuration and wrap flow.</h2><pre class="code">import { CommandLayer } from "@commandlayer/agent-sdk";
 
-      <section class="feat-card" style="margin-top:18px;">
-        <h3 class="feat-title">SDK emits canonical receipts</h3>
-        <p class="feat-desc">The SDK emits version <code>"1.0.0"</code>, family <code>"trust-verification"</code>, short verb receipts, and canonical proof fields. Fully-qualified capability names like <code>clas.trust-verification.verify</code> are used for catalog/discovery, while receipts use <code>verb: "verify"</code>.</p>
-        <ul class="link-list">
-          <li><a href="https://github.com/commandlayer/clas/blob/main/schemas/trust-verification/capabilities.json" target="_blank" rel="noopener">Capability catalog</a></li>
-          <li><a href="https://github.com/commandlayer/clas/blob/main/schemas/trust-verification/discovery/verifyagent.discovery.json" target="_blank" rel="noopener">Discovery record</a></li>
-          <li><a href="https://github.com/commandlayer/clas/blob/main/schemas/trust-verification/verify/verify.mcp.tool.schema.json" target="_blank" rel="noopener">MCP tool schema</a></li>
-        </ul>
-      </section>
-      <div class="records-grid">
-        <article class="feat-card">
-          <h3 class="feat-title">VerifyAgent discovery</h3>
-          <p class="feat-desc">Canonical discovery metadata path and callable verification routes.</p>
-          <code>/sdk-records/verifyagent.eth.json</code>
-          <code>POST /api/agents/verifyagent</code>
-          <code>POST /api/verify</code>
-        </article>
+const cl = new CommandLayer({
+  agent: "runtime.commandlayer.eth",
+  privateKeyPem: process.env.CL_PRIVATE_KEY_PEM,
+  keyId: "vC4WbcNoq2znSCiQ",
+  verifierUrl: "https://runtime.commandlayer.org/verify"
+});
 
-        <article class="feat-card">
-          <h3 class="feat-title">CLAS artifacts</h3>
-          <p class="feat-desc">CommandLayer SDK distribution and implementation references.</p>
-          <span class="mono">@commandlayer/agent-sdk</span>
-          <span class="mono">npm install @commandlayer/agent-sdk</span>
-          <ul class="link-list">
-            <li><a href="https://www.npmjs.com/package/@commandlayer/agent-sdk" target="_blank" rel="noopener">npm package</a></li>
-            <li><a href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">GitHub repository</a></li>
-                      <li><a href="https://github.com/commandlayer/clas/blob/main/schemas/trust-verification/verify/verify.openapi.yaml" target="_blank" rel="noopener">Verify OpenAPI schema</a></li>
-          </ul>
-        </article>
+const { output, receipt } = await cl.wrap("sign", async () => {
+  return {
+    message: "hello from SDK"
+  };
+});
 
-        <article class="feat-card">
-          <h3 class="feat-title">ENS discovery</h3>
-          <p class="feat-desc">Profile fields advertised for signer and cryptographic compatibility.</p>
-          <div class="profile">
-            <div><strong>signer:</strong><span>runtime.commandlayer.eth</span></div>
-            <div><strong>key_id:</strong><span>vC4WbcNoq2znSCiQ</span></div>
-            <div><strong>canonicalization:</strong><span>json.sorted_keys.v1</span></div>
-            <div><strong>hash:</strong><span>sha256</span></div>
-            <div><strong>signature:</strong><span>ed25519</span></div>
-          </div>
-        </article>
+const verified = await cl.verify(receipt);</pre></div></section>
 
-        <article class="feat-card">
-          <h3 class="feat-title">ERC-8004 alignment</h3>
-          <p class="feat-desc">Capabilities exposed to agents and apps through the verification service.</p>
-          <ul class="caps">
-            <li>verify_receipt</li>
-            <li>detect_tampering</li>
-            <li>resolve_ens_signer</li>
-            <li>validate_ed25519_signature</li>
-            <li>return_verified_or_invalid</li>
-          </ul>
-        </article>
+<section class="section section-alt"><div class="container"><div class="section-eyebrow">Receipt shape</div><h2 class="section-h2">Canonical metadata.proof fields.</h2><pre class="code">metadata.proof.canonicalization = "json.sorted_keys.v1"
+metadata.proof.hash.alg = "SHA-256"
+metadata.proof.hash.value = "..."
+metadata.proof.signature.alg = "Ed25519"
+metadata.proof.signature.kid = "vC4WbcNoq2znSCiQ"
+metadata.proof.signature.value = "..."
+metadata.proof.signer_id = "runtime.commandlayer.eth"</pre></div></section>
 
-        <article class="feat-card">
-          <h3 class="feat-title">Ambient verification links</h3>
-          <p class="feat-desc">Direct entry points to report and ambient verification pages.</p>
-          <ul class="link-list">
-            <li><a href="/verify/r/demo-valid-receipt">/verify/r/demo-valid-receipt</a></li>
-            <li><a href="/verify/r/demo-tampered-receipt">/verify/r/demo-tampered-receipt</a></li>
-            <li><a href="/ambient-verification.html">Ambient verification overview</a></li>
-          </ul>
-        </article>
-      </div>
-    </div>
-  </section>
+<section class="section"><div class="container"><div class="section-eyebrow">What the SDK does</div><div class="cards"><article class="card">Wraps agent actions into consistent execution envelopes.</article><article class="card">Emits canonical receipts for each wrapped action.</article><article class="card">Normalizes canonical proof shape under metadata.proof.</article><article class="card">Calls verifier endpoints to confirm receipt validity.</article><article class="card">Helps developers integrate without rebuilding proof plumbing.</article></div></div></section>
+
+<section class="section section-alt"><div class="container"><div class="section-eyebrow">Trust boundaries</div><h2 class="section-h2">What the SDK does not do.</h2><ul class="list"><li>SDK is not the protocol itself.</li><li>SDK is not the verifier.</li><li>SDK is not MCP.</li><li>SDK does not make schema-valid equal verified.</li><li>Verification requires hash and signature checks.</li></ul></div></section>
+
+<section class="section"><div class="container"><div class="section-eyebrow">Runtime vs SDK</div><h2 class="section-h2">How the layers fit together.</h2><p class="section-p">The SDK is for developers wrapping actions and generating canonical receipt metadata in client or server code.</p><p class="section-p">The runtime is the production signer/executor. MCP is a bridge. VerifyAgent/verifier validates receipts and returns verification states.</p></div></section>
+
+<section class="section section-alt"><div class="container"><div class="section-eyebrow">Trust Verification verbs supported</div><h2 class="section-h2">Canonical Trust Verification v1 verbs.</h2><div class="cards"><article class="card mono">verify</article><article class="card mono">sign</article><article class="card mono">attest</article><article class="card mono">authorize</article><article class="card mono">approve</article><article class="card mono">reject</article><article class="card mono">permit</article><article class="card mono">grant</article><article class="card mono">authenticate</article><article class="card mono">endorse</article></div><p class="section-p" style="margin-top:12px">These verbs are canonical Trust Verification v1 verbs, and runtime-backed production receipt endpoints exist for production verification flows.</p></div></section>
+
+<section class="section"><div class="container"><div class="section-eyebrow">Verification states</div><p class="section-p"><strong>VALID / VERIFIED</strong> = hash and signature checks passed. <strong>INVALID</strong> = proof failed. <strong>TRANSPORT_ERROR</strong> = verifier/runtime unavailable or request failed.</p><div class="cta-grid"><a class="cta" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener"><strong>View SDK on GitHub</strong></a><a class="cta" href="/docs/wrap-your-agent.html"><strong>Read Docs</strong></a><a class="cta" href="/verify.html"><strong>Try Verifier</strong></a><a class="cta" href="/stack-proof-demo.html"><strong>View Production Proof</strong></a><a class="cta" href="/capabilities.html"><strong>Explore Capabilities</strong></a></div></div></section>
+</main>
+<footer><div class="container footer-grid"><div class="footer-col"><h4>Product</h4><a href="/protocol.html">Protocol</a><a href="/capabilities.html">Capabilities</a><a href="/verify.html">Verifier</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP</a><a href="/claim.html">Claim</a></div><div class="footer-col"><h4>Developers</h4><a href="/docs/wrap-your-agent.html">Docs</a><a href="/sdk-records.html">SDK</a><a href="/schemas/">Schemas</a><a href="/api/verify">API</a><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></div><div class="footer-col"><h4>Proof</h4><a href="/stack-proof-demo.html">Production Proof</a><a href="/verify.html">VerifyAgent</a><a href="/capabilities/trust-verification/">Trust Verification</a><a href="/receipts/">Canonical Receipts</a></div></div></footer>
 </body>
 </html>
