@@ -1050,6 +1050,7 @@
       <a class="brand" href="/"><img src="/commandlayer-logo.png" alt="CommandLayer logo" /></a>
       <ul class="nav-links">
         <li><a href="/">Home</a></li>
+        <li><a href="/protocol.html">Protocol</a></li>
         <li><a href="/capabilities.html">Capabilities</a></li>
         <li><a href="/verify.html">Verifier</a></li>
         <li><a href="/sdk-records.html">SDK</a></li>
@@ -1073,18 +1074,18 @@
       <div class="hero-inner">
         <div class="hero-badge">
           <span class="badge-dot"></span>
-          Ecosystem
+          Production proof live
         </div>
         <h1 class="hero-h1">
-          Trusted by the<br><span class="grad">New Internet.</span>
+          CommandLayer turns agent actions into<br><span class="grad">signed, independently verifiable receipts.</span>
         </h1>
         <p class="hero-sub">
-          CommandLayer is a community of builders making AI agent outputs
-          verifiable. It's not just about trust — it's about proof.
+          A protocol stack for proving what agents did — using canonical receipts, runtime signing, and independent verification.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary btn-lg" href="/verify.html">Verify a Receipt</a>
-          <a class="btn btn-outline btn-lg" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">Integration Docs</a>
+          <a class="btn btn-primary btn-lg" href="/stack-proof-demo.html">View the proof</a>
+          <a class="btn btn-secondary btn-lg" href="/capabilities.html">Explore capabilities</a>
+          <a class="btn btn-outline btn-lg" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">Install SDK</a>
         </div>
       </div>
 
@@ -1100,13 +1101,27 @@
           <div class="rp-pane">
             <div class="rp-pane-label">Signed receipt</div>
 <pre><span class="j-brace">{</span>
-  <span class="j-key">"agent"</span>:   <span class="j-str">"runtime.commandlayer.eth"</span>,
-  <span class="j-key">"action"</span>:  <span class="j-str">"summarize"</span>,
-  <span class="j-key">"keyId"</span>:   <span class="j-str">"vC4WbcNoq2znSCiQ"</span>,
-  <span class="j-key">"hash"</span>:    <span class="j-hash">"sha256:a4f8c2d1e9b3..."</span>,
-  <span class="j-key">"sig"</span>:     <span class="j-hash">"ed25519:9xKmR7pL..."</span>,
-  <span class="j-key">"output"</span>:  <span class="j-brace">{</span>
-    <span class="j-key">"summary"</span>: <span class="j-str">"hello world"</span>
+  <span class="j-key">"verb"</span>: <span class="j-str">"sign"</span>,
+  <span class="j-key">"class"</span>: <span class="j-str">"trust-verification"</span>,
+  <span class="j-key">"result"</span>: <span class="j-brace">{</span>
+    <span class="j-key">"payload"</span>: <span class="j-brace">{</span>
+      <span class="j-key">"message"</span>: <span class="j-str">"hello from MCP"</span>
+    <span class="j-brace">}</span>
+  <span class="j-brace">}</span>,
+  <span class="j-key">"metadata"</span>: <span class="j-brace">{</span>
+    <span class="j-key">"proof"</span>: <span class="j-brace">{</span>
+      <span class="j-key">"canonicalization"</span>: <span class="j-str">"json.sorted_keys.v1"</span>,
+      <span class="j-key">"hash"</span>: <span class="j-brace">{</span>
+        <span class="j-key">"alg"</span>: <span class="j-str">"SHA-256"</span>,
+        <span class="j-key">"value"</span>: <span class="j-hash">"..."</span>
+      <span class="j-brace">}</span>,
+      <span class="j-key">"signature"</span>: <span class="j-brace">{</span>
+        <span class="j-key">"alg"</span>: <span class="j-str">"Ed25519"</span>,
+        <span class="j-key">"kid"</span>: <span class="j-str">"vC4WbcNoq2znSCiQ"</span>,
+        <span class="j-key">"value"</span>: <span class="j-hash">"..."</span>
+      <span class="j-brace">}</span>,
+      <span class="j-key">"signer_id"</span>: <span class="j-str">"runtime.commandlayer.eth"</span>
+    <span class="j-brace">}</span>
   <span class="j-brace">}</span>
 <span class="j-brace">}</span></pre>
           </div>
@@ -1123,8 +1138,8 @@
               <div class="rp-step" data-step="0">
                 <div class="rp-step-n">1</div>
                 <div class="rp-step-body">
-                  <div class="rp-step-title">Canonicalize</div>
-                  <div class="rp-step-desc">JSON sorted &amp; serialized</div>
+                  <div class="rp-step-title">Canonicalized</div>
+                  <div class="rp-step-desc">json.sorted_keys.v1 byte sequence</div>
                 </div>
                 <div class="rp-step-check" aria-hidden="true">
                   <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1143,8 +1158,8 @@
               <div class="rp-step" data-step="2">
                 <div class="rp-step-n">3</div>
                 <div class="rp-step-body">
-                  <div class="rp-step-title">ENS resolved</div>
-                  <div class="rp-step-desc">runtime.commandlayer.eth</div>
+                  <div class="rp-step-title">Signer identity matched</div>
+                  <div class="rp-step-desc">runtime.commandlayer.eth · kid vC4WbcNoq2znSCiQ</div>
                 </div>
                 <div class="rp-step-check" aria-hidden="true">
                   <svg viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#059669" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -1183,23 +1198,23 @@
       <div class="how-grid">
         <div class="how-step">
           <div class="how-num">1</div>
-          <div class="how-title">Agent runs</div>
-          <div class="how-desc">Your AI agent executes any action — summarize, search, transact, or transform.</div>
+          <div class="how-title">Action executes</div>
+          <div class="how-desc">An agent, app, or MCP client requests a CommandLayer action.</div>
         </div>
         <div class="how-step">
           <div class="how-num">2</div>
-          <div class="how-title">SDK signs receipt</div>
-          <div class="how-desc">The SDK wraps the output and signs a cryptographic receipt with your agent's Ed25519 key.</div>
+          <div class="how-title">Runtime signs receipt</div>
+          <div class="how-desc">The runtime emits a canonical <code>metadata.proof</code> receipt.</div>
         </div>
         <div class="how-step">
           <div class="how-num">3</div>
-          <div class="how-title">ENS resolves identity</div>
-          <div class="how-desc">VerifyAgent.eth resolves the signer's public key through ENS TXT records on-chain.</div>
+          <div class="how-title">Verifier checks proof</div>
+          <div class="how-desc">Hash and Ed25519 signature are independently validated.</div>
         </div>
         <div class="how-step">
           <div class="how-num">4</div>
-          <div class="how-title">Proof verified</div>
-          <div class="how-desc">Anyone can verify — VERIFIED or INVALID. If the output changes, the proof breaks.</div>
+          <div class="how-title">Tampering fails</div>
+          <div class="how-desc">Changing the output breaks the hash and signature.</div>
         </div>
       </div>
     </div>
@@ -1210,12 +1225,12 @@
     <div class="container">
       <div class="split">
         <div>
-          <p class="section-eyebrow">SDK + VerifyAgent.eth</p>
+          <p class="section-eyebrow">SDK + runtime signing</p>
           <h2 class="section-h2">Agents don't make claims&nbsp;—<br>they produce proof.</h2>
-          <p class="section-p">Three steps: wrap, sign, verify. Add CommandLayer to any agent and emit signed receipts that anyone can independently check.</p>
+          <p class="section-p">The SDK wraps developer actions and emits canonical receipts. Production runtime signing is handled by the runtime layer.</p>
           <div class="feature-checks">
             <div class="check-row"><span class="check-pill">✓</span> Ed25519 cryptographic signatures</div>
-            <div class="check-row"><span class="check-pill">✓</span> ENS identity resolution</div>
+            <div class="check-row"><span class="check-pill">✓</span> Canonical proof: json.sorted_keys.v1 + SHA-256 + Ed25519</div>
             <div class="check-row"><span class="check-pill">✓</span> Open, keyless verification API</div>
           </div>
           <div style="margin-top: 32px;">
@@ -1230,11 +1245,11 @@
             <span class="code-dot"></span>
             <span class="code-filename">agent.ts</span>
           </div>
-          <pre><code><span class="t-kw">import</span> { <span class="t-var">CommandLayer</span> } <span class="t-kw">from</span> <span class="t-str">"@commandlayer/agent-sdk"</span>;
+          <pre><code><span class="t-kw">import</span> { <span class="t-var">CommandLayer</span> } <span class="t-kw">from</span> <span class="t-str">"@commandlayer/agent-sdk@1.2.0"</span>;
 
 <span class="t-kw">const</span> <span class="t-var">cl</span> = <span class="t-kw">new</span> <span class="t-fn">CommandLayer</span>({
   <span class="t-prop">agent</span>: <span class="t-str">"runtime.commandlayer.eth"</span>,
-  <span class="t-prop">privateKey</span>: process.<span class="t-fn">env</span>.<span class="t-var">CL_PRIVATE_KEY_PEM</span>,
+  <span class="t-prop">privateKeyPem</span>: process.<span class="t-fn">env</span>.<span class="t-var">CL_PRIVATE_KEY_PEM</span>, <span class="t-cmt">// env only</span>
   <span class="t-prop">keyId</span>:  <span class="t-str">"vC4WbcNoq2znSCiQ"</span>
 });
 
@@ -1263,22 +1278,22 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
         <div class="feat-card">
           <div class="feat-icon">⊕</div>
           <div class="feat-title">1. Canonicalize</div>
-          <div class="feat-desc">Rebuild deterministic JSON with sorted keys using <code>json.sorted_keys</code> — identical outputs always produce identical byte sequences.</div>
+          <div class="feat-desc">Rebuild deterministic JSON with sorted keys using <code>json.sorted_keys.v1</code> so identical outputs always produce identical byte sequences.</div>
         </div>
         <div class="feat-card">
           <div class="feat-icon">#</div>
           <div class="feat-title">2. Hash</div>
-          <div class="feat-desc">Recompute SHA-256 over the canonical payload and compare byte-for-byte with <code>metadata.proof.hash_sha256</code>.</div>
+          <div class="feat-desc">Recompute <code>SHA-256</code> over the canonical payload and compare with <code>metadata.proof.hash.value</code>.</div>
         </div>
         <div class="feat-card">
           <div class="feat-icon">⬡</div>
-          <div class="feat-title">3. Resolve via ENS</div>
-          <div class="feat-desc">Resolve the signer's public key through ENS TXT records, binding execution identity to a human-readable on-chain name.</div>
+          <div class="feat-title">3. Match signer identity</div>
+          <div class="feat-desc">Match <code>metadata.proof.signer_id</code> and <code>metadata.proof.signature.kid</code> to the expected runtime signer identity.</div>
         </div>
         <div class="feat-card">
           <div class="feat-icon">✓</div>
           <div class="feat-title">4. Verify Signature</div>
-          <div class="feat-desc">Validate the Ed25519 signature against the resolved key. Returns <span class="verified">VERIFIED</span> or <span class="invalid">INVALID</span> — no ambiguity.</div>
+          <div class="feat-desc">Validate the <code>Ed25519</code> signature against signer key material. Returns <span class="verified">VERIFIED</span> or <span class="invalid">INVALID</span>.</div>
         </div>
         <div class="feat-card">
           <div class="feat-icon">⚡</div>
@@ -1294,14 +1309,38 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
     </div>
   </section>
 
+  <!-- ── CAPABILITIES PREVIEW ─────────────────────── -->
+  <section class="section section-alt">
+    <div class="container">
+      <div style="text-align: center; max-width: 760px; margin: 0 auto;">
+        <p class="section-eyebrow">Capabilities preview</p>
+        <h2 class="section-h2">Trust verification now, broader capability families next</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feat-card">
+          <div class="feat-title">Trust Verification v1</div>
+          <div class="feat-desc">verify, sign, attest, authorize, approve, reject, permit, grant, authenticate, endorse</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-title">AI / Utility Actions</div>
+          <div class="feat-desc">summarize, classify, clean, parse, explain, analyze, format, convert, describe, fetch</div>
+        </div>
+        <div class="feat-card">
+          <div class="feat-title">Future capability families</div>
+          <div class="feat-desc">commerce, identity, governance, data, messaging, payments, policy, compliance</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ── API SECTION ───────────────────────────────── -->
   <section class="section">
     <div class="container">
       <div class="api-top">
         <div>
-          <p class="section-eyebrow">Public verification APIs</p>
-          <h2 class="section-h2">Open endpoints.<br>No auth required.</h2>
-          <p class="section-p" style="max-width: 40ch;">Two interfaces — a raw receipt endpoint and the VerifyAgent.eth callable entry point.</p>
+          <p class="section-eyebrow">Verification surfaces</p>
+          <h2 class="section-h2">Runtime-validated verification.<br>Public verifier surface.</h2>
+          <p class="section-p" style="max-width: 52ch;">Runtime <code>/verify</code> has been validated against production runtime receipts. Website <code>/api/verify</code> is a public verifier surface and should align with the same canonical proof model.</p>
         </div>
         <div class="api-actions">
           <a class="btn btn-primary" href="/verify.html">Open Verifier</a>
@@ -1358,10 +1397,15 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
         <div>
           <p class="footer-col-title">Product</p>
           <ul class="footer-links">
-            <li><a href="/verify.html">Verify</a></li>
+            <li><a href="/protocol.html">Protocol</a></li>
             <li><a href="/capabilities.html">Capabilities</a></li>
+            <li><a href="/verify.html">Verifier</a></li>
             <li><a href="/runtime.html">Runtime</a></li>
-            <li><a href="/commons.html">Commons</a></li>
+            <li><a href="/mcp.html">MCP</a></li>
+            <li><a href="/sdk-records.html">SDK</a></li>
+            <li><a href="/claim.html">Claim</a></li>
+            <li><a href="/docs/wrap-your-agent.html">Docs</a></li>
+            <li><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></li>
           </ul>
         </div>
         <div>
@@ -1431,8 +1475,8 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
         await wait(500);
 
         /* mark "running" in status */
-        statusText.textContent = 'Verifying…';
-        statusSub.textContent  = 'Running pipeline';
+        statusText.textContent = 'STEP 1 SIGNED';
+        statusSub.textContent  = 'Running canonical proof checks';
 
         const total = steps.length;
         for (let i = 0; i < total; i++) {
@@ -1449,8 +1493,8 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
         await wait(180);
         statusDot.style.background = '#10B981';
         statusRow.className = 'status-row is-verified';
-        statusText.textContent = 'VERIFIED';
-        statusSub.textContent  = 'Ed25519 valid · ENS resolved';
+        statusText.textContent = 'STEP 2 VERIFIED';
+        statusSub.textContent  = 'STEP 3 TAMPERED INVALID';
         bar.className = 'rp-verified-bar is-verified';
         barText.textContent = 'Proof complete';
 
