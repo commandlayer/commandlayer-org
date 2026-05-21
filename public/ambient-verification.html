@@ -3,119 +3,150 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ambient Machine-Action Verification | CommandLayer</title>
-  <meta name="description" content="Move from manual receipt checks to ambient machine-action verification across URLs, badges, webhooks, SDK calls, and agent workflows." />
+  <title>Automatic Verification | CommandLayer</title>
+  <meta name="description" content="Automatic verification for CommandLayer receipts across webhooks, SDKs, MCP bridges, badges, and agent workflows." />
   <link rel="icon" href="/icon2.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/site.css" />
   <style>
-    .nav-links a.active { color: var(--text); background: var(--surface); }
-    main { padding: 36px 0 56px; }
-    .hero { padding: 28px; margin: 0 0 16px; text-align: left; border: 1px solid var(--border); border-radius: 16px; background: linear-gradient(180deg, #ffffff 0%, #f8faff 100%); }
-    .hero h1 { margin:0 0 10px; font-size: clamp(30px, 5vw, 52px); line-height:1.05; }
-    .subtitle { margin:0; color: var(--text-2); font-size: clamp(1rem, 1.9vw, 1.22rem); }
-    .grid { display:grid; gap:16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin: 16px 0; }
-    .feat-card { padding: 18px; }
-    .flow { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color:#0f766e; font-weight:700; line-height:1.8; }
-    .checks { padding-left:18px; color:#334155; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-    h2 { margin:0 0 10px; font-size:1.16rem; }
-    p { margin:0 0 10px; color: var(--muted); line-height:1.6; }
-    .quote { border-left:3px solid var(--blue); padding:8px 12px; margin:10px 0; color:#334155; background:#f3f6ff; border-radius:6px; }
-    .quote strong { color: var(--purple); }
-    .link, .link-list a, .cta-row a { color:#3b82f6; text-decoration:none; font-weight:600; }
-    .link:hover, .link-list a:hover, .cta-row a:hover { text-decoration:underline; text-underline-offset:2px; }
-    .cta-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:12px; }
-    footer { padding: 16px 0 28px; margin-top: 24px; }
-    .foot-links { display:flex; justify-content:center; gap:28px; font-size:13px; flex-wrap:wrap; }
-    .foot-links a { color: var(--muted); text-decoration:none; }
-    .foot-links a:hover { color: var(--text); text-decoration:underline; }
+    .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}
+    .nav-links{display:flex;align-items:center;gap:2px;list-style:none;flex-wrap:wrap;margin:0;padding:0}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;padding:7px 12px;border-radius:8px;background:none;border:none;font-family:inherit}
+    .nav-links a:hover,.nav-drop:hover>a,.nav-drop:focus-within>a,.nav-drop>a.active{color:var(--text);background:var(--surface)}
+    .nav-drop{position:relative}.nav-drop>a{display:inline-flex;align-items:center;gap:4px}
+    .nav-drop-menu{position:absolute;top:calc(100% - 1px);left:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 34px rgba(15,23,42,.12);padding:8px;display:none;min-width:280px;z-index:200}
+    .nav-drop-menu::before{content:"";position:absolute;left:0;right:0;top:-8px;height:8px}.nav-drop-menu a{display:block;white-space:nowrap}
+    .nav-drop:hover .nav-drop-menu,.nav-drop:focus-within .nav-drop-menu{display:grid}
+    main{padding:44px 0 72px}
+    .hero{padding:30px;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,#fff 0%,#f8faff 100%)}
+    .eyebrow{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid #dbeafe;background:#eff6ff;color:#1d4ed8;font-weight:600;font-size:.82rem}
+    h1{margin:14px 0 12px;font-size:clamp(2rem,4.6vw,3.3rem);line-height:1.05;letter-spacing:-.03em}
+    .subtitle{margin:0;color:var(--text-2);font-size:clamp(1rem,1.8vw,1.2rem);line-height:1.6}
+    .cta-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .section{margin-top:16px;padding:22px;border:1px solid var(--border);border-radius:16px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.04),0 6px 20px rgba(99,91,255,.04)}
+    h2{margin:0 0 10px;font-size:1.24rem;letter-spacing:-.01em}
+    p{margin:0 0 10px;color:var(--text-2);line-height:1.7}
+    .flow{margin-top:10px;display:grid;gap:8px;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#0f766e;font-weight:700}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:12px}
+    .card{padding:16px;border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+    .card h3{margin:0 0 8px;font-size:1.03rem}
+    .card p{margin:0 0 8px}
+    a.link{font-weight:600;text-decoration:none}
+    a.link:hover{text-decoration:underline;text-underline-offset:2px}
+    .code-panel{background:#0E1322;color:#E2E8F0;border-radius:14px;border:1px solid rgba(30,41,59,.3);padding:18px;overflow:auto;font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;white-space:pre}
+    ul{margin:0;padding-left:18px} li{margin:6px 0;color:var(--text-2)}
+    .warning{border-left:3px solid #f59e0b;padding:10px 12px;background:#fffbeb;border-radius:8px;color:#78350f;font-weight:600}
+    footer{border-top:1px solid var(--border);background:#fff;margin-top:24px}
+    .footer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:36px 0}
+    .footer-grid h4{font-size:14px;margin-bottom:10px}.footer-grid a{display:block;color:var(--text-2);margin:8px 0;font-size:14px}
+    @media(max-width:900px){.footer-grid{grid-template-columns:1fr}.nav-drop{width:100%}.nav-drop-menu{position:static;display:grid;margin-top:2px;min-width:0;box-shadow:none}}
   </style>
 </head>
 <body>
-  <nav>
-    <div class="container nav-inner">
-      <a href="/" class="brand"><img src="/icon2.png" alt="CommandLayer" />CommandLayer</a>
-      <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/protocol.html">Protocol</a>
-        <a href="/capabilities.html">Capabilities</a>
-        <a href="/verify.html" class="active">Verifier</a>
-        <a href="/sdk-records.html">SDK</a>
-        <a href="/docs/wrap-your-agent.html">Docs</a>
-        <a href="/claim.html">Claim</a>
-      <a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </div>
-  </nav>
+  <nav><div class="container nav-inner"><a href="/" class="brand"><img src="/commandlayer-logo.png" alt="CommandLayer" /><span>CommandLayer</span></a><ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/protocol.html">Protocol</a></li><li><a href="/capabilities.html">Capabilities</a></li><li><a href="/verify.html">Verifier</a></li><li><a href="/sdk-records.html">SDK</a></li><li class="nav-drop"><a href="/docs.html" class="active" aria-haspopup="true">Docs ▾</a><div class="nav-drop-menu"><a href="/docs.html">Docs Home</a><a href="/docs/wrap-your-agent.html">Wrap Your Agent</a><a href="/stack-proof-demo.html">Production Proof</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP Bridge</a><a href="/schemas.html">Schemas</a><a href="/api.html">API Reference</a><a href="/trust-verification.html">Trust Verification</a><a href="/claim.html">Claim / Namespace Activation</a></div></li><li><a href="/claim.html">Claim</a></li><li><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></li></ul></div></nav>
 
   <main class="container">
     <section class="hero">
-      <h1>Ambient Machine-Action Verification</h1>
-      <p class="subtitle">Systems can verify machine-action receipts automatically through URLs, badges, webhooks, SDKs, and agent-to-agent flows.</p>
+      <span class="eyebrow">Automatic Verification</span>
+      <h1>Verification without manual paste.</h1>
+      <p class="subtitle">CommandLayer receipts can be verified automatically by apps, webhooks, SDKs, MCP flows, badges, and agent-to-agent systems.</p>
+      <div class="cta-row">
+        <a class="btn btn-primary" href="/webhook-auto-verify.html">Open Webhook Auto-Verify Demo</a>
+        <a class="btn btn-secondary" href="https://github.com/commandlayer/commandlayer-org/tree/main/examples/webhook-auto-verify" target="_blank" rel="noopener">View Example Code</a>
+      </div>
     </section>
 
-    <section aria-label="Four verification surfaces">
+    <section class="section">
+      <h2>The working model</h2>
+      <div class="flow">
+        <div>Runtime signs receipt</div>
+        <div>→ receipt delivered to a system</div>
+        <div>→ system calls verifier</div>
+        <div>→ valid receipt accepted</div>
+        <div>→ tampered receipt rejected</div>
+      </div>
+      <p>The webhook auto-verify example demonstrates this server-side. The public demo demonstrates the same flow in the browser using runtime signing and runtime verification.</p>
+      <p>Runtime: <a class="link" href="https://runtime.commandlayer.org" target="_blank" rel="noopener">https://runtime.commandlayer.org</a><br/>Verifier: <a class="link" href="https://runtime.commandlayer.org/verify" target="_blank" rel="noopener">https://runtime.commandlayer.org/verify</a></p>
+    </section>
+
+    <section class="section">
       <h2>Live today</h2>
       <div class="grid">
-        <article class="feat-card"><h2>Manual Verifier</h2><p>Manual inspection is useful for debugging and spot checks.</p><a class="link" href="/verify.html">Open /verify.html →</a></article>
-        <article class="feat-card"><h2>Verification URLs</h2><p>Receipt-specific URLs let systems and humans open the same verification result directly.</p><a class="link" href="/verify/r/demo-valid-receipt">Open valid receipt URL →</a><br/><a class="link" href="/verify/r/demo-tampered-receipt">Open tampered receipt URL →</a></article>
-        <article class="feat-card"><h2>Embedded Badges</h2><p>Display verification status where decisions are made.</p><a class="link" href="/verify-badge-demo.html">Open /verify-badge-demo.html →</a></article>
-        <article class="feat-card"><h2>SDK/runtime verification</h2><p>Use SDK and runtime verifier flows in applications that verify receipts on delivery.</p></article>
+        <article class="card"><h3>Manual verifier</h3><p>Paste receipt JSON and inspect each verification check.</p><a class="link" href="/verify.html">Open verifier</a></article>
+        <article class="card"><h3>Runtime verifier</h3><p>Programmatically verify receipts with <code>POST https://runtime.commandlayer.org/verify</code>.</p><a class="link" href="/runtime.html">Open runtime docs</a></article>
+        <article class="card"><h3>Webhook auto-verify</h3><p>Backend receives receipt, verifies it server-side, and accepts/rejects the event.</p><a class="link" href="/webhook-auto-verify.html">Open demo page</a><br/><a class="link" href="https://github.com/commandlayer/commandlayer-org/tree/main/examples/webhook-auto-verify" target="_blank" rel="noopener">Open GitHub example</a></article>
+        <article class="card"><h3>Embedded badge</h3><p>Display verification state in a UI.</p><a class="link" href="/verify-badge-demo.html">Open badge demo</a></article>
+        <article class="card"><h3>SDK/runtime verification</h3><p>Use <code>@commandlayer/agent-sdk</code> or direct runtime calls in application code.</p><a class="link" href="/sdk-records.html">SDK records</a><br/><a class="link" href="/api.html">API reference</a></article>
       </div>
     </section>
 
-    <section class="feat-card" style="margin-bottom:16px;">
-      <h2>Ambient flow</h2>
-      <p class="flow">Receipt reference → fetch receipt → verify checks → accept/reject action</p>
-      <p>The verifier can run inside a website, backend job, webhook consumer, SDK call, or agent-to-agent workflow.</p>
+    <section class="section">
+      <h2>Webhook auto-verification</h2>
+      <p>This is the no-paste model: <code>POST /webhook</code> receives <code>{ event, receipt }</code>, the server posts <code>{ receipt }</code> to the verifier, valid proof returns accepted, and tampered proof returns rejected.</p>
+      <pre class="code-panel">cd examples/webhook-auto-verify
+npm install
+npm run generate:samples
+npm start
+
+curl -X POST http://localhost:3000/webhook \\
+  -H "Content-Type: application/json" \\
+  --data @sample-valid-webhook.json
+
+curl -X POST http://localhost:3000/webhook \\
+  -H "Content-Type: application/json" \\
+  --data @sample-tampered-webhook.json
+
+Expected:
+valid -&gt; 200 accepted
+tampered -&gt; 400 rejected</pre>
     </section>
 
-    <section class="feat-card" style="margin-bottom:16px;">
+    <section class="section">
       <h2>Trust checks</h2>
-      <ul class="checks">
-        <li>schema_valid</li>
-        <li>hash_matched</li>
+      <ul>
+        <li>receipt structure</li>
+        <li>metadata.proof present</li>
+        <li>canonicalization = json.sorted_keys.v1</li>
+        <li>hash_alg = SHA-256</li>
+        <li>hash_matches</li>
+        <li>signature_alg = Ed25519</li>
         <li>signature_valid</li>
-        <li>signer_resolved</li>
-        <li>signer_matched</li>
-        <li>trust_verb</li>
+        <li>signature.kid = vC4WbcNoq2znSCiQ</li>
+        <li>signer_id = runtime.commandlayer.eth</li>
+        <li>supported capability verb</li>
+        <li>tamper invalidation</li>
       </ul>
-      <div class="quote"><strong>A schema-valid receipt only means the receipt has the expected shape. Cryptographic validity still depends on hash, signature, and signer checks.</strong></div>
-      <div class="quote">Schema-valid does not always mean cryptographically valid.</div>
+      <p class="warning">Schema-valid alone is not verified. Verification requires hash and signature checks.</p>
     </section>
 
-    <section aria-label="Developer use cases">
-      <h2>Developer use cases</h2>
-      <div class="grid">
-        <article class="feat-card"><h2>webhook filtering</h2><p>Route or block incoming events based on verification checks.</p></article>
-        <article class="feat-card"><h2>website badges</h2><p>Show verification state directly in user-facing pages.</p></article>
-        <article class="feat-card"><h2>automated receipt checks</h2><p>Run verification as part of backend decision logic.</p></article>
-        <article class="feat-card"><h2>agent-to-agent validation</h2><p>Let one agent verify another agent's receipt before acting.</p></article>
-        <article class="feat-card"><h2>audit trails</h2><p>Store verification outputs for compliance and review.</p></article>
-        <article class="feat-card"><h2>dashboard/history pipelines</h2><p>Feed verification states into reporting and historical analytics.</p></article>
-      </div>
-    </section>
-
-    <section class="feat-card" style="margin-top:16px;">
-      <h2>Planned</h2><ul class="link-list"><li>Webhook delivery and verification callbacks.</li><li>Continuous monitoring and replay checks.</li><li>Automatic third-party callback integrations.</li></ul>
-    </section>
-
-    <section class="feat-card" style="margin-top:16px;">
-      <h2>Careful wording</h2>
-      <ul class="link-list">
-        <li>Ambient verification should happen automatically, not manually.</li>
-        <li>Ambient verification does not require manual copy/paste.</li>
-        <li>Schema-valid does not always mean cryptographically valid.</li>
-        <li>CLAS is network-agnostic; ENS/ERC-8004 can assist discovery and identity but are not required for every verification flow.</li>
+    <section class="section">
+      <h2>Trust boundaries</h2>
+      <ul>
+        <li>Runtime signs.</li>
+        <li>Verifier validates.</li>
+        <li>MCP bridges.</li>
+        <li>SDK wraps.</li>
+        <li>Schemas describe.</li>
       </ul>
-      <div class="cta-row">
-        <a href="/verify/r/demo-valid-receipt">Try verification URL →</a>
-        <a href="/verify-badge-demo.html">Open badge demo →</a>
-        <a href="/how-it-works.html">Read how it works →</a>
-        <a href="/docs/wrap-your-agent.html">Wrap your agent →</a>
-      </div>
+      <p>Webhook sender authentication is separate from receipt verification. Production webhooks still need sender authentication, replay protection, timestamps, rate limits, and idempotency.</p>
+    </section>
+
+    <section class="section">
+      <h2>Verification URLs</h2>
+      <p>Demo verification routes are available for illustrative receipt IDs:</p>
+      <ul>
+        <li><a class="link" href="/verify/r/demo-valid-receipt">/verify/r/demo-valid-receipt</a> <span>(demo route)</span></li>
+        <li><a class="link" href="/verify/r/demo-tampered-receipt">/verify/r/demo-tampered-receipt</a> <span>(demo route)</span></li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>Live vs planned</h2>
+      <p><strong>Live today:</strong> manual verifier, runtime <code>/verify</code>, webhook auto-verify example, SDK/runtime verification, and embedded badge demo.</p>
+      <p><strong>Planned:</strong> managed webhook delivery network, third-party callbacks, continuous monitoring, replay-check service, and dashboard/history pipelines.</p>
+      <p><a class="link" href="/stack-proof-demo.html">View Production Proof</a> · <a class="link" href="/runtime.html">Runtime</a> · <a class="link" href="/api.html">API</a> · <a class="link" href="/verify.html">Verifier</a></p>
     </section>
   </main>
 
