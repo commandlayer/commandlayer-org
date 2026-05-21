@@ -85,11 +85,16 @@
       display: block;
     }
 
+    .brand span { display: none; }
+
     .nav-links {
       display: flex;
       align-items: center;
       gap: 2px;
       list-style: none;
+      flex-wrap: wrap;
+      margin: 0;
+      padding: 0;
     }
 
     .nav-links a {
@@ -97,7 +102,7 @@
       text-decoration: none;
       font-size: 14px;
       font-weight: 500;
-      padding: 6px 13px;
+      padding: 7px 12px;
       border-radius: 8px;
       transition: color 0.15s, background 0.15s;
     }
