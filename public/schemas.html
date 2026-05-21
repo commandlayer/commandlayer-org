@@ -1,1 +1,102 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width,initial-scale=1" /><title>CommandLayer Schema Hub</title><link rel="icon" href="/icon2.png" /><link rel="stylesheet" href="/css/site.css" /></head><body><main class="container" style="padding:48px 0"><h1>Schema Hub</h1><p>CLAS Trust Verification schemas define request and receipt structure, including a shared canonical proof envelope.</p><h2>Canonical proof fields</h2><ul><li>metadata.proof.canonicalization</li><li>metadata.proof.hash.alg</li><li>metadata.proof.hash.value</li><li>metadata.proof.signature.alg</li><li>metadata.proof.signature.value</li><li>metadata.proof.signature.kid</li><li>metadata.proof.signer_id</li></ul><h2>Expected schema paths</h2><ul><li><code>/schemas/v1.1.0/_shared/receipt.base.schema.json</code></li><li><code>/schemas/v1.1.0/commercial/verify/receipts/verify.receipt.schema.json</code></li><li><code>/public/schemas/v1.1.0/_shared/receipt.base.schema.json</code></li></ul><h2>IPFS CIDs</h2><ul><li>CID_SCHEMAS_V1 = bafybeieoynknzalaojwpzjzjy77kpnfe4kla5io7jbfnmyu7w7vyvuljpq</li><li>CID_CARDS_COMMONS = bafybeiha4diqc32lsvjsg3hl6zvtwn4qcfryze7zxf4d36av7tvur6lwfe</li></ul><p><strong>Warning:</strong> Schema-valid alone is not verified. Verification requires hash and signature checks.</p></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CommandLayer Schemas | Protocol Contract Reference</title>
+  <meta name="description" content="Developer-ready schema reference for CommandLayer request shapes, receipt envelopes, proof metadata, and verification boundaries." />
+  <link rel="icon" href="/icon2.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
+  <style>
+    .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}.nav-links{display:flex;align-items:center;gap:2px;list-style:none;flex-wrap:wrap;margin:0;padding:0}.nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;padding:7px 12px;border-radius:8px;background:none;border:none;font-family:inherit}.nav-links a:hover,.nav-drop:hover>a,.nav-drop:focus-within>a,.nav-drop>a.active{color:var(--text);background:var(--surface)}.nav-drop{position:relative}.nav-drop>a{display:inline-flex;align-items:center;gap:4px}.nav-drop-menu{position:absolute;top:calc(100% - 1px);left:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 34px rgba(15,23,42,.12);padding:8px;display:none;min-width:260px;z-index:200}.nav-drop-menu::before{content:"";position:absolute;left:0;right:0;top:-8px;height:8px}.nav-drop-menu a{display:block;white-space:nowrap}.nav-drop:hover .nav-drop-menu,.nav-drop:focus-within .nav-drop-menu{display:grid}
+    .schemas-shell{padding:64px 0 88px}.section{margin-top:26px}.schema-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 6px 20px rgba(99,91,255,.04)}
+    .grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .info-card,.path-card,.check-card,.cta-card{border:1px solid var(--border);border-radius:14px;padding:16px;background:#fff}
+    .info-card p,.schema-card p,.schema-card li,.path-card p,.check-card p{color:var(--text-2);line-height:1.65}
+    .inline-note{border-left:4px solid var(--purple);background:linear-gradient(180deg,#F9FAFF 0%,#F3F6FF 100%);padding:14px;border-radius:0 12px 12px 0;margin:12px 0}
+    .warning-note{border-left:4px solid #dc2626;background:#fff7f7;padding:14px;border-radius:0 12px 12px 0;margin-top:12px;color:#7f1d1d}
+    .code-panel{background:#0E1322;color:#E2E8F0;border-radius:14px;border:1px solid rgba(30,41,59,.3);padding:16px;overflow:auto;font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .proof-status{margin-top:16px;background:#f8fbff;border:1px solid #d8e5ff;border-radius:14px;padding:14px 16px;color:var(--text-2);font-size:14px;line-height:1.6}
+    .paths-table{width:100%;border-collapse:collapse;margin-top:8px}.paths-table th,.paths-table td{border:1px solid var(--border);padding:10px;text-align:left;vertical-align:top}.paths-table th{background:#f8fafc}
+    .cta-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.cta-card{text-decoration:none;color:var(--text-2);font-weight:600}
+    footer{border-top:1px solid var(--border);background:#fff}.footer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:36px 0}.footer-grid h4{font-size:14px;margin-bottom:10px}.footer-grid a{display:block;color:var(--text-2);margin:8px 0;font-size:14px}
+    @media(max-width:960px){.grid-3,.grid-2,.cta-grid,.footer-grid{grid-template-columns:1fr}.schemas-shell{padding:42px 0 64px}.nav-drop{width:100%}.nav-drop-menu{position:static;display:grid;margin-top:2px;min-width:0;box-shadow:none}}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="container nav-inner">
+    <a href="/" class="brand"><img src="/commandlayer-logo.png" alt="CommandLayer" /><span>CommandLayer</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li><li><a href="/protocol.html">Protocol</a></li><li><a href="/capabilities.html">Capabilities</a></li><li><a href="/verify.html">Verifier</a></li><li><a href="/sdk-records.html">SDK</a></li>
+      <li class="nav-drop"><a href="/docs.html" class="active" aria-haspopup="true">Docs ▾</a><div class="nav-drop-menu"><a href="/docs.html">Docs Home</a><a href="/docs/wrap-your-agent.html">Wrap Your Agent</a><a href="/stack-proof-demo.html">Production Proof</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP Bridge</a><a href="/schemas.html">Schemas</a><a href="/api.html">API Reference</a><a href="/trust-verification.html">Trust Verification</a><a href="/claim.html">Claim / Namespace Activation</a></div></li>
+      <li><a href="/claim.html">Claim</a></li><li><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge"><span class="badge-dot"></span>Schemas</div>
+    <h1 class="hero-h1">Schemas define structure. Proof verifies truth.</h1>
+    <p class="hero-sub">CommandLayer schemas describe request shapes, receipt envelopes, capability contracts, and discovery metadata. Verification still requires canonical hash and Ed25519 signature checks.</p>
+    <div class="hero-actions"><a class="btn btn-primary btn-lg" href="/capabilities.html">Explore Capabilities</a><a class="btn btn-secondary btn-lg" href="/canonical-receipts.html">View Canonical Receipts</a></div>
+    <div class="proof-status"><strong>Current verified production proof:</strong> Runtime production is live. Runtime signs canonical Trust Verification receipts. MCP E2E against production runtime passes: STEP 1 SIGNED, STEP 2 VERIFIED, STEP 3 TAMPERED INVALID. Runtime signer is <code>signer_id=runtime.commandlayer.eth</code> and <code>kid=vC4WbcNoq2znSCiQ</code>. Canonical proof uses <code>metadata.proof.canonicalization=json.sorted_keys.v1</code>, <code>metadata.proof.hash.alg=SHA-256</code>, and <code>metadata.proof.signature.alg=Ed25519</code>.</div>
+  </div>
+</section>
+
+<main class="container schemas-shell">
+  <section class="schema-card section"><h2>Schema system overview</h2><div class="grid-3" style="margin-top:14px"><div class="info-card"><h3>Request schemas</h3><p>Define the input payload for a capability verb.</p></div><div class="info-card"><h3>Receipt schemas</h3><p>Define the expected receipt structure returned by an action.</p></div><div class="info-card"><h3>Proof envelope</h3><p>Defines <code>metadata.proof</code>, canonicalization, hash, signature, key id, and signer identity.</p></div><div class="info-card"><h3>Capability schemas</h3><p>Bind request/receipt shapes to a named capability family and verb.</p></div><div class="info-card"><h3>Discovery metadata</h3><p>Agent cards, ENS records, MCP tool definitions, OpenAPI operations, and manifests.</p></div><div class="info-card"><h3>Verifier expectations</h3><p>Fields the verifier checks before returning VALID / INVALID.</p></div></div></section>
+
+  <section class="schema-card section"><h2>Canonical proof envelope</h2><p><code>metadata.proof.canonicalization</code><br/><code>metadata.proof.hash.alg</code><br/><code>metadata.proof.hash.value</code><br/><code>metadata.proof.signature.alg</code><br/><code>metadata.proof.signature.value</code><br/><code>metadata.proof.signature.kid</code><br/><code>metadata.proof.signer_id</code></p><div class="inline-note"><strong>Canonical values:</strong><br/><code>metadata.proof.canonicalization = "json.sorted_keys.v1"</code><br/><code>metadata.proof.hash.alg = "SHA-256"</code><br/><code>metadata.proof.signature.alg = "Ed25519"</code><br/><code>metadata.proof.signature.kid = "vC4WbcNoq2znSCiQ"</code><br/><code>metadata.proof.signer_id = "runtime.commandlayer.eth"</code></div><div class="warning-note"><strong>Warning:</strong> Schema-valid alone is not verified. Verification requires hash and signature checks.</div></section>
+
+  <section class="schema-card section"><h2>Trust Verification v1 schema family</h2><p><strong>Family:</strong> <code>trust-verification</code><br/><strong>Version:</strong> <code>v1.0.0</code></p><p><strong>Live verbs:</strong> <code>verify</code>, <code>sign</code>, <code>attest</code>, <code>authorize</code>, <code>approve</code>, <code>reject</code>, <code>permit</code>, <code>grant</code>, <code>authenticate</code>, <code>endorse</code></p><p>Each verb can have a request schema, receipt schema, example valid receipt, example tampered receipt, MCP tool mapping, OpenAPI operation, runtime endpoint, and verifier expectations.</p></section>
+
+  <section class="schema-card section"><h2>Expected file/path model</h2><table class="paths-table"><thead><tr><th>Scope</th><th>Expected public model path</th></tr></thead><tbody><tr><td>Trust Verification request</td><td><code>/schemas/trust-verification/v1.0.0/{verb}.request.schema.json</code></td></tr><tr><td>Trust Verification receipt</td><td><code>/schemas/trust-verification/v1.0.0/{verb}.receipt.schema.json</code></td></tr><tr><td>Shared proof contract</td><td><code>/schemas/shared/canonical-proof.schema.json</code></td></tr><tr><td>Shared receipt envelope</td><td><code>/schemas/shared/receipt-envelope.schema.json</code></td></tr><tr><td>Shared error contract</td><td><code>/schemas/shared/error.schema.json</code></td></tr><tr><td>Family template request</td><td><code>/schemas/{family}/v{version}/{verb}.request.schema.json</code></td></tr><tr><td>Family template receipt</td><td><code>/schemas/{family}/v{version}/{verb}.receipt.schema.json</code></td></tr></tbody></table><div class="inline-note">Paths shown are the public schema model. Exact repo paths should be kept aligned with the schema package and published artifacts.</div></section>
+
+  <section class="schema-card section"><h2>IPFS / CID publication status</h2><div class="grid-2"><div class="path-card"><h3>Canonical publication status</h3><ul><li>Latest schema bundle CID: Pending final publication</li><li>Latest agent card bundle CID: Pending final publication</li><li>Last verified publication date: Pending</li><li>Publisher identity: commandlayer.eth / runtime.commandlayer.eth, pending final publication record</li><li>Integrity check: Pending</li></ul></div><div class="path-card"><h3>Publication notes</h3><p>This section is reserved for immutable schema bundle CIDs once the production schema bundle is finalized. Until then, developers should use the GitHub repository and documented HTTP schema paths as the source of truth.</p></div></div></section>
+
+  <section class="schema-card section"><h2>Schema validation vs verification</h2><div class="grid-2"><div class="check-card"><h3>Schema validation checks</h3><ul><li>required fields</li><li>data types</li><li>enum values</li><li>object shape</li><li>supported verb shape</li></ul></div><div class="check-card"><h3>Cryptographic verification checks</h3><ul><li>canonicalization</li><li>hash match</li><li>Ed25519 signature validity</li><li>signer identity / kid</li><li>tamper invalidation</li></ul></div></div><div class="warning-note"><strong>Trust boundary:</strong> A schema-valid receipt can still be invalid if the hash or signature fails.</div></section>
+
+  <section class="schema-card section"><h2>Capability family expansion model</h2><div class="grid-3"><div class="info-card"><h3>Trust Verification — live</h3><p>Current production schema family.</p></div><div class="info-card"><h3>AI / Utility Actions — planned/namespace</h3><p>Reserved for capability growth under namespace controls.</p></div><div class="info-card"><h3>Commerce &amp; Payments — future</h3><p>Future commercial transaction proofs.</p></div><div class="info-card"><h3>Identity &amp; Compliance — future</h3><p>Future identity and policy attestations.</p></div><div class="info-card"><h3>Messaging &amp; Coordination — future</h3><p>Future multi-agent coordination contracts.</p></div><div class="info-card"><h3>Governance &amp; Policy — future</h3><p>Future governance decision and policy proofs.</p></div><div class="info-card"><h3>Lifecycle Management — future</h3><p>Future deployment, updates, and deprecation workflows.</p></div></div></section>
+
+  <section class="schema-card section"><h2>Developer usage flow</h2><ol><li>Choose capability family.</li><li>Pick verb.</li><li>Load request schema.</li><li>Validate input.</li><li>Execute or call runtime.</li><li>Receive receipt.</li><li>Validate receipt shape.</li><li>Verify proof with verifier.</li><li>Treat VALID/INVALID as the trust result.</li></ol></section>
+
+  <section class="schema-card section"><h2>Example request/receipt schema snippets</h2><h3>Request schema example</h3><pre class="code-panel"><code>{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://www.commandlayer.org/schemas/trust-verification/v1.0.0/sign.request.schema.json",
+  "type": "object",
+  "required": ["payload"],
+  "properties": {
+    "payload": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": false
+}</code></pre><h3 style="margin-top:14px">Receipt proof fragment</h3><pre class="code-panel"><code>{
+  "metadata": {
+    "proof": {
+      "canonicalization": "json.sorted_keys.v1",
+      "hash": {
+        "alg": "SHA-256",
+        "value": "..."
+      },
+      "signature": {
+        "alg": "Ed25519",
+        "kid": "vC4WbcNoq2znSCiQ",
+        "value": "..."
+      },
+      "signer_id": "runtime.commandlayer.eth"
+    }
+  }
+}</code></pre></section>
+
+  <section class="schema-card section"><h2>Related links</h2><div class="cta-grid"><a class="cta-card" href="/trust-verification.html">Trust Verification</a><a class="cta-card" href="/canonical-receipts.html">Canonical Receipts</a><a class="cta-card" href="/api.html">API Reference</a><a class="cta-card" href="/runtime.html">Runtime</a><a class="cta-card" href="/mcp.html">MCP Bridge</a><a class="cta-card" href="/docs/wrap-your-agent.html">Wrap Your Agent</a><a class="cta-card" href="/verify.html">Verifier</a></div></section>
+</main>
+
+<footer><div class="container footer-grid"><div><h4>Product</h4><a href="/protocol.html">Protocol</a><a href="/capabilities.html">Capabilities</a><a href="/verify.html">Verifier</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP</a><a href="/claim.html">Claim</a></div><div><h4>Developers</h4><a href="/docs.html">Docs</a><a href="/sdk-records.html">SDK</a><a href="/schemas.html">Schemas</a><a href="/api.html">API</a><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></div><div><h4>Proof</h4><a href="/stack-proof-demo.html">Production Proof</a><a href="/verifyagent.html">VerifyAgent</a><a href="/trust-verification.html">Trust Verification</a><a href="/canonical-receipts.html">Canonical Receipts</a></div></div></footer>
+</body>
+</html>
