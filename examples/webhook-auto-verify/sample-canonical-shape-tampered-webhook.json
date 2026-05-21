@@ -1,0 +1,27 @@
+{
+  "event": "commandlayer.receipt.created",
+  "receipt": {
+    "metadata": {
+      "proof": {
+        "canonicalization": "json.sorted_keys.v1",
+        "hash": {
+          "alg": "SHA-256",
+          "value": "<runtime-generated-hash>"
+        },
+        "signature": {
+          "alg": "Ed25519",
+          "kid": "vC4WbcNoq2znSCiQ",
+          "value": "<runtime-generated-signature>"
+        },
+        "signer_id": "runtime.commandlayer.eth"
+      }
+    },
+    "result": {
+      "payload": {
+        "message": "tampered webhook payload",
+        "source": "examples/webhook-auto-verify",
+        "ts": "<runtime-generated-iso-timestamp>"
+      }
+    }
+  }
+}
