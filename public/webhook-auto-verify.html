@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Webhook Auto-Verify | CommandLayer</title>
+  <meta name="description" content="Automatic receipt verification demo: runtime signs, verifier validates, tampering is rejected." />
+  <link rel="icon" href="/icon2.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
+  <style>
+    :root{--border:rgba(15,23,42,.1);--text:#0f172a;--text2:#334155;--muted:#64748b;--blue:#5298ff;--purple:#635bff;--grad:linear-gradient(135deg,#5298FF 0%,#635BFF 100%)}
+    .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}
+    .nav-links a.active{color:var(--text);background:#f7f8ff}
+    .hero{padding:86px 0 58px;text-align:center;background:radial-gradient(circle at 15% 0%,rgba(82,152,255,.09),transparent 40%),radial-gradient(circle at 80% 0%,rgba(99,91,255,.1),transparent 38%)}
+    .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:999px;border:1px solid rgba(82,152,255,.3);background:rgba(82,152,255,.06);color:var(--purple);font-size:13px;font-weight:700}
+    h1{font-size:clamp(2rem,5vw,3.6rem);line-height:1.08;letter-spacing:-.03em;margin:18px 0 14px}
+    .sub{max-width:760px;margin:0 auto;color:var(--text2);font-size:1.08rem}
+    .actions{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:22px}
+    .btn{display:inline-flex;align-items:center;padding:11px 16px;border-radius:12px;border:1px solid var(--border);text-decoration:none;font-weight:700;color:var(--text2);background:#fff;cursor:pointer}
+    .btn.primary{background:var(--grad);color:#fff;border-color:rgba(99,91,255,.5)}
+    .section{padding:28px 0}
+    .card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 2px 12px rgba(15,23,42,.05)}
+    .demo-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+    .status-pill{display:inline-flex;padding:5px 10px;border-radius:999px;font-weight:800;font-size:12px;letter-spacing:.04em;background:#e2e8f0;color:#334155}
+    .status-pill.valid{background:#dcfce7;color:#166534}
+    .status-pill.invalid{background:#fee2e2;color:#991b1b}
+    .status-pill.error{background:#fef3c7;color:#92400e}
+    .kv{display:grid;grid-template-columns:190px 1fr;gap:8px;font-size:13px;margin-top:10px}
+    .k{color:var(--muted);font-weight:700}.v{word-break:break-all}
+    .code{margin-top:10px;background:#0f172a;color:#e2e8f0;border-radius:12px;border:1px solid rgba(30,41,59,.35);padding:12px;overflow:auto;font:12px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;min-height:140px}
+    .flow{font-weight:700;color:var(--text2)}
+    .cards{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+    .warn{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}
+    .strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+    .strip .card{text-align:center;font-weight:700}
+    .links{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    footer{border-top:1px solid var(--border);background:#fff}.footer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:36px 0}.footer-grid h4{font-size:14px;margin-bottom:10px}.footer-grid a{display:block;color:var(--text2);margin:8px 0;font-size:14px}
+    .nav-links a:hover,.nav-drop:hover>a,.nav-drop:focus-within>a,.nav-drop>a.active{color:var(--text);background:#f7f8ff}.nav-drop{position:relative}.nav-drop>a{display:inline-flex;align-items:center;gap:4px}.nav-drop-menu{position:absolute;top:calc(100% - 1px);left:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 34px rgba(15,23,42,.12);padding:8px;display:none;min-width:260px;z-index:200}.nav-drop-menu::before{content:"";position:absolute;left:0;right:0;top:-8px;height:8px}.nav-drop-menu a{display:block;white-space:nowrap}.nav-drop:hover .nav-drop-menu,.nav-drop:focus-within .nav-drop-menu{display:grid}
+    @media(max-width:980px){.demo-grid,.cards,.strip,.links,.footer-grid{grid-template-columns:1fr}.kv{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<nav>
+  <div class="container nav-inner">
+    <a href="/" class="brand"><img src="/commandlayer-logo.png" alt="CommandLayer" /><span>CommandLayer</span></a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li><li><a href="/protocol.html">Protocol</a></li><li><a href="/capabilities.html">Capabilities</a></li><li><a href="/verify.html">Verifier</a></li><li><a href="/sdk-records.html">SDK</a></li>
+      <li class="nav-drop"><a href="/docs.html" class="active">Docs ▾</a><div class="nav-drop-menu"><a href="/docs.html">Docs Home</a><a href="/docs/wrap-your-agent.html">Wrap Your Agent</a><a href="/stack-proof-demo.html">Production Proof</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP Bridge</a><a href="/schemas.html">Schemas</a><a href="/api.html">API Reference</a><a href="/trust-verification.html">Trust Verification</a><a href="/claim.html">Claim / Namespace Activation</a></div></li>
+      <li><a href="/claim.html">Claim</a></li><li><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
+  </div>
+</nav>
+<main>
+<header class="hero"><div class="container"><div class="eyebrow">Webhook Auto-Verify</div><h1>Automatic verification without manual paste.</h1><p class="sub">This demo shows a webhook-style flow where a receipt is generated, verified automatically, then tampered and rejected.</p><div class="actions"><a class="btn primary" href="#live-demo">Run Live Demo</a><a class="btn" href="https://github.com/commandlayer/commandlayer-org/tree/main/examples/webhook-auto-verify" target="_blank" rel="noopener">View Example Code</a></div></div></header>
+<section class="section" id="live-demo"><div class="container demo-grid"><article class="card"><h2>Live demo panel</h2><div class="btn-row"><button class="btn" id="generateBtn">Generate Live Receipt</button><button class="btn" id="verifyBtn">Auto-Verify Receipt</button><button class="btn" id="tamperBtn">Tamper + Verify Again</button></div><p id="loading" class="k">Idle.</p><div><span id="demoStatus" class="status-pill">NOT_RUN</span></div><div class="kv" id="detailRows"></div><pre class="code" id="rawJson">{}</pre></article><article class="card"><h3>Tampered verification result</h3><div><span id="tamperStatus" class="status-pill">NOT_RUN</span></div><div class="kv" id="tamperRows"></div><pre class="code" id="tamperJson">{}</pre></article></div></section>
+<section class="section"><div class="container card"><h2>How this maps to a webhook</h2><p class="flow">External system → sends { event, receipt } → webhook server calls verifier → accepted or rejected</p><p>The browser demo proves the same verification logic. The backend example in <code>examples/webhook-auto-verify</code> performs the check server-side with <code>POST /webhook</code>.</p></div></section>
+<section class="section"><div class="container card"><h2>Backend example commands</h2><pre class="code">cd examples/webhook-auto-verify
+npm install
+npm run check
+npm run generate:samples
+npm start
+
+curl -X POST http://localhost:3000/webhook \\
+  -H "Content-Type: application/json" \\
+  --data @sample-valid-webhook.json
+
+curl -X POST http://localhost:3000/webhook \\
+  -H "Content-Type: application/json" \\
+  --data @sample-tampered-webhook.json
+
+Expected:
+valid -> 200 accepted
+tampered -> 400 rejected</pre></div></section>
+<section class="section"><div class="container cards"><article class="card">Runtime signs the original receipt.</article><article class="card">Verifier recomputes canonical hash.</article><article class="card">Verifier checks Ed25519 signature.</article><article class="card">Tampering changes payload and invalidates proof.</article><article class="card">No manual paste is required.</article></div></section>
+<section class="section"><div class="container card warn"><h2>What this does not replace</h2><ul><li>Receipt verification proves receipt integrity.</li><li>It does not replace webhook sender authentication.</li><li>Production webhooks still need sender auth, replay protection, timestamps, idempotency, and rate limiting.</li><li>Schema-valid alone is not verified.</li><li>MCP is a bridge, not a signer.</li></ul></div></section>
+<section class="section"><div class="container strip"><article class="card">Runtime signs.</article><article class="card">Verifier validates.</article><article class="card">MCP bridges.</article><article class="card">SDK wraps.</article><article class="card">Schemas describe.</article></div></section>
+<section class="section"><div class="container links"><a class="card" href="/ambient-verification.html">Ambient Verification</a><a class="card" href="/api.html">API Reference</a><a class="card" href="/runtime.html">Runtime</a><a class="card" href="/verify.html">Verifier</a><a class="card" href="/stack-proof-demo.html">Production Proof</a><a class="card" href="https://github.com/commandlayer/commandlayer-org/tree/main/examples/webhook-auto-verify" target="_blank" rel="noopener">Example Code</a></div></section>
+</main>
+<footer><div class="container footer-grid"><div><h4>Product</h4><a href="/protocol.html">Protocol</a><a href="/capabilities.html">Capabilities</a><a href="/verify.html">Verifier</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP</a><a href="/claim.html">Claim</a></div><div><h4>Developers</h4><a href="/docs.html">Docs</a><a href="/sdk-records.html">SDK</a><a href="/schemas.html">Schemas</a><a href="/api.html">API</a><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></div><div><h4>Proof</h4><a href="/stack-proof-demo.html">Production Proof</a><a href="/verifyagent.html">VerifyAgent</a><a href="/trust-verification.html">Trust Verification</a><a href="/canonical-receipts.html">Canonical Receipts</a></div></div></footer>
+<script>
+(() => {
+  const signUrl = 'https://runtime.commandlayer.org/trust-verification/sign/v1.0.0';
+  const verifyUrl = 'https://runtime.commandlayer.org/verify';
+  let receipt = null;
+  const loading = document.getElementById('loading');
+  const demoStatus = document.getElementById('demoStatus');
+  const tamperStatus = document.getElementById('tamperStatus');
+  const detailRows = document.getElementById('detailRows');
+  const tamperRows = document.getElementById('tamperRows');
+  const rawJson = document.getElementById('rawJson');
+  const tamperJson = document.getElementById('tamperJson');
+  const setStatus = (el, txt, cls='') => { el.className = `status-pill ${cls}`.trim(); el.textContent = txt; };
+  const paintRows = (el, entries) => { el.innerHTML = entries.map(([k,v]) => `<div class="k">${k}</div><div class="v">${String(v ?? '—')}</div>`).join(''); };
+  const callJson = async (url, body) => {
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const text = await res.text();
+    let json = {};
+    try { json = text ? JSON.parse(text) : {}; } catch { json = { status: 'TRANSPORT_ERROR', parse_error: true, raw: text }; }
+    return { okHttp: res.ok, status: res.status, json };
+  };
+
+  document.getElementById('generateBtn').onclick = async () => {
+    loading.textContent = 'Generating receipt from runtime…';
+    try {
+      const payload = { payload: { message: 'hello from webhook auto verify', source: 'webhook-auto-verify-page', ts: new Date().toISOString() } };
+      const result = await callJson(signUrl, payload);
+      receipt = result.json.receipt || result.json.final_receipt || null;
+      if (!receipt) throw new Error('receipt_missing');
+      const proof = receipt?.metadata?.proof || {};
+      paintRows(detailRows, [['receipt.verb', receipt.verb], ['receipt.class', receipt.class], ['metadata.proof.canonicalization', proof.canonicalization], ['metadata.proof.hash.alg', proof.hash?.alg], ['metadata.proof.signature.alg', proof.signature?.alg], ['metadata.proof.signature.kid', proof.signature?.kid], ['metadata.proof.signer_id', proof.signer_id]]);
+      rawJson.textContent = JSON.stringify(receipt, null, 2);
+      setStatus(demoStatus, 'RECEIPT_READY', '');
+      loading.textContent = 'Receipt generated.';
+    } catch (err) {
+      setStatus(demoStatus, 'TRANSPORT_ERROR', 'error');
+      loading.textContent = `TRANSPORT_ERROR: ${err.message}`;
+    }
+  };
+
+  document.getElementById('verifyBtn').onclick = async () => {
+    if (!receipt) { loading.textContent = 'Generate a receipt first.'; return; }
+    loading.textContent = 'Verifying generated receipt…';
+    try {
+      const result = await callJson(verifyUrl, { receipt });
+      const data = result.json;
+      const valid = data.ok === true || data.status === 'VALID' || data.status === 'VERIFIED';
+      const checks = data.checks || {};
+      paintRows(detailRows, [['status', data.status], ['ok', data.ok], ['hash_matches', checks.hash_matches], ['signature_valid', checks.signature_valid], ['signer_id', data.signer_id ?? data.metadata?.proof?.signer_id], ['kid', data.kid ?? data.metadata?.proof?.signature?.kid], ['canonicalization', data.canonicalization ?? data.metadata?.proof?.canonicalization]]);
+      rawJson.textContent = JSON.stringify(data, null, 2);
+      setStatus(demoStatus, valid ? 'VERIFIED' : 'INVALID', valid ? 'valid' : 'invalid');
+      loading.textContent = valid ? 'Verification passed.' : 'Verification rejected.';
+    } catch (err) {
+      setStatus(demoStatus, 'TRANSPORT_ERROR', 'error');
+      loading.textContent = `TRANSPORT_ERROR: ${err.message}`;
+    }
+  };
+
+  document.getElementById('tamperBtn').onclick = async () => {
+    if (!receipt) { loading.textContent = 'Generate a receipt first.'; return; }
+    loading.textContent = 'Tampering payload and verifying again…';
+    try {
+      const tampered = JSON.parse(JSON.stringify(receipt));
+      tampered.result = tampered.result || {};
+      tampered.result.payload = tampered.result.payload || {};
+      tampered.result.payload.message = 'tampered webhook payload';
+      const result = await callJson(verifyUrl, { receipt: tampered });
+      const data = result.json;
+      const checks = data.checks || {};
+      const valid = data.ok === true || data.status === 'VALID' || data.status === 'VERIFIED';
+      paintRows(tamperRows, [['status', data.status], ['ok', data.ok], ['hash_matches', checks.hash_matches], ['signature_valid', checks.signature_valid], ['signature_error', data.errors?.signature_error ?? checks.signature_error]]);
+      tamperJson.textContent = JSON.stringify(data, null, 2);
+      setStatus(tamperStatus, valid ? 'UNEXPECTED_VALID' : 'REJECTED_INVALID', valid ? 'error' : 'invalid');
+      loading.textContent = valid ? 'Unexpected valid result; inspect response.' : 'Tampered receipt rejected as expected.';
+    } catch (err) {
+      setStatus(tamperStatus, 'TRANSPORT_ERROR', 'error');
+      loading.textContent = `TRANSPORT_ERROR: ${err.message}`;
+    }
+  };
+})();
+</script>
+</body>
+</html>
