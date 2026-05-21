@@ -1055,6 +1055,7 @@
           <a class="btn btn-primary btn-lg" href="/stack-proof-demo.html">View the proof</a>
           <a class="btn btn-secondary btn-lg" href="/capabilities.html">Explore capabilities</a>
           <a class="btn btn-outline btn-lg" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">Install SDK</a>
+          <a class="btn btn-outline btn-lg" href="/webhook-auto-verify.html">Run Auto-Verify Demo</a>
         </div>
       </div>
 
@@ -1278,6 +1279,34 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
     </div>
   </section>
 
+
+
+  <!-- ── AUTOMATIC VERIFICATION ─────────────────── -->
+  <section class="section">
+    <div class="container">
+      <div style="text-align: center; max-width: 820px; margin: 0 auto;">
+        <p class="section-eyebrow">Automatic verification</p>
+        <h2 class="section-h2">Valid receipts are accepted. Tampered receipts are rejected.</h2>
+        <p class="section-p">CommandLayer verification is not limited to manual paste. A webhook can receive a receipt, verify it server-side, accept the valid event, and reject the same receipt after payload tampering.</p>
+      </div>
+      <div class="endpoint-grid" style="margin-top:22px;">
+        <div class="ep-card">
+          <div class="ep-header"><span class="ep-method" style="background:#dcfce7;color:#065f46;">Valid receipt</span><span class="ep-path">ACCEPTED</span></div>
+          <div class="ep-desc"><code>verifier_status: VALID</code><br><code>hash_matches: true</code><br><code>signature_valid: true</code></div>
+        </div>
+        <div class="ep-card">
+          <div class="ep-header"><span class="ep-method" style="background:#fee2e2;color:#991b1b;">Tampered receipt</span><span class="ep-path">REJECTED</span></div>
+          <div class="ep-desc"><code>verifier_status: INVALID</code><br><code>hash_matches: false</code><br><code>signature_valid: false</code></div>
+        </div>
+      </div>
+      <p class="section-p" style="text-align:center;margin-top:20px;">Runtime signs → Webhook receives → Verifier checks → Accept / reject</p>
+      <div class="api-actions" style="justify-content:center; margin-top:8px;">
+        <a class="btn btn-primary" href="/webhook-auto-verify.html">Run the automatic verification demo</a>
+        <a class="btn btn-secondary" href="https://github.com/commandlayer/commandlayer-org/tree/main/examples/webhook-auto-verify" target="_blank" rel="noopener">View example code</a>
+      </div>
+    </div>
+  </section>
+
   <!-- ── CAPABILITIES PREVIEW ─────────────────────── -->
   <section class="section section-alt">
     <div class="container">
@@ -1309,7 +1338,7 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
         <div>
           <p class="section-eyebrow">Verification surfaces</p>
           <h2 class="section-h2">Runtime-validated verification.<br>Public verifier surface.</h2>
-          <p class="section-p" style="max-width: 52ch;">Runtime <code>/verify</code> has been validated against production runtime receipts. Website <code>/api/verify</code> is a public verifier surface and should align with the same canonical proof model.</p>
+          <p class="section-p" style="max-width: 52ch;">Runtime <code>/verify</code> has been validated against production runtime receipts. Website <code>/api/verify</code> is a public verifier surface and should align with the same canonical proof model. Webhook sender authentication is separate from receipt verification.</p>
         </div>
         <div class="api-actions">
           <a class="btn btn-primary" href="/verify.html">Open Verifier</a>
@@ -1346,10 +1375,11 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
     <div class="container">
       <div class="cta-box">
         <h2>Trust the proof.<br><span class="grad">Not the agent.</span></h2>
-        <p>Start adding cryptographic verification to your AI agent actions in minutes.</p>
+        <p>Start adding cryptographic verification to your AI agent actions in minutes.<br><span style="opacity:.92;">Now with manual verification, production proof, and automatic webhook verification.</span></p>
         <div class="cta-actions">
           <a class="btn btn-white btn-lg" href="/verify.html">Verify a Receipt</a>
           <a class="btn btn-ghost-white btn-lg" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">View SDK on GitHub</a>
+          <a class="btn btn-ghost-white btn-lg" href="/webhook-auto-verify.html">Run Auto-Verify Demo</a>
         </div>
       </div>
     </div>
