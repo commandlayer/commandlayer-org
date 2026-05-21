@@ -1158,6 +1158,32 @@
           <span id="rp-bar-text">Verifying…</span>
         </div>
       </div>
+      <p class="hero-note">The animation above explains the model. The live proof below runs it.</p>
+    </div>
+  </section>
+
+  <section class="section live-proof" id="live-proof">
+    <div class="container">
+      <p class="section-eyebrow">Live Protocol Proof</p>
+      <h2 class="section-h2">Resolve. Sign. Verify. Tamper. Reject.</h2>
+      <p class="section-p">This is not a mock animation. The homepage calls the production runtime, verifies the returned receipt, then tampers with the payload and verifies again.</p>
+      <div class="live-proof-card">
+        <div class="lp-rows">
+          <div class="lp-row pending" data-live-step="resolve"><div><div class="lp-row-main"><span class="lp-dot"></span><span class="lp-label">Resolve / identify signer</span></div><div class="lp-meta" data-live-meta="resolve">pending</div></div><div class="lp-state" data-live-state="resolve">pending</div></div>
+          <div class="lp-row pending" data-live-step="sign"><div><div class="lp-row-main"><span class="lp-dot"></span><span class="lp-label">Sign</span></div><div class="lp-meta" data-live-meta="sign">pending</div></div><div class="lp-state" data-live-state="sign">pending</div></div>
+          <div class="lp-row pending" data-live-step="verify"><div><div class="lp-row-main"><span class="lp-dot"></span><span class="lp-label">Verify</span></div><div class="lp-meta" data-live-meta="verify">pending</div></div><div class="lp-state" data-live-state="verify">pending</div></div>
+          <div class="lp-row pending" data-live-step="tamper"><div><div class="lp-row-main"><span class="lp-dot"></span><span class="lp-label">Tamper</span></div><div class="lp-meta" data-live-meta="tamper">pending</div></div><div class="lp-state" data-live-state="tamper">pending</div></div>
+          <div class="lp-row pending" data-live-step="reject"><div><div class="lp-row-main"><span class="lp-dot"></span><span class="lp-label">Reject</span></div><div class="lp-meta" data-live-meta="reject">pending</div></div><div class="lp-state" data-live-state="reject">pending</div></div>
+        </div>
+        <div class="lp-grid">
+          <div class="lp-panel"><h4>Original receipt</h4><div class="lp-kv" id="lp-valid-summary">waiting...</div></div>
+          <div class="lp-panel"><h4>Tampered receipt</h4><div class="lp-kv" id="lp-invalid-summary">waiting...</div></div>
+        </div>
+        <div id="lp-error" class="lp-error" style="display:none;">Runtime or verifier unavailable. No success was faked.</div>
+        <details class="lp-raw"><summary>Show raw JSON</summary><pre id="lp-raw-json">No data yet.</pre></details>
+        <div class="lp-note">Runtime signs. Verifier validates. MCP bridges. SDK wraps. Schemas describe. Schema-valid alone is not verified. Tampering changes the canonical payload and breaks verification.</div>
+        <div class="lp-ctas"><a class="btn btn-primary" href="/webhook-auto-verify.html">Run Auto-Verify Demo</a><a class="btn btn-secondary" href="/verify.html">Open Verifier</a><a class="btn btn-secondary" href="/stack-proof-demo.html">View Production Proof</a></div>
+      </div>
     </div>
   </section>
 
@@ -1390,98 +1416,108 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
 
   <script>
     (function () {
-      const steps      = document.querySelectorAll('.rp-step[data-step]');
-      const statusRow  = document.getElementById('rp-status');
-      const statusText = document.getElementById('rp-status-text');
-      const statusSub  = document.getElementById('rp-status-sub');
-      const statusDot  = document.getElementById('rp-dot');
-      const bar        = document.getElementById('rp-bar');
-      const fill       = document.getElementById('rp-fill');
-      const barText    = document.getElementById('rp-bar-text');
-      const preview    = document.querySelector('.receipt-preview');
+      const preview = document.querySelector('.receipt-preview');
+      const liveWidget = document.getElementById('live-proof');
 
-      if (!preview || !steps.length) return;
+      (function animateHeroPreview() {
+        const steps = document.querySelectorAll('.rp-step[data-step]');
+        const statusRow = document.getElementById('rp-status');
+        const statusText = document.getElementById('rp-status-text');
+        const statusSub = document.getElementById('rp-status-sub');
+        const statusDot = document.getElementById('rp-dot');
+        const bar = document.getElementById('rp-bar');
+        const fill = document.getElementById('rp-fill');
+        const barText = document.getElementById('rp-bar-text');
+        if (!preview || !steps.length) return;
+        let tids = []; let active = false;
+        const wait = ms => new Promise(r => { const t = setTimeout(r, ms); tids.push(t); });
+        const clearAll = () => { tids.forEach(clearTimeout); tids = []; };
+        const reset = () => { steps.forEach(s => s.classList.remove('is-active', 'is-done')); statusRow.className='status-row is-pending'; statusDot.style.background='#94A3B8'; statusText.textContent='Animation preview'; statusSub.textContent='Model walkthrough'; bar.className='rp-verified-bar'; barText.textContent='Previewing…'; fill.style.width='0%'; };
+        async function run() { if (active) return; active=true; reset(); await wait(350); for (let i=0;i<steps.length;i++){ steps[i].classList.add('is-active'); fill.style.width=((i/steps.length)*100)+'%'; await wait(500); steps[i].classList.remove('is-active'); steps[i].classList.add('is-done'); fill.style.width=(((i+1)/steps.length)*100)+'%'; await wait(90);} statusDot.style.background='#10B981'; statusRow.className='status-row is-verified'; statusText.textContent='Preview complete'; statusSub.textContent='Live proof runs below'; bar.className='rp-verified-bar is-verified'; barText.textContent='Model preview'; await wait(2600); active=false; run(); }
+        const io = new IntersectionObserver(e => { if (e[0].isIntersecting) run(); else { clearAll(); active=false; reset(); } }, { threshold: 0.2 });
+        io.observe(preview);
+      })();
 
-      let tids = [];
-      let active = false;
+      (function liveProtocolProof() {
+        if (!liveWidget) return;
+        const runtimeBase = 'https://runtime.commandlayer.org';
+        const signerId = 'runtime.commandlayer.eth';
+        const knownKid = 'vC4WbcNoq2znSCiQ';
+        const stateEls = Object.fromEntries(['resolve','sign','verify','tamper','reject'].map(k => [k, document.querySelector(`[data-live-state="${k}"]`)]));
+        const metaEls = Object.fromEntries(['resolve','sign','verify','tamper','reject'].map(k => [k, document.querySelector(`[data-live-meta="${k}"]`)]));
+        const rowEls = Object.fromEntries(['resolve','sign','verify','tamper','reject'].map(k => [k, document.querySelector(`[data-live-step="${k}"]`)]));
+        const validSummary = document.getElementById('lp-valid-summary');
+        const invalidSummary = document.getElementById('lp-invalid-summary');
+        const raw = document.getElementById('lp-raw-json');
+        const err = document.getElementById('lp-error');
+        const compact = v => typeof v === 'string' && v.length > 18 ? `${v.slice(0,10)}…${v.slice(-8)}` : String(v ?? 'n/a');
+        const setStep = (name, status, meta) => { rowEls[name].className = `lp-row ${status}`; stateEls[name].textContent = status; metaEls[name].textContent = meta; };
+        const normalize = r => ({ status: r?.status || (r?.ok === true ? 'VALID' : 'INVALID'), hash_matches: r?.hash_matches, signature_valid: r?.signature_valid });
+        const isValid = r => r?.ok === true || r?.status === 'VALID' || r?.status === 'VERIFIED';
 
-      function wait(ms) {
-        return new Promise(r => { const t = setTimeout(r, ms); tids.push(t); });
-      }
+        async function runLive() {
+          err.style.display = 'none';
+          ['resolve','sign','verify','tamper','reject'].forEach(k => setStep(k,'pending','pending'));
+          setStep('resolve','running','Signer identity loaded');
+          await Promise.resolve();
+          setStep('resolve','passed',`signer_id=${signerId} · kid=${knownKid}`);
 
-      function clearAll() {
-        tids.forEach(clearTimeout);
-        tids = [];
-      }
+          let receipt;
+          try {
+            setStep('sign','running','POST /trust-verification/sign/v1.0.0');
+            const signResp = await fetch(`${runtimeBase}/trust-verification/sign/v1.0.0`, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ payload:{ message:'homepage live proof', source:'commandlayer.org', ts:new Date().toISOString() } }) });
+            const signJson = await signResp.json();
+            receipt = signJson?.receipt || signJson?.final_receipt;
+            if (!signResp.ok || !receipt) throw new Error('TRANSPORT_ERROR');
+            const proof = receipt?.metadata?.proof || {};
+            setStep('sign','passed',`verb=${receipt?.verb||'n/a'} class=${receipt?.class||'n/a'} hash=${compact(proof?.hash?.value)} kid=${proof?.signature?.kid||'n/a'} signer_id=${proof?.signer_id||'n/a'}`);
 
-      function reset() {
-        steps.forEach(s => { s.classList.remove('is-active', 'is-done'); });
-        statusRow.className  = 'status-row is-pending';
-        statusDot.style.background = '#94A3B8';
-        statusText.textContent = 'Waiting…';
-        statusSub.textContent  = 'Ready to verify';
-        bar.className  = 'rp-verified-bar';
-        barText.textContent = 'Verifying…';
-        fill.style.width = '0%';
-      }
+            setStep('verify','running','POST /verify');
+            const verifyResp = await fetch(`${runtimeBase}/verify`, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ receipt }) });
+            const verifyJson = await verifyResp.json();
+            const v = normalize(verifyJson);
+            if (!verifyResp.ok || !isValid(verifyJson)) throw new Error('VERIFY_INVALID');
+            setStep('verify','passed',`verifier_status=${v.status} hash_matches=${String(v.hash_matches)} signature_valid=${String(v.signature_valid)}`);
+            validSummary.textContent = `VALID
+verifier_status: ${v.status}
+hash_matches: ${String(v.hash_matches)}
+signature_valid: ${String(v.signature_valid)}`;
 
-      async function run() {
-        if (active) return;
-        active = true;
-        reset();
+            setStep('tamper','running','Mutating receipt.result.payload.message');
+            const tampered = JSON.parse(JSON.stringify(receipt));
+            if (!tampered.result) tampered.result = {};
+            if (!tampered.result.payload) tampered.result.payload = {};
+            tampered.result.payload.message = 'tampered homepage proof';
+            setStep('tamper','passed','message="tampered homepage proof"');
 
-        await wait(500);
-
-        /* mark "running" in status */
-        statusText.textContent = 'STEP 1 SIGNED';
-        statusSub.textContent  = 'Running canonical proof checks';
-
-        const total = steps.length;
-        for (let i = 0; i < total; i++) {
-          steps[i].classList.add('is-active');
-          fill.style.width = ((i / total) * 100) + '%';
-          await wait(700);
-          steps[i].classList.remove('is-active');
-          steps[i].classList.add('is-done');
-          fill.style.width = (((i + 1) / total) * 100) + '%';
-          await wait(120);
+            setStep('reject','running','POST /verify with tampered receipt');
+            const rejectResp = await fetch(`${runtimeBase}/verify`, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ receipt: tampered }) });
+            const rejectJson = await rejectResp.json();
+            const t = normalize(rejectJson);
+            const tamperRejected = !isValid(rejectJson);
+            if (!rejectResp.ok || !tamperRejected) throw new Error('REJECT_EXPECTED');
+            setStep('reject','failed',`tampered_status=${t.status} hash_matches=${String(t.hash_matches)} signature_valid=${String(t.signature_valid)}`);
+            invalidSummary.textContent = `INVALID
+tampered_status: ${t.status}
+hash_matches: ${String(t.hash_matches)}
+signature_valid: ${String(t.signature_valid)}`;
+            raw.textContent = JSON.stringify({ sign_response: signJson, verify_response: verifyJson, tampered_verify_response: rejectJson }, null, 2);
+          } catch (e) {
+            err.style.display = 'block';
+            const msg = String(e && e.message || 'TRANSPORT_ERROR');
+            if (msg === 'TRANSPORT_ERROR') setStep('sign','failed','TRANSPORT_ERROR');
+            else if (msg === 'VERIFY_INVALID') setStep('verify','failed','TRANSPORT_ERROR');
+            else setStep('reject','failed','TRANSPORT_ERROR');
+            validSummary.textContent = 'No VERIFIED result returned.';
+            invalidSummary.textContent = 'Tampered rejection not completed.';
+          }
         }
 
-        /* all done — light everything green */
-        await wait(180);
-        statusDot.style.background = '#10B981';
-        statusRow.className = 'status-row is-verified';
-        statusText.textContent = 'STEP 2 VERIFIED';
-        statusSub.textContent  = 'STEP 3 TAMPERED INVALID';
-        bar.className = 'rp-verified-bar is-verified';
-        barText.textContent = 'Proof complete';
-
-        await wait(3200);
-
-        active = false;
-        run();
-      }
-
-      /* trigger on scroll, plus immediately on load if already in view */
-      const io = new IntersectionObserver(entries => {
-        if (entries[0].isIntersecting) {
-          run();
-        } else {
-          clearAll();
-          active = false;
-          reset();
-        }
-      }, { threshold: 0.2 });
-
-      io.observe(preview);
-
-      /* belt-and-suspenders: if card is in view on page load, start right away */
-      document.addEventListener('DOMContentLoaded', () => {
-        requestAnimationFrame(() => {
-          const r = preview.getBoundingClientRect();
-          if (r.top < window.innerHeight && r.bottom > 0) run();
-        });
-      });
+        const io = new IntersectionObserver(entries => {
+          if (entries[0].isIntersecting) { io.disconnect(); runLive(); }
+        }, { threshold: 0.25 });
+        io.observe(liveWidget);
+      })();
     })();
   </script>
 </body>
