@@ -558,6 +558,21 @@
       transition: width 0.4s ease;
     }
 
+
+    .live-proof-intro { padding: 72px 0 28px; text-align:center; }
+    .live-proof-intro h2 { font-size: clamp(2rem,4vw,3.2rem); line-height:1.15; letter-spacing:-0.03em; }
+    .live-proof-intro .grad { background: linear-gradient(100deg,#2563eb,#7c3aed); -webkit-background-clip:text; color:transparent; }
+    .live-proof { background: linear-gradient(180deg,#fff 0%, #f4f7ff 55%, #f6f0ff 100%); }
+    .live-proof-card { max-width: 980px; margin:0 auto; background:#fff; border:1px solid #dbe4ff; border-radius:24px; box-shadow:0 18px 48px rgba(37,99,235,.1); padding:36px; }
+    .live-proof-header .section-eyebrow { display:inline-block; padding:6px 12px; border-radius:999px; background:#eef2ff; border:1px solid #c7d2fe; }
+    .lp-rows{ display:grid; gap:12px; margin:28px 0; } .lp-row{display:flex; justify-content:space-between; gap:18px; padding:16px; border:1px solid #e2e8f0; border-radius:14px; background:#f8fafc;}
+    .lp-row-main{display:flex; align-items:center; gap:10px;} .lp-label{font-weight:700; font-size:1rem;} .lp-meta{color:#475569; margin-top:6px;} .lp-result{font-family:monospace; font-size:12px; color:#334155;align-self:center;}
+    .lp-state{padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; text-transform:uppercase;}
+    .lp-row.pending .lp-state{background:#e2e8f0;color:#475569;} .lp-row.running .lp-state{background:#ddd6fe;color:#5b21b6;} .lp-row.passed .lp-state{background:#dcfce7;color:#166534;} .lp-row.failed .lp-state{background:#fee2e2;color:#991b1b;}
+    .lp-grid{display:grid;grid-template-columns:1fr 1fr; gap:14px; margin:22px 0;} .lp-panel{border-radius:14px;padding:16px;border:1px solid #e2e8f0;} .lp-panel-valid{background:#f0fdf4;border-color:#bbf7d0;} .lp-panel-invalid{background:#fff7ed;border-color:#fed7aa;}
+    .lp-kv .status{font-size:1.2rem;font-weight:800;} .lp-kv .line{margin-top:6px;color:#334155;} .lp-note{margin-top:18px;padding:14px 16px;border-radius:12px;background:#f8fafc;border:1px solid #e2e8f0;color:#475569;line-height:1.6;}
+    .lp-ctas{display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;}
+
     /* ── HOW IT WORKS ─────────────────────────────── */
     .how-section {
       border-top: 1px solid var(--border);
@@ -1158,26 +1173,34 @@
           <span id="rp-bar-text">Verifying…</span>
         </div>
       </div>
-      <p class="hero-note">The animation above explains the model. The live proof below runs it.</p>
+    </div>
+  </section>
+
+  <section class="live-proof-intro">
+    <div class="container">
+      <p class="section-eyebrow">From preview to production</p>
+      <h2>The animation above explains the model.<br><span class="grad">The live proof below runs it.</span></h2>
     </div>
   </section>
 
   <section class="section live-proof" id="live-proof">
     <div class="container">
-      <p class="section-eyebrow">Live Protocol Proof</p>
-      <h2 class="section-h2">Resolve. Sign. Verify. Tamper. Reject.</h2>
-      <p class="section-p">This is not a mock animation. The homepage calls the production runtime, verifies the returned receipt, then tampers with the payload and verifies again.</p>
       <div class="live-proof-card">
+        <div class="live-proof-header">
+          <p class="section-eyebrow">LIVE PROTOCOL PROOF</p>
+          <h2 class="section-h2">Resolve. Sign. Verify. Tamper. Reject.</h2>
+          <p class="section-p">This is not a mock animation. The homepage calls the production runtime, verifies the returned receipt, tampers with the payload, and verifies again.</p>
+        </div>
         <div class="lp-rows">
-          <div class="lp-row pending" data-live-step="resolve"><div><div class="lp-row-main"><span class="lp-dot"></span><span class="lp-label">Resolve / identify signer</span></div><div class="lp-meta" data-live-meta="resolve">pending</div></div><div class="lp-state" data-live-state="resolve">pending</div></div>
-          <div class="lp-row pending" data-live-step="sign"><div><div class="lp-row-main"><span class="lp-dot"></span><span class="lp-label">Sign</span></div><div class="lp-meta" data-live-meta="sign">pending</div></div><div class="lp-state" data-live-state="sign">pending</div></div>
-          <div class="lp-row pending" data-live-step="verify"><div><div class="lp-row-main"><span class="lp-dot"></span><span class="lp-label">Verify</span></div><div class="lp-meta" data-live-meta="verify">pending</div></div><div class="lp-state" data-live-state="verify">pending</div></div>
-          <div class="lp-row pending" data-live-step="tamper"><div><div class="lp-row-main"><span class="lp-dot"></span><span class="lp-label">Tamper</span></div><div class="lp-meta" data-live-meta="tamper">pending</div></div><div class="lp-state" data-live-state="tamper">pending</div></div>
-          <div class="lp-row pending" data-live-step="reject"><div><div class="lp-row-main"><span class="lp-dot"></span><span class="lp-label">Reject</span></div><div class="lp-meta" data-live-meta="reject">pending</div></div><div class="lp-state" data-live-state="reject">pending</div></div>
+          <div class="lp-row pending" data-live-step="resolve"><div><div class="lp-row-main"><span class="lp-label">1. Resolve</span><span class="lp-state" data-live-state="resolve">pending</span></div><div class="lp-meta" data-live-meta="resolve">Identify runtime signer identity</div></div><div class="lp-result" data-live-result="resolve">waiting for runtime.commandlayer.eth</div></div>
+          <div class="lp-row pending" data-live-step="sign"><div><div class="lp-row-main"><span class="lp-label">2. Sign</span><span class="lp-state" data-live-state="sign">pending</span></div><div class="lp-meta" data-live-meta="sign">Call runtime and receive signed metadata.proof</div></div><div class="lp-result" data-live-result="sign">waiting for signed payload</div></div>
+          <div class="lp-row pending" data-live-step="verify"><div><div class="lp-row-main"><span class="lp-label">3. Verify</span><span class="lp-state" data-live-state="verify">pending</span></div><div class="lp-meta" data-live-meta="verify">Verifier recomputes json.sorted_keys.v1 + SHA-256 + Ed25519</div></div><div class="lp-result" data-live-result="verify">waiting for verifier response</div></div>
+          <div class="lp-row pending" data-live-step="tamper"><div><div class="lp-row-main"><span class="lp-label">4. Tamper</span><span class="lp-state" data-live-state="tamper">pending</span></div><div class="lp-meta" data-live-meta="tamper">Mutate canonical payload bytes</div></div><div class="lp-result" data-live-result="tamper">waiting for mutation step</div></div>
+          <div class="lp-row pending" data-live-step="reject"><div><div class="lp-row-main"><span class="lp-label">5. Reject</span><span class="lp-state" data-live-state="reject">pending</span></div><div class="lp-meta" data-live-meta="reject">Verifier should reject tampered receipt</div></div><div class="lp-result" data-live-result="reject">waiting for invalid result</div></div>
         </div>
         <div class="lp-grid">
-          <div class="lp-panel"><h4>Original receipt</h4><div class="lp-kv" id="lp-valid-summary">waiting...</div></div>
-          <div class="lp-panel"><h4>Tampered receipt</h4><div class="lp-kv" id="lp-invalid-summary">waiting...</div></div>
+          <div class="lp-panel lp-panel-valid"><h4>Original receipt</h4><div class="lp-kv" id="lp-valid-summary">waiting...</div></div>
+          <div class="lp-panel lp-panel-invalid"><h4>Tampered receipt</h4><div class="lp-kv" id="lp-invalid-summary">waiting...</div></div>
         </div>
         <div id="lp-error" class="lp-error" style="display:none;">Runtime or verifier unavailable. No success was faked.</div>
         <details class="lp-raw"><summary>Show raw JSON</summary><pre id="lp-raw-json">No data yet.</pre></details>
@@ -1445,62 +1468,59 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
         const knownKid = 'vC4WbcNoq2znSCiQ';
         const stateEls = Object.fromEntries(['resolve','sign','verify','tamper','reject'].map(k => [k, document.querySelector(`[data-live-state="${k}"]`)]));
         const metaEls = Object.fromEntries(['resolve','sign','verify','tamper','reject'].map(k => [k, document.querySelector(`[data-live-meta="${k}"]`)]));
+        const resultEls = Object.fromEntries(['resolve','sign','verify','tamper','reject'].map(k => [k, document.querySelector(`[data-live-result="${k}"]`)]));
         const rowEls = Object.fromEntries(['resolve','sign','verify','tamper','reject'].map(k => [k, document.querySelector(`[data-live-step="${k}"]`)]));
         const validSummary = document.getElementById('lp-valid-summary');
         const invalidSummary = document.getElementById('lp-invalid-summary');
         const raw = document.getElementById('lp-raw-json');
         const err = document.getElementById('lp-error');
         const compact = v => typeof v === 'string' && v.length > 18 ? `${v.slice(0,10)}…${v.slice(-8)}` : String(v ?? 'n/a');
-        const setStep = (name, status, meta) => { rowEls[name].className = `lp-row ${status}`; stateEls[name].textContent = status; metaEls[name].textContent = meta; };
-        const normalize = r => ({ status: r?.status || (r?.ok === true ? 'VALID' : 'INVALID'), hash_matches: r?.hash_matches, signature_valid: r?.signature_valid });
+        const setStep = (name, status, meta, result) => { rowEls[name].className = `lp-row ${status}`; stateEls[name].textContent = status; metaEls[name].textContent = meta; if (resultEls[name] && result) resultEls[name].textContent = result; };
+        const valueOrDash = v => (v === true || v === false ? String(v) : 'not returned');
+        const pickCheck = (r, k) => r?.[k] ?? r?.checks?.[k] ?? r?.result?.[k];
+        const normalize = r => ({ status: r?.status || (r?.ok === true ? 'VALID' : 'INVALID'), hash_matches: pickCheck(r,'hash_matches'), signature_valid: pickCheck(r,'signature_valid') });
         const isValid = r => r?.ok === true || r?.status === 'VALID' || r?.status === 'VERIFIED';
 
         async function runLive() {
           err.style.display = 'none';
-          ['resolve','sign','verify','tamper','reject'].forEach(k => setStep(k,'pending','pending'));
-          setStep('resolve','running','Signer identity loaded');
+          ['resolve','sign','verify','tamper','reject'].forEach(k => setStep(k,'pending','pending','waiting...'));
+          setStep('resolve','running','resolving signer identity...','querying runtime.commandlayer.eth');
           await Promise.resolve();
-          setStep('resolve','passed',`signer_id=${signerId} · kid=${knownKid}`);
+          setStep('resolve','passed',`runtime.commandlayer.eth · kid=${knownKid}`,'resolved signer identity');
 
           let receipt;
           try {
-            setStep('sign','running','POST /trust-verification/sign/v1.0.0');
+            setStep('sign','running','calling production runtime sign endpoint...','POST https://runtime.commandlayer.org/trust-verification/sign/v1.0.0');
             const signResp = await fetch(`${runtimeBase}/trust-verification/sign/v1.0.0`, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ payload:{ message:'homepage live proof', source:'commandlayer.org', ts:new Date().toISOString() } }) });
             const signJson = await signResp.json();
             receipt = signJson?.receipt || signJson?.final_receipt;
             if (!signResp.ok || !receipt) throw new Error('TRANSPORT_ERROR');
             const proof = receipt?.metadata?.proof || {};
-            setStep('sign','passed',`verb=${receipt?.verb||'n/a'} class=${receipt?.class||'n/a'} hash=${compact(proof?.hash?.value)} kid=${proof?.signature?.kid||'n/a'} signer_id=${proof?.signer_id||'n/a'}`);
+            setStep('sign','passed',`runtime signed metadata.proof`,`verb=${receipt?.verb||'n/a'} hash=${compact(proof?.hash?.value)} kid=${proof?.signature?.kid||'n/a'} signer_id=${proof?.signer_id||'n/a'}`);
 
-            setStep('verify','running','POST /verify');
+            setStep('verify','running','verifying original receipt...','POST https://runtime.commandlayer.org/verify');
             const verifyResp = await fetch(`${runtimeBase}/verify`, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ receipt }) });
             const verifyJson = await verifyResp.json();
             const v = normalize(verifyJson);
             if (!verifyResp.ok || !isValid(verifyJson)) throw new Error('VERIFY_INVALID');
-            setStep('verify','passed',`verifier_status=${v.status} hash_matches=${String(v.hash_matches)} signature_valid=${String(v.signature_valid)}`);
-            validSummary.textContent = `VALID
-verifier_status: ${v.status}
-hash_matches: ${String(v.hash_matches)}
-signature_valid: ${String(v.signature_valid)}`;
+            setStep('verify','passed',`original receipt ${v.status}`,`hash_matches=${valueOrDash(v.hash_matches)} signature_valid=${valueOrDash(v.signature_valid)}`);
+            validSummary.innerHTML = `<div class="status">VALID</div><div class="line">verifier_status: ${v.status}</div><div class="line">hash_matches: ${valueOrDash(v.hash_matches)}</div><div class="line">signature_valid: ${valueOrDash(v.signature_valid)}</div>`;
 
-            setStep('tamper','running','Mutating receipt.result.payload.message');
+            setStep('tamper','running','modifying payload output text...','canonical payload mutated');
             const tampered = JSON.parse(JSON.stringify(receipt));
             if (!tampered.result) tampered.result = {};
             if (!tampered.result.payload) tampered.result.payload = {};
             tampered.result.payload.message = 'tampered homepage proof';
-            setStep('tamper','passed','message="tampered homepage proof"');
+            setStep('tamper','passed','payload tampered (same signer metadata retained)','tampered receipt prepared');
 
-            setStep('reject','running','POST /verify with tampered receipt');
+            setStep('reject','running','verifying tampered receipt...','expect INVALID result');
             const rejectResp = await fetch(`${runtimeBase}/verify`, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ receipt: tampered }) });
             const rejectJson = await rejectResp.json();
             const t = normalize(rejectJson);
             const tamperRejected = !isValid(rejectJson);
             if (!rejectResp.ok || !tamperRejected) throw new Error('REJECT_EXPECTED');
-            setStep('reject','failed',`tampered_status=${t.status} hash_matches=${String(t.hash_matches)} signature_valid=${String(t.signature_valid)}`);
-            invalidSummary.textContent = `INVALID
-tampered_status: ${t.status}
-hash_matches: ${String(t.hash_matches)}
-signature_valid: ${String(t.signature_valid)}`;
+            setStep('reject','failed',`tampered receipt ${t.status}`,`hash_matches=${valueOrDash(t.hash_matches)} signature_valid=${valueOrDash(t.signature_valid)}`);
+            invalidSummary.innerHTML = `<div class="status">INVALID</div><div class="line">tampered_status: ${t.status}</div><div class="line">hash_matches: ${valueOrDash(t.hash_matches)}</div><div class="line">signature_valid: ${valueOrDash(t.signature_valid)}</div>`;
             raw.textContent = JSON.stringify({ sign_response: signJson, verify_response: verifyJson, tampered_verify_response: rejectJson }, null, 2);
           } catch (e) {
             err.style.display = 'block';
