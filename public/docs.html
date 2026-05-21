@@ -17,10 +17,12 @@
     .nav-inner{min-height:82px;padding:10px 0;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
     .brand img{height:62px}.brand{display:flex;align-items:center;text-decoration:none;color:var(--text);font-weight:700}
     .nav-links{display:flex;align-items:center;gap:2px;list-style:none;flex-wrap:wrap}
-    .nav-links a,.nav-drop-toggle{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;padding:7px 12px;border-radius:8px;background:none;border:none;cursor:pointer;font-family:inherit}
-    .nav-links a:hover,.nav-drop:hover .nav-drop-toggle,.nav-drop:focus-within .nav-drop-toggle{color:var(--text);background:var(--surface)}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;padding:7px 12px;border-radius:8px;background:none;border:none;font-family:inherit}
+    .nav-links a:hover,.nav-drop:hover > a,.nav-drop:focus-within > a{color:var(--text);background:var(--surface)}
     .nav-drop{position:relative}
-    .nav-drop-menu{display:none;position:absolute;left:0;top:100%;background:#fff;border:1px solid var(--border);border-radius:10px;min-width:260px;padding:8px;box-shadow:0 16px 40px rgba(15,23,42,.12)}
+    .nav-drop > a{display:inline-flex;align-items:center;gap:4px}
+    .nav-drop-menu{display:none;position:absolute;left:0;top:calc(100% - 1px);background:#fff;border:1px solid var(--border);border-radius:10px;min-width:260px;padding:8px;box-shadow:0 16px 40px rgba(15,23,42,.12);z-index:200}
+    .nav-drop-menu::before{content:"";position:absolute;left:0;right:0;top:-8px;height:8px}
     .nav-drop:hover .nav-drop-menu,.nav-drop:focus-within .nav-drop-menu{display:grid;gap:3px}
     .nav-drop-menu a{display:block;padding:8px 10px}
     .hero{padding:80px 0 36px}.eyebrow{color:var(--purple);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:14px}
@@ -53,7 +55,7 @@
         <li><a href="/verify.html">Verifier</a></li>
         <li><a href="/sdk-records.html">SDK</a></li>
         <li class="nav-drop">
-          <button class="nav-drop-toggle" aria-haspopup="true">Docs ▾</button>
+          <a href="/docs.html" aria-haspopup="true">Docs ▾</a>
           <div class="nav-drop-menu">
             <a href="/docs.html">Docs Home</a><a href="/docs/wrap-your-agent.html">Wrap Your Agent</a><a href="/stack-proof-demo.html">Production Proof</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP Bridge</a><a href="/schemas.html">Schemas</a><a href="/api.html">API Reference</a><a href="/trust-verification.html">Trust Verification</a><a href="/claim.html">Claim / Namespace Activation</a>
           </div>
