@@ -1,42 +1,34 @@
-# commandlayer-org
+# CommandLayer
 
-Agents don’t make claims — they produce proof.
-Wrap → sign → verify.
-CommandLayer turns any agent action into a signed, verifiable receipt.
-VerifyAgent.eth is the public verifier for receipts produced by ENS-named agents.
-
-## Shipped proof flow
-
-- Verifier UI: https://www.commandlayer.org/verify.html
-- Raw verifier API: POST https://www.commandlayer.org/api/verify
-- Callable VerifyAgent endpoint: POST https://www.commandlayer.org/api/agents/verifyagent
-- npm: `npm install @commandlayer/agent-sdk`
+CommandLayer turns agent actions into signed, independently verifiable receipts.
 
 ## Core flow
 
-Agent action  
-→ SDK wraps action  
-→ signed receipt is emitted with ENS identity  
-→ VerifyAgent resolves signer identity from ENS and verifies receipt  
-→ VERIFIED or INVALID
+Action requested
+→ runtime signs canonical receipt
+→ verifier checks `metadata.proof`
+→ valid receipts pass
+→ tampered receipts fail
 
-If the output changes, the proof breaks.
+## Verified surfaces
 
-## Repos
+- Manual verifier: `/verify.html`
+- Production proof: `/stack-proof-demo.html`
+- Automatic verification demo: `/webhook-auto-verify.html`
+- Runtime verifier: `POST https://runtime.commandlayer.org/verify`
+- Runtime signer endpoints: `POST https://runtime.commandlayer.org/trust-verification/{verb}/v1.0.0`
+- SDK: `@commandlayer/agent-sdk@1.2.0`
 
-- **agent-sdk**: wrap any agent action and emit a signed receipt
-- **verifyagent**: reference verifier and tamper-detection demo
-- **commandlayer-org**: hosted UI, public APIs, and docs
-
-## Developer quickstart
+## SDK example
 
 ```ts
 import { CommandLayer } from "@commandlayer/agent-sdk";
 
 const cl = new CommandLayer({
   agent: "runtime.commandlayer.eth",
-  privateKey: process.env.CL_PRIVATE_KEY_PEM,
-  keyId: "vC4WbcNoq2znSCiQ"
+  privateKeyPem: process.env.CL_PRIVATE_KEY_PEM,
+  keyId: "vC4WbcNoq2znSCiQ",
+  verifierUrl: "https://runtime.commandlayer.org/verify"
 });
 
 const result = await cl.wrap("summarize", async () => {
@@ -47,126 +39,38 @@ const verified = await cl.verify(result.receipt);
 console.log(verified.status);
 ```
 
-## Public verification APIs
+## Canonical proof fields
 
-### 1) `POST /api/verify`
+- `metadata.proof.canonicalization = json.sorted_keys.v1`
+- `metadata.proof.hash.alg = SHA-256`
+- `metadata.proof.hash.value`
+- `metadata.proof.signature.alg = Ed25519`
+- `metadata.proof.signature.kid = vC4WbcNoq2znSCiQ`
+- `metadata.proof.signature.value`
+- `metadata.proof.signer_id = runtime.commandlayer.eth`
 
-**Purpose:** Verifies a raw CommandLayer receipt.
+## Automatic verification proof
 
-**Request:** Raw receipt JSON.
+Valid receipt:
 
-**Response:**
+- `status = accepted`
+- `verifier_status = VALID`
+- `hash_matches = true`
+- `signature_valid = true`
 
-```json
-{
-  "ok": true,
-  "status": "VERIFIED",
-  "reason": "Receipt verification passed.",
-  "signer": "runtime.commandlayer.eth",
-  "verb": "agent.execute",
-  "hash": "...",
-  "hash_matches": true,
-  "signature_valid": true,
-  "ens_resolved": true,
-  "key_id": "..."
-}
-```
+Tampered receipt:
 
-### 2) `POST /api/agents/verifyagent`
+- `status = rejected`
+- `verifier_status = INVALID`
+- `hash_matches = false`
+- `signature_valid = false`
 
-**Purpose:** Callable VerifyAgent.eth endpoint for agent-to-agent or app-to-agent verification.
+## Trust boundaries
 
-**Request:**
-
-```json
-{
-  "receipt": { "...": "CommandLayer receipt" }
-}
-```
-
-**Response:**
-
-```json
-{
-  "agent": "verifyagent.eth",
-  "action": "verify_receipt",
-  "ok": true,
-  "status": "VERIFIED",
-  "result": {
-    "reason": "Receipt verification passed.",
-    "hash_matches": true,
-    "signature_valid": true,
-    "ens_resolved": true
-  }
-}
-```
-
-VerifyAgent.eth does not execute the original task. It verifies whether a submitted receipt is valid or tampered.
-
-### cURL examples
-
-```bash
-curl -X POST https://www.commandlayer.org/api/verify \
-  -H "Content-Type: application/json" \
-  --data-binary @public/examples/sample-receipt.json
-```
-
-```bash
-printf '{"receipt":' > verifyagent-body.json
-cat public/examples/sample-receipt.json >> verifyagent-body.json
-printf '}' >> verifyagent-body.json
-
-curl -X POST https://www.commandlayer.org/api/agents/verifyagent \
-  -H "Content-Type: application/json" \
-  --data-binary @verifyagent-body.json
-```
-
-## What verification checks
-
-- canonical JSON payload using `json.sorted_keys.v1`
-- SHA-256 hash matches `metadata.proof.hash_sha256`
-- Ed25519 signature validates
-- signer identity and verification metadata resolve from ENS (`cl.sig.pub`, `cl.sig.kid`, `cl.sig.canonical`, `cl.receipt.signer`)
-- tampered input/output returns `INVALID`
-
-VerifyAgent resolves signer keys from ENS TXT records.
-For the hackathon demo, `runtime.commandlayer.eth` is supported via a labeled fallback resolver that mirrors the ENS record structure.
-The verification flow is designed to operate against live ENS records.
-
-## Scope
-
-CommandLayer focuses on a single primitive: verifiable agent execution.
-
-Every action produces a signed receipt.
-Every receipt can be independently verified.
-
-The current public demo focuses on this proof loop.
-
-## Local development
-
-### Install
-
-```bash
-npm install
-```
-
-### Run locally
-
-```bash
-vercel dev
-```
-
-If you use another local workflow, keep the site static-first and preserve published URL paths.
-
-## Deployment note
-
-Published URLs are part of the protocol surface.
-
-Do not rename or move stable public paths for:
-
-- docs pages
-- schema URLs
-- Agent Card URLs
-- demo surfaces
-
-CommandLayer is designed for ENS-named agents to be verifiable and discoverable, with identity and verification metadata resolved directly from ENS.
+- Runtime signs.
+- Verifier validates.
+- MCP bridges.
+- SDK wraps.
+- Schemas describe.
+- Schema-valid alone is not verified.
+- Webhook sender authentication is separate from receipt verification.
