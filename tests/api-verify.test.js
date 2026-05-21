@@ -19,10 +19,10 @@ function makeRes() {
 }
 
 const sampleReceipt = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', 'examples', 'sample-receipt.json'), 'utf8')
+  fs.readFileSync(path.join(__dirname, 'fixtures', 'canonical-receipt.sample.json'), 'utf8')
 );
 
-test('POST /api/verify with legacy sample => INVALID', async () => {
+test('POST /api/verify with canonical sample fixture => INVALID', async () => {
   const req = { method: 'POST', body: sampleReceipt };
   const res = makeRes();
 
@@ -31,12 +31,11 @@ test('POST /api/verify with legacy sample => INVALID', async () => {
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.ok, false);
   assert.equal(res.body.status, 'INVALID');
-  assert.equal(res.body.debug.has_legacy_top_level_proof, true);
-});
+  });
 
 
 
-test('POST /api/verify with wrapped legacy receipt payload => INVALID', async () => {
+test('POST /api/verify with wrapped canonical sample payload => INVALID', async () => {
   const req = { method: 'POST', body: { receipt: sampleReceipt } };
   const res = makeRes();
 

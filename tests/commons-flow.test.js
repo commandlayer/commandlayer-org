@@ -86,7 +86,7 @@ test('canonicalReceiptPayload: extracts only the six canonical fields', () => {
 });
 
 test('sha256 of canonicalized payload matches known sample-receipt hash', () => {
-  // These values are taken from examples/sample-receipt.json
+  // These values are taken from tests/fixtures/canonical-receipt.sample.json
   const receipt = {
     signer: 'runtime.commandlayer.eth',
     verb: 'agent.execute',
