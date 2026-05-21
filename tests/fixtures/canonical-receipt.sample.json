@@ -1,0 +1,31 @@
+{
+  "signer": "runtime.commandlayer.eth",
+  "verb": "agent.execute",
+  "ts": "2026-05-20T00:00:00.000Z",
+  "input": {
+    "task": "verify",
+    "content": "canonical"
+  },
+  "output": {
+    "ok": true
+  },
+  "execution": {
+    "runtime": "prod",
+    "run_id": "run_1"
+  },
+  "metadata": {
+    "proof": {
+      "canonicalization": "json.sorted_keys.v1",
+      "hash": {
+        "alg": "SHA-256",
+        "value": "8035378e3f1f4d2ae3f5c8f4a8767e8fc99695f5f3d17d5d49f75f53dceb0f73"
+      },
+      "signature": {
+        "alg": "Ed25519",
+        "kid": "vC4WbcNoq2znSCiQ",
+        "value": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=="
+      },
+      "signer_id": "runtime.commandlayer.eth"
+    }
+  }
+}

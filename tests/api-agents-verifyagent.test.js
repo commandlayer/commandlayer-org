@@ -19,10 +19,10 @@ function makeRes() {
 }
 
 const sampleReceipt = JSON.parse(
-  fs.readFileSync(path.join(__dirname, '..', 'examples', 'sample-receipt.json'), 'utf8')
+  fs.readFileSync(path.join(__dirname, 'fixtures', 'canonical-receipt.sample.json'), 'utf8')
 );
 
-test('POST /api/agents/verifyagent with legacy sample => INVALID', async () => {
+test('POST /api/agents/verifyagent with canonical sample fixture => INVALID', async () => {
   const req = { method: 'POST', body: { task: 'verify this receipt', receipt: sampleReceipt } };
   const res = makeRes();
 
