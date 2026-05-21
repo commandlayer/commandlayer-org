@@ -11,23 +11,29 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/site.css" />
   <style>
-    .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}.nav-links a.active{color:var(--text);background:var(--surface)}
-    .doc-shell{padding:64px 0 88px}.doc-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}.doc-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 6px 20px rgba(99,91,255,.04);margin-bottom:18px}.doc-card h2{font-size:1.25rem;margin-bottom:10px;letter-spacing:-.02em}.doc-card h3{font-size:1.02rem;margin:18px 0 8px}.doc-card p,.doc-card li{color:var(--text-2);line-height:1.7}.doc-card ul{padding-left:20px}.code-panel{background:#0E1322;color:#E2E8F0;border-radius:14px;border:1px solid rgba(30,41,59,.3);padding:18px;overflow:auto;font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.code-panel code{color:inherit}.side-card{position:sticky;top:112px;background:linear-gradient(180deg,#F9FAFF 0%,#F3F6FF 100%);border:1px solid var(--border);border-radius:18px;padding:20px}.side-card h3{margin-bottom:8px}.side-card p,.side-card li{color:var(--text-2);font-size:.95rem;line-height:1.6}.side-card ul{padding-left:18px;margin-top:8px}.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:28px}.flow-step{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;font-weight:700;color:var(--text-2);font-size:13px}.flow-step span{display:block;color:var(--purple);font-size:12px;margin-bottom:4px}.inline-link{color:var(--purple);font-weight:700;text-decoration:none}.inline-link:hover{text-decoration:underline}.path-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.path-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}.path-card strong{display:block;color:var(--text);font-size:1.04rem;margin-bottom:6px}.rule-box{border-left:4px solid var(--purple);background:linear-gradient(180deg,#F9FAFF 0%,#F3F6FF 100%);border-radius:0 14px 14px 0;padding:16px;margin:14px 0}.stack-list{display:grid;gap:10px;margin-top:10px}.stack-item{border:1px solid var(--border);border-radius:14px;padding:14px;background:#fff}.stack-item strong{color:var(--text)}@media(max-width:900px){.doc-grid,.path-grid{grid-template-columns:1fr}.side-card{position:static}.flow{grid-template-columns:1fr}.doc-shell{padding:42px 0 64px}}
+    .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}.nav-links{display:flex;align-items:center;gap:2px;list-style:none;flex-wrap:wrap;margin:0;padding:0}.nav-links a,.nav-drop-toggle{color:var(--muted);text-decoration:none;font-size:14px;font-weight:500;padding:7px 12px;border-radius:8px;background:none;border:none;cursor:pointer;font-family:inherit}.nav-links a:hover,.nav-drop:hover .nav-drop-toggle,.nav-drop:focus-within .nav-drop-toggle,.nav-drop-toggle.active{color:var(--text);background:var(--surface)}.nav-drop{position:relative}.nav-drop-menu{position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 34px rgba(15,23,42,.12);padding:8px;display:none;min-width:260px;z-index:50}.nav-drop-menu a{display:block;white-space:nowrap}.nav-drop:hover .nav-drop-menu,.nav-drop:focus-within .nav-drop-menu{display:block}
+    .doc-shell{padding:64px 0 88px}.doc-grid{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:28px;align-items:start}.doc-card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:24px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 6px 20px rgba(99,91,255,.04);margin-bottom:18px}.doc-card h2{font-size:1.25rem;margin-bottom:10px;letter-spacing:-.02em}.doc-card h3{font-size:1.02rem;margin:18px 0 8px}.doc-card p,.doc-card li{color:var(--text-2);line-height:1.7}.doc-card ul{padding-left:20px}.code-panel{background:#0E1322;color:#E2E8F0;border-radius:14px;border:1px solid rgba(30,41,59,.3);padding:18px;overflow:auto;font:13px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}.code-panel code{color:inherit}.side-card{position:sticky;top:112px;background:linear-gradient(180deg,#F9FAFF 0%,#F3F6FF 100%);border:1px solid var(--border);border-radius:18px;padding:20px}.side-card h3{margin-bottom:8px}.side-card p,.side-card li{color:var(--text-2);font-size:.95rem;line-height:1.6}.side-card ul{padding-left:18px;margin-top:8px}.flow{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:28px}.flow-step{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;font-weight:700;color:var(--text-2);font-size:13px}.flow-step span{display:block;color:var(--purple);font-size:12px;margin-bottom:4px}.inline-link{color:var(--purple);font-weight:700;text-decoration:none}.inline-link:hover{text-decoration:underline}.path-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.path-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}.path-card strong{display:block;color:var(--text);font-size:1.04rem;margin-bottom:6px}.rule-box{border-left:4px solid var(--purple);background:linear-gradient(180deg,#F9FAFF 0%,#F3F6FF 100%);border-radius:0 14px 14px 0;padding:16px;margin:14px 0}.stack-list{display:grid;gap:10px;margin-top:10px}.stack-item{border:1px solid var(--border);border-radius:14px;padding:14px;background:#fff}.stack-item strong{color:var(--text)}footer{border-top:1px solid var(--border);background:#fff}.footer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:36px 0}.footer-grid h4{font-size:14px;margin-bottom:10px}.footer-grid a{display:block;color:var(--text-2);margin:8px 0;font-size:14px}@media(max-width:900px){.doc-grid,.path-grid,.footer-grid{grid-template-columns:1fr}.side-card{position:static}.flow{grid-template-columns:1fr}.doc-shell{padding:42px 0 64px}}
   </style>
 </head>
 <body>
 <nav>
   <div class="container nav-inner">
     <a href="/" class="brand"><img src="/commandlayer-logo.png" alt="CommandLayer" /><span>CommandLayer</span></a>
-    <div class="nav-links">
-      <a href="/">Home</a>
-      <a href="/capabilities.html">Capabilities</a>
-      <a href="/verify.html">Verifier</a>
-      <a href="/sdk-records.html">SDK</a>
-      <a href="/docs/wrap-your-agent.html" class="active">Docs</a>
-      <a href="/claim.html">Claim</a>
-      <a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a>
-    </div>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+      <li><a href="/protocol.html">Protocol</a></li>
+      <li><a href="/capabilities.html">Capabilities</a></li>
+      <li><a href="/verify.html">Verifier</a></li>
+      <li><a href="/sdk-records.html">SDK</a></li>
+      <li class="nav-drop">
+        <button class="nav-drop-toggle active" type="button" aria-haspopup="true" aria-expanded="false">Docs</button>
+        <div class="nav-drop-menu">
+          <a href="/docs.html">Docs Home</a><a href="/docs/wrap-your-agent.html">Wrap Your Agent</a><a href="/stack-proof-demo.html">Production Proof</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP Bridge</a><a href="/schemas.html">Schemas</a><a href="/api.html">API Reference</a><a href="/trust-verification.html">Trust Verification</a><a href="/claim.html">Claim / Namespace Activation</a>
+        </div>
+      </li>
+      <li><a href="/claim.html">Claim</a></li>
+      <li><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></li>
+    </ul>
   </div>
 </nav>
 
@@ -35,7 +41,7 @@
   <div class="container">
     <div class="hero-badge"><span class="badge-dot"></span>Builder Guide</div>
     <h1 class="hero-h1">Wrap first. <span class="grad">Use schemas when you need interoperability.</span></h1>
-    <p class="hero-sub">Most builders do not need to download every schema. Pick the capabilities your agent supports, emit receipts, and verify the proof.</p>
+    <p class="hero-sub">Most builders only need the schemas for the capabilities they support. Schema validation helps structure receipts, but schema-valid alone is not verified. Verification requires hash and signature checks.</p>
     <div class="hero-actions">
       <a class="btn btn-primary btn-lg" href="/verify.html">Open verifier</a>
       <a class="btn btn-secondary btn-lg" href="/capabilities.html">Explore capabilities</a>
@@ -49,7 +55,7 @@
     <div class="path-grid">
       <div class="path-card">
         <strong>1. Just wrap my agent</strong>
-        <p>You already have an agent and just want receipts. Use the SDK wrapper and let CommandLayer handle receipt structure, canonicalization, hash, signature, verifier calls, and proof objects.</p>
+        <p>You already have an agent and just want receipts. Use the SDK wrapper and let CommandLayer handle receipt structure plus canonical metadata.proof fields: metadata.proof.canonicalization, metadata.proof.hash.alg/value, metadata.proof.signature.alg/value/kid, and metadata.proof.signer_id.</p>
         <pre class="code-panel"><code>wrap("summarize", async () => {
   return { summary: "..." };
 });</code></pre>
@@ -60,7 +66,7 @@
       </div>
     </div>
     <div class="rule-box">
-      <strong>The simple rule:</strong> use only the schemas for the capabilities your agent supports. If your agent only summarizes text, you need the summarize request schema, summarize receipt schema, and shared proof schema — not ship, refund, approve, kyc, broadcast, or inventory.
+      <strong>The simple rule:</strong> use only the schemas for the capabilities your agent supports. If your agent only summarizes text, you need the summarize request schema and summarize receipt schema — not ship, refund, approve, kyc, broadcast, or inventory.
     </div>
   </section>
 
@@ -68,10 +74,10 @@
     <h2>How the stack fits together</h2>
     <p>Capabilities are the menu of possible actions. Schemas are the contracts for each action. The SDK wraps an agent action and emits receipts. The verifier checks those receipts. Your agent only uses the capabilities it actually performs.</p>
     <div class="stack-list">
-      <div class="stack-item"><strong>Layer 1 — Shared proof schema.</strong> Every receipt needs canonicalization, hash, signature_alg, signature, key_id, and signer.</div>
+      <div class="stack-item"><strong>Layer 1 — Canonical proof envelope.</strong> Every receipt uses metadata.proof with canonicalization, hash, signature, key id, and signer identity.</div>
       <div class="stack-item"><strong>Layer 2 — Capability schemas.</strong> Each capability has its own request and receipt shape, such as verify.request.schema.json or authorize.receipt.schema.json.</div>
-      <div class="stack-item"><strong>Layer 3 — SDK.</strong> The SDK helps developers use schemas without manually assembling every proof object.</div>
-      <div class="stack-item"><strong>Layer 4 — Verifier.</strong> VerifyAgent checks shape, hash, signature, signer, and whether the capability verb makes sense.</div>
+      <div class="stack-item"><strong>Layer 3 — SDK wrapper.</strong> The SDK helps wrap actions and emit receipts without manually assembling proof objects.</div>
+      <div class="stack-item"><strong>Layer 4 — Runtime / verifier.</strong> Runtime signs production receipts. The verifier checks hash, signature, signer identity, and capability verb.</div>
     </div>
   </section>
 
@@ -104,13 +110,14 @@ schemas:
 
       <section class="doc-card">
         <h2>Wrap an action</h2>
-        <p>Wrap your function with a capability verb. The wrapped function returns normal output plus a signed receipt that can be independently verified.</p>
+        <p>Wrap your function with a capability verb. The wrapped function returns normal output plus a signed receipt with metadata.proof using json.sorted_keys.v1 canonicalization, SHA-256 hash, and Ed25519 signatures that can be independently verified.</p>
         <pre class="code-panel"><code>import { CommandLayer } from "@commandlayer/agent-sdk";
 
 const cl = new CommandLayer({
   agent: "runtime.commandlayer.eth",
-  privateKey: process.env.CL_PRIVATE_KEY_PEM,
-  keyId: "vC4WbcNoq2znSCiQ"
+  privateKeyPem: process.env.CL_PRIVATE_KEY_PEM,
+  keyId: "vC4WbcNoq2znSCiQ",
+  verifierUrl: "https://runtime.commandlayer.org/verify"
 });
 
 const { output, receipt } = await cl.wrap("summarize", async () => {
@@ -126,8 +133,33 @@ console.log(receipt);</code></pre>
         <p>Use the SDK in-app, or paste the receipt into the public verifier.</p>
         <pre class="code-panel"><code>const check = await cl.verify(receipt);
 
-console.log(check.valid);</code></pre>
+console.log(check.ok);
+console.log(check.status);
+console.log(check.checks);</code></pre>
         <p style="margin-top:12px">Browser verification: <a class="inline-link" href="/verify.html">/verify.html</a></p>
+      </section>
+
+      <section class="doc-card">
+        <h2>Tamper test</h2>
+        <pre class="code-panel"><code>const tampered = structuredClone(receipt);
+tampered.result.payload.summary = "changed";
+
+const tamperedCheck = await cl.verify(tampered);
+
+console.log(tamperedCheck.status); // INVALID
+console.log(tamperedCheck.errors?.signature_error); // hash_mismatch</code></pre>
+      </section>
+
+      <section class="doc-card">
+        <h2>Trust boundary</h2>
+        <div class="rule-box">
+          <strong>SDK wraps.</strong><br/>
+          Runtime signs.<br/>
+          MCP bridges.<br/>
+          Verifier validates.<br/>
+          Schema-valid alone is not verified.<br/>
+          Private keys never go through MCP.
+        </div>
       </section>
 
       <section class="doc-card">
@@ -135,7 +167,8 @@ console.log(check.valid);</code></pre>
         <ul>
           <li><code>output</code>: the result from your wrapped function.</li>
           <li><code>receipt</code>: the signed proof payload for verification.</li>
-          <li><code>check.valid</code>: verifier result for the receipt.</li>
+          <li><code>check.ok</code> / <code>check.status</code>: whether verification passed.</li>
+          <li><code>check.checks.hash_matches</code> and <code>check.checks.signature_valid</code>: critical proof checks.</li>
         </ul>
       </section>
     </div>
@@ -156,5 +189,7 @@ console.log(check.valid);</code></pre>
     </aside>
   </div>
 </main>
+
+<footer><div class="container footer-grid"><div><h4>Product</h4><a href="/protocol.html">Protocol</a><a href="/capabilities.html">Capabilities</a><a href="/verify.html">Verifier</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP</a><a href="/claim.html">Claim</a></div><div><h4>Developers</h4><a href="/docs/wrap-your-agent.html">Docs</a><a href="/sdk-records.html">SDK</a><a href="/schemas/">Schemas</a><a href="/api/verify">API</a><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></div><div><h4>Proof</h4><a href="/stack-proof-demo.html">Production Proof</a><a href="/verify.html">VerifyAgent</a><a href="/capabilities/trust-verification/">Trust Verification</a><a href="/receipts/">Canonical Receipts</a></div></div></footer>
 </body>
 </html>
