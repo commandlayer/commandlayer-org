@@ -9,14 +9,18 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/site.css" />
   <style>
     :root{--bg:#fff;--surface:#f7f8ff;--surface2:#eef1fb;--border:rgba(15,23,42,.1);--text:#0f172a;--text2:#334155;--muted:#64748b;--blue:#5298ff;--purple:#635bff;--grad:linear-gradient(135deg,#5298FF 0%,#635BFF 100%)}
     *{box-sizing:border-box} body{margin:0;font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.6}
     .container{width:min(1120px,92vw);margin:0 auto}
     nav{position:sticky;top:0;background:rgba(255,255,255,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);z-index:20}
-    .nav-inner{min-height:84px;display:flex;align-items:center;justify-content:space-between;gap:20px}.brand img{height:68px}.nav-links{display:flex;gap:2px}.nav-links a{padding:6px 13px;border-radius:8px;color:var(--muted);text-decoration:none;font-weight:500;font-size:14px}.nav-links a:hover,.nav-links a.active{color:var(--text);background:var(--surface)}
+    .nav-inner{min-height:84px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+    .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}
+    .nav-links a.active{color:var(--text);background:var(--surface)}
     .hero{padding:88px 0 70px;text-align:center;background:radial-gradient(circle at 20% 0%,rgba(82,152,255,.08),transparent 38%),radial-gradient(circle at 80% 0%,rgba(99,91,255,.1),transparent 35%)}
-    .eyebrow{display:inline-block;padding:5px 12px;border:1px solid rgba(82,152,255,.32);background:rgba(82,152,255,.08);color:var(--purple);border-radius:999px;font-weight:700;font-size:12px}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:999px;border:1px solid rgba(82,152,255,.3);background:rgba(82,152,255,.06);color:var(--purple);font-size:13px;font-weight:700;margin-bottom:18px}
+    .badge-dot{width:8px;height:8px;border-radius:999px;background:var(--blue);box-shadow:0 0 0 4px rgba(82,152,255,.16)}
     h1{font-size:clamp(2rem,5.5vw,4rem);line-height:1.05;letter-spacing:-.03em;margin:20px 0 14px} .sub{max-width:760px;margin:0 auto;color:var(--text2);font-size:1.1rem}
     .hero-actions{display:flex;justify-content:center;gap:10px;margin-top:28px;flex-wrap:wrap}
     .btn{display:inline-flex;align-items:center;text-decoration:none;padding:12px 22px;border-radius:12px;font-weight:700;font-size:14px}
@@ -31,8 +35,11 @@
     .arrow{text-align:center;color:var(--blue);font-weight:800;align-self:center}
     .code{background:#0e1322;color:#e2e8f0;border-radius:14px;border:1px solid rgba(30,41,59,.35);padding:16px;overflow:auto;font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
     .split{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-    footer{padding:36px 0 44px;color:var(--muted);font-size:14px}
-    @media(max-width:920px){.nav-links{flex-wrap:wrap;justify-content:flex-end}.grid-3,.split,.flow{grid-template-columns:1fr}.arrow{display:none}}
+    footer{border-top:1px solid var(--border);background:#fff}
+    .footer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:36px 0}
+    .footer-grid h4{font-size:14px;margin-bottom:10px}
+    .footer-grid a{display:block;color:var(--text2);margin:8px 0;font-size:14px}
+    @media(max-width:920px){.grid-3,.split,.flow,.footer-grid{grid-template-columns:1fr}.arrow{display:none}}
   .nav-links a:hover,.nav-drop:hover>a,.nav-drop:focus-within>a,.nav-drop>a.active{color:var(--text);background:var(--surface)}.nav-drop{position:relative}.nav-drop>a{display:inline-flex;align-items:center;gap:4px}.nav-drop-menu{position:absolute;top:calc(100% - 1px);left:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 34px rgba(15,23,42,.12);padding:8px;display:none;min-width:260px;z-index:200}.nav-drop-menu::before{content:"";position:absolute;left:0;right:0;top:-8px;height:8px}.nav-drop-menu a{display:block;white-space:nowrap}.nav-drop:hover .nav-drop-menu,.nav-drop:focus-within .nav-drop-menu{display:grid}@media(max-width:900px){.nav-drop{width:100%}.nav-drop-menu{position:static;display:grid;margin-top:2px;min-width:0;box-shadow:none}}</style>
 </head>
 <body>
@@ -59,7 +66,7 @@
 
   <header class="hero">
     <div class="container">
-      <span class="eyebrow">Production Proof</span>
+      <div class="hero-badge"><span class="badge-dot"></span>Production Proof</div>
       <h1>Signed. Verified. Tamper-invalidated.</h1>
       <p class="sub">CommandLayer’s production runtime emits canonical <code>metadata.proof</code> receipts that can be independently verified. If the payload changes, verification fails.</p>
       <div class="hero-actions">
