@@ -146,7 +146,7 @@ async function verifyReceiptAction() {
 }
 
 async function fetchSampleReceipt() {
-  const resp = await fetch(`/examples/sample-receipt.json?v=${Date.now()}`);
+  const resp = await fetch(`/receipts/demo-valid-receipt.json?v=${Date.now()}`);
   if (!resp.ok) throw new Error('Sample receipt could not be loaded.');
   return resp.json();
 }
