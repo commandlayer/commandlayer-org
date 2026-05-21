@@ -22,6 +22,11 @@
   .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:16px}.card{border:1px solid var(--border);border-radius:14px;padding:14px;background:#fff;box-shadow:0 1px 2px rgba(15,23,42,.04)}
   .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
   .code{margin-top:14px;background:#0f172a;color:#dbeafe;border-radius:14px;padding:14px;overflow:auto;font:12.5px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  .copy-code-box{position:relative}
+  .copy-code-box .code{cursor:pointer;padding-top:40px}
+  .copy-code-button{position:absolute;top:22px;right:12px;border:1px solid rgba(219,234,254,.38);background:rgba(148,163,184,.2);color:#dbeafe;border-radius:999px;padding:4px 10px;font:600 11.5px/1 Inter,sans-serif;letter-spacing:.01em;cursor:pointer;z-index:2}
+  .copy-code-button:hover{background:rgba(148,163,184,.3)}
+  .copy-code-button:focus-visible{outline:2px solid rgba(219,234,254,.75);outline-offset:2px}
   .list{margin-top:12px;padding-left:20px;color:var(--text-2)} .list li{margin:6px 0}
   .cta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:14px}
   .cta{display:block;border:1px solid var(--border);border-radius:12px;padding:12px;text-decoration:none;background:#fff;color:var(--text)}
@@ -54,11 +59,11 @@
 <main>
 <section class="sdk-hero"><div class="container"><div class="hero-badge"><span class="badge-dot"></span>SDK Records</div><h1 class="sdk-h1">Add verifiable receipts to agent actions.</h1><p class="sdk-sub">@commandlayer/agent-sdk wraps agent actions and emits canonical metadata.proof receipts that can be checked by CommandLayer verifiers.</p><div class="hero-actions"><a class="hero-btn primary" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">View SDK on GitHub</a><a class="hero-btn" href="/verify.html">Verify a receipt</a></div><div class="status"><strong>Wrap an agent action, emit a canonical receipt, and verify the proof.</strong><br/>Runtime production is live. Runtime signs canonical Trust Verification receipts. MCP E2E against production runtime passes: STEP 1 SIGNED, STEP 2 VERIFIED, STEP 3 TAMPERED INVALID. Runtime signer: <code>signer_id = runtime.commandlayer.eth</code>, <code>kid = vC4WbcNoq2znSCiQ</code>. Canonical proof: <code>metadata.proof.canonicalization = json.sorted_keys.v1</code>, <code>metadata.proof.hash.alg = SHA-256</code>, <code>metadata.proof.signature.alg = Ed25519</code>.</div></div></section>
 
-<section class="section section-alt"><div class="container"><div class="section-eyebrow">Install</div><h2 class="section-h2">Install the SDK package.</h2><pre class="code">npm install @commandlayer/agent-sdk
+<section class="section section-alt"><div class="container"><div class="section-eyebrow">Install</div><h2 class="section-h2">Install the SDK package.</h2><div class="copy-code-box"><button class="copy-code-button" type="button">Copy</button><pre class="code">npm install @commandlayer/agent-sdk
 
-@commandlayer/agent-sdk@1.2.0</pre></div></section>
+@commandlayer/agent-sdk@1.2.0</pre></div></div></section>
 
-<section class="section"><div class="container"><div class="section-eyebrow">Quickstart</div><h2 class="section-h2">Canonical SDK configuration and wrap flow.</h2><pre class="code">import { CommandLayer } from "@commandlayer/agent-sdk";
+<section class="section"><div class="container"><div class="section-eyebrow">Quickstart</div><h2 class="section-h2">Canonical SDK configuration and wrap flow.</h2><div class="copy-code-box"><button class="copy-code-button" type="button">Copy</button><pre class="code">import { CommandLayer } from "@commandlayer/agent-sdk";
 
 const cl = new CommandLayer({
   agent: "runtime.commandlayer.eth",
@@ -73,15 +78,15 @@ const { output, receipt } = await cl.wrap("sign", async () => {
   };
 });
 
-const verified = await cl.verify(receipt);</pre></div></section>
+const verified = await cl.verify(receipt);</pre></div></div></section>
 
-<section class="section section-alt"><div class="container"><div class="section-eyebrow">Receipt shape</div><h2 class="section-h2">Canonical metadata.proof fields.</h2><pre class="code">metadata.proof.canonicalization = "json.sorted_keys.v1"
+<section class="section section-alt"><div class="container"><div class="section-eyebrow">Receipt shape</div><h2 class="section-h2">Canonical metadata.proof fields.</h2><div class="copy-code-box"><button class="copy-code-button" type="button">Copy</button><pre class="code">metadata.proof.canonicalization = "json.sorted_keys.v1"
 metadata.proof.hash.alg = "SHA-256"
 metadata.proof.hash.value = "..."
 metadata.proof.signature.alg = "Ed25519"
 metadata.proof.signature.kid = "vC4WbcNoq2znSCiQ"
 metadata.proof.signature.value = "..."
-metadata.proof.signer_id = "runtime.commandlayer.eth"</pre></div></section>
+metadata.proof.signer_id = "runtime.commandlayer.eth"</pre></div></div></section>
 
 <section class="section"><div class="container"><div class="section-eyebrow">What the SDK does</div><div class="cards"><article class="card">Wraps agent actions into consistent execution envelopes.</article><article class="card">Emits canonical receipts for each wrapped action.</article><article class="card">Normalizes canonical proof shape under metadata.proof.</article><article class="card">Calls verifier endpoints to confirm receipt validity.</article><article class="card">Helps developers integrate without rebuilding proof plumbing.</article></div></div></section>
 
@@ -92,6 +97,57 @@ metadata.proof.signer_id = "runtime.commandlayer.eth"</pre></div></section>
 <section class="section section-alt"><div class="container"><div class="section-eyebrow">Trust Verification verbs supported</div><h2 class="section-h2">Canonical Trust Verification v1 verbs.</h2><div class="cards"><article class="card mono">verify</article><article class="card mono">sign</article><article class="card mono">attest</article><article class="card mono">authorize</article><article class="card mono">approve</article><article class="card mono">reject</article><article class="card mono">permit</article><article class="card mono">grant</article><article class="card mono">authenticate</article><article class="card mono">endorse</article></div><p class="section-p" style="margin-top:12px">These verbs are canonical Trust Verification v1 verbs, and runtime-backed production receipt endpoints exist for production verification flows.</p></div></section>
 
 <section class="section"><div class="container"><div class="section-eyebrow">Verification states</div><p class="section-p"><strong>VALID / VERIFIED</strong> = hash and signature checks passed. <strong>INVALID</strong> = proof failed. <strong>TRANSPORT_ERROR</strong> = verifier/runtime unavailable or request failed.</p><div class="cta-grid"><a class="cta" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener"><strong>View SDK on GitHub</strong></a><a class="cta" href="/docs/wrap-your-agent.html"><strong>Read Docs</strong></a><a class="cta" href="/verify.html"><strong>Try Verifier</strong></a><a class="cta" href="/stack-proof-demo.html"><strong>View Production Proof</strong></a><a class="cta" href="/capabilities.html"><strong>Explore Capabilities</strong></a></div></div></section>
+<script>
+  (function () {
+    const boxes = document.querySelectorAll('.copy-code-box');
+    const fallbackCopy = (text) => {
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      const success = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      return success;
+    };
+    const copyText = async (text) => {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+      return fallbackCopy(text);
+    };
+    boxes.forEach((box) => {
+      const button = box.querySelector('.copy-code-button');
+      const codeElement = box.querySelector('pre, code');
+      if (!button || !codeElement) return;
+      let resetTimer;
+      const runCopy = async () => {
+        const text = codeElement.dataset.copy || codeElement.textContent || '';
+        try {
+          const ok = await copyText(text);
+          if (!ok) return;
+          button.textContent = 'Copied';
+          clearTimeout(resetTimer);
+          resetTimer = setTimeout(() => {
+            button.textContent = 'Copy';
+          }, 1500);
+        } catch (err) {
+          console.error('Copy failed', err);
+        }
+      };
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        runCopy();
+      });
+      box.addEventListener('click', () => {
+        runCopy();
+      });
+    });
+  })();
+</script>
 </main>
 <footer><div class="container footer-grid"><div><h4>Product</h4><a href="/protocol.html">Protocol</a><a href="/capabilities.html">Capabilities</a><a href="/verify.html">Verifier</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP</a><a href="/claim.html">Claim</a></div><div><h4>Developers</h4><a href="/docs.html">Docs</a><a href="/sdk-records.html">SDK</a><a href="/schemas.html">Schemas</a><a href="/api.html">API</a><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></div><div><h4>Proof</h4><a href="/stack-proof-demo.html">Production Proof</a><a href="/verifyagent.html">VerifyAgent</a><a href="/trust-verification.html">Trust Verification</a><a href="/canonical-receipts.html">Canonical Receipts</a></div></div></footer>
 </body>
