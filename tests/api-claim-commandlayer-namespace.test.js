@@ -114,6 +114,16 @@ test('user-owned ENS activationMode rejected by commandlayer namespace endpoint'
   assert.equal(res.statusCode, 400);
   assert.equal(res.body.error, 'invalid_activation_mode');
 });
+test('single activationMode rejected by commandlayer namespace endpoint', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
+  const body = validBody();
+  body.activationMode = 'single';
+  const res = makeRes();
+  await handler({ method: 'POST', body }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'invalid_activation_mode');
+});
 
 test('agent.ens with wrong parent rejected', async () => {
   process.env.DATABASE_URL = 'postgres://example.com/db';
@@ -146,6 +156,58 @@ test('tenant containing .eth rejected', async () => {
   await handler({ method: 'POST', body }, res);
   assert.equal(res.statusCode, 400);
   assert.equal(res.body.error, 'invalid_tenant');
+});
+test('tenant starting with hyphen rejected', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
+  const body = validBody();
+  body.tenant = '-acme';
+  const res = makeRes();
+  await handler({ method: 'POST', body }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'invalid_tenant');
+});
+test('tenant ending with hyphen rejected', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
+  const body = validBody();
+  body.tenant = 'acme-';
+  const res = makeRes();
+  await handler({ method: 'POST', body }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'invalid_tenant');
+});
+test('mismatched capability/canonical parent rejected', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
+  const body = validBody();
+  body.agents[0].capability = 'verify';
+  body.agents[0].canonicalParent = 'signagent.eth';
+  body.agents[0].skill = 'trust-verification.verify';
+  const res = makeRes();
+  await handler({ method: 'POST', body }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'invalid_agent_mapping');
+});
+test('skill mismatch rejected', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
+  const body = validBody();
+  body.agents[0].skill = 'trust-verification.attest';
+  const res = makeRes();
+  await handler({ method: 'POST', body }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'invalid_skill');
+});
+test('too many namespaces rejected', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
+  const body = validBody();
+  body.capabilities = ['a','b','c','d','e','f','g','h','i','j','k'];
+  const res = makeRes();
+  await handler({ method: 'POST', body }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'invalid_capabilities');
 });
 test('claim.created event insertion is attempted', async () => {
   process.env.DATABASE_URL = 'postgres://example.com/db';

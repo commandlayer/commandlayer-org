@@ -598,6 +598,14 @@
 <script src="https://cdn.jsdelivr.net/npm/ethers@6.16.0/dist/ethers.umd.min.js" crossorigin="anonymous"></script>
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
+const TRUST_VERIFICATION_MAP = {
+  sign:'signagent.eth', attest:'attestagent.eth', authorize:'authorizeagent.eth',
+  approve:'approveagent.eth', reject:'rejectagent.eth', permit:'permitagent.eth',
+  grant:'grantagent.eth', authenticate:'authenticateagent.eth', endorse:'endorseagent.eth',
+  verify:'verifyagent.eth'
+};
+const TRUST_VERBS = Object.keys(TRUST_VERIFICATION_MAP);
+const TRUST_PARENTS = Object.values(TRUST_VERIFICATION_MAP);
 const PACKS = [
   {id:'trust', name:'Trust Verification', live:true,
    verbs:['sign','attest','authorize','approve','reject','permit','grant','authenticate','endorse','verify'],
@@ -612,35 +620,16 @@ const PACKS = [
    verbs:['summarize','search','extract','transform','enrich','query','classify','translate','validate','report']}
 ];
 
-// Map verb → canonical agent ENS name for CL namespace mode
-const VERB_TO_AGENT = {
-  sign:'signagent.eth', attest:'attestagent.eth', authorize:'authorizeagent.eth',
-  approve:'approveagent.eth', reject:'rejectagent.eth', permit:'permitagent.eth',
-  grant:'grantagent.eth', authenticate:'authenticateagent.eth', endorse:'endorseagent.eth',
-  verify:'verifyagent.eth', invoice:'invoiceagent.eth', payment:'paymentagent.eth',
-  checkout:'checkoutagent.eth', purchase:'purchaseagent.eth', refund:'refundagent.eth',
-  settle:'settleagent.eth', escrow:'escrowagent.eth', payout:'payoutagent.eth',
-  charge:'chargeagent.eth', reconcile:'reconcileagent.eth',
-  login:'loginagent.eth', access:'accessagent.eth', permission:'permissionagent.eth',
-  consent:'consentagent.eth', revoke:'revokeagent.eth', delegate:'delegateagent.eth',
-  session:'sessionagent.eth', token:'tokenagent.eth', oauth:'oauthagent.eth',
-  role:'roleagent.eth', create:'createagent.eth', register:'registeragent.eth',
-  publish:'publishagent.eth', update:'updateagent.eth', archive:'archiveagent.eth',
-  deploy:'deployagent.eth', pause:'pauseagent.eth', resume:'resumeagent.eth',
-  terminate:'terminateagent.eth', schedule:'scheduleagent.eth',
-  summarize:'summarizeagent.eth', search:'searchagent.eth', extract:'extractagent.eth',
-  transform:'transformagent.eth', enrich:'enrichagent.eth', query:'queryagent.eth',
-  classify:'classifyagent.eth', translate:'translateagent.eth', validate:'validateagent.eth',
-  report:'reportagent.eth'
-};
-const TRUST_PARENTS = Array.from(new Set(Object.values(VERB_TO_AGENT).filter(v=>['signagent.eth','attestagent.eth','authorizeagent.eth','approveagent.eth','rejectagent.eth','permitagent.eth','grantagent.eth','authenticateagent.eth','endorseagent.eth','verifyagent.eth'].includes(v))));
+const VERB_TO_AGENT = Object.fromEntries(
+  PACKS.flatMap((p) => p.verbs.map((verb) => [verb, TRUST_VERIFICATION_MAP[verb] || `${verb}agent.eth`]))
+);
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let state = {
   step:1, ens:'', tenantLabel:'', activationMode:'cl',
   capMode:'packs', selectedPack:null, cherryVerbs:[],
   pubKeyB64:'', privKeyB64:'', kid:'',
-  keyGenerated:false, keyDownloaded:false, keyAcked:false,
+  keyGenerated:false, keyDownloaded:false, keyAcked:false, selectedCanonicalParents:[],
   _cardJson:'', _packageJson:'', submitResult:null,
   authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null, siweAuthenticated:false
 };
@@ -757,6 +746,10 @@ selectMode('cl');
 updateSiweModeHint();
 
 // ── STEP 3: CAPABILITIES ──────────────────────────────────────────────────────
+function getEffectiveClVerbs() {
+  return state.activationMode === 'cl' ? (state.selectedCanonicalParents || []).map((parent) => TRUST_VERBS.find((verb) => TRUST_VERIFICATION_MAP[verb] === parent)).filter(Boolean) : getVerbs();
+}
+
 function setCapMode(m) {
   state.capMode = m;
   document.getElementById('tabPacks').classList.toggle('active', m==='packs');
@@ -778,11 +771,16 @@ function selectPack(id) {
   state.selectedPack = id;
   document.querySelectorAll('.pack-card').forEach(c=>c.classList.remove('selected'));
   document.getElementById('pack-'+id).classList.add('selected');
+  if (state.activationMode === 'cl' && id === 'trust') {
+    state.selectedCanonicalParents = [...TRUST_PARENTS];
+    renderCanonicalSearch();
+  }
   updateNamePreview();
 }
 
 function buildCherryGroups() {
-  document.getElementById('cherryGroups').innerHTML = PACKS.map(g => `
+  const groups = state.activationMode === 'cl' ? PACKS.filter((g) => g.id === 'trust') : PACKS;
+  document.getElementById('cherryGroups').innerHTML = groups.map(g => `
     <div class="cherry-section">
       <div class="cherry-section-label">${g.name}</div>
       <div class="cherry-grid">${g.verbs.map(v=>`
@@ -820,16 +818,20 @@ function updateStep3ModeUI(){
 }
 function renderCanonicalSearch(){
   const q=(document.getElementById('canonicalSearchInput').value||'').trim().toLowerCase();
-  const out=TRUST_PARENTS.filter(p=>!q||p.includes(q)).slice(0,10);
+  const out=TRUST_PARENTS.filter((p)=>!q||p.startsWith(q)).slice(0,10);
   document.getElementById('canonicalSearchResults').innerHTML=out.map(p=>`<button type="button" class="btn btn-ghost" style="margin:4px" onclick="addCanonicalParent('${p}')">${p}</button>`).join('')||'<div class="field-hint">No matches.</div>';
   const selected=(state.selectedCanonicalParents||[]);
   document.getElementById('canonicalSelected').classList.toggle('show',selected.length>0);
-  document.getElementById('canonicalSelected').innerHTML=selected.length?`<div class="name-preview-label">Selected canonical parents (${selected.length}/10)</div><div class="name-preview-list">${selected.map(p=>`<span class="name-preview-item">${state.tenantLabel||'tenant'}.${p}</span>`).join('')}</div>`:'';
+  document.getElementById('canonicalSelected').innerHTML=selected.length?`<div class="name-preview-label">Selected canonical namespaces (${selected.length}/10)</div><div class="name-preview-list">${selected.map(p=>`<span class="name-preview-item">${p} → ${(state.tenantLabel||'tenant')}.${p} (${TRUST_VERBS.find((v)=>TRUST_VERIFICATION_MAP[v]===p)}) <button type="button" class="btn btn-ghost" onclick="removeCanonicalParent('${p}')">Remove</button></span>`).join('')}</div>`:'';
 }
 function addCanonicalParent(parent){
   state.selectedCanonicalParents=state.selectedCanonicalParents||[];
   if(state.selectedCanonicalParents.includes(parent)||state.selectedCanonicalParents.length>=10)return;
   state.selectedCanonicalParents.push(parent);
+  renderCanonicalSearch();
+}
+function removeCanonicalParent(parent){
+  state.selectedCanonicalParents=(state.selectedCanonicalParents||[]).filter((p)=>p!==parent);
   renderCanonicalSearch();
 }
 
@@ -850,7 +852,8 @@ function goStep3() {
   updateModeExamples();
   buildPacksGrid();
   buildCherryGroups();
-  if (getVerbs().length === 0) { alert('Please select a pack or cherry-pick at least one verb.'); return; }
+  if (state.activationMode==='cl' && (!state.selectedCanonicalParents || state.selectedCanonicalParents.length===0)) { alert('Select at least one canonical namespace.'); return; }
+  if (getEffectiveClVerbs().length === 0) { alert('Please select a pack or cherry-pick at least one verb.'); return; }
   buildENSRecords();
   buildSDKConfig();
   buildAgentCard();
@@ -1127,7 +1130,7 @@ function goStep4() {
 
 // ── STEP 5: ENS RECORDS ───────────────────────────────────────────────────────
 function buildAgentTable() {
-  const verbs = getVerbs();
+  const verbs = getEffectiveClVerbs();
   const tbody = document.getElementById('agentTableBody');
   if (state.activationMode === 'single') {
     tbody.innerHTML = `<tr>
@@ -1145,7 +1148,7 @@ function buildAgentTable() {
 }
 
 function buildENSRecords() {
-  const verbs = getVerbs();
+  const verbs = getEffectiveClVerbs();
   let records = '';
 
   if (state.activationMode === 'single') {
@@ -1201,7 +1204,7 @@ function downloadRecords() {
 
 // ── STEP 6: SDK CONFIG ────────────────────────────────────────────────────────
 function buildSDKConfig() {
-  const verbs = getVerbs();
+  const verbs = getEffectiveClVerbs();
   const first = verbs[0] || 'sign';
   const firstName = agentName(first);
 
@@ -1238,7 +1241,7 @@ console.log(check.checks.signature_valid);  // true`;
 
 // ── STEP 7: AGENT CARD ────────────────────────────────────────────────────────
 function buildAgentCard() {
-  const verbs = getVerbs();
+  const verbs = getEffectiveClVerbs();
   const pack = PACKS.find(p=>p.id===state.selectedPack);
   const isLive = pack && pack.live;
   const first = verbs[0] || 'sign';
@@ -1294,7 +1297,7 @@ function downloadCard() {
 
 // ── STEP 8: SUMMARY ───────────────────────────────────────────────────────────
 function buildSummary() {
-  const verbs = getVerbs();
+  const verbs = getEffectiveClVerbs();
   const pack = PACKS.find(p=>p.id===state.selectedPack);
   const names = agentNames();
   const modeLabel = {cl:'CommandLayer namespace', own:'Your ENS namespace', single:'Single agent'}[state.activationMode];
@@ -1322,7 +1325,7 @@ function buildSummary() {
 }
 
 function downloadPackage() {
-  const verbs = getVerbs();
+  const verbs = getEffectiveClVerbs();
   const pack = PACKS.find(p=>p.id===state.selectedPack);
   const agents = state.activationMode === 'single'
     ? [{ ens: state.ens, capabilities: verbs, records_mode: 'parent_multi_capability' }]
@@ -1384,14 +1387,14 @@ function copyBlock(id, btn) {
 }
 
 function canSubmitActivationRequest(){
-  const verbs = getVerbs();
-  return state.activationMode==='cl' && state.siweAuthenticated && state.keyGenerated && !!state.kid && !!state.pubKeyB64 && !!state.selectedPack && verbs.length>0 && verbs.length<=10;
+  const verbs = getEffectiveClVerbs();
+  return state.activationMode==='cl' && state.siweAuthenticated && state.keyGenerated && !!state.kid && !!state.pubKeyB64 && verbs.length>0 && verbs.length<=10;
 }
 
 async function submitActivationRequest() {
   const resultEl = document.getElementById('activationResult');
   resultEl.style.display = 'none';
-  const verbs = getVerbs();
+  const verbs = getEffectiveClVerbs();
   const tenant = state.ens.replace('.eth', '');
   const payload = {
     authenticatedAddress: state.authenticatedAddress, tenant, activationMode: 'cl', packId: state.selectedPack,
@@ -1437,7 +1440,7 @@ function copyActivationResponse(btn){
 
 function startOver() {
   state = {
-    step:1, ens:'', tenantLabel:'', activationMode:'cl', capMode:'packs', selectedPack:null, cherryVerbs:[],
+    step:1, ens:'', tenantLabel:'', activationMode:'cl', capMode:'packs', selectedPack:null, cherryVerbs:[], selectedCanonicalParents:[],
     pubKeyB64:'', privKeyB64:'', kid:'', keyGenerated:false, keyDownloaded:false, keyAcked:false,
     _cardJson:'', _packageJson:'', submitResult:null, authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null, siweAuthenticated:false
   };
