@@ -277,6 +277,9 @@
       <div id="siweWallet" style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:4px"></div>
       <div id="siweError" style="font-size:12px;color:#b42318;margin-top:8px;display:none"></div>
       <div id="siweModeHint" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
+      <div id="ensLookupStatus" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
+      <button class="btn btn-secondary" id="usePrimaryEnsBtn" onclick="usePrimaryEnsName()" style="display:none;margin-top:8px">Use this ENS name</button>
+      <div style="font-size:12px;color:var(--muted);margin-top:8px">Only ENS identity is checked. Claim does not scan token balances or unrelated wallet assets.</div>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" id="step1Next" disabled onclick="goStep1()">Continue →</button>
@@ -341,10 +344,10 @@
       <div id="cherryGroups"></div>
     </div>
     <div class="field" style="margin-top:14px">
-      <label>ENS Name</label>
+      <label id="ensFieldLabel">ENS Name</label>
       <input type="text" id="ensInput" placeholder="acme.eth" autocomplete="off" spellcheck="false" />
       <span class="field-error" id="ensError">Please enter a valid .eth name</span>
-      <span class="field-hint">Must end in .eth · The name you own or control</span>
+      <span class="field-hint" id="ensFieldHint">Must end in .eth · The name you own or control</span>
     </div>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
@@ -587,7 +590,8 @@ let state = {
   pubKeyB64:'', privKeyB64:'', kid:'',
   keyGenerated:false, keyDownloaded:false, keyAcked:false,
   _cardJson:'',
-  authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null, siweAuthenticated:false
+  authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null, siweAuthenticated:false,
+  primaryEnsName:null
 };
 const SIWE_STATEMENT = 'Authenticate with CommandLayer Claim activation.';
 
@@ -654,10 +658,11 @@ document.getElementById('ensInput').addEventListener('keydown', e => { if(e.key=
 
 // ── STEP 2: MODE ──────────────────────────────────────────────────────────────
 function updateModeExamples() {
-  const base = state.ens.replace('.eth','');
+  const currentName = state.ens || 'acme.eth';
+  const base = currentName.replace('.eth','');
   document.getElementById('eg-cl').textContent    = base + '.approveagent.eth';
-  document.getElementById('eg-own').textContent   = 'approve.' + state.ens;
-  document.getElementById('eg-single').textContent = state.ens;
+  document.getElementById('eg-own').textContent   = 'approve.' + currentName;
+  document.getElementById('eg-single').textContent = currentName;
 }
 
 function selectMode(m) {
@@ -667,6 +672,7 @@ function selectMode(m) {
   });
   updateNamePreview();
   updateSiweModeHint();
+  updateEnsFieldByMode();
 }
 
 function updateNamePreview() {
@@ -689,11 +695,13 @@ function goStep2() {
   if (!document.querySelector('.mode-card.selected')) selectMode('cl');
 updateSiweModeHint();
   goToStep(3);
+  updateEnsFieldByMode();
 }
 
 // Auto-select CL mode on load
 selectMode('cl');
 updateSiweModeHint();
+updateEnsFieldByMode();
 
 // ── STEP 3: CAPABILITIES ──────────────────────────────────────────────────────
 function setCapMode(m) {
@@ -750,7 +758,8 @@ function toggleCherry(verb) {
 }
 
 function goStep3() {
-  const val = document.getElementById('ensInput').value.trim().toLowerCase();
+  const raw = document.getElementById('ensInput').value.trim().toLowerCase();
+  const val = state.activationMode==='cl' && raw && !raw.endsWith('.eth') ? `${raw}.eth` : raw;
   const err = document.getElementById('ensError');
   if (!val.endsWith('.eth') || val.length < 6) {
     err.classList.add('show');
@@ -800,6 +809,63 @@ function updateSiweModeHint(){
     el.textContent='CommandLayer namespace activation requires wallet authentication before submission.';
   }
 }
+
+function labelFromEnsName(name){
+  return String(name || '').toLowerCase().replace(/\.eth$/,'').replace(/[^a-z0-9-]/g,'');
+}
+
+function updateEnsFieldByMode() {
+  const labelEl = document.getElementById('ensFieldLabel');
+  const inputEl = document.getElementById('ensInput');
+  const hintEl = document.getElementById('ensFieldHint');
+  if(state.activationMode==='cl'){
+    labelEl.textContent='Tenant label';
+    hintEl.textContent='This creates names like hydroseal.approveagent.eth';
+    inputEl.placeholder='hydroseal';
+    if(state.primaryEnsName && !inputEl.value.trim()){ inputEl.value=labelFromEnsName(state.primaryEnsName); }
+  } else if (state.activationMode==='own'){
+    labelEl.textContent='ENS Name';
+    hintEl.textContent='This creates names like approve.hydroseal.eth';
+    inputEl.placeholder='hydroseal.eth';
+    if(state.primaryEnsName && !inputEl.value.trim()){ inputEl.value=state.primaryEnsName; }
+  } else {
+    labelEl.textContent='ENS Name';
+    hintEl.textContent='Single agent mode uses your ENS name directly';
+    inputEl.placeholder='hydroseal.eth';
+    if(state.primaryEnsName && !inputEl.value.trim()){ inputEl.value=state.primaryEnsName; }
+  }
+}
+
+async function lookupPrimaryEns(address){
+  const statusEl=document.getElementById('ensLookupStatus');
+  const btn=document.getElementById('usePrimaryEnsBtn');
+  statusEl.textContent='Checking primary ENS name...';
+  btn.style.display='none';
+  const res=await fetch(`/api/ens/lookup?address=${encodeURIComponent(address)}`,{headers:{Accept:'application/json'}});
+  const data=await res.json();
+  if(!res.ok || !data.ok){
+    statusEl.textContent=(data && data.status==='PROVIDER_UNAVAILABLE')
+      ? 'Primary ENS lookup unavailable: ETH_RPC_URL is not configured.'
+      : 'No primary ENS name found. You can still enter a tenant label or ENS name manually.';
+    state.primaryEnsName=null;
+    return;
+  }
+  if(data.primaryName){
+    state.primaryEnsName=data.primaryName.toLowerCase();
+    statusEl.textContent=`Primary ENS detected: ${state.primaryEnsName}`;
+    btn.style.display='inline-flex';
+  }else{
+    state.primaryEnsName=null;
+    statusEl.textContent='No primary ENS name found. You can still enter a tenant label or ENS name manually.';
+  }
+}
+
+window.usePrimaryEnsName = function usePrimaryEnsName() {
+  if(!state.primaryEnsName) return;
+  const inputEl=document.getElementById('ensInput');
+  inputEl.value = state.activationMode==='cl' ? labelFromEnsName(state.primaryEnsName) : state.primaryEnsName;
+  inputEl.focus();
+};
 
 window.connectWallet = async function connectWallet(){
   const statusEl=document.getElementById('siweStatus');
@@ -888,6 +954,8 @@ Issued At: ${issuedAt}`;
     walletEl.textContent=`Connected wallet: ${shortAddr(verify.address)}`;
     btn.textContent='Authenticated';
     nextBtn.disabled=false;
+    await lookupPrimaryEns(verify.address);
+    updateEnsFieldByMode();
   } catch (err) {
     const msg=((err && err.message)||'SIWE verification failed.').trim();
     errorEl.textContent=err && err.code===4001 ? 'Signature rejected.' : msg;
