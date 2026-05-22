@@ -141,7 +141,7 @@
           <ul>
             <li>receipt structure</li>
             <li><code>metadata.proof</code> present</li>
-            <li><code>json.sorted_keys.v1</code> canonicalization</li>
+            <li><code>json.sorted_keys.v1</code> canonicalization (standard JSON receipt path)</li><li><code>erc8211.merkle.v1</code> canonicalization recognized at schema layer for interoperability</li>
             <li>SHA-256 hash match</li>
             <li>Ed25519 signature validity</li>
             <li><code>signature.kid</code> (<code>vC4WbcNoq2znSCiQ</code>)</li>
@@ -149,8 +149,8 @@
             <li>supported capability verb</li>
             <li>tamper invalidation</li>
           </ul>
-          <p>The canonical proof model is:</p>
-          <p><code>metadata.proof.canonicalization = json.sorted_keys.v1</code><br /><code>metadata.proof.hash.alg = SHA-256</code><br /><code>metadata.proof.hash.value</code><br /><code>metadata.proof.signature.alg = Ed25519</code><br /><code>metadata.proof.signature.kid = vC4WbcNoq2znSCiQ</code><br /><code>metadata.proof.signature.value</code><br /><code>metadata.proof.signer_id = runtime.commandlayer.eth</code></p>
+          <p>Canonical proof model (single-signature example):</p>
+          <p><code>metadata.proof.canonicalization = json.sorted_keys.v1</code><br /><code>metadata.proof.hash.alg = SHA-256</code><br /><code>metadata.proof.hash.value</code><br /><code>metadata.proof.signature = { alg, kid, value }</code><br /><code>metadata.proof.signer_id = runtime.commandlayer.eth</code><br /><code>metadata.trace = { trace_id, span_id? }</code> (optional)</p><p>Multi-signature shape is also supported for solver/relayer/batch workflows via <code>metadata.proof.signature[]</code> entries with <code>role</code> values of <code>user</code>, <code>solver</code>, <code>relayer</code>, <code>agent</code>, <code>runtime</code>, or <code>verifier</code>.</p>
           <p>Runtime endpoint: <code>https://runtime.commandlayer.org</code>.</p>
         </article>
       </div>

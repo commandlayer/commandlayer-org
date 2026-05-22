@@ -54,7 +54,7 @@
       <a class="btn btn-primary btn-lg" href="/verify.html">Try Verifier</a>
       <a class="btn btn-secondary btn-lg" href="/stack-proof-demo.html">View Production Proof</a>
     </div>
-    <div class="proof-status"><strong>Production proof status:</strong> Runtime production is live and signs canonical Trust Verification receipts. MCP E2E against production runtime passes: STEP 1 SIGNED, STEP 2 VERIFIED, STEP 3 TAMPERED INVALID. Runtime signer is <code>runtime.commandlayer.eth</code> with <code>kid=vC4WbcNoq2znSCiQ</code>. Canonical proof is <code>metadata.proof.canonicalization=json.sorted_keys.v1</code>, <code>metadata.proof.hash.alg=SHA-256</code>, <code>metadata.proof.signature.alg=Ed25519</code>.</div>
+    <div class="proof-status"><strong>Production proof status:</strong> Runtime production is live and signs canonical Trust Verification receipts. MCP E2E against production runtime passes: STEP 1 SIGNED, STEP 2 VERIFIED, STEP 3 TAMPERED INVALID. Runtime signer is <code>runtime.commandlayer.eth</code> with <code>kid=vC4WbcNoq2znSCiQ</code>. Canonical proof uses <code>metadata.proof</code> with <code>json.sorted_keys.v1</code> as the standard receipt path; <code>erc8211.merkle.v1</code> is recognized at the schema layer for interoperability.</div>
   </div>
 </section>
 
@@ -169,8 +169,8 @@
 }</code></pre>
       </div>
     </div>
-    <h3 style="margin-top:14px">Canonical proof fields</h3>
-    <p><code>metadata.proof.canonicalization</code><br/><code>metadata.proof.hash.alg</code><br/><code>metadata.proof.hash.value</code><br/><code>metadata.proof.signature.alg</code><br/><code>metadata.proof.signature.value</code><br/><code>metadata.proof.signature.kid</code><br/><code>metadata.proof.signer_id</code></p>
+    <h3 style="margin-top:14px">Canonical proof fields</h3><p><code>metadata.proof</code> is required. <code>metadata.trace</code> is optional for multi-step workflow correlation (agents, spans, solver fills, and batch execution).</p><p><code>metadata.proof.signature</code> can be a single Ed25519 object or an array of role-based Ed25519 signature entries.</p><p>Allowed signature roles: <code>user</code>, <code>solver</code>, <code>relayer</code>, <code>agent</code>, <code>runtime</code>, <code>verifier</code>. Do not assume every signature in a multi-signature array is verified unless your verifier explicitly validates all of them.</p>
+    <p><code>metadata.proof.canonicalization</code><br/><code>metadata.proof.hash.alg</code><br/><code>metadata.proof.hash.value</code><br/><code>metadata.proof.signature</code> (single object or role-based array)<br/><code>metadata.proof.signer_id</code><br/><code>metadata.trace</code> (optional)</p>
   </section>
 
   <section class="api-card section">
