@@ -267,11 +267,12 @@
   <!-- STEP 1: ENS NAME -->
   <div class="wizard-panel active" id="panel-1">
     <div class="panel-step">Step 1 of 8</div>
-    <div class="panel-title">Sign in with Ethereum</div>
-    <div class="panel-sub">Authenticate the wallet that will request this CommandLayer namespace activation.</div>
+    <div class="panel-title">Connect wallet</div>
+    <div class="panel-sub">Connect an Ethereum wallet to authenticate the activation request. Your wallet signs the login message. Your Ed25519 key signs agent receipts later.</div>
     <div style="padding:14px;border-radius:12px;border:1px solid var(--border);background:#fff">
-      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Your Ethereum wallet authenticates the claim request.<br>Your Ed25519 key signs agent receipts later in the flow.</div>
-      <button class="btn btn-secondary" id="siweAuthBtn" onclick="signInWithEthereum()">Sign-In with Ethereum</button>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Supported browser wallets include MetaMask, Rabby, Coinbase Wallet, and other EIP-1193 wallets.</div>
+      <button class="btn btn-secondary" id="walletConnectBtn" onclick="connectWallet()">Connect Wallet</button>
+      <button class="btn btn-secondary" id="siweAuthBtn" onclick="signInWithEthereum()" style="display:none;margin-left:8px">Sign-In with Ethereum</button>
       <div id="siweStatus" style="font-size:13px;color:var(--text-2);margin-top:10px">Not connected</div>
       <div id="siweWallet" style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:4px"></div>
       <div id="siweError" style="font-size:12px;color:#b42318;margin-top:8px;display:none"></div>
@@ -783,6 +784,42 @@ function updateSiweModeHint(){
   }
 }
 
+window.connectWallet = async function connectWallet(){
+  const statusEl=document.getElementById('siweStatus');
+  const walletEl=document.getElementById('siweWallet');
+  const errorEl=document.getElementById('siweError');
+  const connectBtn=document.getElementById('walletConnectBtn');
+  const siweBtn=document.getElementById('siweAuthBtn');
+  const nextBtn=document.getElementById('step1Next');
+  try {
+    errorEl.style.display='none';
+    errorEl.textContent='';
+    nextBtn.disabled=true;
+    connectBtn.disabled=true;
+    connectBtn.textContent='Connecting...';
+    statusEl.textContent='Connecting wallet...';
+    if(!window.ethereum){ throw new Error('No Ethereum wallet detected. Install MetaMask, Rabby, Coinbase Wallet, or another browser wallet.'); }
+    const accounts=await window.ethereum.request({ method:'eth_requestAccounts' });
+    const address=accounts && accounts[0];
+    if(!address){ throw new Error('Wallet connection rejected.'); }
+    state.connectedWalletAddress=address;
+    walletEl.textContent=`Wallet connected: ${shortAddr(address)}`;
+    statusEl.textContent='Wallet connected';
+    connectBtn.textContent='Wallet Connected';
+    siweBtn.style.display='inline-flex';
+    siweBtn.disabled=false;
+  } catch (err) {
+    const msg=((err && err.message)||'Wallet connection rejected.').trim();
+    errorEl.textContent=err && err.code===4001 ? 'Wallet connection rejected.' : msg;
+    errorEl.style.display='block';
+    statusEl.textContent='Not connected';
+    connectBtn.textContent='Connect Wallet';
+    walletEl.textContent='';
+  } finally {
+    connectBtn.disabled=false;
+  }
+};
+
 window.signInWithEthereum = async function signInWithEthereum(){
   const statusEl=document.getElementById('siweStatus');
   const walletEl=document.getElementById('siweWallet');
@@ -793,19 +830,19 @@ window.signInWithEthereum = async function signInWithEthereum(){
     errorEl.style.display='none';
     errorEl.textContent='';
     btn.disabled=true;
-    btn.textContent='Waiting for wallet...';
-    statusEl.textContent='Requesting wallet signature...';
-    if(!window.ethereum){ throw new Error('No Ethereum wallet detected. Install MetaMask, Rabby, or another EIP-1193 wallet.'); }
+    btn.textContent='Signing...';
+    if(!window.ethereum){ throw new Error('No wallet detected'); }
+    const address=state.connectedWalletAddress;
+    if(!address){ throw new Error('Connect wallet first.'); }
     updateSiweModeHint();
-    const accounts=await window.ethereum.request({ method:'eth_requestAccounts' });
-    const address=accounts && accounts[0];
-    if(!address){ throw new Error('No wallet account selected.'); }
+    statusEl.textContent='Requesting SIWE nonce...';
     const chainIdHex=await window.ethereum.request({ method:'eth_chainId' });
     const chainId=parseInt(chainIdHex,16);
+    if(Number.isNaN(chainId) || chainId<=0){ throw new Error('Unsupported chain.'); }
     const nonceRes=await fetch('/api/auth/nonce',{method:'GET',headers:{'Accept':'application/json'}});
-    if(!nonceRes.ok){ throw new Error('Could not get SIWE nonce from /api/auth/nonce.'); }
+    if(!nonceRes.ok){ throw new Error('Nonce request failed.'); }
     const nonceData=await nonceRes.json();
-    if(!nonceData.ok || !nonceData.nonce){ throw new Error('Could not get SIWE nonce from /api/auth/nonce.'); }
+    if(!nonceData.ok || !nonceData.nonce){ throw new Error('Nonce request failed.'); }
     const domain=window.location.host;
     const uri=window.location.origin;
     const issuedAt=new Date().toISOString();
@@ -819,22 +856,25 @@ Version: 1
 Chain ID: ${chainId}
 Nonce: ${nonceData.nonce}
 Issued At: ${issuedAt}`;
+    statusEl.textContent='Awaiting wallet signature...';
     const signature=await window.ethereum.request({method:'personal_sign',params:[msg,address]});
     const verifyRes=await fetch('/api/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,signature})});
+    if(!verifyRes.ok){ throw new Error('SIWE verification failed.'); }
     const verify=await verifyRes.json();
-    if(!verify.ok){ throw new Error(verify.error||'Authentication failed'); }
+    if(!verify.ok){
+      const errText=String(verify.error||'SIWE verification failed.').toLowerCase();
+      if(errText.includes('domain')) throw new Error('Domain mismatch.');
+      if(errText.includes('chain')) throw new Error('Unsupported chain.');
+      throw new Error('SIWE verification failed.');
+    }
     state.authenticatedAddress=verify.address; state.authStatus=verify.status; state.authChainId=verify.chainId; state.siweAuthenticated=true;
     statusEl.textContent='Authenticated';
     walletEl.textContent=`Connected wallet: ${shortAddr(verify.address)}`;
-    btn.textContent='Wallet authenticated';
+    btn.textContent='Authenticated';
     nextBtn.disabled=false;
   } catch (err) {
-    const msg=((err && err.message)||'Authentication failed.').trim();
-    if(err && err.code===4001){
-      errorEl.textContent='Wallet signature rejected.';
-    }else{
-      errorEl.textContent=msg;
-    }
+    const msg=((err && err.message)||'SIWE verification failed.').trim();
+    errorEl.textContent=err && err.code===4001 ? 'Signature rejected.' : msg;
     errorEl.style.display='block';
     statusEl.textContent='Not connected';
     btn.disabled=false;
