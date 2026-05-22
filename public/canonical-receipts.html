@@ -38,10 +38,12 @@
         "value": "..."
       },
       "signer_id": "runtime.commandlayer.eth"
-    }
+    },
+    "trace": { "trace_id": "trace_01", "span_id": "span_01" }
   }
 }</code></pre></section>
-<section class="doc-card"><h2>Required proof fields</h2><ul><li><code>metadata.proof.canonicalization</code></li><li><code>metadata.proof.hash.alg</code></li><li><code>metadata.proof.hash.value</code></li><li><code>metadata.proof.signature.alg</code></li><li><code>metadata.proof.signature.kid</code></li><li><code>metadata.proof.signature.value</code></li><li><code>metadata.proof.signer_id</code></li></ul></section>
+<section class="doc-card"><h2>Canonicalization and interoperability</h2><p><code>json.sorted_keys.v1</code> remains the standard canonical JSON receipt path.</p><p><code>erc8211.merkle.v1</code> is recognized at the schema layer and accepted for interoperability. Full local ERC-8211 Merkle cryptographic verification should only be claimed where implemented.</p><p><code>metadata.proof.signature</code> supports a single Ed25519 signature object or a multi-signature array with roles for solver/relayer/batch workflows.</p><p>Allowed roles: <code>user</code>, <code>solver</code>, <code>relayer</code>, <code>agent</code>, <code>runtime</code>, <code>verifier</code>.</p></section>
+<section class="doc-card"><h2>Required proof fields</h2><ul><li><code>metadata.proof.canonicalization</code></li><li><code>metadata.proof.hash.alg</code></li><li><code>metadata.proof.hash.value</code></li><li><code>metadata.proof.signature</code> (single object or array)</li><li><code>metadata.proof.signer_id</code></li><li><code>metadata.trace</code> (optional)</li></ul></section>
 <section class="doc-card"><h2>Verification lifecycle</h2><div class="flow-strip">receipt received → structure checked → canonical payload rebuilt → SHA-256 hash recomputed → hash compared → Ed25519 signature verified → signer identity/kid checked → VALID or INVALID</div></section>
 <section class="doc-card"><h2>Valid vs tampered</h2><div class="grid-2"><div class="mini-card"><h3>Valid receipt</h3><p><code>verifier_status = VALID</code><br/><code>hash_matches = true</code><br/><code>signature_valid = true</code></p><p>Valid receipt accepted.</p></div><div class="mini-card"><h3>Tampered receipt</h3><p><code>verifier_status = INVALID</code><br/><code>hash_matches = false</code><br/><code>signature_valid = false</code></p><p>Tampered receipt rejected.</p></div></div></section>
 <section class="doc-card"><h2>Schema validation vs proof verification</h2><div class="warning"><strong>Schema validation checks shape. Proof verification checks truth.</strong><br/>A schema-valid receipt can still be invalid if the hash or signature fails.</div></section>

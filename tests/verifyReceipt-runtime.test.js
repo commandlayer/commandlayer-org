@@ -54,6 +54,22 @@ async function makeRuntimeReceipt() {
   return { receipt, rawPub };
 }
 
+
+function isSingleProofSignature(signature) {
+  return Boolean(signature) && !Array.isArray(signature) && typeof signature === 'object';
+}
+
+function isMultiProofSignature(signature) {
+  return Array.isArray(signature);
+}
+
+function getPrimaryProofSignature(proof) {
+  const signature = proof?.signature;
+  if (isSingleProofSignature(signature)) return signature;
+  if (isMultiProofSignature(signature)) return signature[0] || null;
+  return null;
+}
+
 function makeTextResolver(pub) {
   return async (_ens, key) => ({
     'cl.sig.pub': `ed25519:${pub}`,
@@ -92,14 +108,33 @@ test('wrong canonicalization rejects', async () => {
 
 test('wrong kid rejects', async () => {
   const { receipt, rawPub } = await makeRuntimeReceipt();
-  receipt.metadata.proof.signature.kid = 'wrong';
+  const primarySignature = getPrimaryProofSignature(receipt.metadata.proof);
+  assert.ok(primarySignature);
+  primarySignature.kid = 'wrong';
   const out = await verifyReceipt(receipt, { ens: { textResolver: makeTextResolver(rawPub) } });
   assert.equal(out.status, 'INVALID');
 });
 
 test('legacy top-level proof does not verify', async () => {
   const { receipt, rawPub } = await makeRuntimeReceipt();
-  receipt.signature = { kid: 'vC4WbcNoq2znSCiQ', sig: receipt.metadata.proof.signature.value };
+  const primarySignature = getPrimaryProofSignature(receipt.metadata.proof);
+  assert.ok(primarySignature);
+  receipt.signature = { kid: 'vC4WbcNoq2znSCiQ', sig: primarySignature.value };
+  const out = await verifyReceipt(receipt, { ens: { textResolver: makeTextResolver(rawPub) } });
+  assert.equal(out.status, 'INVALID');
+});
+
+
+test('multi-signature proof shape does not crash runtime verifier', async () => {
+  const { receipt, rawPub } = await makeRuntimeReceipt();
+  const original = receipt.metadata.proof.signature;
+  receipt.metadata.proof.signature = [
+    { role: 'runtime', ...original },
+    { role: 'relayer', alg: 'Ed25519', kid: 'other', value: original.value },
+  ];
+  assert.equal(isMultiProofSignature(receipt.metadata.proof.signature), true);
+  const primarySignature = getPrimaryProofSignature(receipt.metadata.proof);
+  assert.ok(primarySignature);
   const out = await verifyReceipt(receipt, { ens: { textResolver: makeTextResolver(rawPub) } });
   assert.equal(out.status, 'INVALID');
 });
