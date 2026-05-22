@@ -398,11 +398,35 @@
       <div class="code-block" id="ensRecords">—</div>
     </div>
     <div style="padding:14px;border-radius:12px;border:1px solid rgba(82,152,255,.2);background:rgba(82,152,255,.04);font-size:13px;color:var(--text-2);line-height:1.7">
-      <strong style="color:var(--text)">How to add these records:</strong><br>
-      1. Go to <a href="https://app.ens.domains" target="_blank" style="color:var(--blue)">app.ens.domains</a> and open your ENS name<br>
-      2. For subname modes: create each subname first, then add TXT records to each<br>
-      3. Click Edit Records → Add each record as a TXT key/value pair<br>
-      4. Sign the transaction and wait for on-chain confirmation
+      <strong style="color:var(--text)">Current Session 1:</strong><br>
+      Manual activation package.<br>
+      Download the generated records and add them in ENS Manager.<br><br>
+      <strong style="color:var(--text)">Coming next:</strong><br>
+      Assisted ENS activation.<br>
+      Connect wallet → verify ENS control → create generated subnames → write TXT records → sign transactions.<br><br>
+      <strong style="color:var(--text)">CommandLayer-native activation:</strong><br>
+      For names like <code style="font-family:var(--mono);font-size:.95em">acme.approveagent.eth</code>, CommandLayer can provision under its canonical parent namespaces after payment/provisioning is enabled.
+    </div>
+
+    <div class="pricing-grid" style="margin-top:14px">
+      <div class="pricing-card">
+        <strong>1. Manual</strong>
+        <p>Download records and add them yourself in ENS Manager.</p>
+      </div>
+      <div class="pricing-card">
+        <strong>2. Assisted</strong>
+        <p>Connect wallet and let CommandLayer prepare the subname + TXT record transactions. User signs. Coming next.</p>
+      </div>
+      <div class="pricing-card">
+        <strong>3. CommandLayer-native</strong>
+        <p>Activate under CommandLayer capability namespaces like <code style="font-family:var(--mono);font-size:.95em">acme.approveagent.eth</code>. CommandLayer provisions after payment. Coming next.</p>
+      </div>
+    </div>
+
+    <div style="padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:#fff;font-size:13px;color:var(--text-2);line-height:1.7">
+      <strong style="color:var(--text)">No wallet connection is required to generate this package.</strong><br>
+      Wallet connection is required to write records under your ENS name.<br>
+      Payment/provisioning is required for CommandLayer-native namespace activation.
     </div>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="goToStep(4)">← Back</button>
