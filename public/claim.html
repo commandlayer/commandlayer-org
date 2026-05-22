@@ -198,6 +198,14 @@
     .btn-secondary:hover{border-color:rgba(82,152,255,.3);color:var(--text)}
     .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
     .btn-ghost:hover{background:var(--surface);color:var(--text-2)}
+    
+    .ens-owned-box{margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:12px;background:var(--surface);display:none}
+    .ens-owned-box.show{display:block}
+    .ens-owned-title{font-size:13px;font-weight:700;margin-bottom:6px}
+    .ens-owned-note{font-size:12px;color:var(--muted);margin-top:8px}
+    .ens-owned-card{border:1px solid var(--border);border-radius:10px;background:#fff;padding:10px;margin-top:8px}
+    .ens-owned-card h4{font-size:14px;margin-bottom:2px}
+    .ens-owned-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
     footer{border-top:1px solid var(--border);background:#fff;margin-top:64px}
     .footer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:36px 0;width:min(1160px,90vw);margin:0 auto}
     .footer-grid h4{font-size:14px;margin-bottom:10px}
@@ -277,6 +285,12 @@
       <div id="siweWallet" style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:4px"></div>
       <div id="siweError" style="font-size:12px;color:#b42318;margin-top:8px;display:none"></div>
       <div id="siweModeHint" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
+      <div id="ensOwnedBox" class="ens-owned-box">
+        <div id="ensOwnedStatus" class="ens-owned-title"></div>
+        <div id="ensOwnedList"></div>
+        <div class="ens-owned-note">CommandLayer only checks ENS identity data for namespace activation. It does not scan token balances or unrelated wallet assets.</div>
+        <div class="ens-owned-note">Owned does not mean record-writing control has been verified. Control verification happens during activation.</div>
+      </div>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" id="step1Next" disabled onclick="goStep1()">Continue →</button>
@@ -884,6 +898,7 @@ Issued At: ${issuedAt}`;
       throw new Error(`SIWE verification failed: ${errorCode} — ${reason}`);
     }
     state.authenticatedAddress=verify.address; state.authStatus=verify.status; state.authChainId=verify.chainId; state.siweAuthenticated=true;
+    await loadOwnedEnsNames(verify.address);
     statusEl.textContent='Authenticated';
     walletEl.textContent=`Connected wallet: ${shortAddr(verify.address)}`;
     btn.textContent='Authenticated';
@@ -900,6 +915,50 @@ Issued At: ${issuedAt}`;
     console.error('SIWE auth failed', err);
   }
 };
+
+
+
+async function loadOwnedEnsNames(address){
+  const box=document.getElementById('ensOwnedBox');
+  const status=document.getElementById('ensOwnedStatus');
+  const list=document.getElementById('ensOwnedList');
+  box.classList.add('show');
+  status.textContent='Checking ENS names...';
+  list.innerHTML='';
+  try{
+    const res=await fetch(`/api/ens/owned?address=${encodeURIComponent(address)}`,{headers:{Accept:'application/json'}});
+    const data=await res.json();
+    if(!res.ok || !data.ok){
+      if(data && data.status==='PROVIDER_UNAVAILABLE'){
+        status.textContent='ENS lookup unavailable. You can still type manually.';
+      } else {
+        status.textContent='No ENS names found for this wallet. You can still type manually.';
+      }
+      return;
+    }
+    const names=Array.isArray(data.ownedNames)?data.ownedNames:[];
+    if(!names.length){
+      status.textContent='No ENS names found for this wallet. You can still type manually.';
+      return;
+    }
+    status.textContent='Detected ENS names';
+    list.innerHTML=names.map((entry)=>`<div class="ens-owned-card"><h4>${entry.name}</h4><div style="font-size:12px;color:var(--muted)">Owned ENS name</div><div style="font-size:12px;color:var(--muted)">Control not checked</div><div class="ens-owned-actions"><button class="btn btn-secondary" onclick="useEnsAsTenant('${entry.name}')">Use as tenant label</button><button class="btn btn-secondary" onclick="useEnsAsNamespace('${entry.name}')">Use as ENS namespace</button></div></div>`).join('');
+  }catch(_err){
+    status.textContent='ENS lookup unavailable. You can still type manually.';
+  }
+}
+
+function useEnsAsTenant(name){
+  const label=String(name||'').toLowerCase().replace(/\.eth$/,'');
+  if(!label) return;
+  selectMode('cl');
+  document.getElementById('ensInput').value=`${label}.eth`;
+}
+
+function useEnsAsNamespace(name){
+  selectMode('own');
+  document.getElementById('ensInput').value=String(name||'').toLowerCase();
+}
 
 function goStep5Auth(){
   updateSiweModeHint();
