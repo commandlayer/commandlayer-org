@@ -588,6 +588,7 @@ let state = {
   _cardJson:'',
   authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null, siweAuthenticated:false
 };
+const SIWE_STATEMENT = 'Authenticate with CommandLayer Claim activation.';
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
 function getVerbs() {
@@ -849,7 +850,7 @@ window.signInWithEthereum = async function signInWithEthereum(){
     const msg=`${domain} wants you to sign in with your Ethereum account:
 ${address}
 
-Authenticate with CommandLayer Claim activation.
+${SIWE_STATEMENT}
 
 URI: ${uri}
 Version: 1
@@ -859,13 +860,11 @@ Issued At: ${issuedAt}`;
     statusEl.textContent='Awaiting wallet signature...';
     const signature=await window.ethereum.request({method:'personal_sign',params:[msg,address]});
     const verifyRes=await fetch('/api/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,signature})});
-    if(!verifyRes.ok){ throw new Error('SIWE verification failed.'); }
     const verify=await verifyRes.json();
-    if(!verify.ok){
-      const errText=String(verify.error||'SIWE verification failed.').toLowerCase();
-      if(errText.includes('domain')) throw new Error('Domain mismatch.');
-      if(errText.includes('chain')) throw new Error('Unsupported chain.');
-      throw new Error('SIWE verification failed.');
+    if(!verifyRes.ok || !verify.ok){
+      const errorCode=String((verify && verify.error)||'unknown_error');
+      const reason=String((verify && verify.reason)||'No additional details provided.');
+      throw new Error(`SIWE verification failed: ${errorCode} — ${reason}`);
     }
     state.authenticatedAddress=verify.address; state.authStatus=verify.status; state.authChainId=verify.chainId; state.siweAuthenticated=true;
     statusEl.textContent='Authenticated';
