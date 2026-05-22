@@ -74,12 +74,14 @@ module.exports = async function handler(req, res) {
   const capabilitySet = new Set(capabilities);
   for (const agent of agents) {
     if (!agent || typeof agent !== 'object') return invalid(res, 'invalid_agents', 'Each agent must be an object.');
-    const { ens, capability, canonicalParent } = agent;
+    const { ens, capability, canonicalParent, skill, skillFamily } = agent;
     if (!TRUST_VERIFICATION_MAP[capability]) return invalid(res, 'invalid_agent_capability', `Unsupported agent capability "${capability}".`);
     if (!capabilitySet.has(capability)) return invalid(res, 'invalid_agent_capability', `Agent capability "${capability}" must be present in capabilities.`);
     if (TRUST_VERIFICATION_MAP[capability] !== canonicalParent) return invalid(res, 'invalid_agent_mapping', `Capability "${capability}" must map to canonical parent "${TRUST_VERIFICATION_MAP[capability]}".`);
     if (!Object.values(TRUST_VERIFICATION_MAP).includes(canonicalParent)) return invalid(res, 'invalid_canonical_parent', `Unsupported canonical parent "${canonicalParent}".`);
     if (ens !== `${tenant}.${canonicalParent}`) return invalid(res, 'invalid_agent_ens', `Agent ENS must equal "${tenant}.${canonicalParent}".`);
+    if (skill !== `trust-verification.${capability}`) return invalid(res, 'invalid_skill', `skill must equal "trust-verification.${capability}".`);
+    if (skillFamily !== 'trust-verification') return invalid(res, 'invalid_skill_family', 'skillFamily must equal "trust-verification".');
   }
 
   if (!process.env.DATABASE_URL) {
