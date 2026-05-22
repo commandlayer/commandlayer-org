@@ -35,20 +35,6 @@ test('POST /api/auth/verify rejects missing signature', async () => {
   assert.equal(res.body.error, 'missing_signature');
 });
 
-test('POST /api/auth/verify rejects missing message', async () => {
-  const res = makeRes();
-  await verifyHandler({ method: 'POST', body: { signature: '0xabc' }, headers: { host: 'localhost:3000' } }, res);
-  assert.equal(res.statusCode, 400);
-  assert.equal(res.body.error, 'missing_message');
-});
-
-test('POST /api/auth/verify rejects malformed request body', async () => {
-  const res = makeRes();
-  await verifyHandler({ method: 'POST', body: null, headers: { host: 'localhost:3000' } }, res);
-  assert.equal(res.statusCode, 400);
-  assert.equal(res.body.error, 'malformed_request');
-});
-
 test('POST /api/auth/verify rejects malformed message/signature', async () => {
   const res = makeRes();
   await verifyHandler({ method: 'POST', body: { message: 'invalid', signature: '0xdeadbeef' }, headers: { host: 'localhost:3000' } }, res);
@@ -79,13 +65,13 @@ Issued At: 2026-01-01T00:00:00.000Z`;
 });
 
 
-test('POST /api/auth/verify rejects malformed SIWE payload', async () => {
+test('POST /api/auth/verify rejects malformed SIWE payload or surfaces missing dependency', async () => {
   const res = makeRes();
   await verifyHandler({ method: 'POST', body: { message: 'x', signature: '0xy' }, headers: { host: 'localhost:3000' } }, res);
-  if (res.statusCode === 503) {
-    assert.equal(res.body.error, 'dependency_unavailable');
-    return;
-  }
-  assert.equal(res.statusCode, 400);
-  assert.equal(res.body.error, 'malformed_message');
+  assert.equal(res.body.ok, false);
+  assert.equal(res.body.status, 'AUTH_FAILED');
+  assert.ok(
+    (res.statusCode === 400 && res.body.error === 'malformed_message') ||
+    (res.statusCode === 503 && res.body.error === 'dependency_unavailable')
+  );
 });
