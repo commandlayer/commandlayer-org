@@ -65,9 +65,9 @@ Issued At: 2026-01-01T00:00:00.000Z`;
 });
 
 
-test('POST /api/auth/verify surfaces dependency unavailable when siwe is missing', async () => {
+test('POST /api/auth/verify rejects malformed SIWE payload', async () => {
   const res = makeRes();
   await verifyHandler({ method: 'POST', body: { message: 'x', signature: '0xy' }, headers: { host: 'localhost:3000' } }, res);
-  assert.equal(res.statusCode, 503);
-  assert.equal(res.body.error, 'dependency_unavailable');
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'malformed_message');
 });
