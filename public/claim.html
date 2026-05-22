@@ -521,6 +521,27 @@
       <div class="pricing-card"><strong>Enterprise</strong><div class="price">Custom</div><p>Custom namespaces, compliance, and registry support.</p></div>
     </div>
     <div style="font-size:12px;color:var(--muted);margin:-4px 0 18px;text-align:center">Checkout is not enabled in Session 1. Pricing covers activation, metadata, verification routing, and integration support — not ENS ownership transfer.</div>
+    <div id="activationControls" style="display:none">
+      <div class="activation-cta" style="margin-top:0">
+        <h3>Submit CommandLayer namespace activation</h3>
+        <p>Submit your activation package for validation and operator review.</p>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" id="submitActivationBtn" onclick="submitActivationRequest()">Submit activation request</button>
+        </div>
+        <div id="activationResult" style="display:none;margin-top:12px;color:var(--red);font-size:13px"></div>
+        <div id="activationOk" style="display:none;margin-top:14px;text-align:left;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff">
+          <strong>Activation request validated</strong><br>
+          Claim ID: <span id="activationClaimId"></span><br>
+          Wallet: <span id="activationWallet"></span><br>
+          Generated agents: <span id="activationAgentCount"></span>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <button class="btn btn-secondary" onclick="copyActivationResponse(this)">Copy response JSON</button>
+            <button class="btn btn-secondary" onclick="downloadPackage()">Download package</button>
+            <a class="btn btn-secondary" href="https://runtime.commandlayer.org/verify" target="_blank" rel="noopener">Open verifier</a>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="activation-cta">
       <h3>Payment and provisioning are coming next.</h3>
       <p>When activated, your agents will be ERC-8004 registered on Base, cards hosted at commandlayer.org, and you will receive a verified live receipt proving the setup works end-to-end.</p>
@@ -592,7 +613,7 @@ let state = {
   capMode:'packs', selectedPack:null, cherryVerbs:[],
   pubKeyB64:'', privKeyB64:'', kid:'',
   keyGenerated:false, keyDownloaded:false, keyAcked:false,
-  _cardJson:'',
+  _cardJson:'', _packageJson:'', submitResult:null,
   authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null, siweAuthenticated:false
 };
 const SIWE_STATEMENT = 'Authenticate with CommandLayer Claim activation.';
@@ -1206,6 +1227,12 @@ function buildSummary() {
     state.activationMode === 'single'
       ? `${state.ens} configured as one multi-capability agent`
       : `${names.length} sub-agent names generated`;
+  const controls = document.getElementById('activationControls');
+  controls.style.display = state.activationMode === 'cl' ? 'block' : 'none';
+  document.getElementById('activationOk').style.display = 'none';
+  document.getElementById('activationResult').style.display = 'none';
+  const submitBtn = document.getElementById('submitActivationBtn');
+  if (submitBtn) submitBtn.disabled = !canSubmitActivationRequest();
 }
 
 function downloadPackage() {
@@ -1217,6 +1244,9 @@ function downloadPackage() {
         ens: agentName(v),
         capability: v,
         canonical_parent: state.activationMode==='cl' ? (VERB_TO_AGENT[v]||v+'agent.eth') : state.ens,
+        canonicalParent: state.activationMode==='cl' ? (VERB_TO_AGENT[v]||v+'agent.eth') : state.ens,
+        skill: `trust-verification.${v}`,
+        skillFamily: 'trust-verification',
         tenant: state.ens.replace('.eth',''),
         records: {
           'cl.sig.pub': `ed25519:${state.pubKeyB64}`,
@@ -1250,7 +1280,8 @@ function downloadPackage() {
     provisioning_status: 'pending',
     note: 'Create ENS subnames/TXT records, set CL_PRIVATE_KEY_PEM env var, then install @commandlayer/agent-sdk'
   };
-  const blob = new Blob([JSON.stringify(manifest,null,2)], {type:'application/json'});
+  state._packageJson = JSON.stringify(manifest,null,2);
+  const blob = new Blob([state._packageJson], {type:'application/json'});
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href=url; a.download=state.ens.replace('.eth','')+'-commandlayer-package.json';
@@ -1266,11 +1297,55 @@ function copyBlock(id, btn) {
   });
 }
 
+function canSubmitActivationRequest(){
+  const verbs = getVerbs();
+  return state.activationMode==='cl' && state.siweAuthenticated && state.keyGenerated && !!state.kid && !!state.pubKeyB64 && !!state.selectedPack && verbs.length>0 && verbs.length<=10;
+}
+
+async function submitActivationRequest() {
+  const resultEl = document.getElementById('activationResult');
+  resultEl.style.display = 'none';
+  const verbs = getVerbs();
+  const tenant = state.ens.replace('.eth', '');
+  const payload = {
+    authenticatedAddress: state.authenticatedAddress, tenant, activationMode: 'cl', packId: state.selectedPack,
+    capabilities: verbs,
+    agents: verbs.map(v => ({ ens: agentName(v), capability: v, canonicalParent: VERB_TO_AGENT[v], skill: `trust-verification.${v}`, skillFamily: 'trust-verification' })),
+    publicKey: `ed25519:${state.pubKeyB64}`, kid: state.kid,
+    verifier: 'https://runtime.commandlayer.org/verify', runtime: 'https://runtime.commandlayer.org', schemaVersion: '1.1.0'
+  };
+  const btn = document.getElementById('submitActivationBtn');
+  btn.disabled = true; btn.textContent = 'Submitting...';
+  try {
+    const res = await fetch('/api/claim/commandlayer-namespace', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+    const data = await res.json();
+    if (!res.ok || !data.ok) throw new Error(`${data.error || 'request_failed'} — ${data.reason || 'Unknown error'}`);
+    state.submitResult = data;
+    document.getElementById('activationOk').style.display = 'block';
+    document.getElementById('activationClaimId').textContent = data.claimId;
+    document.getElementById('activationWallet').textContent = data.authenticatedAddress;
+    document.getElementById('activationAgentCount').textContent = String((data.agents || []).length);
+  } catch (err) {
+    document.getElementById('activationOk').style.display = 'none';
+    resultEl.textContent = `Activation request failed: ${(err && err.message) || 'unknown_error'}`;
+    resultEl.style.display = 'block';
+  } finally {
+    btn.disabled = !canSubmitActivationRequest(); btn.textContent = 'Submit activation request';
+  }
+}
+
+function copyActivationResponse(btn){
+  if(!state.submitResult) return;
+  navigator.clipboard.writeText(JSON.stringify(state.submitResult, null, 2)).then(()=>{
+    btn.textContent='Copied ✓'; setTimeout(()=>{ btn.textContent='Copy response JSON'; }, 1500);
+  });
+}
+
 function startOver() {
   state = {
     step:1, ens:'', activationMode:'cl', capMode:'packs', selectedPack:null, cherryVerbs:[],
     pubKeyB64:'', privKeyB64:'', kid:'', keyGenerated:false, keyDownloaded:false, keyAcked:false,
-    _cardJson:'', authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null, siweAuthenticated:false
+    _cardJson:'', _packageJson:'', submitResult:null, authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null, siweAuthenticated:false
   };
   document.getElementById('ensInput').value='';
   document.getElementById('ensInput').classList.remove('valid','error');
