@@ -541,6 +541,7 @@
   </div>
 </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/ethers@6.16.0/dist/ethers.umd.min.js" crossorigin="anonymous"></script>
 <script>
 // ── DATA ──────────────────────────────────────────────────────────────────────
 const PACKS = [
@@ -775,6 +776,21 @@ function goStep3() {
 
 function shortAddr(addr){return addr?`${addr.slice(0,6)}...${addr.slice(-4)}`:'';}
 
+function toChecksumAddress(address){
+  if(!address || typeof address!=='string'){
+    throw new Error('Invalid wallet address returned by provider.');
+  }
+  const e=(window.ethers && (window.ethers.ethers || window.ethers)) || null;
+  if(!e || typeof e.getAddress!=='function'){
+    throw new Error('Wallet checksum utility unavailable. Please refresh and try again.');
+  }
+  try {
+    return e.getAddress(address);
+  } catch (_) {
+    throw new Error('Invalid wallet address returned by provider.');
+  }
+}
+
 function updateSiweModeHint(){
   const el=document.getElementById('siweModeHint');
   if(!el) return;
@@ -801,10 +817,11 @@ window.connectWallet = async function connectWallet(){
     statusEl.textContent='Connecting wallet...';
     if(!window.ethereum){ throw new Error('No Ethereum wallet detected. Install MetaMask, Rabby, Coinbase Wallet, or another browser wallet.'); }
     const accounts=await window.ethereum.request({ method:'eth_requestAccounts' });
-    const address=accounts && accounts[0];
-    if(!address){ throw new Error('Wallet connection rejected.'); }
-    state.connectedWalletAddress=address;
-    walletEl.textContent=`Wallet connected: ${shortAddr(address)}`;
+    const rawAddress=accounts && accounts[0];
+    if(!rawAddress){ throw new Error('Wallet connection rejected.'); }
+    const checksumAddress=toChecksumAddress(rawAddress);
+    state.connectedWalletAddress=checksumAddress;
+    walletEl.textContent=`Wallet connected: ${shortAddr(checksumAddress)}`;
     statusEl.textContent='Wallet connected';
     connectBtn.textContent='Wallet Connected';
     siweBtn.style.display='inline-flex';
@@ -833,7 +850,7 @@ window.signInWithEthereum = async function signInWithEthereum(){
     btn.disabled=true;
     btn.textContent='Signing...';
     if(!window.ethereum){ throw new Error('No wallet detected'); }
-    const address=state.connectedWalletAddress;
+    const address=toChecksumAddress(state.connectedWalletAddress);
     if(!address){ throw new Error('Connect wallet first.'); }
     updateSiweModeHint();
     statusEl.textContent='Requesting SIWE nonce...';
