@@ -20,7 +20,7 @@ function postJson(port, path, body) {
           raw += chunk;
         });
         res.on('end', () => {
-          resolve({ statusCode: res.statusCode, body: JSON.parse(raw) });
+          resolve({ statusCode: res.statusCode, headers: res.headers, body: JSON.parse(raw) });
         });
       }
     );
@@ -55,6 +55,7 @@ test('paid-action emits receipt and enforces idempotency', async () => {
 
   const first = await postJson(port, '/paid-action', payload);
   assert.equal(first.statusCode, 200);
+  assert.equal(first.headers['cache-control'], 'no-store');
   assert.equal(first.body.duplicate, false);
   assert.equal(first.body.receipt.request_id, 'req_test_1');
   assert.equal(first.body.receipt.payment_id, 'pay_test_1');
@@ -63,8 +64,29 @@ test('paid-action emits receipt and enforces idempotency', async () => {
 
   const second = await postJson(port, '/paid-action', payload);
   assert.equal(second.statusCode, 200);
+  assert.equal(second.headers['cache-control'], 'no-store');
   assert.equal(second.body.duplicate, true);
   assert.equal(second.body.receipt.receipt_id, first.body.receipt.receipt_id);
+
+  await new Promise((resolve, reject) => server.close((err) => (err ? reject(err) : resolve())));
+});
+
+test('paid-action payment errors are not cacheable', async () => {
+  const server = createServer();
+  await new Promise((resolve) => server.listen(0, resolve));
+  const port = server.address().port;
+
+  const res = await postJson(port, '/paid-action', {
+    paid_action_request: {
+      request_id: 'req_missing_payment',
+      action: 'summarize.text',
+      input: { text: 'Payment is intentionally missing.' },
+      payment: { required: true, plan: 'pro', max_amount: '0.05', currency: 'USD' }
+    }
+  });
+
+  assert.equal(res.statusCode, 402);
+  assert.equal(res.headers['cache-control'], 'no-store');
 
   await new Promise((resolve, reject) => server.close((err) => (err ? reject(err) : resolve())));
 });

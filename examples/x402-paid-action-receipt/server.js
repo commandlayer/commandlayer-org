@@ -10,7 +10,10 @@ function dedupeKey(requestId, paymentId) {
 }
 
 function sendJson(res, statusCode, body) {
-  res.writeHead(statusCode, { 'Content-Type': 'application/json' });
+  res.writeHead(statusCode, {
+    'Content-Type': 'application/json',
+    'Cache-Control': 'no-store'
+  });
   res.end(JSON.stringify(body, null, 2));
 }
 
