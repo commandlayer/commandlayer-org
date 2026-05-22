@@ -313,21 +313,21 @@
         <div class="mode-icon">⬡</div>
         <div class="mode-name">CommandLayer namespace</div>
         <div class="mode-desc">Activate under CommandLayer's canonical capability classes. Protocol-native, standardized routing, no additional ENS required.</div>
-        <span class="mode-example" id="eg-cl">acme.approveagent.eth</span>
+        <span class="mode-example" id="eg-cl">commandlayer.approveagent.eth</span>
       </div>
 
       <div class="mode-card" id="mode-own" onclick="selectMode('own')">
         <div class="mode-icon">◈</div>
         <div class="mode-name">Your ENS namespace</div>
         <div class="mode-desc">Generate verb sub-agents under your own ENS name. Best for enterprises and teams wanting sovereign identity.</div>
-        <span class="mode-example" id="eg-own">approve.acme.eth</span>
+        <span class="mode-example" id="eg-own">approve.commandlayer.eth</span>
       </div>
 
       <div class="mode-card" id="mode-single" onclick="selectMode('single')">
         <div class="mode-icon">◎</div>
         <div class="mode-name">Single agent</div>
         <div class="mode-desc">Attach all capabilities directly to your ENS name. Simplest setup, best for solo agents with one primary capability.</div>
-        <span class="mode-example" id="eg-single">acme.eth</span>
+        <span class="mode-example" id="eg-single">commandlayer.eth</span>
       </div>
 
     </div>
@@ -360,7 +360,7 @@
     </div>
     <div class="field" style="margin-top:14px" id="tenantField">
       <label>Tenant label</label>
-      <input type="text" id="tenantInput" placeholder="hydroseal" autocomplete="off" spellcheck="false" />
+      <input type="text" id="tenantInput" placeholder="commandlayer" autocomplete="off" spellcheck="false" />
       <span class="field-error" id="tenantError">Use 3-32 lowercase letters, numbers, or hyphens; no .eth; cannot start/end with hyphen.</span>
       <span class="field-hint">Used for subnames under CommandLayer canonical parents.</span>
     </div>
@@ -370,11 +370,11 @@
       <div class="field-hint">Select up to 10 canonical parents.</div>
       <div id="canonicalSearchResults" class="name-preview" style="display:block"></div>
       <div id="canonicalSelected" class="name-preview"></div>
-      <div class="field-hint">CommandLayer namespace mode creates subnames under CommandLayer-controlled canonical parents, such as hydroseal.approveagent.eth. It does not grant ownership of approveagent.eth.</div>
+      <div class="field-hint">CommandLayer namespace mode creates subnames under CommandLayer-controlled canonical parents, such as commandlayer.approveagent.eth. It does not grant ownership of approveagent.eth.</div>
     </div>
     <div class="field" id="ownEnsField" style="display:none">
       <label>ENS namespace</label>
-      <input type="text" id="ensInput" placeholder="hydroseal.eth" autocomplete="off" spellcheck="false" />
+      <input type="text" id="ensInput" placeholder="commandlayer.eth" autocomplete="off" spellcheck="false" />
       <span class="field-error" id="ensError">Please enter a valid .eth name</span>
       <span class="field-hint">To activate records under your ENS name, the connected wallet must control that ENS name. Ownership/control verification is required before activation.</span>
       <span class="field-hint">Manual package only. Activation request submission for user-owned ENS namespaces requires ENS control verification.</span>
@@ -447,7 +447,7 @@
       Assisted ENS activation.<br>
       Connect wallet → verify ENS control → create generated subnames → write TXT records → sign transactions.<br><br>
       <strong style="color:var(--text)">CommandLayer-native activation:</strong><br>
-      For names like <code style="font-family:var(--mono);font-size:.95em">acme.approveagent.eth</code>, CommandLayer can provision under its canonical parent namespaces after payment/provisioning is enabled.
+      For names like <code style="font-family:var(--mono);font-size:.95em">commandlayer.approveagent.eth</code>, CommandLayer can provision under its canonical parent namespaces after payment/provisioning is enabled.
     </div>
 
     <div class="pricing-grid" style="margin-top:14px">
@@ -461,7 +461,7 @@
       </div>
       <div class="pricing-card">
         <strong>3. CommandLayer-native</strong>
-        <p>Activate under CommandLayer capability namespaces like <code style="font-family:var(--mono);font-size:.95em">acme.approveagent.eth</code>. CommandLayer provisions after payment. Coming next.</p>
+        <p>Activate under CommandLayer capability namespaces like <code style="font-family:var(--mono);font-size:.95em">commandlayer.approveagent.eth</code>. CommandLayer provisions after payment. Coming next.</p>
       </div>
     </div>
 
