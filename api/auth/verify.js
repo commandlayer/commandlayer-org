@@ -58,9 +58,27 @@ module.exports = async function handler(req, res) {
     return fail(405, 'method_not_allowed', 'Method not allowed. Use POST.');
   }
 
-  const body = req.body || {};
-  const message = typeof body.message === 'string' ? body.message : '';
-  const signature = typeof body.signature === 'string' ? body.signature : '';
+  const body = req.body;
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return fail(400, 'malformed_request', 'Request body must be a JSON object.');
+  }
+
+  if (!Object.prototype.hasOwnProperty.call(body, 'message')) {
+    return fail(400, 'missing_message', 'Missing SIWE message.');
+  }
+  if (!Object.prototype.hasOwnProperty.call(body, 'signature')) {
+    return fail(400, 'missing_signature', 'Missing SIWE signature.');
+  }
+
+  if (typeof body.message !== 'string') {
+    return fail(400, 'invalid_message_type', 'SIWE message must be a string.');
+  }
+  if (typeof body.signature !== 'string') {
+    return fail(400, 'invalid_signature_type', 'SIWE signature must be a string.');
+  }
+
+  const message = body.message;
+  const signature = body.signature;
   if (!message) return fail(400, 'missing_message', 'Missing SIWE message.');
   if (!signature) return fail(400, 'missing_signature', 'Missing SIWE signature.');
 
@@ -68,7 +86,7 @@ module.exports = async function handler(req, res) {
   try {
     ({ SiweMessage } = require('siwe'));
   } catch {
-    return fail(503, 'dependency_unavailable', 'SIWE verification dependency unavailable on server.');
+    return fail(503, 'dependency_unavailable', 'SIWE dependency is unavailable');
   }
 
   try {
