@@ -2,13 +2,38 @@
 
 const { URL } = require('node:url');
 
-const ALLOWED_CHAIN_IDS = new Set((process.env.SIWE_ALLOWED_CHAIN_IDS || '1,8453,11155111').split(',').map((v) => Number(v.trim())).filter(Number.isFinite));
-const ALLOWED_DOMAIN = process.env.SIWE_ALLOWED_DOMAIN || '';
-const ALLOWED_URI = process.env.SIWE_ALLOWED_URI || '';
 const REQUIRED_STATEMENT = 'CommandLayer Claim activation';
+
+function isDev() {
+  return process.env.NODE_ENV === 'development';
+}
 
 function getHost(req) {
   return String((req.headers && (req.headers['x-forwarded-host'] || req.headers.host)) || '').split(',')[0].trim().toLowerCase();
+}
+
+function getAllowedDomain(req) {
+  const configured = process.env.COMMANDLAYER_SIWE_DOMAIN || process.env.SIWE_ALLOWED_DOMAIN || '';
+  if (configured) return configured.toLowerCase();
+  const host = getHost(req).split(':')[0];
+  if (isDev() && (host === 'localhost' || host === '127.0.0.1')) return host;
+  return '';
+}
+
+function getAllowedUri(req) {
+  const configured = process.env.COMMANDLAYER_SITE_URL || process.env.SIWE_ALLOWED_URI || '';
+  if (configured) {
+    try { return new URL(configured).toString(); } catch { return configured; }
+  }
+  const host = getHost(req);
+  if (isDev() && host.startsWith('localhost')) return `http://${host}/`;
+  if (isDev() && host.startsWith('127.0.0.1')) return `http://${host}/`;
+  return '';
+}
+
+function getAllowedChainIds() {
+  const raw = process.env.COMMANDLAYER_SIWE_CHAIN_IDS || process.env.SIWE_ALLOWED_CHAIN_IDS || '1,8453';
+  return new Set(raw.split(',').map((v) => Number(v.trim())).filter(Number.isFinite));
 }
 
 module.exports = async function handler(req, res) {
@@ -36,20 +61,26 @@ module.exports = async function handler(req, res) {
 
   try {
     const parsed = new SiweMessage(message);
-    const expectedDomain = ALLOWED_DOMAIN || getHost(req);
-    if (expectedDomain && String(parsed.domain || '').toLowerCase() !== expectedDomain) {
+    const expectedDomain = getAllowedDomain(req);
+    const expectedUri = getAllowedUri(req);
+    const allowedChains = getAllowedChainIds();
+
+    if (!expectedDomain) {
+      return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: 'SIWE domain policy is not configured.' });
+    }
+    if (String(parsed.domain || '').toLowerCase() !== expectedDomain) {
       return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: 'SIWE domain mismatch.' });
     }
 
-    if (ALLOWED_URI && parsed.uri !== ALLOWED_URI) {
+    if (expectedUri && parsed.uri !== expectedUri) {
       return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: 'SIWE URI mismatch.' });
     }
 
-    if (!ALLOWED_CHAIN_IDS.has(Number(parsed.chainId))) {
+    if (!allowedChains.has(Number(parsed.chainId))) {
       return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: 'Unsupported SIWE chainId.' });
     }
 
-    if (!String(parsed.statement || '').toLowerCase().includes(REQUIRED_STATEMENT.toLowerCase())) {
+    if (String(parsed.statement || '').trim() !== REQUIRED_STATEMENT) {
       return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: 'Invalid SIWE statement for claim activation.' });
     }
 

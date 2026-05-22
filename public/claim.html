@@ -784,21 +784,22 @@ function updateSiweModeHint(){
 }
 
 async function signInWithEthereum(){
-  if(!window.ethereum){ alert('No Ethereum wallet detected. Install a wallet extension first.'); return; }
-  updateSiweModeHint();
   const statusEl=document.getElementById('siweStatus');
   const walletEl=document.getElementById('siweWallet');
-  statusEl.textContent='Status: Requesting signature...';
-  const [address]=await window.ethereum.request({ method:'eth_requestAccounts' });
-  const nonceRes=await fetch('/api/auth/nonce',{method:'GET',headers:{'Accept':'application/json'}});
-  const nonceData=await nonceRes.json();
-  if(!nonceData.ok){ throw new Error('Nonce request failed'); }
-  const domain=window.location.host;
-  const uri=window.location.origin;
-  const chainHex=await window.ethereum.request({ method:'eth_chainId' });
-  const chainId=parseInt(chainHex,16);
-  const issuedAt=new Date().toISOString();
-  const msg=`${domain} wants you to sign in with your Ethereum account:
+  try {
+    if(!window.ethereum){ throw new Error('NO_WALLET'); }
+    updateSiweModeHint();
+    statusEl.textContent='Status: Requesting signature...';
+    const [address]=await window.ethereum.request({ method:'eth_requestAccounts' });
+    const nonceRes=await fetch('/api/auth/nonce',{method:'GET',headers:{'Accept':'application/json'}});
+    const nonceData=await nonceRes.json();
+    if(!nonceData.ok){ throw new Error('NONCE_FAILED'); }
+    const domain=window.location.host;
+    const uri=window.location.origin;
+    const chainHex=await window.ethereum.request({ method:'eth_chainId' });
+    const chainId=parseInt(chainHex,16);
+    const issuedAt=new Date().toISOString();
+    const msg=`${domain} wants you to sign in with your Ethereum account:
 ${address}
 
 CommandLayer Claim activation
@@ -808,13 +809,22 @@ Version: 1
 Chain ID: ${chainId}
 Nonce: ${nonceData.nonce}
 Issued At: ${issuedAt}`;
-  const signature=await window.ethereum.request({method:'personal_sign',params:[msg,address]});
-  const verifyRes=await fetch('/api/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,signature})});
-  const verify=await verifyRes.json();
-  if(!verify.ok){ throw new Error(verify.error||'Authentication failed'); }
-  state.authenticatedAddress=verify.address; state.authStatus=verify.status; state.authChainId=verify.chainId;
-  statusEl.textContent='Status: Authenticated';
-  walletEl.textContent=`Connected wallet: ${shortAddr(verify.address)}`;
+    const signature=await window.ethereum.request({method:'personal_sign',params:[msg,address]});
+    const verifyRes=await fetch('/api/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,signature})});
+    const verify=await verifyRes.json();
+    if(!verify.ok){ throw new Error(verify.error||'Authentication failed'); }
+    state.authenticatedAddress=verify.address; state.authStatus=verify.status; state.authChainId=verify.chainId;
+    statusEl.textContent='Status: Authenticated';
+    walletEl.textContent=`Connected wallet: ${shortAddr(verify.address)}`;
+  } catch (err) {
+    const msg=(err && err.message)||'';
+    if(msg==='NO_WALLET') statusEl.textContent='Status: No wallet found.';
+    else if(msg.includes('User rejected') || msg.includes('rejected')) statusEl.textContent='Status: Wallet rejected signature.';
+    else if(msg.includes('dependency unavailable')) statusEl.textContent='Status: Auth dependency unavailable.';
+    else if(msg.includes('domain mismatch')) statusEl.textContent='Status: Domain mismatch.';
+    else if(msg.includes('signature') || msg.includes('SIWE')) statusEl.textContent='Status: Signature invalid.';
+    else statusEl.textContent='Status: Authentication failed.';
+  }
 }
 
 function goStep5Auth(){

@@ -40,3 +40,11 @@ test('POST /api/auth/verify rejects malformed message/signature', async () => {
   assert.equal(res.body.ok, false);
   assert.equal(res.body.status, 'AUTH_FAILED');
 });
+
+
+test('POST /api/auth/verify surfaces dependency unavailable when siwe is missing', async () => {
+  const res = makeRes();
+  await verifyHandler({ method: 'POST', body: { message: 'x', signature: '0xy' }, headers: { host: 'localhost:3000' } }, res);
+  assert.equal(res.statusCode, 503);
+  assert.match(res.body.error, /dependency unavailable/i);
+});
