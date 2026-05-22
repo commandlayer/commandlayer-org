@@ -32,6 +32,7 @@ test('POST /api/auth/verify rejects missing signature', async () => {
   await verifyHandler({ method: 'POST', body: { message: 'x' }, headers: { host: 'localhost:3000' } }, res);
   assert.equal(res.statusCode, 400);
   assert.equal(res.body.ok, false);
+  assert.equal(res.body.error, 'missing_signature');
 });
 
 test('POST /api/auth/verify rejects malformed message/signature', async () => {
@@ -39,6 +40,28 @@ test('POST /api/auth/verify rejects malformed message/signature', async () => {
   await verifyHandler({ method: 'POST', body: { message: 'invalid', signature: '0xdeadbeef' }, headers: { host: 'localhost:3000' } }, res);
   assert.equal(res.body.ok, false);
   assert.equal(res.body.status, 'AUTH_FAILED');
+  assert.ok(['malformed_message', 'dependency_unavailable'].includes(res.body.error));
+});
+
+test('POST /api/auth/verify rejects statement mismatch', async () => {
+  const res = makeRes();
+  const message = `www.commandlayer.org wants you to sign in with your Ethereum account:
+0x0000000000000000000000000000000000000001
+
+Different statement.
+
+URI: https://www.commandlayer.org
+Version: 1
+Chain ID: 1
+Nonce: abcdefgh
+Issued At: 2026-01-01T00:00:00.000Z`;
+  await verifyHandler({ method: 'POST', body: { message, signature: '0xdeadbeef' }, headers: { host: 'www.commandlayer.org' } }, res);
+  if (res.statusCode === 503) {
+    assert.equal(res.body.error, 'dependency_unavailable');
+    return;
+  }
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'statement_mismatch');
 });
 
 
@@ -46,5 +69,5 @@ test('POST /api/auth/verify surfaces dependency unavailable when siwe is missing
   const res = makeRes();
   await verifyHandler({ method: 'POST', body: { message: 'x', signature: '0xy' }, headers: { host: 'localhost:3000' } }, res);
   assert.equal(res.statusCode, 503);
-  assert.match(res.body.error, /dependency unavailable/i);
+  assert.equal(res.body.error, 'dependency_unavailable');
 });

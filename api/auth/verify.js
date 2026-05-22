@@ -13,22 +13,34 @@ function getHost(req) {
 }
 
 function getAllowedDomain(req) {
-  const configured = process.env.COMMANDLAYER_SIWE_DOMAIN || process.env.SIWE_ALLOWED_DOMAIN || '';
-  if (configured) return configured.toLowerCase();
+  const configured = process.env.COMMANDLAYER_SIWE_DOMAINS || process.env.COMMANDLAYER_SIWE_DOMAIN || process.env.SIWE_ALLOWED_DOMAIN || '';
+  const configuredDomains = configured.split(',').map((v) => v.trim().toLowerCase()).filter(Boolean);
+  if (configuredDomains.length) return new Set(configuredDomains);
   const host = getHost(req).split(':')[0];
-  if (isDev() && (host === 'localhost' || host === '127.0.0.1')) return host;
-  return '';
+  const defaults = new Set(['www.commandlayer.org']);
+  if (host === 'commandlayer.org') defaults.add('commandlayer.org');
+  if (isDev()) {
+    defaults.add('localhost');
+    defaults.add('127.0.0.1');
+  }
+  return defaults;
 }
 
 function getAllowedUri(req) {
-  const configured = process.env.COMMANDLAYER_SITE_URL || process.env.SIWE_ALLOWED_URI || '';
-  if (configured) {
-    try { return new URL(configured).toString(); } catch { return configured; }
-  }
+  const configured = process.env.COMMANDLAYER_SITE_URLS || process.env.COMMANDLAYER_SITE_URL || process.env.SIWE_ALLOWED_URI || '';
+  const configuredUris = configured.split(',').map((v) => v.trim()).filter(Boolean).map((v) => {
+    try { return new URL(v).toString(); } catch { return v; }
+  });
+  if (configuredUris.length) return new Set(configuredUris);
   const host = getHost(req);
-  if (isDev() && host.startsWith('localhost')) return `http://${host}/`;
-  if (isDev() && host.startsWith('127.0.0.1')) return `http://${host}/`;
-  return '';
+  const defaults = new Set(['https://www.commandlayer.org/']);
+  if (host === 'commandlayer.org' || configured.includes('https://commandlayer.org')) {
+    defaults.add('https://commandlayer.org/');
+  }
+  if (isDev()) {
+    defaults.add(`http://${host}/`);
+  }
+  return defaults;
 }
 
 function getAllowedChainIds() {
@@ -37,60 +49,59 @@ function getAllowedChainIds() {
 }
 
 module.exports = async function handler(req, res) {
+  const fail = (statusCode, error, reason) => res.status(statusCode).json({ ok: false, status: 'AUTH_FAILED', error, reason });
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
 
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
-    return res.status(405).json({ ok: false, status: 'AUTH_FAILED', error: 'Method not allowed. Use POST.' });
+    return fail(405, 'method_not_allowed', 'Method not allowed. Use POST.');
   }
 
   const body = req.body || {};
   const message = typeof body.message === 'string' ? body.message : '';
   const signature = typeof body.signature === 'string' ? body.signature : '';
-  if (!message || !signature) {
-    return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: 'Missing SIWE message or signature.' });
-  }
+  if (!message) return fail(400, 'missing_message', 'Missing SIWE message.');
+  if (!signature) return fail(400, 'missing_signature', 'Missing SIWE signature.');
 
   let SiweMessage;
   try {
     ({ SiweMessage } = require('siwe'));
   } catch {
-    return res.status(503).json({ ok: false, status: 'AUTH_FAILED', error: 'SIWE verification dependency unavailable on server.' });
+    return fail(503, 'dependency_unavailable', 'SIWE verification dependency unavailable on server.');
   }
 
   try {
     const parsed = new SiweMessage(message);
-    const expectedDomain = getAllowedDomain(req);
-    const expectedUri = getAllowedUri(req);
+    const allowedDomains = getAllowedDomain(req);
+    const allowedUris = getAllowedUri(req);
     const allowedChains = getAllowedChainIds();
 
-    if (!expectedDomain) {
-      return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: 'SIWE domain policy is not configured.' });
-    }
-    if (String(parsed.domain || '').toLowerCase() !== expectedDomain) {
-      return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: 'SIWE domain mismatch.' });
+    const parsedDomain = String(parsed.domain || '').toLowerCase();
+    if (!allowedDomains.has(parsedDomain)) {
+      return fail(400, 'domain_mismatch', `Expected one of ${Array.from(allowedDomains).join(', ')} but received ${parsedDomain || '(empty)'}`);
     }
 
-    if (expectedUri && parsed.uri !== expectedUri) {
-      return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: 'SIWE URI mismatch.' });
+    const normalizedUri = (() => { try { return new URL(String(parsed.uri || '')).toString(); } catch { return String(parsed.uri || ''); } })();
+    if (!allowedUris.has(normalizedUri)) {
+      return fail(400, 'uri_mismatch', `Expected one of ${Array.from(allowedUris).join(', ')} but received ${normalizedUri || '(empty)'}`);
     }
 
     if (!allowedChains.has(Number(parsed.chainId))) {
-      return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: 'Unsupported SIWE chainId.' });
+      return fail(400, 'chain_not_allowed', `Unsupported SIWE chainId ${parsed.chainId}.`);
     }
 
     if (String(parsed.statement || '').trim() !== REQUIRED_STATEMENT) {
-      return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: 'Invalid SIWE statement for claim activation.' });
+      return fail(400, 'statement_mismatch', `Expected statement "${REQUIRED_STATEMENT}" but received "${String(parsed.statement || '')}"`);
     }
 
-    const result = await parsed.verify({ signature, domain: expectedDomain, nonce: parsed.nonce });
+    const result = await parsed.verify({ signature, domain: parsedDomain, nonce: parsed.nonce });
     if (!result.success) {
-      return res.status(401).json({ ok: false, status: 'AUTH_FAILED', error: 'SIWE signature verification failed.' });
+      return fail(401, 'signature_invalid', 'SIWE signature verification failed.');
     }
 
     return res.status(200).json({ ok: true, status: 'AUTHENTICATED', address: result.data.address, chainId: Number(result.data.chainId), ens: null });
   } catch (error) {
-    return res.status(400).json({ ok: false, status: 'AUTH_FAILED', error: error && error.message ? error.message : 'Invalid SIWE payload.' });
+    return fail(400, 'malformed_message', error && error.message ? error.message : 'Invalid SIWE payload.');
   }
 };
