@@ -165,6 +165,16 @@
     .status-pill{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
     .status-live{background:rgba(5,150,105,.1);color:var(--green);border:1px solid rgba(5,150,105,.25)}
     .status-preview{background:rgba(217,119,6,.1);color:var(--amber);border:1px solid rgba(217,119,6,.25)}
+    .auth-state-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .auth-pill{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid var(--border);background:#f8fafc;color:var(--text-2)}
+    .auth-pill.connected{background:rgba(37,99,235,.12);color:#1d4ed8;border-color:rgba(37,99,235,.28)}
+    .auth-pill.authenticated{background:rgba(5,150,105,.1);color:var(--green);border-color:rgba(5,150,105,.28)}
+    .auth-status-wrap{margin-top:10px;display:grid;gap:6px}
+    .auth-status-line{font-size:12px;line-height:1.35;border-radius:8px;padding:6px 8px;border:1px solid transparent}
+    .auth-status-line.neutral{color:var(--text-2);background:#f8fafc;border-color:var(--border)}
+    .auth-status-line.connected{color:#1d4ed8;background:rgba(37,99,235,.08);border-color:rgba(37,99,235,.2)}
+    .auth-status-line.authenticated{color:var(--green);background:rgba(5,150,105,.08);border-color:rgba(5,150,105,.2)}
+    .auth-status-line.error{color:#b42318;background:rgba(180,35,24,.06);border-color:rgba(180,35,24,.2)}
     .agent-card-body .code-block{border-radius:0;border:none;max-height:280px;overflow-y:auto}
     /* SUMMARY */
     .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
@@ -273,9 +283,15 @@
       <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Supported browser wallets include MetaMask, Rabby, Coinbase Wallet, and other EIP-1193 wallets.</div>
       <button class="btn btn-secondary" id="walletConnectBtn" onclick="connectWallet()">Connect Wallet</button>
       <button class="btn btn-secondary" id="siweAuthBtn" onclick="signInWithEthereum()" style="display:none;margin-left:8px">Sign-In with Ethereum</button>
-      <div id="siweStatus" style="font-size:13px;color:var(--text-2);margin-top:10px">Not connected</div>
-      <div id="siweWallet" style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:4px"></div>
-      <div id="siweError" style="font-size:12px;color:#b42318;margin-top:8px;display:none"></div>
+      <div class="auth-state-row">
+        <span class="auth-pill" id="walletStatusPill">Wallet disconnected</span>
+        <span class="auth-pill" id="authStatusPill">Not authenticated</span>
+      </div>
+      <div class="auth-status-wrap">
+        <div id="siweStatus" class="auth-status-line neutral">Status: Not connected</div>
+        <div id="siweWallet" class="auth-status-line neutral" style="display:none;font-family:var(--mono)"></div>
+        <div id="siweError" class="auth-status-line error" style="display:none"></div>
+      </div>
       <div id="siweModeHint" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
       <div id="ensOwnedBox" class="ens-owned-box">
         <div id="ensOwnedStatus" class="ens-owned-title"></div>
@@ -828,6 +844,25 @@ function updateSiweModeHint(){
   }
 }
 
+function setAuthStatusClasses(statusType,walletType,hasError){
+  const statusEl=document.getElementById('siweStatus');
+  const walletEl=document.getElementById('siweWallet');
+  const errorEl=document.getElementById('siweError');
+  const walletPill=document.getElementById('walletStatusPill');
+  const authPill=document.getElementById('authStatusPill');
+  if(statusEl) statusEl.className=`auth-status-line ${statusType||'neutral'}`;
+  if(walletEl) walletEl.className=`auth-status-line ${walletType||'neutral'}`;
+  if(errorEl) errorEl.style.display=hasError?'block':'none';
+  if(walletPill){
+    walletPill.className='auth-pill'+(state.connectedWalletAddress?' connected':'');
+    walletPill.textContent=state.connectedWalletAddress?'Wallet Connected':'Wallet disconnected';
+  }
+  if(authPill){
+    authPill.className='auth-pill'+(state.siweAuthenticated?' authenticated':'');
+    authPill.textContent=state.siweAuthenticated?'Authenticated':'Not authenticated';
+  }
+}
+
 window.connectWallet = async function connectWallet(){
   const statusEl=document.getElementById('siweStatus');
   const walletEl=document.getElementById('siweWallet');
@@ -841,25 +876,32 @@ window.connectWallet = async function connectWallet(){
     nextBtn.disabled=true;
     connectBtn.disabled=true;
     connectBtn.textContent='Connecting...';
-    statusEl.textContent='Connecting wallet...';
+    statusEl.textContent='Status: Connecting wallet...';
+    setAuthStatusClasses('neutral','neutral',false);
     if(!window.ethereum){ throw new Error('No Ethereum wallet detected. Install MetaMask, Rabby, Coinbase Wallet, or another browser wallet.'); }
     const accounts=await window.ethereum.request({ method:'eth_requestAccounts' });
     const rawAddress=accounts && accounts[0];
     if(!rawAddress){ throw new Error('Wallet connection rejected.'); }
     const checksumAddress=toChecksumAddress(rawAddress);
     state.connectedWalletAddress=checksumAddress;
+    walletEl.style.display='block';
     walletEl.textContent=`Wallet connected: ${shortAddr(checksumAddress)}`;
-    statusEl.textContent='Wallet connected';
+    statusEl.textContent='Status: Wallet connected';
     connectBtn.textContent='Wallet Connected';
+    connectBtn.classList.add('btn-ghost');
     siweBtn.style.display='inline-flex';
     siweBtn.disabled=false;
+    setAuthStatusClasses('connected','connected',false);
   } catch (err) {
     const msg=((err && err.message)||'Wallet connection rejected.').trim();
     errorEl.textContent=err && err.code===4001 ? 'Wallet connection rejected.' : msg;
     errorEl.style.display='block';
-    statusEl.textContent='Not connected';
+    statusEl.textContent='Status: Not connected';
     connectBtn.textContent='Connect Wallet';
+    connectBtn.classList.remove('btn-ghost');
     walletEl.textContent='';
+    walletEl.style.display='none';
+    setAuthStatusClasses('neutral','neutral',true);
   } finally {
     connectBtn.disabled=false;
   }
@@ -880,7 +922,8 @@ window.signInWithEthereum = async function signInWithEthereum(){
     const address=toChecksumAddress(state.connectedWalletAddress);
     if(!address){ throw new Error('Connect wallet first.'); }
     updateSiweModeHint();
-    statusEl.textContent='Requesting SIWE nonce...';
+    statusEl.textContent='Status: Requesting SIWE nonce...';
+    setAuthStatusClasses('connected','connected',false);
     const chainIdHex=await window.ethereum.request({ method:'eth_chainId' });
     const chainId=parseInt(chainIdHex,16);
     if(Number.isNaN(chainId) || chainId<=0){ throw new Error('Unsupported chain.'); }
@@ -901,7 +944,7 @@ Version: 1
 Chain ID: ${chainId}
 Nonce: ${nonceData.nonce}
 Issued At: ${issuedAt}`;
-    statusEl.textContent='Awaiting wallet signature...';
+    statusEl.textContent='Status: Awaiting wallet signature...';
     const signature=await window.ethereum.request({method:'personal_sign',params:[msg,address]});
     const verifyRes=await fetch('/api/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,signature})});
     const verify=await verifyRes.json();
@@ -912,19 +955,25 @@ Issued At: ${issuedAt}`;
     }
     state.authenticatedAddress=verify.address; state.authStatus=verify.status; state.authChainId=verify.chainId; state.siweAuthenticated=true;
     await loadOwnedEnsNames(verify.address);
-    statusEl.textContent='Authenticated';
-    walletEl.textContent=`Connected wallet: ${shortAddr(verify.address)}`;
+    statusEl.textContent='Authentication verified.';
+    walletEl.style.display='block';
+    walletEl.textContent=`Wallet connected: ${shortAddr(verify.address)}`;
     btn.textContent='Authenticated';
+    btn.disabled=true;
+    btn.classList.add('btn-ghost');
+    setAuthStatusClasses('authenticated','connected',false);
     nextBtn.disabled=false;
   } catch (err) {
     const msg=((err && err.message)||'SIWE verification failed.').trim();
     errorEl.textContent=err && err.code===4001 ? 'Signature rejected.' : msg;
     errorEl.style.display='block';
-    statusEl.textContent='Not connected';
+    statusEl.textContent='Status: Not connected';
     btn.disabled=false;
     btn.textContent='Sign-In with Ethereum';
+    btn.classList.remove('btn-ghost');
     nextBtn.disabled=true;
     state.siweAuthenticated=false;
+    setAuthStatusClasses(state.connectedWalletAddress?'connected':'neutral',state.connectedWalletAddress?'connected':'neutral',true);
     console.error('SIWE auth failed', err);
   }
 };
