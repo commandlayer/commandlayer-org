@@ -218,7 +218,7 @@
 <body>
 
 <nav>
-  <div class="nav-inner">
+  <div class="nav-inner container">
     <a href="/" class="brand"><img src="/commandlayer-logo.png" alt="CommandLayer" /><span>CommandLayer</span></a>
     <ul class="nav-links">
       <li><a href="/">Home</a></li>
@@ -788,7 +788,7 @@ function goStep3() {
 
 
 
-function shortAddr(addr){return addr?`${addr.slice(0,6)}...${addr.slice(-4)}`:'';}
+function shortAddr(addr){return addr?`${addr.slice(0,6)}...${addr.slice(-4)}`:'';}​
 
 function toChecksumAddress(address){
   if(!address || typeof address!=='string'){
