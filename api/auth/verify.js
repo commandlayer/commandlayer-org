@@ -2,7 +2,7 @@
 
 const { URL } = require('node:url');
 
-const REQUIRED_STATEMENT = 'CommandLayer Claim activation';
+const REQUIRED_STATEMENT = 'Authenticate with CommandLayer Claim activation.';
 
 function isDev() {
   return process.env.NODE_ENV === 'development';

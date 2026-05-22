@@ -253,13 +253,13 @@
   <!-- PROGRESS -->
   <div class="progress-wrap">
     <div class="steps-track" id="stepsTrack">
-      <div class="step-node active" data-step="1"><div class="step-circle"><span class="step-num">1</span></div><div class="step-label">ENS Name</div></div>
+      <div class="step-node active" data-step="1"><div class="step-circle"><span class="step-num">1</span></div><div class="step-label">Sign-In</div></div>
       <div class="step-node" data-step="2"><div class="step-circle"><span class="step-num">2</span></div><div class="step-label">Mode</div></div>
-      <div class="step-node" data-step="3"><div class="step-circle"><span class="step-num">3</span></div><div class="step-label">Capabilities</div></div>
-      <div class="step-node" data-step="4"><div class="step-circle"><span class="step-num">4</span></div><div class="step-label">Generate Key</div></div>
-      <div class="step-node" data-step="5"><div class="step-circle"><span class="step-num">5</span></div><div class="step-label">ENS Records</div></div>
-      <div class="step-node" data-step="6"><div class="step-circle"><span class="step-num">6</span></div><div class="step-label">SDK Config</div></div>
-      <div class="step-node" data-step="7"><div class="step-circle"><span class="step-num">7</span></div><div class="step-label">Agent Card</div></div>
+      <div class="step-node" data-step="3"><div class="step-circle"><span class="step-num">3</span></div><div class="step-label">ENS Name</div></div>
+      <div class="step-node" data-step="4"><div class="step-circle"><span class="step-num">4</span></div><div class="step-label">Capabilities</div></div>
+      <div class="step-node" data-step="5"><div class="step-circle"><span class="step-num">5</span></div><div class="step-label">Generate Key</div></div>
+      <div class="step-node" data-step="6"><div class="step-circle"><span class="step-num">6</span></div><div class="step-label">ENS Records</div></div>
+      <div class="step-node" data-step="7"><div class="step-circle"><span class="step-num">7</span></div><div class="step-label">SDK + Card</div></div>
       <div class="step-node" data-step="8"><div class="step-circle"><span class="step-num">8</span></div><div class="step-label">Summary</div></div>
     </div>
   </div>
@@ -267,16 +267,18 @@
   <!-- STEP 1: ENS NAME -->
   <div class="wizard-panel active" id="panel-1">
     <div class="panel-step">Step 1 of 8</div>
-    <div class="panel-title">Enter your ENS name</div>
-    <div class="panel-sub">This is your organization or agent identity. You will choose how capability sub-agents are structured in the next step.</div>
-    <div class="field">
-      <label>ENS Name</label>
-      <input type="text" id="ensInput" placeholder="acme.eth" autocomplete="off" spellcheck="false" />
-      <span class="field-error" id="ensError">Please enter a valid .eth name</span>
-      <span class="field-hint">Must end in .eth · The name you own or control</span>
+    <div class="panel-title">Sign in with Ethereum</div>
+    <div class="panel-sub">Authenticate the wallet that will request this CommandLayer namespace activation.</div>
+    <div style="padding:14px;border-radius:12px;border:1px solid var(--border);background:#fff">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Your Ethereum wallet authenticates the claim request.<br>Your Ed25519 key signs agent receipts later in the flow.</div>
+      <button class="btn btn-secondary" id="siweAuthBtn" onclick="signInWithEthereum()">Sign-In with Ethereum</button>
+      <div id="siweStatus" style="font-size:13px;color:var(--text-2);margin-top:10px">Not connected</div>
+      <div id="siweWallet" style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:4px"></div>
+      <div id="siweError" style="font-size:12px;color:#b42318;margin-top:8px;display:none"></div>
+      <div id="siweModeHint" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" onclick="goStep1()">Continue →</button>
+      <button class="btn btn-primary" id="step1Next" disabled onclick="goStep1()">Continue →</button>
     </div>
   </div>
 
@@ -326,8 +328,8 @@
   <!-- STEP 3: CAPABILITY SELECTION -->
   <div class="wizard-panel" id="panel-3">
     <div class="panel-step">Step 3 of 8</div>
-    <div class="panel-title">Choose capabilities</div>
-    <div class="panel-sub" id="capSubtext">Select a recommended pack of 10 verbs, or cherry-pick up to 10 from any group.</div>
+    <div class="panel-title">Enter tenant / ENS name</div>
+    <div class="panel-sub" id="capSubtext">This is your organization or agent identity used for namespace generation.</div>
     <div class="mode-tabs">
       <button class="mode-tab active" id="tabPacks" onclick="setCapMode('packs')">Recommended Packs</button>
       <button class="mode-tab" id="tabCherry" onclick="setCapMode('cherry')">Cherry-pick</button>
@@ -336,6 +338,12 @@
     <div id="cherryMode" style="display:none">
       <div class="cherry-counter">Selected: <span id="cherryCount">0</span> / 10</div>
       <div id="cherryGroups"></div>
+    </div>
+    <div class="field" style="margin-top:14px">
+      <label>ENS Name</label>
+      <input type="text" id="ensInput" placeholder="acme.eth" autocomplete="off" spellcheck="false" />
+      <span class="field-error" id="ensError">Please enter a valid .eth name</span>
+      <span class="field-hint">Must end in .eth · The name you own or control</span>
     </div>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
@@ -429,15 +437,7 @@
       Payment/provisioning is required for CommandLayer-native namespace activation.
     </div>
 
-    <div style="margin-top:16px;padding:14px;border-radius:12px;border:1px solid var(--border);background:#fff">
-      <div style="font-weight:700;margin-bottom:6px">Sign in with Ethereum</div>
-      <div style="font-size:13px;color:var(--text-2);margin-bottom:10px">Authenticate the wallet that will submit this activation request.</div>
-      <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Your Ethereum wallet authenticates the claim request. Your Ed25519 key signs agent receipts.</div>
-      <button class="btn btn-secondary" id="siweAuthBtn" onclick="signInWithEthereum()">Sign-In with Ethereum</button>
-      <div id="siweStatus" style="font-size:13px;color:var(--text-2);margin-top:10px">Status: Not authenticated</div>
-      <div id="siweWallet" style="font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:4px"></div>
-      <div id="siweModeHint" style="font-size:12px;color:var(--muted);margin-top:8px"></div>
-    </div>
+    
 
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="goToStep(4)">← Back</button>
@@ -585,7 +585,7 @@ let state = {
   pubKeyB64:'', privKeyB64:'', kid:'',
   keyGenerated:false, keyDownloaded:false, keyAcked:false,
   _cardJson:'',
-  authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null
+  authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null, siweAuthenticated:false
 };
 
 // ── HELPERS ───────────────────────────────────────────────────────────────────
@@ -644,24 +644,10 @@ function updateProgress() {
 
 // ── STEP 1 ────────────────────────────────────────────────────────────────────
 function goStep1() {
-  const val = document.getElementById('ensInput').value.trim().toLowerCase();
-  const err = document.getElementById('ensError');
-  if (!val.endsWith('.eth') || val.length < 6) {
-    err.classList.add('show');
-    document.getElementById('ensInput').classList.add('error');
-    return;
-  }
-  err.classList.remove('show');
-  document.getElementById('ensInput').classList.remove('error');
-  document.getElementById('ensInput').classList.add('valid');
-  state.ens = val;
-  // update mode examples
-  updateModeExamples();
-  buildPacksGrid();
-  buildCherryGroups();
+  if (!state.siweAuthenticated) return;
   goToStep(2);
 }
-document.getElementById('ensInput').addEventListener('keydown', e => { if(e.key==='Enter') goStep1(); });
+document.getElementById('ensInput').addEventListener('keydown', e => { if(e.key==='Enter') goStep3(); });
 
 // ── STEP 2: MODE ──────────────────────────────────────────────────────────────
 function updateModeExamples() {
@@ -761,6 +747,20 @@ function toggleCherry(verb) {
 }
 
 function goStep3() {
+  const val = document.getElementById('ensInput').value.trim().toLowerCase();
+  const err = document.getElementById('ensError');
+  if (!val.endsWith('.eth') || val.length < 6) {
+    err.classList.add('show');
+    document.getElementById('ensInput').classList.add('error');
+    return;
+  }
+  err.classList.remove('show');
+  document.getElementById('ensInput').classList.remove('error');
+  document.getElementById('ensInput').classList.add('valid');
+  state.ens = val;
+  updateModeExamples();
+  buildPacksGrid();
+  buildCherryGroups();
   if (getVerbs().length === 0) { alert('Please select a pack or cherry-pick at least one verb.'); return; }
   buildENSRecords();
   buildSDKConfig();
@@ -783,26 +783,36 @@ function updateSiweModeHint(){
   }
 }
 
-async function signInWithEthereum(){
+window.signInWithEthereum = async function signInWithEthereum(){
   const statusEl=document.getElementById('siweStatus');
   const walletEl=document.getElementById('siweWallet');
+  const errorEl=document.getElementById('siweError');
+  const btn=document.getElementById('siweAuthBtn');
+  const nextBtn=document.getElementById('step1Next');
   try {
-    if(!window.ethereum){ throw new Error('NO_WALLET'); }
+    errorEl.style.display='none';
+    errorEl.textContent='';
+    btn.disabled=true;
+    btn.textContent='Waiting for wallet...';
+    statusEl.textContent='Requesting wallet signature...';
+    if(!window.ethereum){ throw new Error('No Ethereum wallet detected. Install MetaMask, Rabby, or another EIP-1193 wallet.'); }
     updateSiweModeHint();
-    statusEl.textContent='Status: Requesting signature...';
-    const [address]=await window.ethereum.request({ method:'eth_requestAccounts' });
+    const accounts=await window.ethereum.request({ method:'eth_requestAccounts' });
+    const address=accounts && accounts[0];
+    if(!address){ throw new Error('No wallet account selected.'); }
+    const chainIdHex=await window.ethereum.request({ method:'eth_chainId' });
+    const chainId=parseInt(chainIdHex,16);
     const nonceRes=await fetch('/api/auth/nonce',{method:'GET',headers:{'Accept':'application/json'}});
+    if(!nonceRes.ok){ throw new Error('Could not get SIWE nonce from /api/auth/nonce.'); }
     const nonceData=await nonceRes.json();
-    if(!nonceData.ok){ throw new Error('NONCE_FAILED'); }
+    if(!nonceData.ok || !nonceData.nonce){ throw new Error('Could not get SIWE nonce from /api/auth/nonce.'); }
     const domain=window.location.host;
     const uri=window.location.origin;
-    const chainHex=await window.ethereum.request({ method:'eth_chainId' });
-    const chainId=parseInt(chainHex,16);
     const issuedAt=new Date().toISOString();
     const msg=`${domain} wants you to sign in with your Ethereum account:
 ${address}
 
-CommandLayer Claim activation
+Authenticate with CommandLayer Claim activation.
 
 URI: ${uri}
 Version: 1
@@ -813,19 +823,27 @@ Issued At: ${issuedAt}`;
     const verifyRes=await fetch('/api/auth/verify',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,signature})});
     const verify=await verifyRes.json();
     if(!verify.ok){ throw new Error(verify.error||'Authentication failed'); }
-    state.authenticatedAddress=verify.address; state.authStatus=verify.status; state.authChainId=verify.chainId;
-    statusEl.textContent='Status: Authenticated';
+    state.authenticatedAddress=verify.address; state.authStatus=verify.status; state.authChainId=verify.chainId; state.siweAuthenticated=true;
+    statusEl.textContent='Authenticated';
     walletEl.textContent=`Connected wallet: ${shortAddr(verify.address)}`;
+    btn.textContent='Wallet authenticated';
+    nextBtn.disabled=false;
   } catch (err) {
-    const msg=(err && err.message)||'';
-    if(msg==='NO_WALLET') statusEl.textContent='Status: No wallet found.';
-    else if(msg.includes('User rejected') || msg.includes('rejected')) statusEl.textContent='Status: Wallet rejected signature.';
-    else if(msg.includes('dependency unavailable')) statusEl.textContent='Status: Auth dependency unavailable.';
-    else if(msg.includes('domain mismatch')) statusEl.textContent='Status: Domain mismatch.';
-    else if(msg.includes('signature') || msg.includes('SIWE')) statusEl.textContent='Status: Signature invalid.';
-    else statusEl.textContent='Status: Authentication failed.';
+    const msg=((err && err.message)||'Authentication failed.').trim();
+    if(err && err.code===4001){
+      errorEl.textContent='Wallet signature rejected.';
+    }else{
+      errorEl.textContent=msg;
+    }
+    errorEl.style.display='block';
+    statusEl.textContent='Not connected';
+    btn.disabled=false;
+    btn.textContent='Sign-In with Ethereum';
+    nextBtn.disabled=true;
+    state.siweAuthenticated=false;
+    console.error('SIWE auth failed', err);
   }
-}
+};
 
 function goStep5Auth(){
   updateSiweModeHint();
@@ -1145,7 +1163,7 @@ function startOver() {
   state = {
     step:1, ens:'', activationMode:'cl', capMode:'packs', selectedPack:null, cherryVerbs:[],
     pubKeyB64:'', privKeyB64:'', kid:'', keyGenerated:false, keyDownloaded:false, keyAcked:false,
-    _cardJson:''
+    _cardJson:'', authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null, siweAuthenticated:false
   };
   document.getElementById('ensInput').value='';
   document.getElementById('ensInput').classList.remove('valid','error');
