@@ -8,7 +8,7 @@ function getAddressInput(req) {
 }
 
 function hasProviderConfig() {
-  return Boolean(process.env.ALCHEMY_ETH_RPC_URL || process.env.ETH_RPC_URL || process.env.ALCHEMY_ETH_API_KEY);
+  return Boolean(process.env.ALCHEMY_ETH_RPC_URL || process.env.ETH_RPC_URL || process.env.ALCHEMY_ETH_API_KEY || process.env.SIMPLEHASH_API_KEY);
 }
 
 function normalizeAddress(raw) {
