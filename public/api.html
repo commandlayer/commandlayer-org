@@ -34,7 +34,7 @@
       <li><a href="/verify.html">Verifier</a></li>
       <li><a href="/sdk-records.html">SDK</a></li>
       <li class="nav-drop">
-        <a href="/docs.html" class="active" aria-haspopup="true">Docs ▾</a>
+        <a href="/docs.html" class="active" aria-haspopup="true">Docs &#9662;</a>
         <div class="nav-drop-menu">
           <a href="/docs.html">Docs Home</a><a href="/docs/wrap-your-agent.html">Wrap Your Agent</a><a href="/stack-proof-demo.html">Production Proof</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP Bridge</a><a href="/schemas.html">Schemas</a><a href="/api.html">API Reference</a><a href="/trust-verification.html">Trust Verification</a><a href="/claim.html">Claim / Namespace Activation</a>
         </div>
@@ -54,7 +54,7 @@
       <a class="btn btn-primary btn-lg" href="/verify.html">Try Verifier</a>
       <a class="btn btn-secondary btn-lg" href="/stack-proof-demo.html">View Production Proof</a>
     </div>
-    <div class="proof-status"><strong>Production proof status:</strong> Runtime production is live and signs canonical Trust Verification receipts. MCP E2E against production runtime passes: STEP 1 SIGNED, STEP 2 VERIFIED, STEP 3 TAMPERED INVALID. Runtime signer is <code>runtime.commandlayer.eth</code> with <code>kid=vC4WbcNoq2znSCiQ</code>. Canonical proof uses <code>metadata.proof</code> with <code>json.sorted_keys.v1</code> as the standard receipt path; <code>erc8211.merkle.v1</code> is recognized at the schema layer for interoperability.</div>
+    <div class="proof-status"><strong>Production proof status:</strong> Runtime production is live and signs canonical Trust Verification receipts. MCP E2E against production runtime passes: STEP 1 SIGNED, STEP 2 VERIFIED, STEP 3 TAMPERED INVALID. Runtime signer is <code>runtime.commandlayer.eth</code> with <code>kid=vC4WbcNoq2znSCiQ</code>. Canonical proof uses <code>metadata.proof</code> with <code>json.sorted_keys.v1</code> as the standard receipt path; <code>erc8211.composable.v1</code> — ERC-8211 composable execution canonicalization recognized. Merkle authorization verification is deferred pending the companion Merkle authorization ERC.</div>
   </div>
 </section>
 
@@ -145,9 +145,9 @@
   <section class="api-card section">
     <h2>Website verifier surfaces</h2>
     <ul>
-      <li><code>/verify.html</code> — Interactive manual verifier.</li>
-      <li><code>/api/verify</code> — Website verifier API surface; treat as a website-facing verifier surface unless separately validated for parity with runtime <code>/verify</code>.</li>
-      <li><code>/api/agents/verifyagent</code> — VerifyAgent metadata/API alias surface if present.</li>
+      <li><code>/verify.html</code> &#8212; Interactive manual verifier.</li>
+      <li><code>/api/verify</code> &#8212; Website verifier API surface; treat as a website-facing verifier surface unless separately validated for parity with runtime <code>/verify</code>.</li>
+      <li><code>/api/agents/verifyagent</code> &#8212; VerifyAgent metadata/API alias surface if present.</li>
     </ul>
     <div class="inline-note"><strong>Warning:</strong> Do not treat <code>/api/verify</code> as the canonical production verifier unless tests prove parity with runtime <code>/verify</code>.</div>
   </section>
