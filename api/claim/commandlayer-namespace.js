@@ -71,10 +71,12 @@ module.exports = async function handler(req, res) {
     if (!canonicalParent) return invalid(res, 'invalid_capability', `Unsupported capability "${capability}" for Trust Verification pack.`);
   }
 
+  const capabilitySet = new Set(capabilities);
   for (const agent of agents) {
     if (!agent || typeof agent !== 'object') return invalid(res, 'invalid_agents', 'Each agent must be an object.');
     const { ens, capability, canonicalParent } = agent;
     if (!TRUST_VERIFICATION_MAP[capability]) return invalid(res, 'invalid_agent_capability', `Unsupported agent capability "${capability}".`);
+    if (!capabilitySet.has(capability)) return invalid(res, 'invalid_agent_capability', `Agent capability "${capability}" must be present in capabilities.`);
     if (TRUST_VERIFICATION_MAP[capability] !== canonicalParent) return invalid(res, 'invalid_agent_mapping', `Capability "${capability}" must map to canonical parent "${TRUST_VERIFICATION_MAP[capability]}".`);
     if (!Object.values(TRUST_VERIFICATION_MAP).includes(canonicalParent)) return invalid(res, 'invalid_canonical_parent', `Unsupported canonical parent "${canonicalParent}".`);
     if (ens !== `${tenant}.${canonicalParent}`) return invalid(res, 'invalid_agent_ens', `Agent ENS must equal "${tenant}.${canonicalParent}".`);

@@ -103,6 +103,50 @@ test('valid payload with mocked DB returns CLAIM_REQUEST_CREATED', async () => {
   assert.equal(calls.length >= 5, true);
 });
 
+
+test('user-owned ENS activationMode rejected by commandlayer namespace endpoint', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
+  const body = validBody();
+  body.activationMode = 'own';
+  const res = makeRes();
+  await handler({ method: 'POST', body }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'invalid_activation_mode');
+});
+
+test('agent.ens with wrong parent rejected', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
+  const body = validBody();
+  body.agents[0].ens = 'acme.approve.someone.eth';
+  const res = makeRes();
+  await handler({ method: 'POST', body }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'invalid_agent_ens');
+});
+
+test('unsupported canonical parent rejected', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
+  const body = validBody();
+  body.agents[0].canonicalParent = 'searchagent.eth';
+  const res = makeRes();
+  await handler({ method: 'POST', body }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'invalid_agent_mapping');
+});
+
+test('tenant containing .eth rejected', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
+  const body = validBody();
+  body.tenant = 'acme.eth';
+  const res = makeRes();
+  await handler({ method: 'POST', body }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'invalid_tenant');
+});
 test('claim.created event insertion is attempted', async () => {
   process.env.DATABASE_URL = 'postgres://example.com/db';
   const calls = [];
