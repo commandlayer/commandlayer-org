@@ -347,7 +347,7 @@
   <!-- STEP 3: CAPABILITY SELECTION -->
   <div class="wizard-panel" id="panel-3">
     <div class="panel-step">Step 3 of 8</div>
-    <div class="panel-title">Enter tenant / ENS name</div>
+    <div class="panel-title">Namespace setup</div>
     <div class="panel-sub" id="capSubtext">This is your organization or agent identity used for namespace generation.</div>
     <div class="mode-tabs">
       <button class="mode-tab active" id="tabPacks" onclick="setCapMode('packs')">Recommended Packs</button>
@@ -358,11 +358,26 @@
       <div class="cherry-counter">Selected: <span id="cherryCount">0</span> / 10</div>
       <div id="cherryGroups"></div>
     </div>
-    <div class="field" style="margin-top:14px">
-      <label>ENS Name</label>
-      <input type="text" id="ensInput" placeholder="acme.eth" autocomplete="off" spellcheck="false" />
+    <div class="field" style="margin-top:14px" id="tenantField">
+      <label>Tenant label</label>
+      <input type="text" id="tenantInput" placeholder="hydroseal" autocomplete="off" spellcheck="false" />
+      <span class="field-error" id="tenantError">Use 3-32 lowercase letters, numbers, or hyphens; no .eth; cannot start/end with hyphen.</span>
+      <span class="field-hint">Used for subnames under CommandLayer canonical parents.</span>
+    </div>
+    <div class="field" id="canonicalSearchField">
+      <label>Search CommandLayer capability namespaces</label>
+      <input type="text" id="canonicalSearchInput" placeholder="Type a letter, example: a, v, s" autocomplete="off" spellcheck="false" />
+      <div class="field-hint">Select up to 10 canonical parents.</div>
+      <div id="canonicalSearchResults" class="name-preview" style="display:block"></div>
+      <div id="canonicalSelected" class="name-preview"></div>
+      <div class="field-hint">CommandLayer namespace mode creates subnames under CommandLayer-controlled canonical parents, such as hydroseal.approveagent.eth. It does not grant ownership of approveagent.eth.</div>
+    </div>
+    <div class="field" id="ownEnsField" style="display:none">
+      <label>ENS namespace</label>
+      <input type="text" id="ensInput" placeholder="hydroseal.eth" autocomplete="off" spellcheck="false" />
       <span class="field-error" id="ensError">Please enter a valid .eth name</span>
-      <span class="field-hint">Must end in .eth · The name you own or control</span>
+      <span class="field-hint">To activate records under your ENS name, the connected wallet must control that ENS name. Ownership/control verification is required before activation.</span>
+      <span class="field-hint">Manual package only. Activation request submission for user-owned ENS namespaces requires ENS control verification.</span>
     </div>
     <div class="btn-row">
       <button class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
@@ -618,10 +633,11 @@ const VERB_TO_AGENT = {
   classify:'classifyagent.eth', translate:'translateagent.eth', validate:'validateagent.eth',
   report:'reportagent.eth'
 };
+const TRUST_PARENTS = Array.from(new Set(Object.values(VERB_TO_AGENT).filter(v=>['signagent.eth','attestagent.eth','authorizeagent.eth','approveagent.eth','rejectagent.eth','permitagent.eth','grantagent.eth','authenticateagent.eth','endorseagent.eth','verifyagent.eth'].includes(v))));
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let state = {
-  step:1, ens:'', activationMode:'cl',
+  step:1, ens:'', tenantLabel:'', activationMode:'cl',
   capMode:'packs', selectedPack:null, cherryVerbs:[],
   pubKeyB64:'', privKeyB64:'', kid:'',
   keyGenerated:false, keyDownloaded:false, keyAcked:false,
@@ -641,7 +657,7 @@ function getVerbs() {
 
 // Generate the agent name for a verb based on activation mode
 function agentName(verb) {
-  const base = state.ens.replace('.eth','');
+  const base = state.activationMode==='cl' ? state.tenantLabel : state.ens.replace('.eth','');
   if (state.activationMode === 'cl') {
     // acme.approveagent.eth
     const canonical = VERB_TO_AGENT[verb] || (verb+'agent.eth');
@@ -667,6 +683,9 @@ function goToStep(n) {
   state.step = n;
   document.getElementById('panel-'+n).classList.add('active');
   updateProgress();
+document.getElementById('canonicalSearchInput').addEventListener('input', renderCanonicalSearch);
+renderCanonicalSearch();
+updateStep3ModeUI();
   if (n === 8) buildSummary();
   window.scrollTo({top:0, behavior:'smooth'});
 }
@@ -690,10 +709,11 @@ function goStep1() {
   goToStep(2);
 }
 document.getElementById('ensInput').addEventListener('keydown', e => { if(e.key==='Enter') goStep3(); });
+document.getElementById('tenantInput').addEventListener('keydown', e => { if(e.key==='Enter') goStep3(); });
 
 // ── STEP 2: MODE ──────────────────────────────────────────────────────────────
 function updateModeExamples() {
-  const base = state.ens.replace('.eth','');
+  const base = state.activationMode==='cl' ? state.tenantLabel : state.ens.replace('.eth','');
   document.getElementById('eg-cl').textContent    = base + '.approveagent.eth';
   document.getElementById('eg-own').textContent   = 'approve.' + state.ens;
   document.getElementById('eg-single').textContent = state.ens;
@@ -706,6 +726,7 @@ function selectMode(m) {
   });
   updateNamePreview();
   updateSiweModeHint();
+  updateStep3ModeUI();
 }
 
 function updateNamePreview() {
@@ -724,6 +745,7 @@ function updateNamePreview() {
 
 function goStep2() {
   if (!state.activationMode) { alert('Please choose an activation mode.'); return; }
+  updateStep3ModeUI();
   // default to CL mode if none selected
   if (!document.querySelector('.mode-card.selected')) selectMode('cl');
 updateSiweModeHint();
@@ -788,18 +810,43 @@ function toggleCherry(verb) {
   updateNamePreview();
 }
 
+
+function validTenantLabel(label){ return /^[a-z0-9-]{3,32}$/.test(label) && !label.includes('.eth') && !label.startsWith('-') && !label.endsWith('-'); }
+function updateStep3ModeUI(){
+  const isCl=state.activationMode==='cl';
+  document.getElementById('tenantField').style.display=isCl?'grid':'none';
+  document.getElementById('canonicalSearchField').style.display=isCl?'grid':'none';
+  document.getElementById('ownEnsField').style.display=isCl?'none':'grid';
+}
+function renderCanonicalSearch(){
+  const q=(document.getElementById('canonicalSearchInput').value||'').trim().toLowerCase();
+  const out=TRUST_PARENTS.filter(p=>!q||p.includes(q)).slice(0,10);
+  document.getElementById('canonicalSearchResults').innerHTML=out.map(p=>`<button type="button" class="btn btn-ghost" style="margin:4px" onclick="addCanonicalParent('${p}')">${p}</button>`).join('')||'<div class="field-hint">No matches.</div>';
+  const selected=(state.selectedCanonicalParents||[]);
+  document.getElementById('canonicalSelected').classList.toggle('show',selected.length>0);
+  document.getElementById('canonicalSelected').innerHTML=selected.length?`<div class="name-preview-label">Selected canonical parents (${selected.length}/10)</div><div class="name-preview-list">${selected.map(p=>`<span class="name-preview-item">${state.tenantLabel||'tenant'}.${p}</span>`).join('')}</div>`:'';
+}
+function addCanonicalParent(parent){
+  state.selectedCanonicalParents=state.selectedCanonicalParents||[];
+  if(state.selectedCanonicalParents.includes(parent)||state.selectedCanonicalParents.length>=10)return;
+  state.selectedCanonicalParents.push(parent);
+  renderCanonicalSearch();
+}
+
 function goStep3() {
-  const val = document.getElementById('ensInput').value.trim().toLowerCase();
-  const err = document.getElementById('ensError');
-  if (!val.endsWith('.eth') || val.length < 6) {
-    err.classList.add('show');
-    document.getElementById('ensInput').classList.add('error');
-    return;
+  if (state.activationMode==='cl') {
+    const label = document.getElementById('tenantInput').value.trim().toLowerCase();
+    if (!validTenantLabel(label)) { document.getElementById('tenantError').classList.add('show'); return; }
+    document.getElementById('tenantError').classList.remove('show');
+    state.tenantLabel = label;
+    state.ens = label+'.eth';
+  } else {
+    const val = document.getElementById('ensInput').value.trim().toLowerCase();
+    const err = document.getElementById('ensError');
+    if (!val.endsWith('.eth') || val.length < 6) { err.classList.add('show'); document.getElementById('ensInput').classList.add('error'); return; }
+    err.classList.remove('show'); document.getElementById('ensInput').classList.remove('error'); document.getElementById('ensInput').classList.add('valid');
+    state.ens = val;
   }
-  err.classList.remove('show');
-  document.getElementById('ensInput').classList.remove('error');
-  document.getElementById('ensInput').classList.add('valid');
-  state.ens = val;
   updateModeExamples();
   buildPacksGrid();
   buildCherryGroups();
@@ -918,6 +965,7 @@ window.signInWithEthereum = async function signInWithEthereum(){
     const address=toChecksumAddress(state.connectedWalletAddress);
     if(!address){ throw new Error('Connect wallet first.'); }
     updateSiweModeHint();
+  updateStep3ModeUI();
     statusEl.textContent='Status: Requesting SIWE nonce...';
     setAuthStatusClasses('connected','connected',false);
     const chainIdHex=await window.ethereum.request({ method:'eth_chainId' });
@@ -999,27 +1047,20 @@ async function loadOwnedEnsNames(address){
       status.textContent='No ENS names found for this wallet. You can still type manually.';
       return;
     }
-    status.textContent='Detected ENS names';
-    list.innerHTML=names.map((entry)=>`<div class="ens-owned-card"><h4>${entry.name}</h4><div style="font-size:12px;color:var(--muted)">Owned ENS name</div><div style="font-size:12px;color:var(--muted)">Control not checked</div><div class="ens-owned-actions"><button class="btn btn-secondary" onclick="useEnsAsTenant('${entry.name}')">Use as tenant label</button><button class="btn btn-secondary" onclick="useEnsAsNamespace('${entry.name}')">Use as ENS namespace</button></div></div>`).join('');
+    status.textContent='ENS names detected from this wallet';
+    list.innerHTML=names.map((entry)=>`<div class="ens-owned-card"><h4>${entry.name}</h4><div style="font-size:12px;color:var(--muted)">Owned ENS name</div><div style="font-size:12px;color:var(--muted)">controlStatus: not_checked</div><div class="ens-owned-actions"><button class="btn btn-secondary" onclick="useEnsAsTenant('${entry.name}')">Use as tenant label</button><button class="btn btn-secondary" onclick="useEnsAsNamespace('${entry.name}')">Use as ENS namespace</button></div></div>`).join('');
   }catch(_err){
     status.textContent='ENS lookup unavailable. You can still type manually.';
   }
 }
 
-function useEnsAsTenant(name){
-  const label=String(name||'').toLowerCase().replace(/\.eth$/,'');
-  if(!label) return;
-  selectMode('cl');
-  document.getElementById('ensInput').value=`${label}.eth`;
-}
+function useEnsAsTenant(name){ const label=String(name||'').toLowerCase().replace(/\.eth$/,''); if(!label) return; selectMode('cl'); document.getElementById('tenantInput').value=label; state.tenantLabel=label; renderCanonicalSearch(); }
 
-function useEnsAsNamespace(name){
-  selectMode('own');
-  document.getElementById('ensInput').value=String(name||'').toLowerCase();
-}
+function useEnsAsNamespace(name){ selectMode('own'); document.getElementById('ensInput').value=String(name||'').toLowerCase(); }
 
 function goStep5Auth(){
   updateSiweModeHint();
+  updateStep3ModeUI();
   if(state.activationMode==='cl' && !state.authenticatedAddress){
     alert('Sign-In with Ethereum is required before submitting CommandLayer activation request.');
     return;
@@ -1396,7 +1437,7 @@ function copyActivationResponse(btn){
 
 function startOver() {
   state = {
-    step:1, ens:'', activationMode:'cl', capMode:'packs', selectedPack:null, cherryVerbs:[],
+    step:1, ens:'', tenantLabel:'', activationMode:'cl', capMode:'packs', selectedPack:null, cherryVerbs:[],
     pubKeyB64:'', privKeyB64:'', kid:'', keyGenerated:false, keyDownloaded:false, keyAcked:false,
     _cardJson:'', _packageJson:'', submitResult:null, authenticatedAddress:'', authStatus:'NOT_AUTHENTICATED', authChainId:null, siweAuthenticated:false
   };
@@ -1414,6 +1455,9 @@ updateSiweModeHint();
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 updateProgress();
+document.getElementById('canonicalSearchInput').addEventListener('input', renderCanonicalSearch);
+renderCanonicalSearch();
+updateStep3ModeUI();
 </script>
 </body>
 </html>
