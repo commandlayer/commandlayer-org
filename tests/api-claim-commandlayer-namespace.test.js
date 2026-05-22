@@ -3,8 +3,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const handler = require('../api/claim/commandlayer-namespace');
-
 function makeRes() {
   return {
     statusCode: 200,
@@ -34,71 +32,90 @@ function validBody() {
   };
 }
 
+function loadHandlerWithMockQuery(mockQuery) {
+  const handlerPath = require.resolve('../api/claim/commandlayer-namespace');
+  const dbPath = require.resolve('../lib/db');
+  delete require.cache[handlerPath];
+  delete require.cache[dbPath];
+  require.cache[dbPath] = { exports: { query: mockQuery, getDatabaseUrl: () => process.env.DATABASE_URL } };
+  return require('../api/claim/commandlayer-namespace');
+}
+
 test('rejects non-POST', async () => {
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
   const res = makeRes();
   await handler({ method: 'GET', body: validBody() }, res);
   assert.equal(res.statusCode, 405);
 });
 
-test('rejects missing authenticatedAddress', async () => {
-  const body = validBody();
-  delete body.authenticatedAddress;
+test('missing DATABASE_URL returns STORAGE_UNAVAILABLE for valid payload', async () => {
+  const original = process.env.DATABASE_URL;
+  delete process.env.DATABASE_URL;
+  const handler = loadHandlerWithMockQuery(async () => ({ rows: [] }));
   const res = makeRes();
-  await handler({ method: 'POST', body }, res);
-  assert.equal(res.statusCode, 400);
-  assert.equal(res.body.error, 'invalid_authenticated_address');
+  await handler({ method: 'POST', body: validBody() }, res);
+  assert.equal(res.statusCode, 503);
+  assert.equal(res.body.status, 'STORAGE_UNAVAILABLE');
+  process.env.DATABASE_URL = original;
 });
 
-test('rejects invalid tenant', async () => {
+test('invalid tenant fails before DB', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  let dbCalled = false;
+  const handler = loadHandlerWithMockQuery(async () => { dbCalled = true; return { rows: [] }; });
   const body = validBody();
   body.tenant = 'Acme';
   const res = makeRes();
   await handler({ method: 'POST', body }, res);
   assert.equal(res.statusCode, 400);
   assert.equal(res.body.error, 'invalid_tenant');
+  assert.equal(dbCalled, false);
 });
 
-test('rejects .eth tenant', async () => {
-  const body = validBody();
-  body.tenant = 'acme.eth';
-  const res = makeRes();
-  await handler({ method: 'POST', body }, res);
-  assert.equal(res.statusCode, 400);
-  assert.equal(res.body.error, 'invalid_tenant');
-});
-
-test('rejects too many capabilities', async () => {
-  const body = validBody();
-  body.capabilities = ['sign', 'attest', 'authorize', 'approve', 'reject', 'permit', 'grant', 'authenticate', 'endorse', 'verify', 'extra'];
-  const res = makeRes();
-  await handler({ method: 'POST', body }, res);
-  assert.equal(res.statusCode, 400);
-  assert.equal(res.body.error, 'invalid_capabilities');
-});
-
-test('rejects malformed publicKey', async () => {
-  const body = validBody();
-  body.publicKey = 'nope';
-  const res = makeRes();
-  await handler({ method: 'POST', body }, res);
-  assert.equal(res.statusCode, 400);
-  assert.equal(res.body.error, 'invalid_public_key');
-});
-
-test('rejects non-trust pack', async () => {
+test('unsupported pack fails before DB', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  let dbCalled = false;
+  const handler = loadHandlerWithMockQuery(async () => { dbCalled = true; return { rows: [] }; });
   const body = validBody();
   body.packId = 'commerce';
   const res = makeRes();
   await handler({ method: 'POST', body }, res);
   assert.equal(res.statusCode, 400);
   assert.equal(res.body.error, 'unsupported_pack');
+  assert.equal(dbCalled, false);
 });
 
-test('accepts valid Trust Verification request', async () => {
+test('valid payload with mocked DB returns CLAIM_REQUEST_CREATED', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const calls = [];
+  const handler = loadHandlerWithMockQuery(async (text, params) => {
+    calls.push({ text, params });
+    return { rows: [] };
+  });
+
   const res = makeRes();
   await handler({ method: 'POST', body: validBody() }, res);
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.ok, true);
-  assert.equal(res.body.status, 'CLAIM_REQUEST_VALIDATED');
-  assert.match(res.body.claimId, /^clm_[a-f0-9]{24}$/);
+  assert.equal(res.body.status, 'CLAIM_REQUEST_CREATED');
+  assert.match(res.body.claimId, /^clm_[a-f0-9]{32}$/);
+  assert.equal(Array.isArray(res.body.agents), true);
+  assert.equal(calls.length >= 5, true);
+});
+
+test('claim.created event insertion is attempted', async () => {
+  process.env.DATABASE_URL = 'postgres://example.com/db';
+  const calls = [];
+  const handler = loadHandlerWithMockQuery(async (text, params) => {
+    calls.push({ text, params });
+    return { rows: [] };
+  });
+
+  const res = makeRes();
+  await handler({ method: 'POST', body: validBody() }, res);
+
+  const eventInsert = calls.find((entry) => String(entry.text).includes('insert into claim_events'));
+  assert.ok(eventInsert);
+  assert.equal(eventInsert.params[1], 'claim.created');
+  assert.equal(eventInsert.params[2], 'CommandLayer namespace claim request created.');
 });

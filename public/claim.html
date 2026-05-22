@@ -546,7 +546,7 @@
         </div>
         <div id="activationResult" style="display:none;margin-top:12px;color:var(--red);font-size:13px"></div>
         <div id="activationOk" style="display:none;margin-top:14px;text-align:left;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff">
-          <strong>Activation request validated</strong><br>
+          <strong>Activation request created</strong><br>
           Claim ID: <span id="activationClaimId"></span><br>
           Wallet: <span id="activationWallet"></span><br>
           Generated agents: <span id="activationAgentCount"></span>
@@ -1368,7 +1368,11 @@ async function submitActivationRequest() {
   try {
     const res = await fetch('/api/claim/commandlayer-namespace', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
     const data = await res.json();
-    if (!res.ok || !data.ok) throw new Error(`${data.error || 'request_failed'} — ${data.reason || 'Unknown error'}`);
+    if (!res.ok || !data.ok) {
+      const err = new Error(`${data.error || 'request_failed'} — ${data.reason || 'Unknown error'}`);
+      err.status = data.status;
+      throw err;
+    }
     state.submitResult = data;
     document.getElementById('activationOk').style.display = 'block';
     document.getElementById('activationClaimId').textContent = data.claimId;
@@ -1376,7 +1380,11 @@ async function submitActivationRequest() {
     document.getElementById('activationAgentCount').textContent = String((data.agents || []).length);
   } catch (err) {
     document.getElementById('activationOk').style.display = 'none';
-    resultEl.textContent = `Activation request failed: ${(err && err.message) || 'unknown_error'}`;
+    if (err && err.status === 'STORAGE_UNAVAILABLE') {
+      resultEl.textContent = 'Activation request could not be saved: database is not configured.';
+    } else {
+      resultEl.textContent = `Activation request failed: ${(err && err.message) || 'unknown_error'}`;
+    }
     resultEl.style.display = 'block';
   } finally {
     btn.disabled = !canSubmitActivationRequest(); btn.textContent = 'Submit activation request';
