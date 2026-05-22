@@ -1,6 +1,7 @@
 'use strict';
 
 const crypto = require('node:crypto');
+const db = require('../../lib/db');
 
 const TRUST_VERIFICATION_MAP = {
   sign: 'signagent.eth',
@@ -24,6 +25,14 @@ function invalid(res, error, reason) {
   return res.status(400).json({ ok: false, status: 'CLAIM_REQUEST_INVALID', error, reason });
 }
 
+function storageUnavailable(res) {
+  return res.status(503).json({
+    ok: false,
+    status: 'STORAGE_UNAVAILABLE',
+    error: 'DATABASE_URL is not configured'
+  });
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
@@ -38,7 +47,7 @@ module.exports = async function handler(req, res) {
     return invalid(res, 'invalid_body', 'Missing or invalid JSON body.');
   }
 
-  const { authenticatedAddress, tenant, activationMode, packId, capabilities, agents, publicKey, kid, verifier, runtime } = body;
+  const { authenticatedAddress, tenant, activationMode, packId, capabilities, agents, publicKey, kid, verifier, runtime, schemaVersion } = body;
   if (!authenticatedAddress || !ADDRESS_RE.test(authenticatedAddress)) return invalid(res, 'invalid_authenticated_address', 'authenticatedAddress must be a valid 0x Ethereum address.');
   if (activationMode !== 'cl') return invalid(res, 'invalid_activation_mode', 'activationMode must be "cl".');
   if (typeof tenant !== 'string' || !tenant.trim()) return invalid(res, 'invalid_tenant', 'tenant is required.');
@@ -71,23 +80,64 @@ module.exports = async function handler(req, res) {
     if (ens !== `${tenant}.${canonicalParent}`) return invalid(res, 'invalid_agent_ens', `Agent ENS must equal "${tenant}.${canonicalParent}".`);
   }
 
-  const nowIso = new Date().toISOString();
-  const digest = crypto.createHash('sha256').update(`${tenant}${authenticatedAddress}${kid}${nowIso}`).digest('hex');
-  const claimId = `clm_${digest.slice(0, 24)}`;
+  if (!process.env.DATABASE_URL) {
+    return storageUnavailable(res);
+  }
+
+  const claimId = `clm_${crypto.randomUUID().replace(/-/g, '')}`;
+
+  try {
+    await db.query('BEGIN');
+    await db.query(
+      `insert into claim_requests
+      (claim_id, authenticated_address, tenant, activation_mode, pack_id, public_key, kid, runtime, verifier, schema_version, request_json)
+      values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11::jsonb)`,
+      [claimId, authenticatedAddress, tenant, activationMode, packId, publicKey, kid, runtime, verifier, schemaVersion || '1.1.0', JSON.stringify(body)]
+    );
+
+    for (const agent of agents) {
+      await db.query(
+        `insert into claim_agents
+        (claim_id, ens, capability, canonical_parent, skill, skill_family)
+        values ($1,$2,$3,$4,$5,$6)`,
+        [claimId, agent.ens, agent.capability, agent.canonicalParent, agent.skill || '', agent.skillFamily || '']
+      );
+    }
+
+    await db.query(
+      `insert into claim_events (claim_id, event_type, message, metadata_json)
+       values ($1,$2,$3,$4::jsonb)`,
+      [
+        claimId,
+        'claim.created',
+        'CommandLayer namespace claim request created.',
+        JSON.stringify({ agentCount: agents.length, packId, activationMode })
+      ]
+    );
+    await db.query('COMMIT');
+  } catch (error) {
+    await db.query('ROLLBACK');
+    if (error && error.code === 'DATABASE_URL_MISSING') {
+      return storageUnavailable(res);
+    }
+    return res.status(500).json({ ok: false, status: 'CLAIM_REQUEST_PERSISTENCE_ERROR', error: 'Failed to persist claim request.' });
+  }
 
   return res.status(200).json({
     ok: true,
-    status: 'CLAIM_REQUEST_VALIDATED',
+    status: 'CLAIM_REQUEST_CREATED',
     claimId,
     activationMode: 'cl',
     tenant,
     authenticatedAddress,
     agents,
-    next: {
-      operatorReview: true,
+    lifecycle: {
+      claim: 'created',
+      operatorReview: 'not_started',
       ensProvisioning: 'not_started',
       agentCards: 'not_started',
-      erc8004: 'not_started'
+      erc8004: 'not_started',
+      liveReceiptTest: 'not_started'
     }
   });
 };
