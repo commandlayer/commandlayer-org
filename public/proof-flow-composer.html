@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Proof Flow Composer | CommandLayer</title>
   <meta name="description" content="Compose simulated adapter events with live CommandLayer runtime receipts and verification into a single trace-linked workflow." />
-  <link rel="icon" href="/icon2.png" />
+  <link rel="icon" href="/favicon.ico" />
   <link rel="stylesheet" href="/css/site.css" />
   <style>
     .brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}
@@ -94,9 +94,10 @@ const state={traceId:null,receipt:null,verification:null,spans:[]};
 const runtimeUrl='https://runtime.commandlayer.org/summarize/v1.1.0';
 const verifyUrls=['/api/verify','/api/agents/verifyagent'];
 const setStatus=(m,ok)=>{const el=document.getElementById('status');el.textContent=m;el.className='status '+(ok?'ok':'err')};
+const writeJson=(id,v)=>{document.getElementById(id).textContent=typeof v==='string'?v:pretty(v);};
 const clearStatus=(m)=>{const el=document.getElementById('status');el.textContent=m;el.className='status'};
 const mark=(name)=>{const el=[...document.querySelectorAll('.trace-pill')].find(x=>x.dataset.span===name); if(el)el.classList.add('done');};
-const reset=()=>{state.traceId=null;state.receipt=null;state.verification=null;state.spans=[];document.getElementById('traceLabel').textContent='trace_id: not started';document.querySelectorAll('.trace-pill').forEach(p=>p.classList.remove('done'));['receiptOut','traceOut','verifyOut'].forEach(id=>document.getElementById(id).textContent='{}');document.getElementById('curlOut').textContent='Run flow to generate cURL.';clearStatus('Ready. Coinbase/x402 are simulated in browser. Runtime and VerifyAgent are live network calls.');};
+const reset=()=>{state.traceId=null;state.receipt=null;state.verification=null;state.spans=[];document.getElementById('traceLabel').textContent='trace_id: not started';document.querySelectorAll('.trace-pill').forEach(p=>p.classList.remove('done'));['receiptOut','traceOut','verifyOut'].forEach(id=>writeJson(id,{}));document.getElementById('curlOut').textContent='Run flow to generate cURL.';clearStatus('Ready. Coinbase/x402 are simulated in browser. Runtime and VerifyAgent are live network calls.');};
 const pretty=(v)=>JSON.stringify(v,null,2);
 const doRun=async()=>{
   reset();
@@ -109,11 +110,11 @@ const doRun=async()=>{
   let runtimeRes;
   try{
     runtimeRes=await fetch(runtimeUrl,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({input:'Summarize this trace-linked demo action in one sentence.',metadata:{trace_id:state.traceId,trace:{trace_id:state.traceId}}})});
-  }catch(e){ setStatus('Runtime unreachable. Live step failed before receipt signing.',false); throw e; }
-  if(!runtimeRes.ok){ setStatus(`Runtime error ${runtimeRes.status}. Live receipt unavailable.`,false); throw new Error('runtime http error'); }
+  }catch(e){ writeJson('receiptOut',{error:'runtime_unreachable',detail:String(e)}); setStatus('Runtime unreachable. Live step failed before receipt signing.',false); throw e; }
+  if(!runtimeRes.ok){ writeJson('receiptOut',{error:'runtime_http_error',status:runtimeRes.status}); setStatus(`Runtime error ${runtimeRes.status}. Live receipt unavailable.`,false); throw new Error('runtime http error'); }
   state.receipt=await runtimeRes.json();
   state.spans.push({span:'agent.action.executed',mode:'live',trace_id:state.traceId}); mark('agent.action.executed');
-  document.getElementById('receiptOut').textContent=pretty(state.receipt);
+  writeJson('receiptOut',state.receipt);
 
   let verifyData=null;
   for(const url of verifyUrls){
@@ -122,11 +123,11 @@ const doRun=async()=>{
       if(vr.ok){ verifyData=await vr.json(); break; }
     }catch(_err){}
   }
-  if(!verifyData){ setStatus('Verifier unreachable on /api/verify and /api/agents/verifyagent.',false); throw new Error('verify unavailable'); }
+  if(!verifyData){ writeJson('verifyOut',{error:'verify_unreachable',tried:verifyUrls}); setStatus('Verifier unreachable on /api/verify and /api/agents/verifyagent.',false); throw new Error('verify unavailable'); }
   state.verification=verifyData;
   state.spans.push({span:'verifyagent.receipt.verified',mode:'live',trace_id:state.traceId}); mark('verifyagent.receipt.verified');
-  document.getElementById('verifyOut').textContent=pretty(state.verification);
-  document.getElementById('traceOut').textContent=pretty({trace_id:state.traceId,spans:state.spans});
+  writeJson('verifyOut',state.verification);
+  writeJson('traceOut',{trace_id:state.traceId,spans:state.spans,labels:{simulated:['coinbase.webhook.verified','x402.payment.accepted'],live:['agent.action.executed','verifyagent.receipt.verified']}});
   document.getElementById('curlOut').textContent=`curl -X POST /api/verify -H 'content-type: application/json' -d '${JSON.stringify({receipt:state.receipt}).replace(/'/g,"'\\''")}'`;
   setStatus('Flow complete. Simulated adapter events + live runtime receipt + live verification captured.',true);
 };
