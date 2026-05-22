@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Claim an Agent Namespace | CommandLayer</title>
-  <meta name="description" content="Generate your CommandLayer activation package. ENS records, SDK config, agent card, and capability manifest — ready to deploy." />
+  <meta name="description" content="Activate a verifiable agent namespace. Bring your ENS name or activate under a CommandLayer capability namespace." />
   <link rel="icon" href="/icon2.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -38,18 +38,19 @@
     @media(max-width:900px){.nav-drop{width:100%}.nav-drop-menu{position:static;display:grid;margin-top:2px;min-width:0;box-shadow:none}}
     .container{width:min(960px,90vw);margin:0 auto}
     .hero{padding:72px 0 48px;text-align:center;border-bottom:1px solid var(--border)}
-    .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:999px;border:1px solid rgba(82,152,255,.3);background:rgba(82,152,255,.06);color:var(--purple);font-size:13px;font-weight:600;margin-bottom:24px;letter-spacing:-.005em}
+    .hero-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 14px;border-radius:999px;border:1px solid rgba(82,152,255,.3);background:rgba(82,152,255,.06);color:var(--purple);font-size:13px;font-weight:600;margin-bottom:24px}
     .badge-dot{width:7px;height:7px;border-radius:50%;background:var(--blue);box-shadow:0 0 0 5px rgba(82,152,255,.15);animation:bdpulse 2.2s ease-in-out infinite}
     @keyframes bdpulse{0%,100%{opacity:1}50%{opacity:.3}}
     .hero h1{font-size:clamp(2.2rem,5vw,3.8rem);font-weight:800;letter-spacing:-.04em;line-height:1.04;margin-bottom:16px}
     .grad{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-    .hero p{color:var(--text-2);font-size:1.05rem;max-width:580px;margin:0 auto 16px;line-height:1.65}
+    .hero p{color:var(--text-2);font-size:1.05rem;max-width:600px;margin:0 auto 16px;line-height:1.65}
     .hero-note{display:inline-block;margin-top:4px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:13px;font-family:var(--mono)}
+    /* PROGRESS */
     .progress-wrap{padding:40px 0 32px}
     .steps-track{display:flex;align-items:center;justify-content:space-between;position:relative;margin-bottom:12px}
     .steps-track::before{content:"";position:absolute;top:18px;left:18px;right:18px;height:2px;background:var(--border);z-index:0}
     .steps-track::after{content:"";position:absolute;top:18px;left:18px;height:2px;background:var(--gradient);z-index:1;transition:width .4s ease;width:var(--progress-width,0%)}
-    .step-node{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;z-index:2;cursor:pointer}
+    .step-node{display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;z-index:2}
     .step-circle{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:#fff;border:2px solid var(--border);color:var(--muted);transition:all .25s ease}
     .step-node.active .step-circle{background:var(--gradient);border-color:transparent;color:#fff;box-shadow:0 4px 14px rgba(99,91,255,.35)}
     .step-node.done .step-circle{background:rgba(5,150,105,.1);border-color:rgba(5,150,105,.4);color:var(--green)}
@@ -58,12 +59,24 @@
     .step-label{font-size:11px;font-weight:600;color:var(--muted);white-space:nowrap;letter-spacing:.01em}
     .step-node.active .step-label{color:var(--purple)}
     .step-node.done .step-label{color:var(--green)}
+    /* PANELS */
     .wizard-panel{background:#fff;border:1px solid var(--border);border-radius:20px;padding:32px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 12px 34px rgba(99,91,255,.06);margin-bottom:16px;display:none}
     .wizard-panel.active{display:block;animation:panelfade .25s ease}
     @keyframes panelfade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
     .panel-step{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:6px}
     .panel-title{font-size:1.5rem;font-weight:800;letter-spacing:-.025em;margin-bottom:8px}
     .panel-sub{color:var(--text-2);font-size:.95rem;line-height:1.6;margin-bottom:24px}
+    /* MODE SELECTOR */
+    .mode-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px}
+    .mode-card{border:2px solid var(--border);border-radius:16px;padding:20px;cursor:pointer;transition:all .2s ease;background:#fff;position:relative;text-align:left}
+    .mode-card:hover{border-color:rgba(82,152,255,.3);box-shadow:0 4px 16px rgba(99,91,255,.08);transform:translateY(-1px)}
+    .mode-card.selected{border-color:var(--blue);background:rgba(82,152,255,.04);box-shadow:0 0 0 3px rgba(82,152,255,.1)}
+    .mode-card.recommended::after{content:"RECOMMENDED";position:absolute;top:-1px;right:14px;padding:2px 8px;border-radius:0 0 8px 8px;background:var(--gradient);color:#fff;font-size:10px;font-weight:700;letter-spacing:.06em}
+    .mode-icon{font-size:28px;margin-bottom:10px}
+    .mode-name{font-size:.95rem;font-weight:700;margin-bottom:4px;color:var(--text)}
+    .mode-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+    .mode-example{font-family:var(--mono);font-size:11px;color:var(--purple);background:rgba(99,91,255,.06);border:1px solid rgba(99,91,255,.15);padding:5px 8px;border-radius:8px;display:block}
+    /* FIELDS */
     .field{display:grid;gap:6px;margin-bottom:16px}
     .field label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
     .field input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font:15px/1.5 Inter,sans-serif;color:var(--text);background:#fff;outline:none;transition:border-color .2s,box-shadow .2s}
@@ -73,10 +86,18 @@
     .field-hint{font-size:12px;color:var(--muted)}
     .field-error{font-size:12px;color:var(--red);display:none}
     .field-error.show{display:block}
+    /* PREVIEW BADGE */
+    .name-preview{margin-top:10px;padding:12px 14px;border-radius:12px;border:1px solid rgba(99,91,255,.2);background:rgba(99,91,255,.04);display:none}
+    .name-preview.show{display:block}
+    .name-preview-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:6px}
+    .name-preview-list{display:flex;flex-wrap:wrap;gap:6px}
+    .name-preview-item{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--purple);background:#fff;border:1px solid rgba(99,91,255,.2);padding:3px 10px;border-radius:999px}
+    /* MODE TABS */
     .mode-tabs{display:flex;gap:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px;background:var(--surface)}
     .mode-tab{flex:1;padding:10px;text-align:center;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border:none;background:none;font-family:inherit;transition:all .2s}
     .mode-tab.active{background:#fff;color:var(--text);box-shadow:0 1px 4px rgba(15,23,42,.08);border-radius:10px;margin:3px}
-    .packs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:16px}
+    /* PACKS */
+    .packs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:16px}
     .pack-card{border:2px solid var(--border);border-radius:16px;padding:18px;cursor:pointer;transition:all .2s ease;background:#fff;position:relative}
     .pack-card:hover{border-color:rgba(82,152,255,.3);box-shadow:0 4px 16px rgba(99,91,255,.08);transform:translateY(-1px)}
     .pack-card.selected{border-color:var(--blue);background:rgba(82,152,255,.04);box-shadow:0 0 0 3px rgba(82,152,255,.1)}
@@ -86,6 +107,7 @@
     .pack-count{font-size:12px;color:var(--muted);margin-bottom:10px}
     .pack-verbs{display:flex;flex-wrap:wrap;gap:4px}
     .verb-pill{padding:2px 8px;border-radius:999px;background:var(--surface);border:1px solid var(--border);font-size:11px;font-weight:600;color:var(--text-2);font-family:var(--mono)}
+    /* CHERRY */
     .cherry-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:16px}
     .cherry-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;border:1.5px solid var(--border);cursor:pointer;font-size:12px;font-weight:600;color:var(--text-2);font-family:var(--mono);transition:all .18s;background:#fff}
     .cherry-item:hover{border-color:rgba(82,152,255,.3);color:var(--text)}
@@ -98,13 +120,23 @@
     .cherry-section-label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
     .cherry-counter{font-size:13px;color:var(--muted);font-weight:600;margin-bottom:12px}
     .cherry-counter span{color:var(--purple);font-weight:700}
+    /* OUTPUT */
     .output-block{margin-bottom:20px}
     .output-label{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
     .output-label span{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+    .output-actions{display:flex;gap:6px}
     .copy-btn{padding:4px 10px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:11px;font-weight:700;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s}
     .copy-btn:hover{border-color:rgba(82,152,255,.4);color:var(--blue)}
     .copy-btn.copied{color:var(--green);border-color:rgba(5,150,105,.3)}
     .code-block{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;font:12.5px/1.65 var(--mono);color:var(--text-2);overflow-x:auto;white-space:pre;word-break:normal}
+    /* AGENT TABLE */
+    .agent-table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px}
+    .agent-table th{text-align:left;padding:8px 12px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);background:var(--surface)}
+    .agent-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-family:var(--mono);font-size:12px;color:var(--text-2);vertical-align:top}
+    .agent-table tr:last-child td{border-bottom:none}
+    .agent-table tr:hover td{background:rgba(82,152,255,.02)}
+    .verb-tag{display:inline-block;padding:1px 7px;border-radius:999px;background:rgba(99,91,255,.08);border:1px solid rgba(99,91,255,.15);color:var(--purple);font-size:11px;font-weight:600}
+    /* KEYGEN */
     .keygen-box{border:1.5px dashed var(--border-hi);border-radius:16px;padding:28px;text-align:center;background:rgba(82,152,255,.02);margin-bottom:16px}
     .keygen-icon{font-size:36px;margin-bottom:12px}
     .keygen-box h3{font-size:1.05rem;font-weight:700;margin-bottom:8px}
@@ -123,23 +155,18 @@
     .warning-box p{font-size:13px;color:#92400e;line-height:1.5}
     .key-error{display:none;margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid rgba(220,38,38,.3);background:rgba(220,38,38,.06);color:#991b1b;font-size:13px;line-height:1.5}
     .key-error.show{display:block}
-    .ack-row{display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:#fff;text-align:left}
-    .ack-row input{margin-top:3px}
+    .ack-row{display:flex;align-items:flex-start;gap:10px;margin-top:14px;padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:#fff;cursor:pointer}
+    .ack-row input{margin-top:3px;flex-shrink:0}
     .ack-row span{font-size:13px;color:var(--text-2);line-height:1.5}
-    .pricing-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 22px}
-    .pricing-card{border:1px solid var(--border);background:#fff;border-radius:14px;padding:14px}
-    .pricing-card strong{display:block;font-size:14px;margin-bottom:4px}
-    .pricing-card .price{font-weight:800;color:var(--purple);font-size:18px;margin-bottom:6px}
-    .pricing-card p{font-size:12px;color:var(--muted);line-height:1.45}
-    @media(max-width:900px){.pricing-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:600px){.pricing-grid{grid-template-columns:1fr}}
-    .agent-card-preview{border:1px solid var(--border);border-radius:16px;overflow:hidden}
-    .agent-card-header{padding:16px 20px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-    .agent-card-title{font-size:.95rem;font-weight:700}
-    .status-pill{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700}
+    /* AGENT CARD */
+    .agent-card-preview{border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:12px}
+    .agent-card-header{padding:14px 18px;background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .agent-card-title{font-size:.9rem;font-weight:700;font-family:var(--mono)}
+    .status-pill{padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
     .status-live{background:rgba(5,150,105,.1);color:var(--green);border:1px solid rgba(5,150,105,.25)}
     .status-preview{background:rgba(217,119,6,.1);color:var(--amber);border:1px solid rgba(217,119,6,.25)}
-    .agent-card-body .code-block{border-radius:0;border:none}
+    .agent-card-body .code-block{border-radius:0;border:none;max-height:280px;overflow-y:auto}
+    /* SUMMARY */
     .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
     .summary-item{padding:14px;border-radius:14px;border:1px solid var(--border);background:var(--surface)}
     .summary-item label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);display:block;margin-bottom:4px}
@@ -152,9 +179,16 @@
     .check-text span{font-size:13px;color:var(--muted)}
     .check-row.done{border-color:rgba(5,150,105,.25);background:rgba(5,150,105,.03)}
     .check-row.pending{border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.03)}
-    .activation-cta{padding:24px;border-radius:16px;text-align:center;background:var(--surface-2);border:1px solid var(--border)}
+    /* PRICING */
+    .pricing-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:18px 0 8px}
+    .pricing-card{border:1px solid var(--border);background:#fff;border-radius:14px;padding:14px}
+    .pricing-card strong{display:block;font-size:13px;margin-bottom:4px}
+    .pricing-card .price{font-weight:800;color:var(--purple);font-size:17px;margin-bottom:6px}
+    .pricing-card p{font-size:12px;color:var(--muted);line-height:1.45}
+    .activation-cta{padding:24px;border-radius:16px;text-align:center;background:var(--surface-2);border:1px solid var(--border);margin-top:20px}
     .activation-cta h3{font-size:1.1rem;font-weight:700;margin-bottom:8px}
     .activation-cta p{color:var(--text-2);font-size:.9rem;margin-bottom:16px}
+    /* BUTTONS */
     .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
     .btn{display:inline-flex;align-items:center;gap:6px;padding:11px 20px;border-radius:12px;font:600 14px Inter,sans-serif;cursor:pointer;text-decoration:none;border:none;transition:all .2s;font-family:inherit}
     .btn-primary{background:var(--gradient);color:#fff;box-shadow:0 4px 14px rgba(99,91,255,.25)}
@@ -169,8 +203,8 @@
     .footer-grid h4{font-size:14px;margin-bottom:10px}
     .footer-grid a{display:block;color:var(--text-2);margin:8px 0;font-size:14px;text-decoration:none}
     .footer-grid a:hover{color:var(--purple)}
-    @media(max-width:900px){.footer-grid,.summary-grid,.packs-grid{grid-template-columns:1fr}}
-    @media(max-width:600px){.steps-track .step-label{display:none}.wizard-panel{padding:20px}}
+    @media(max-width:900px){.footer-grid,.summary-grid,.packs-grid,.mode-selector,.pricing-grid{grid-template-columns:1fr 1fr}}
+    @media(max-width:600px){.steps-track .step-label{display:none}.wizard-panel{padding:20px}.mode-selector,.pricing-grid{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -207,8 +241,8 @@
 <section class="hero">
   <div class="container">
     <div class="hero-badge"><span class="badge-dot"></span>Namespace Activation</div>
-    <h1>Generate your <span class="grad">activation package.</span></h1>
-    <p>Choose a capability pack, generate your keypair, and get ENS records, SDK config, and an agent card — ready to deploy.</p>
+    <h1>Bring one ENS name.<br><span class="grad">Generate 10 verifiable agents.</span></h1>
+    <p>Choose how you want to activate. Pick a capability pack. CommandLayer generates the sub-agent identities, ENS records, SDK config, and agent card — ready to deploy.</p>
     <div class="hero-note">Session 1 &nbsp;·&nbsp; Activation package generator &nbsp;·&nbsp; No payment required</div>
   </div>
 </section>
@@ -220,39 +254,83 @@
   <div class="progress-wrap">
     <div class="steps-track" id="stepsTrack">
       <div class="step-node active" data-step="1"><div class="step-circle"><span class="step-num">1</span></div><div class="step-label">ENS Name</div></div>
-      <div class="step-node" data-step="2"><div class="step-circle"><span class="step-num">2</span></div><div class="step-label">Capabilities</div></div>
-      <div class="step-node" data-step="3"><div class="step-circle"><span class="step-num">3</span></div><div class="step-label">Generate Key</div></div>
-      <div class="step-node" data-step="4"><div class="step-circle"><span class="step-num">4</span></div><div class="step-label">ENS Records</div></div>
-      <div class="step-node" data-step="5"><div class="step-circle"><span class="step-num">5</span></div><div class="step-label">SDK Config</div></div>
-      <div class="step-node" data-step="6"><div class="step-circle"><span class="step-num">6</span></div><div class="step-label">Agent Card</div></div>
-      <div class="step-node" data-step="7"><div class="step-circle"><span class="step-num">7</span></div><div class="step-label">Summary</div></div>
+      <div class="step-node" data-step="2"><div class="step-circle"><span class="step-num">2</span></div><div class="step-label">Mode</div></div>
+      <div class="step-node" data-step="3"><div class="step-circle"><span class="step-num">3</span></div><div class="step-label">Capabilities</div></div>
+      <div class="step-node" data-step="4"><div class="step-circle"><span class="step-num">4</span></div><div class="step-label">Generate Key</div></div>
+      <div class="step-node" data-step="5"><div class="step-circle"><span class="step-num">5</span></div><div class="step-label">ENS Records</div></div>
+      <div class="step-node" data-step="6"><div class="step-circle"><span class="step-num">6</span></div><div class="step-label">SDK Config</div></div>
+      <div class="step-node" data-step="7"><div class="step-circle"><span class="step-num">7</span></div><div class="step-label">Agent Card</div></div>
+      <div class="step-node" data-step="8"><div class="step-circle"><span class="step-num">8</span></div><div class="step-label">Summary</div></div>
     </div>
   </div>
 
-  <!-- STEP 1 -->
+  <!-- STEP 1: ENS NAME -->
   <div class="wizard-panel active" id="panel-1">
-    <div class="panel-step">Step 1 of 7</div>
+    <div class="panel-step">Step 1 of 8</div>
     <div class="panel-title">Enter your ENS name</div>
-    <div class="panel-sub">This becomes your agent's identity on the protocol. Use an ENS name you own — e.g. <code style="font-family:var(--mono);font-size:.85em;background:var(--surface);padding:2px 6px;border-radius:4px;border:1px solid var(--border)">verifyagent.eth</code>.</div>
+    <div class="panel-sub">This is your organization or agent identity. You will choose how capability sub-agents are structured in the next step.</div>
     <div class="field">
       <label>ENS Name</label>
-      <input type="text" id="ensInput" placeholder="yourname.eth" autocomplete="off" spellcheck="false" />
-      <span class="field-error" id="ensError">Please enter a valid .eth name (minimum 6 characters)</span>
-      <span class="field-hint">Must end in .eth · Must be a name you own or control</span>
+      <input type="text" id="ensInput" placeholder="acme.eth" autocomplete="off" spellcheck="false" />
+      <span class="field-error" id="ensError">Please enter a valid .eth name</span>
+      <span class="field-hint">Must end in .eth · The name you own or control</span>
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" onclick="goStep1()">Continue →</button>
     </div>
   </div>
 
-  <!-- STEP 2 -->
+  <!-- STEP 2: ACTIVATION MODE -->
   <div class="wizard-panel" id="panel-2">
-    <div class="panel-step">Step 2 of 7</div>
+    <div class="panel-step">Step 2 of 8</div>
+    <div class="panel-title">Choose activation mode</div>
+    <div class="panel-sub">How should your capability agents be structured? All three modes produce verifiable agents with signed receipts — the difference is where the namespace lives.</div>
+
+    <div class="mode-selector" id="modeSelector">
+
+      <div class="mode-card recommended" id="mode-cl" onclick="selectMode('cl')">
+        <div class="mode-icon">⬡</div>
+        <div class="mode-name">CommandLayer namespace</div>
+        <div class="mode-desc">Activate under CommandLayer's canonical capability classes. Protocol-native, standardized routing, no additional ENS required.</div>
+        <span class="mode-example" id="eg-cl">acme.approveagent.eth</span>
+      </div>
+
+      <div class="mode-card" id="mode-own" onclick="selectMode('own')">
+        <div class="mode-icon">◈</div>
+        <div class="mode-name">Your ENS namespace</div>
+        <div class="mode-desc">Generate verb sub-agents under your own ENS name. Best for enterprises and teams wanting sovereign identity.</div>
+        <span class="mode-example" id="eg-own">approve.acme.eth</span>
+      </div>
+
+      <div class="mode-card" id="mode-single" onclick="selectMode('single')">
+        <div class="mode-icon">◎</div>
+        <div class="mode-name">Single agent</div>
+        <div class="mode-desc">Attach all capabilities directly to your ENS name. Simplest setup, best for solo agents with one primary capability.</div>
+        <span class="mode-example" id="eg-single">acme.eth</span>
+      </div>
+
+    </div>
+
+    <!-- live preview of what names will be generated -->
+    <div class="name-preview" id="namePreview">
+      <div class="name-preview-label">Agent names that will be generated</div>
+      <div class="name-preview-list" id="namePreviewList"></div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goToStep(1)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep2()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: CAPABILITY SELECTION -->
+  <div class="wizard-panel" id="panel-3">
+    <div class="panel-step">Step 3 of 8</div>
     <div class="panel-title">Choose capabilities</div>
-    <div class="panel-sub">Select a recommended pack of 10 verbs, or cherry-pick up to 10 from any group. More than 10 requires a Protocol Partner plan.</div>
+    <div class="panel-sub" id="capSubtext">Select a recommended pack of 10 verbs, or cherry-pick up to 10 from any group.</div>
     <div class="mode-tabs">
-      <button class="mode-tab active" id="tabPacks" onclick="setMode('packs')">Recommended Packs</button>
-      <button class="mode-tab" id="tabCherry" onclick="setMode('cherry')">Cherry-pick</button>
+      <button class="mode-tab active" id="tabPacks" onclick="setCapMode('packs')">Recommended Packs</button>
+      <button class="mode-tab" id="tabCherry" onclick="setCapMode('cherry')">Cherry-pick</button>
     </div>
     <div id="packsMode"><div class="packs-grid" id="packsGrid"></div></div>
     <div id="cherryMode" style="display:none">
@@ -260,22 +338,22 @@
       <div id="cherryGroups"></div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-ghost" onclick="goToStep(1)">← Back</button>
-      <button class="btn btn-primary" onclick="goStep2()">Continue →</button>
+      <button class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
+      <button class="btn btn-primary" onclick="goStep3()">Continue →</button>
     </div>
   </div>
 
-  <!-- STEP 3 -->
-  <div class="wizard-panel" id="panel-3">
-    <div class="panel-step">Step 3 of 7</div>
+  <!-- STEP 4: KEY GENERATION -->
+  <div class="wizard-panel" id="panel-4">
+    <div class="panel-step">Step 4 of 8</div>
     <div class="panel-title">Generate your signing key</div>
-    <div class="panel-sub">An Ed25519 keypair is generated in your browser using Web Crypto. The private key downloads once and never leaves your device. The public key goes into your ENS records.</div>
+    <div class="panel-sub">One Ed25519 keypair signs receipts across all your capability agents. Generated in your browser — never sent to any server.</div>
     <div class="keygen-box">
       <div class="keygen-icon">🔐</div>
       <h3>Browser-side key generation</h3>
-      <p>Your private key is generated locally and never sent to any server. Download it immediately — it cannot be recovered after you leave this page.</p>
-      <p style="font-size:12px;color:var(--muted);margin-top:-6px">Ed25519 browser support varies. If generation fails, CommandLayer will not substitute another algorithm.</p>
-      <button class="btn btn-primary" onclick="generateKey()">Generate Keypair</button>
+      <p>Your private key is generated locally using Web Crypto and never leaves your device. Download it immediately — it cannot be recovered after you leave this page.</p>
+      <p style="font-size:12px;color:var(--muted);margin-top:-8px">Ed25519 browser support varies. If generation fails, CommandLayer will not substitute another algorithm.</p>
+      <button class="btn btn-primary" style="margin-top:4px" onclick="generateKey()">Generate Keypair</button>
       <div class="key-error" id="keyError"></div>
     </div>
     <div class="keygen-result" id="keygenResult">
@@ -285,41 +363,58 @@
         <button class="download-btn" onclick="downloadKey()">⬇ Download Private Key</button>
         <button class="btn btn-ghost" onclick="generateKey()">↺ Regenerate</button>
       </div>
-      <div class="warning-box"><span class="wi">⚠️</span><p>Download your private key now. This is the only time it will be shown. Store it in a secrets manager or environment variable — never in source control. Do not paste it into ENS and do not upload it to CommandLayer.</p></div>
-      <label class="ack-row"><input type="checkbox" id="keyAck" onchange="updateKeyContinue()" disabled /> <span>I downloaded my private key. CommandLayer cannot recover it.</span></label>
+      <div class="warning-box"><span class="wi">⚠️</span><p>Download your private key now. This is the only time it will be shown. Store it as <code style="font-family:var(--mono);font-size:.9em">CL_PRIVATE_KEY_PEM</code> in your environment — never in source control, never upload it to CommandLayer.</p></div>
+      <label class="ack-row"><input type="checkbox" id="keyAck" onchange="updateKeyContinue()" disabled /> <span>I have downloaded my private key. I understand CommandLayer cannot recover it.</span></label>
     </div>
     <div class="btn-row">
-      <button class="btn btn-ghost" onclick="goToStep(2)">← Back</button>
-      <button class="btn btn-primary" id="step3Next" disabled onclick="goStep3()">Continue →</button>
+      <button class="btn btn-ghost" onclick="goToStep(3)">← Back</button>
+      <button class="btn btn-primary" id="step4Next" disabled onclick="goStep4()">Continue →</button>
     </div>
   </div>
 
-  <!-- STEP 4 -->
-  <div class="wizard-panel" id="panel-4">
-    <div class="panel-step">Step 4 of 7</div>
-    <div class="panel-title">Your ENS TXT records</div>
-    <div class="panel-sub">Add these records to your ENS name in <a href="https://app.ens.domains" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600">ENS Manager</a>. They bind your public key, capabilities, and verifier endpoint to your agent identity on-chain.</div>
+  <!-- STEP 5: ENS RECORDS -->
+  <div class="wizard-panel" id="panel-5">
+    <div class="panel-step">Step 5 of 8</div>
+    <div class="panel-title">ENS records</div>
+    <div class="panel-sub" id="recordsSubtext">Add these records to your ENS name in <a href="https://app.ens.domains" target="_blank" rel="noopener" style="color:var(--blue);font-weight:600">ENS Manager</a>.</div>
+
+    <!-- Agent names table -->
+    <div style="margin-bottom:20px">
+      <div class="output-label"><span>Agent namespaces generated</span></div>
+      <table class="agent-table" id="agentTable">
+        <thead><tr><th>Agent name</th><th>Capability verb</th><th>Runtime path</th></tr></thead>
+        <tbody id="agentTableBody"></tbody>
+      </table>
+    </div>
+
     <div class="output-block">
-      <div class="output-label"><span>ENS TXT Records</span><span style="display:flex;gap:6px"><button class="copy-btn" onclick="copyBlock('ensRecords',this)">Copy</button><button class="copy-btn" onclick="downloadRecords()">Download .txt</button></span></div>
+      <div class="output-label">
+        <span>ENS TXT Records</span>
+        <div class="output-actions">
+          <button class="copy-btn" onclick="copyBlock('ensRecords',this)">Copy</button>
+          <button class="copy-btn" onclick="downloadRecords()">Download .txt</button>
+        </div>
+      </div>
       <div class="code-block" id="ensRecords">—</div>
     </div>
     <div style="padding:14px;border-radius:12px;border:1px solid rgba(82,152,255,.2);background:rgba(82,152,255,.04);font-size:13px;color:var(--text-2);line-height:1.7">
       <strong style="color:var(--text)">How to add these records:</strong><br>
-      1. Go to <a href="https://app.ens.domains" target="_blank" style="color:var(--blue)">app.ens.domains</a> and search your ENS name<br>
-      2. Click Edit Records → Add each line above as a TXT record key/value pair<br>
-      3. Sign the transaction and wait for on-chain confirmation
+      1. Go to <a href="https://app.ens.domains" target="_blank" style="color:var(--blue)">app.ens.domains</a> and open your ENS name<br>
+      2. For subname modes: create each subname first, then add TXT records to each<br>
+      3. Click Edit Records → Add each record as a TXT key/value pair<br>
+      4. Sign the transaction and wait for on-chain confirmation
     </div>
     <div class="btn-row">
-      <button class="btn btn-ghost" onclick="goToStep(3)">← Back</button>
-      <button class="btn btn-primary" onclick="goToStep(5)">Continue →</button>
+      <button class="btn btn-ghost" onclick="goToStep(4)">← Back</button>
+      <button class="btn btn-primary" onclick="goToStep(6)">Continue →</button>
     </div>
   </div>
 
-  <!-- STEP 5 -->
-  <div class="wizard-panel" id="panel-5">
-    <div class="panel-step">Step 5 of 7</div>
+  <!-- STEP 6: SDK CONFIG -->
+  <div class="wizard-panel" id="panel-6">
+    <div class="panel-step">Step 6 of 8</div>
     <div class="panel-title">SDK configuration</div>
-    <div class="panel-sub">Copy this into your agent codebase. Store your private key as <code style="font-family:var(--mono);font-size:.85em;background:var(--surface);padding:2px 6px;border-radius:4px;border:1px solid var(--border)">CL_PRIVATE_KEY_PEM</code> in your environment — never hardcode it.</div>
+    <div class="panel-sub">Copy this into your agent codebase. One keypair, one SDK config, works across all your capability agents.</div>
     <div class="output-block">
       <div class="output-label"><span>Install</span><button class="copy-btn" onclick="copyBlock('sdkInstall',this)">Copy</button></div>
       <div class="code-block" id="sdkInstall">npm install @commandlayer/agent-sdk</div>
@@ -333,16 +428,16 @@
       <div class="code-block" id="sdkWrap">—</div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-ghost" onclick="goToStep(4)">← Back</button>
-      <button class="btn btn-primary" onclick="goToStep(6)">Continue →</button>
+      <button class="btn btn-ghost" onclick="goToStep(5)">← Back</button>
+      <button class="btn btn-primary" onclick="goToStep(7)">Continue →</button>
     </div>
   </div>
 
-  <!-- STEP 6 -->
-  <div class="wizard-panel" id="panel-6">
-    <div class="panel-step">Step 6 of 7</div>
+  <!-- STEP 7: AGENT CARD -->
+  <div class="wizard-panel" id="panel-7">
+    <div class="panel-step">Step 7 of 8</div>
     <div class="panel-title">Agent card preview</div>
-    <div class="panel-sub">This is a preview only. Hosting/publishing comes after provisioning; no hosted card is created in Session 1.</div>
+    <div class="panel-sub">Preview of the first agent card in your namespace. When paid provisioning is live, all cards will be hosted automatically at commandlayer.org.</div>
     <div class="agent-card-preview">
       <div class="agent-card-header">
         <div class="agent-card-title" id="cardHeaderTitle">—</div>
@@ -357,35 +452,36 @@
       <button class="copy-btn" style="padding:6px 14px;font-size:12px" onclick="downloadCard()">⬇ Download agent card</button>
     </div>
     <div class="btn-row">
-      <button class="btn btn-ghost" onclick="goToStep(5)">← Back</button>
-      <button class="btn btn-primary" onclick="goToStep(7)">Continue →</button>
+      <button class="btn btn-ghost" onclick="goToStep(6)">← Back</button>
+      <button class="btn btn-primary" onclick="goToStep(8)">Continue →</button>
     </div>
   </div>
 
-  <!-- STEP 7 -->
-  <div class="wizard-panel" id="panel-7">
-    <div class="panel-step">Step 7 of 7</div>
+  <!-- STEP 8: SUMMARY -->
+  <div class="wizard-panel" id="panel-8">
+    <div class="panel-step">Step 8 of 8</div>
     <div class="panel-title">Activation package ready.</div>
-    <div class="panel-sub">Your package is generated. Complete the checklist below to go live. Payment and automated provisioning are coming next — you will activate from this same flow.</div>
+    <div class="panel-sub">Your package is generated. Complete the checklist below to go live.</div>
     <div class="summary-grid" id="summaryGrid"></div>
     <div class="checklist">
       <div class="check-row done"><span class="check-icon">✅</span><div class="check-text"><strong>Keypair generated</strong><span>Ed25519 private key downloaded · Public key ready for ENS</span></div></div>
-      <div class="check-row done"><span class="check-icon">✅</span><div class="check-text"><strong>ENS records generated</strong><span>Copy into ENS Manager to bind your key and capabilities on-chain</span></div></div>
+      <div class="check-row done"><span class="check-icon">✅</span><div class="check-text"><strong>Agent namespaces generated</strong><span id="agentNamesCheckText">Sub-agent names ready</span></div></div>
+      <div class="check-row done"><span class="check-icon">✅</span><div class="check-text"><strong>ENS records generated</strong><span>Copy into ENS Manager to bind keys and capabilities on-chain</span></div></div>
       <div class="check-row done"><span class="check-icon">✅</span><div class="check-text"><strong>SDK config generated</strong><span>Drop into your codebase with CL_PRIVATE_KEY_PEM in env</span></div></div>
       <div class="check-row done"><span class="check-icon">✅</span><div class="check-text"><strong>Agent card generated</strong><span>Machine-readable identity record ready to host or submit</span></div></div>
-      <div class="check-row pending"><span class="check-icon">⏳</span><div class="check-text"><strong>Add ENS TXT records</strong><span>Paste your generated records into <a href="https://app.ens.domains" target="_blank" style="color:var(--blue)">ENS Manager</a> and confirm the transaction</span></div></div>
-      <div class="check-row pending"><span class="check-icon">⏳</span><div class="check-text"><strong>Payment &amp; provisioning</strong><span>Coming next — automated ERC-8004 registration, hosted agent card, and verified live receipt</span></div></div>
+      <div class="check-row pending"><span class="check-icon">⏳</span><div class="check-text"><strong>Add ENS TXT records</strong><span>Create subnames and paste records into <a href="https://app.ens.domains" target="_blank" style="color:var(--blue)">ENS Manager</a></span></div></div>
+      <div class="check-row pending"><span class="check-icon">⏳</span><div class="check-text"><strong>Payment &amp; provisioning</strong><span>Coming next — ERC-8004 registration on Base, hosted agent cards, and verified live receipts</span></div></div>
     </div>
     <div class="pricing-grid">
-      <div class="pricing-card"><strong>Starter Namespace</strong><div class="price">Free / review</div><p>Generate activation records and prepare for review.</p></div>
-      <div class="pricing-card"><strong>Builder Namespace</strong><div class="price">$99/mo</div><p>Activation support, metadata, and verification routing.</p></div>
-      <div class="pricing-card"><strong>Protocol Partner</strong><div class="price">$499/mo</div><p>Expanded capability support and integration help.</p></div>
-      <div class="pricing-card"><strong>Enterprise Registry</strong><div class="price">Custom</div><p>Custom namespaces, compliance, and registry support.</p></div>
+      <div class="pricing-card"><strong>Starter</strong><div class="price">Free</div><p>Generate activation records and prepare for review.</p></div>
+      <div class="pricing-card"><strong>Builder</strong><div class="price">$99/mo</div><p>Activation support, metadata, and verification routing.</p></div>
+      <div class="pricing-card"><strong>Protocol Partner</strong><div class="price">$499/mo</div><p>10-agent pack, expanded capabilities, integration support.</p></div>
+      <div class="pricing-card"><strong>Enterprise</strong><div class="price">Custom</div><p>Custom namespaces, compliance, and registry support.</p></div>
     </div>
-    <div style="font-size:12px;color:var(--muted);margin:-10px 0 18px;text-align:center">Checkout is not enabled in Session 1. Pricing covers activation, metadata, verification routing, and integration support — not ENS ownership transfer.</div>
+    <div style="font-size:12px;color:var(--muted);margin:-4px 0 18px;text-align:center">Checkout is not enabled in Session 1. Pricing covers activation, metadata, verification routing, and integration support — not ENS ownership transfer.</div>
     <div class="activation-cta">
       <h3>Payment and provisioning are coming next.</h3>
-      <p>When activated, your agent will be ERC-8004 registered on Base, your card hosted at commandlayer.org, and you will receive a verified live receipt proving your setup works end-to-end.</p>
+      <p>When activated, your agents will be ERC-8004 registered on Base, cards hosted at commandlayer.org, and you will receive a verified live receipt proving the setup works end-to-end.</p>
       <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
         <button class="btn btn-primary" onclick="downloadPackage()">⬇ Download full package</button>
         <a class="btn btn-secondary" href="/verify.html">Test the verifier</a>
@@ -393,7 +489,7 @@
       </div>
     </div>
     <div class="btn-row">
-      <button class="btn btn-ghost" onclick="goToStep(6)">← Back</button>
+      <button class="btn btn-ghost" onclick="goToStep(7)">← Back</button>
       <button class="btn btn-ghost" onclick="startOver()">Start over</button>
     </div>
   </div>
@@ -410,66 +506,178 @@
 </footer>
 
 <script>
-const PACKS=[
-  {id:'trust',name:'Trust Verification',live:true,verbs:['sign','attest','authorize','approve','reject','permit','grant','authenticate','endorse','verify']},
-  {id:'commerce',name:'Commerce / Payment',live:false,verbs:['invoice','payment','checkout','purchase','refund','settle','escrow','payout','charge','reconcile']},
-  {id:'identity',name:'Identity / Access',live:false,verbs:['login','access','permission','consent','revoke','delegate','session','token','oauth','role']},
-  {id:'lifecycle',name:'Lifecycle / Ops',live:false,verbs:['create','register','publish','update','archive','deploy','pause','resume','terminate','schedule']},
-  {id:'data',name:'Data / Utility',live:false,verbs:['summarize','search','extract','transform','enrich','query','classify','translate','validate','report']}
+// ── DATA ──────────────────────────────────────────────────────────────────────
+const PACKS = [
+  {id:'trust', name:'Trust Verification', live:true,
+   verbs:['sign','attest','authorize','approve','reject','permit','grant','authenticate','endorse','verify'],
+   agentSuffix: verb => verb+'agent.eth'},
+  {id:'commerce', name:'Commerce / Payment', live:false,
+   verbs:['invoice','payment','checkout','purchase','refund','settle','escrow','payout','charge','reconcile']},
+  {id:'identity', name:'Identity / Access', live:false,
+   verbs:['login','access','permission','consent','revoke','delegate','session','token','oauth','role']},
+  {id:'lifecycle', name:'Lifecycle / Ops', live:false,
+   verbs:['create','register','publish','update','archive','deploy','pause','resume','terminate','schedule']},
+  {id:'data', name:'Data / Utility', live:false,
+   verbs:['summarize','search','extract','transform','enrich','query','classify','translate','validate','report']}
 ];
 
-let state={step:1,ens:'',mode:'packs',selectedPack:null,cherryVerbs:[],pubKeyB64:'',privKeyB64:'',kid:'',keyGenerated:false,keyDownloaded:false,keyAcked:false,_cardJson:''};
+// Map verb → canonical agent ENS name for CL namespace mode
+const VERB_TO_AGENT = {
+  sign:'signagent.eth', attest:'attestagent.eth', authorize:'authorizeagent.eth',
+  approve:'approveagent.eth', reject:'rejectagent.eth', permit:'permitagent.eth',
+  grant:'grantagent.eth', authenticate:'authenticateagent.eth', endorse:'endorseagent.eth',
+  verify:'verifyagent.eth', invoice:'invoiceagent.eth', payment:'paymentagent.eth',
+  checkout:'checkoutagent.eth', purchase:'purchaseagent.eth', refund:'refundagent.eth',
+  settle:'settleagent.eth', escrow:'escrowagent.eth', payout:'payoutagent.eth',
+  charge:'chargeagent.eth', reconcile:'reconcileagent.eth',
+  login:'loginagent.eth', access:'accessagent.eth', permission:'permissionagent.eth',
+  consent:'consentagent.eth', revoke:'revokeagent.eth', delegate:'delegateagent.eth',
+  session:'sessionagent.eth', token:'tokenagent.eth', oauth:'oauthagent.eth',
+  role:'roleagent.eth', create:'createagent.eth', register:'registeragent.eth',
+  publish:'publishagent.eth', update:'updateagent.eth', archive:'archiveagent.eth',
+  deploy:'deployagent.eth', pause:'pauseagent.eth', resume:'resumeagent.eth',
+  terminate:'terminateagent.eth', schedule:'scheduleagent.eth',
+  summarize:'summarizeagent.eth', search:'searchagent.eth', extract:'extractagent.eth',
+  transform:'transformagent.eth', enrich:'enrichagent.eth', query:'queryagent.eth',
+  classify:'classifyagent.eth', translate:'translateagent.eth', validate:'validateagent.eth',
+  report:'reportagent.eth'
+};
 
-function getVerbs(){
-  if(state.mode==='packs'&&state.selectedPack){const p=PACKS.find(p=>p.id===state.selectedPack);return p?p.verbs:[];}
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let state = {
+  step:1, ens:'', activationMode:'cl',
+  capMode:'packs', selectedPack:null, cherryVerbs:[],
+  pubKeyB64:'', privKeyB64:'', kid:'',
+  keyGenerated:false, keyDownloaded:false, keyAcked:false,
+  _cardJson:''
+};
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function getVerbs() {
+  if (state.capMode==='packs' && state.selectedPack) {
+    const p = PACKS.find(p=>p.id===state.selectedPack);
+    return p ? p.verbs : [];
+  }
   return state.cherryVerbs;
 }
 
-function goToStep(n){
+// Generate the agent name for a verb based on activation mode
+function agentName(verb) {
+  const base = state.ens.replace('.eth','');
+  if (state.activationMode === 'cl') {
+    // acme.approveagent.eth
+    const canonical = VERB_TO_AGENT[verb] || (verb+'agent.eth');
+    return base + '.' + canonical;
+  } else if (state.activationMode === 'own') {
+    // approve.acme.eth
+    return verb + '.' + state.ens;
+  } else {
+    // acme.eth (single mode — just the parent)
+    return state.ens;
+  }
+}
+
+function agentNames() {
+  const verbs = getVerbs();
+  if (state.activationMode === 'single') return [state.ens];
+  return verbs.map(v => agentName(v));
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+function goToStep(n) {
   document.getElementById('panel-'+state.step).classList.remove('active');
-  state.step=n;
+  state.step = n;
   document.getElementById('panel-'+n).classList.add('active');
   updateProgress();
-  if(n===7)buildSummary();
-  window.scrollTo({top:0,behavior:'smooth'});
+  if (n === 8) buildSummary();
+  window.scrollTo({top:0, behavior:'smooth'});
 }
 
-function updateProgress(){
-  const nodes=document.querySelectorAll('.step-node');
-  const total=nodes.length;
-  nodes.forEach((node,i)=>{
-    const s=i+1;
+function updateProgress() {
+  const nodes = document.querySelectorAll('.step-node');
+  const total = nodes.length;
+  nodes.forEach((node,i) => {
+    const s = i+1;
     node.classList.remove('active','done');
-    if(s<state.step)node.classList.add('done');
-    else if(s===state.step)node.classList.add('active');
+    if (s < state.step) node.classList.add('done');
+    else if (s === state.step) node.classList.add('active');
   });
-  const pct=total<=1?0:((state.step-1)/(total-1))*100;
-  document.getElementById('stepsTrack').style.setProperty('--progress-width',pct+'%');
+  const pct = total<=1 ? 0 : ((state.step-1)/(total-1))*100;
+  document.getElementById('stepsTrack').style.setProperty('--progress-width', pct+'%');
 }
 
-function goStep1(){
-  const val=document.getElementById('ensInput').value.trim().toLowerCase();
-  const err=document.getElementById('ensError');
-  if(!val.endsWith('.eth')||val.length<6){err.classList.add('show');document.getElementById('ensInput').classList.add('error');return;}
+// ── STEP 1 ────────────────────────────────────────────────────────────────────
+function goStep1() {
+  const val = document.getElementById('ensInput').value.trim().toLowerCase();
+  const err = document.getElementById('ensError');
+  if (!val.endsWith('.eth') || val.length < 6) {
+    err.classList.add('show');
+    document.getElementById('ensInput').classList.add('error');
+    return;
+  }
   err.classList.remove('show');
   document.getElementById('ensInput').classList.remove('error');
   document.getElementById('ensInput').classList.add('valid');
-  state.ens=val;
-  buildPacksGrid();buildCherryGroups();
+  state.ens = val;
+  // update mode examples
+  updateModeExamples();
+  buildPacksGrid();
+  buildCherryGroups();
   goToStep(2);
 }
-document.getElementById('ensInput').addEventListener('keydown',e=>{if(e.key==='Enter')goStep1();});
+document.getElementById('ensInput').addEventListener('keydown', e => { if(e.key==='Enter') goStep1(); });
 
-function setMode(m){
-  state.mode=m;
-  document.getElementById('tabPacks').classList.toggle('active',m==='packs');
-  document.getElementById('tabCherry').classList.toggle('active',m==='cherry');
-  document.getElementById('packsMode').style.display=m==='packs'?'block':'none';
-  document.getElementById('cherryMode').style.display=m==='cherry'?'block':'none';
+// ── STEP 2: MODE ──────────────────────────────────────────────────────────────
+function updateModeExamples() {
+  const base = state.ens.replace('.eth','');
+  document.getElementById('eg-cl').textContent    = base + '.approveagent.eth';
+  document.getElementById('eg-own').textContent   = 'approve.' + state.ens;
+  document.getElementById('eg-single').textContent = state.ens;
 }
 
-function buildPacksGrid(){
-  document.getElementById('packsGrid').innerHTML=PACKS.map(p=>`
+function selectMode(m) {
+  state.activationMode = m;
+  ['cl','own','single'].forEach(id => {
+    document.getElementById('mode-'+id).classList.toggle('selected', id===m);
+  });
+  updateNamePreview();
+}
+
+function updateNamePreview() {
+  const verbs = getVerbs();
+  const preview = document.getElementById('namePreview');
+  const list = document.getElementById('namePreviewList');
+  if (verbs.length === 0) { preview.classList.remove('show'); return; }
+  const names = state.activationMode === 'single'
+    ? [state.ens]
+    : verbs.slice(0,5).map(v => agentName(v));
+  const more = verbs.length > 5 && state.activationMode !== 'single';
+  list.innerHTML = names.map(n => `<span class="name-preview-item">${n}</span>`).join('') +
+    (more ? `<span class="name-preview-item">+${verbs.length-5} more</span>` : '');
+  preview.classList.add('show');
+}
+
+function goStep2() {
+  if (!state.activationMode) { alert('Please choose an activation mode.'); return; }
+  // default to CL mode if none selected
+  if (!document.querySelector('.mode-card.selected')) selectMode('cl');
+  goToStep(3);
+}
+
+// Auto-select CL mode on load
+selectMode('cl');
+
+// ── STEP 3: CAPABILITIES ──────────────────────────────────────────────────────
+function setCapMode(m) {
+  state.capMode = m;
+  document.getElementById('tabPacks').classList.toggle('active', m==='packs');
+  document.getElementById('tabCherry').classList.toggle('active', m==='cherry');
+  document.getElementById('packsMode').style.display = m==='packs' ? 'block' : 'none';
+  document.getElementById('cherryMode').style.display = m==='cherry' ? 'block' : 'none';
+}
+
+function buildPacksGrid() {
+  document.getElementById('packsGrid').innerHTML = PACKS.map(p => `
     <div class="pack-card ${p.live?'live-badge':'preview-badge'}" id="pack-${p.id}" onclick="selectPack('${p.id}')">
       <div class="pack-name">${p.name}</div>
       <div class="pack-count">10 verbs &nbsp;·&nbsp; ${p.live?'Live on runtime':'Schema-ready / activation preview'}</div>
@@ -477,14 +685,15 @@ function buildPacksGrid(){
     </div>`).join('');
 }
 
-function selectPack(id){
-  state.selectedPack=id;
+function selectPack(id) {
+  state.selectedPack = id;
   document.querySelectorAll('.pack-card').forEach(c=>c.classList.remove('selected'));
   document.getElementById('pack-'+id).classList.add('selected');
+  updateNamePreview();
 }
 
-function buildCherryGroups(){
-  document.getElementById('cherryGroups').innerHTML=PACKS.map(g=>`
+function buildCherryGroups() {
+  document.getElementById('cherryGroups').innerHTML = PACKS.map(g => `
     <div class="cherry-section">
       <div class="cherry-section-label">${g.name}</div>
       <div class="cherry-grid">${g.verbs.map(v=>`
@@ -495,114 +704,184 @@ function buildCherryGroups(){
     </div>`).join('');
 }
 
-function toggleCherry(verb){
-  const idx=state.cherryVerbs.indexOf(verb);
-  const el=document.getElementById('cherry-'+verb);
-  if(idx>-1){state.cherryVerbs.splice(idx,1);el.classList.remove('selected');}
-  else{if(state.cherryVerbs.length>=10)return;state.cherryVerbs.push(verb);el.classList.add('selected');}
-  document.getElementById('cherryCount').textContent=state.cherryVerbs.length;
-  document.querySelectorAll('.cherry-item').forEach(item=>{
-    if(!item.classList.contains('selected')&&state.cherryVerbs.length>=10)item.classList.add('disabled');
+function toggleCherry(verb) {
+  const idx = state.cherryVerbs.indexOf(verb);
+  const el = document.getElementById('cherry-'+verb);
+  if (idx > -1) { state.cherryVerbs.splice(idx,1); el.classList.remove('selected'); }
+  else {
+    if (state.cherryVerbs.length >= 10) return;
+    state.cherryVerbs.push(verb); el.classList.add('selected');
+  }
+  document.getElementById('cherryCount').textContent = state.cherryVerbs.length;
+  document.querySelectorAll('.cherry-item').forEach(item => {
+    if (!item.classList.contains('selected') && state.cherryVerbs.length >= 10)
+      item.classList.add('disabled');
     else item.classList.remove('disabled');
   });
+  updateNamePreview();
 }
 
-function goStep2(){
-  if(getVerbs().length===0){alert('Please select a pack or cherry-pick at least one verb.');return;}
-  goToStep(3);
+function goStep3() {
+  if (getVerbs().length === 0) { alert('Please select a pack or cherry-pick at least one verb.'); return; }
+  buildENSRecords();
+  buildSDKConfig();
+  buildAgentCard();
+  buildAgentTable();
+  goToStep(4);
 }
 
-async function generateKey(){
-  const errorBox=document.getElementById('keyError');
-  errorBox.classList.remove('show');
-  errorBox.textContent='';
-  try{
-    if(!window.crypto || !window.crypto.subtle){
-      throw new Error('Web Crypto SubtleCrypto unavailable.');
-    }
-    const kp=await window.crypto.subtle.generateKey({name:'Ed25519'},true,['sign','verify']);
-    const pubRaw=await window.crypto.subtle.exportKey('raw',kp.publicKey);
-    const privPkcs8=await window.crypto.subtle.exportKey('pkcs8',kp.privateKey);
-    const pubB64=btoa(String.fromCharCode(...new Uint8Array(pubRaw)));
-    const privB64=btoa(String.fromCharCode(...new Uint8Array(privPkcs8)));
-    const kid=pubB64.slice(0,16);
-    state.pubKeyB64=pubB64;state.privKeyB64=privB64;state.kid=kid;state.keyGenerated=true;state.keyDownloaded=false;state.keyAcked=false;
-    document.getElementById('kidDisplay').textContent=kid;
-    document.getElementById('pubDisplay').textContent=pubB64;
+// ── STEP 4: KEY GEN ───────────────────────────────────────────────────────────
+async function generateKey() {
+  const errorBox = document.getElementById('keyError');
+  errorBox.classList.remove('show'); errorBox.textContent = '';
+  try {
+    if (!window.crypto || !window.crypto.subtle) throw new Error('Web Crypto unavailable.');
+    const kp = await window.crypto.subtle.generateKey({name:'Ed25519'}, true, ['sign','verify']);
+    const pubRaw = await window.crypto.subtle.exportKey('raw', kp.publicKey);
+    const privPkcs8 = await window.crypto.subtle.exportKey('pkcs8', kp.privateKey);
+    const pubB64 = btoa(String.fromCharCode(...new Uint8Array(pubRaw)));
+    const privB64 = btoa(String.fromCharCode(...new Uint8Array(privPkcs8)));
+    const kid = pubB64.slice(0,16);
+    state.pubKeyB64=pubB64; state.privKeyB64=privB64; state.kid=kid;
+    state.keyGenerated=true; state.keyDownloaded=false; state.keyAcked=false;
+    document.getElementById('kidDisplay').textContent = kid;
+    document.getElementById('pubDisplay').textContent = pubB64;
     document.getElementById('keygenResult').classList.add('show');
-    document.getElementById('keyAck').checked=false;
-    document.getElementById('keyAck').disabled=true;
+    document.getElementById('keyAck').checked = false;
+    document.getElementById('keyAck').disabled = true;
     updateKeyContinue();
-  }catch(e){
-    state.pubKeyB64='';state.privKeyB64='';state.kid='';state.keyGenerated=false;state.keyDownloaded=false;state.keyAcked=false;
+  } catch(e) {
+    state.pubKeyB64=''; state.privKeyB64=''; state.kid='';
+    state.keyGenerated=false; state.keyDownloaded=false; state.keyAcked=false;
     document.getElementById('keygenResult').classList.remove('show');
-    document.getElementById('step3Next').disabled=true;
-    errorBox.textContent='This browser does not support Ed25519 key generation. Use a supported browser or wait for the packaged key generator. No activation package was generated.';
+    document.getElementById('step4Next').disabled = true;
+    errorBox.textContent = 'This browser does not support Ed25519 key generation. Use a Chromium-based browser (Chrome, Edge, Brave) or Firefox 130+. CommandLayer will not substitute a different algorithm.';
     errorBox.classList.add('show');
   }
 }
 
-function updateKeyContinue(){
-  const ack=document.getElementById('keyAck');
-  state.keyAcked=!!(ack && ack.checked);
-  document.getElementById('step3Next').disabled=!(state.keyGenerated && state.keyDownloaded && state.keyAcked);
+function updateKeyContinue() {
+  const ack = document.getElementById('keyAck');
+  state.keyAcked = !!(ack && ack.checked);
+  document.getElementById('step4Next').disabled = !(state.keyGenerated && state.keyDownloaded && state.keyAcked);
 }
 
-function downloadKey(){
-  if(!state.privKeyB64)return;
-  const pem='-----BEGIN PRIVATE KEY-----\n'+state.privKeyB64.match(/.{1,64}/g).join('\n')+'\n-----END PRIVATE KEY-----';
-  const blob=new Blob([pem],{type:'text/plain'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=state.ens.replace('.eth','')+'-commandlayer-private.pem';a.click();URL.revokeObjectURL(url);
-  state.keyDownloaded=true;
-  const ack=document.getElementById('keyAck');
-  if(ack) ack.disabled=false;
+function downloadKey() {
+  if (!state.privKeyB64) return;
+  const pem = '-----BEGIN PRIVATE KEY-----\n' +
+    state.privKeyB64.match(/.{1,64}/g).join('\n') +
+    '\n-----END PRIVATE KEY-----';
+  const blob = new Blob([pem], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=state.ens.replace('.eth','')+'-commandlayer-private.pem';
+  a.click(); URL.revokeObjectURL(url);
+  state.keyDownloaded = true;
+  document.getElementById('keyAck').disabled = false;
   updateKeyContinue();
 }
 
-function goStep3(){
-  if(!state.keyGenerated){alert('Please generate your Ed25519 keypair first.');return;}
-  if(!state.keyDownloaded || !state.keyAcked){alert('Download and acknowledge your private key before continuing.');return;}
-  buildENSRecords();buildSDKConfig();buildAgentCard();goToStep(4);
+function goStep4() {
+  if (!state.keyGenerated) { alert('Please generate your Ed25519 keypair first.'); return; }
+  if (!state.keyDownloaded || !state.keyAcked) { alert('Download and acknowledge your private key before continuing.'); return; }
+  goToStep(5);
 }
 
-function buildENSRecords(){
-  const verbs=getVerbs();
-  document.getElementById('ensRecords').textContent=[
-    `cl.sig.pub=ed25519:${state.pubKeyB64}`,
-    `cl.sig.kid=${state.kid}`,
-    `cl.sig.canonical=json.sorted_keys.v1`,
-    `cl.receipt.signer=${state.ens}`,
-    `cl.capabilities=${verbs.join(',')}`,
-    `cl.runtime=https://runtime.commandlayer.org`,
-    `cl.verifier=https://runtime.commandlayer.org/verify`,
-    `cl.trust_verification_entry=https://runtime.commandlayer.org/trust-verification/{verb}/v1.0.0`,
-    `cl.agent.card=pending_provisioning`,
-    `cl.schema.version=1.1.0`
-  ].join('\n');
+// ── STEP 5: ENS RECORDS ───────────────────────────────────────────────────────
+function buildAgentTable() {
+  const verbs = getVerbs();
+  const tbody = document.getElementById('agentTableBody');
+  if (state.activationMode === 'single') {
+    tbody.innerHTML = `<tr>
+      <td><strong>${state.ens}</strong></td>
+      <td>${verbs.map(v=>`<span class="verb-tag">${v}</span>`).join(' ')}</td>
+      <td>runtime.commandlayer.org/verify</td>
+    </tr>`;
+  } else {
+    tbody.innerHTML = verbs.map(v => `<tr>
+      <td><strong>${agentName(v)}</strong></td>
+      <td><span class="verb-tag">${v}</span></td>
+      <td style="font-size:11px">/trust-verification/${v}/v1.0.0</td>
+    </tr>`).join('');
+  }
 }
 
-function downloadRecords(){
-  const text=document.getElementById('ensRecords').textContent;
-  const blob=new Blob([text],{type:'text/plain'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=state.ens.replace('.eth','')+'-ens-records.txt';a.click();URL.revokeObjectURL(url);
+function buildENSRecords() {
+  const verbs = getVerbs();
+  let records = '';
+
+  if (state.activationMode === 'single') {
+    records = [
+      `# ${state.ens} — CommandLayer activation`,
+      `cl.sig.pub=ed25519:${state.pubKeyB64}`,
+      `cl.sig.kid=${state.kid}`,
+      `cl.sig.canonical=json.sorted_keys.v1`,
+      `cl.receipt.signer=${state.ens}`,
+      `cl.capabilities=${verbs.join(',')}`,
+      `cl.runtime=https://runtime.commandlayer.org`,
+      `cl.verifier=https://runtime.commandlayer.org/verify`,
+      `cl.trust_verification_entry=https://runtime.commandlayer.org/trust-verification/{verb}/v1.0.0`,
+      `cl.agent.card=pending_provisioning`,
+      `cl.schema.version=1.1.0`
+    ].join('\n');
+  } else {
+    records = verbs.map(v => {
+      const name = agentName(v);
+      const parent = state.activationMode === 'cl'
+        ? (VERB_TO_AGENT[v] || v+'agent.eth')
+        : state.ens;
+      const tenant = state.ens.replace('.eth','');
+      return [
+        `# ${name}`,
+        `cl.sig.pub=ed25519:${state.pubKeyB64}`,
+        `cl.sig.kid=${state.kid}`,
+        `cl.sig.canonical=json.sorted_keys.v1`,
+        `cl.receipt.signer=${name}`,
+        `cl.capability=${v}`,
+        `cl.parent=${parent}`,
+        `cl.tenant=${tenant}`,
+        `cl.runtime=https://runtime.commandlayer.org`,
+        `cl.verifier=https://runtime.commandlayer.org/verify`,
+        `cl.trust_verification_entry=https://runtime.commandlayer.org/trust-verification/${v}/v1.0.0`,
+        `cl.agent.card=pending_provisioning`,
+        `cl.schema.version=1.1.0`,
+        ``
+      ].join('\n');
+    }).join('\n');
+  }
+  document.getElementById('ensRecords').textContent = records.trim();
 }
 
-function buildSDKConfig(){
-  const verbs=getVerbs();
-  const first=verbs[0]||'summarize';
-  document.getElementById('sdkConfig').textContent=`import { CommandLayer } from '@commandlayer/agent-sdk';
+function downloadRecords() {
+  const text = document.getElementById('ensRecords').textContent;
+  const blob = new Blob([text], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=state.ens.replace('.eth','')+'-ens-records.txt';
+  a.click(); URL.revokeObjectURL(url);
+}
 
+// ── STEP 6: SDK CONFIG ────────────────────────────────────────────────────────
+function buildSDKConfig() {
+  const verbs = getVerbs();
+  const first = verbs[0] || 'sign';
+  const firstName = agentName(first);
+
+  document.getElementById('sdkConfig').textContent =
+`import { CommandLayer } from '@commandlayer/agent-sdk';
+
+// One config covers all your capability agents
 const cl = new CommandLayer({
-  agent: '${state.ens}',
+  agent: '${firstName}',
   privateKeyPem: process.env.CL_PRIVATE_KEY_PEM,
   keyId: '${state.kid}',
   verifierUrl: 'https://runtime.commandlayer.org/verify'
 });
 
 export { cl };`;
-  document.getElementById('sdkWrap').textContent=`// Wrap any agent action
+
+  document.getElementById('sdkWrap').textContent =
+`// Wrap the ${first} capability
 const { output, receipt } = await cl.wrap('${first}', async () => {
   return {
     verb: '${first}',
@@ -612,96 +891,168 @@ const { output, receipt } = await cl.wrap('${first}', async () => {
   };
 });
 
-// Verify the signed receipt
+// Verify the signed receipt independently
 const check = await cl.verify(receipt);
-console.log(check.status);                   // VERIFIED
-console.log(check.checks.hash_matches);      // true
-console.log(check.checks.signature_valid);   // true`;
+console.log(check.status);                  // VERIFIED
+console.log(check.checks.hash_matches);     // true
+console.log(check.checks.signature_valid);  // true`;
 }
 
-function buildAgentCard(){
-  const verbs=getVerbs();
-  const pack=PACKS.find(p=>p.id===state.selectedPack);
-  const isLive=pack&&pack.live;
-  const card={
-    "$schema":"https://commandlayer.org/agent-cards/schemas/v1.1.0/agent.card.schema.json",
-    "$id":"pending_provisioning",
-    "id":state.ens,"owner":state.ens,"ens":state.ens,"version":"1.1.0",
-    "status":isLive?"activation_ready_live_pack":"activation_preview","class":pack?pack.id:"custom",
-    "agent_card_status":"preview_only",
-    "hosted_agent_card":"pending_provisioning",
-    "implements":verbs,
-    "entry":{
-      "trust_verification":"https://runtime.commandlayer.org/trust-verification/{verb}/v1.0.0",
-      "verify":"https://runtime.commandlayer.org/verify"
+// ── STEP 7: AGENT CARD ────────────────────────────────────────────────────────
+function buildAgentCard() {
+  const verbs = getVerbs();
+  const pack = PACKS.find(p=>p.id===state.selectedPack);
+  const isLive = pack && pack.live;
+  const first = verbs[0] || 'sign';
+  const firstName = agentName(first);
+
+  const entryObj = {};
+  verbs.forEach(v => {
+    entryObj[v] = `https://runtime.commandlayer.org/trust-verification/${v}/v1.0.0`;
+  });
+
+  const card = {
+    "$schema": "https://commandlayer.org/agent-cards/schemas/v1.1.0/agent.card.schema.json",
+    "$id": "pending_provisioning",
+    "id": firstName,
+    "owner": state.ens,
+    "ens": firstName,
+    "parent_ens": state.activationMode==='cl' ? (VERB_TO_AGENT[first]||first+'agent.eth') : state.ens,
+    "tenant": state.ens,
+    "activation_mode": state.activationMode,
+    "version": "1.1.0",
+    "agent_card_status": "preview_only",
+    "hosted_agent_card": "pending_provisioning",
+    "status": isLive ? "activation_ready_live_pack" : "activation_preview",
+    "class": "commons",
+    "implements": [first],
+    "entry": {
+      "trust_verification": `https://runtime.commandlayer.org/trust-verification/${first}/v1.0.0`,
+      "verify": "https://runtime.commandlayer.org/verify"
     },
-    "execution_status":"not_configured",
-    "networks":["eip155:1"],"license":"Apache-2.0",
-    "created_at":new Date().toISOString(),"updated_at":new Date().toISOString()
+    "execution_status": "not_configured",
+    "networks": ["eip155:1"],
+    "license": "Apache-2.0",
+    "created_at": new Date().toISOString(),
+    "updated_at": new Date().toISOString()
   };
-  const json=JSON.stringify(card,null,2);
-  document.getElementById('agentCardJson').textContent=json;
-  document.getElementById('cardHeaderTitle').textContent=state.ens;
-  document.getElementById('cardStatus').textContent=isLive?'live runtime':'activation preview';
-  document.getElementById('cardStatus').className='status-pill '+(isLive?'status-live':'status-preview');
-  state._cardJson=json;
+
+  const json = JSON.stringify(card, null, 2);
+  document.getElementById('agentCardJson').textContent = json;
+  document.getElementById('cardHeaderTitle').textContent = firstName;
+  document.getElementById('cardStatus').textContent = isLive ? 'live runtime' : 'activation preview';
+  document.getElementById('cardStatus').className = 'status-pill '+(isLive?'status-live':'status-preview');
+  state._cardJson = json;
 }
 
-function downloadCard(){
-  if(!state._cardJson)return;
-  const blob=new Blob([state._cardJson],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=state.ens.replace('.eth','')+'-agent-card.json';a.click();URL.revokeObjectURL(url);
+function downloadCard() {
+  if (!state._cardJson) return;
+  const blob = new Blob([state._cardJson], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=state.ens.replace('.eth','')+'-agent-card.json';
+  a.click(); URL.revokeObjectURL(url);
 }
 
-function buildSummary(){
-  const verbs=getVerbs();
-  const pack=PACKS.find(p=>p.id===state.selectedPack);
-  document.getElementById('summaryGrid').innerHTML=`
-    <div class="summary-item"><label>ENS Name</label><value>${state.ens}</value></div>
+// ── STEP 8: SUMMARY ───────────────────────────────────────────────────────────
+function buildSummary() {
+  const verbs = getVerbs();
+  const pack = PACKS.find(p=>p.id===state.selectedPack);
+  const names = agentNames();
+  const modeLabel = {cl:'CommandLayer namespace', own:'Your ENS namespace', single:'Single agent'}[state.activationMode];
+
+  document.getElementById('summaryGrid').innerHTML = `
+    <div class="summary-item"><label>Parent ENS</label><value>${state.ens}</value></div>
+    <div class="summary-item"><label>Activation mode</label><value>${modeLabel}</value></div>
     <div class="summary-item"><label>Key ID (kid)</label><value>${state.kid}</value></div>
-    <div class="summary-item"><label>Capability pack</label><value>${pack?pack.name:'Custom cherry-pick'}</value></div>
     <div class="summary-item"><label>Runtime status</label><value>${pack&&pack.live?'✅ Live on runtime':'⏳ Schema-ready / activation preview'}</value></div>
+    <div class="summary-item"><label>Capability pack</label><value>${pack?pack.name:'Custom cherry-pick'}</value></div>
+    <div class="summary-item"><label>Generated agents</label><value>${names.length}</value></div>
+    <div class="summary-item" style="grid-column:1/-1"><label>Agent names</label><div class="summary-verbs">${names.map(n=>`<span class="verb-pill">${n}</span>`).join('')}</div></div>
     <div class="summary-item" style="grid-column:1/-1"><label>Capabilities (${verbs.length})</label><div class="summary-verbs">${verbs.map(v=>`<span class="verb-pill">${v}</span>`).join('')}</div></div>`;
+
+  document.getElementById('agentNamesCheckText').textContent =
+    state.activationMode === 'single'
+      ? `${state.ens} configured as one multi-capability agent`
+      : `${names.length} sub-agent names generated`;
 }
 
-function downloadPackage(){
-  const manifest={
-    generated_at:new Date().toISOString(),ens:state.ens,kid:state.kid,
-    public_key:`ed25519:${state.pubKeyB64}`,capabilities:getVerbs(),
-    schema_version:'1.1.0',
-    verifier:'https://runtime.commandlayer.org/verify',
-    runtime:'https://runtime.commandlayer.org',
-    trust_verification_entry:'https://runtime.commandlayer.org/trust-verification/{verb}/v1.0.0',
-    agent_card_status:'preview_only',
-    hosted_agent_card:'pending_provisioning',
-    runtime_status:(PACKS.find(p=>p.id===state.selectedPack)?.live?'live':'activation_preview'),
-    note:'Add ENS TXT records, set CL_PRIVATE_KEY_PEM env var, then install @commandlayer/agent-sdk'
+function downloadPackage() {
+  const verbs = getVerbs();
+  const pack = PACKS.find(p=>p.id===state.selectedPack);
+  const agents = state.activationMode === 'single'
+    ? [{ ens: state.ens, capabilities: verbs, records_mode: 'parent_multi_capability' }]
+    : verbs.map(v => ({
+        ens: agentName(v),
+        capability: v,
+        canonical_parent: state.activationMode==='cl' ? (VERB_TO_AGENT[v]||v+'agent.eth') : state.ens,
+        tenant: state.ens.replace('.eth',''),
+        records: {
+          'cl.sig.pub': `ed25519:${state.pubKeyB64}`,
+          'cl.sig.kid': state.kid,
+          'cl.sig.canonical': 'json.sorted_keys.v1',
+          'cl.receipt.signer': agentName(v),
+          'cl.capability': v,
+          'cl.runtime': 'https://runtime.commandlayer.org',
+          'cl.verifier': 'https://runtime.commandlayer.org/verify',
+          'cl.trust_verification_entry': `https://runtime.commandlayer.org/trust-verification/${v}/v1.0.0`,
+          'cl.agent.card': 'pending_provisioning'
+        },
+        agent_card_status: 'preview_only'
+      }));
+
+  const manifest = {
+    generated_at: new Date().toISOString(),
+    parent_ens: state.ens,
+    activation_mode: state.activationMode,
+    activation_mode_label: {cl:'CommandLayer namespace', own:'Your ENS namespace', single:'Single agent'}[state.activationMode],
+    key_model: 'single_ed25519_key_for_package',
+    kid: state.kid,
+    public_key: `ed25519:${state.pubKeyB64}`,
+    capability_pack: pack ? pack.name : 'Custom cherry-pick',
+    capabilities: verbs,
+    agents,
+    runtime: 'https://runtime.commandlayer.org',
+    verifier: 'https://runtime.commandlayer.org/verify',
+    schema_version: '1.1.0',
+    payment_status: 'not_enabled_session_1',
+    provisioning_status: 'pending',
+    note: 'Create ENS subnames/TXT records, set CL_PRIVATE_KEY_PEM env var, then install @commandlayer/agent-sdk'
   };
-  const blob=new Blob([JSON.stringify(manifest,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=state.ens.replace('.eth','')+'-commandlayer-manifest.json';a.click();URL.revokeObjectURL(url);
+  const blob = new Blob([JSON.stringify(manifest,null,2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=state.ens.replace('.eth','')+'-commandlayer-package.json';
+  a.click(); URL.revokeObjectURL(url);
 }
 
-function copyBlock(id,btn){
-  const text=document.getElementById(id).textContent;
+// ── UTILITY ───────────────────────────────────────────────────────────────────
+function copyBlock(id, btn) {
+  const text = document.getElementById(id).textContent;
   navigator.clipboard.writeText(text).then(()=>{
-    btn.textContent='Copied ✓';btn.classList.add('copied');
-    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},1800);
+    btn.textContent='Copied ✓'; btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Copy'; btn.classList.remove('copied'); }, 1800);
   });
 }
 
-function startOver(){
-  state={step:1,ens:'',mode:'packs',selectedPack:null,cherryVerbs:[],pubKeyB64:'',privKeyB64:'',kid:'',keyGenerated:false,keyDownloaded:false,keyAcked:false,_cardJson:''};
+function startOver() {
+  state = {
+    step:1, ens:'', activationMode:'cl', capMode:'packs', selectedPack:null, cherryVerbs:[],
+    pubKeyB64:'', privKeyB64:'', kid:'', keyGenerated:false, keyDownloaded:false, keyAcked:false,
+    _cardJson:''
+  };
   document.getElementById('ensInput').value='';
   document.getElementById('ensInput').classList.remove('valid','error');
   document.getElementById('keygenResult').classList.remove('show');
-  document.getElementById('step3Next').disabled=true;
+  document.getElementById('step4Next').disabled=true;
   const ack=document.getElementById('keyAck'); if(ack){ack.checked=false;ack.disabled=true;}
   const err=document.getElementById('keyError'); if(err){err.classList.remove('show');err.textContent='';}
+  document.getElementById('namePreview').classList.remove('show');
+  selectMode('cl');
   goToStep(1);
 }
 
+// ── INIT ──────────────────────────────────────────────────────────────────────
 updateProgress();
 </script>
 </body>
