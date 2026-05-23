@@ -298,3 +298,22 @@ Trust chain for this flow:
 > **Security note**
 > Do not paste or commit `COINBASE_WEBHOOK_SECRET` or private signing keys.
 > Rotate any secret accidentally shared during testing.
+
+
+## Verified working flow
+
+Example verified result pattern (redacted for safety):
+
+- status: `WEBHOOK_VERIFIED_AND_SIGNED`
+- signer: `runtime.commandlayer.eth`
+- verb: `observe`
+- subject.type: `payment_transfer`
+- transfer_status: `completed`
+- `/api/verify` result: `VERIFIED`
+- hash_matches: `true`
+- signature_valid: `true`
+- key_id: `vC4WbcNoq2znSCiQ`
+
+This proves CommandLayer can turn a verified Coinbase-style webhook into a signed, portable receipt.
+
+Real Coinbase webhook production use requires the Coinbase-provided webhook secret, and that secret must remain server-side. Coinbase HMAC verification authenticates ingress to CommandLayer, while public portability starts after CommandLayer signing.

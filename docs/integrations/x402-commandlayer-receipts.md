@@ -310,3 +310,19 @@ curl -sS -X POST http://localhost:3000/api/verify \
 ### Trust boundary reminder
 
 x402 payment acceptance is not the same as execution proof. Payment rails attest payment acceptance/settlement state, while CommandLayer receipts attest the requested action, execution result, and signer-bound proof for that execution.
+
+
+## Verified working flow
+
+Example verified result pattern (redacted for safety):
+
+- status: `PAID_ACTION_EXECUTED_AND_SIGNED`
+- verb: `summarize`
+- `/api/verify` result: `VERIFIED`
+- hash_matches: `true`
+- signature_valid: `true`
+- key_id: `vC4WbcNoq2znSCiQ`
+
+This shows a paid action can emit signed execution proof after an accepted x402 payment envelope is validated.
+
+The example validates an accepted x402 payment envelope; it does not claim full production settlement unless wired to a real x402 provider.
