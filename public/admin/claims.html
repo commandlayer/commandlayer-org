@@ -56,6 +56,7 @@
       claimActionError = {
         status: data.status || 'REQUEST_FAILED',
         error: data.error || 'Request failed.',
+        debug: data.debug || null,
         fromStatus: data.fromStatus,
         action: data.action || action
       };
@@ -85,7 +86,8 @@
     const errorPanel = document.getElementById('actionErrorPanel');
     if (claimActionError) {
       errorPanel.className = 'error-panel';
-      errorPanel.textContent = `Action failed: ${claimActionError.status} — ${claimActionError.error}`;
+      const detailText = claimActionError.debug && claimActionError.debug.message ? `\nDetails: ${claimActionError.debug.message}` : '';
+      errorPanel.textContent = `Action failed:\n${claimActionError.status} — ${claimActionError.error}${detailText}`;
     } else {
       errorPanel.textContent = '';
       errorPanel.className = '';
