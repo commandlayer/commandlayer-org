@@ -47,7 +47,8 @@ module.exports = async function handler(req, res) {
       [limit]
     );
 
-    const claims = result.rows.map((row) => ({
+    const rows = db.normalizeRows(result);
+    const claims = rows.map((row) => ({
       claimId: row.claim_id,
       tenant: row.tenant,
       authenticatedAddress: row.authenticated_address,
@@ -61,6 +62,13 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true, claims });
   } catch (error) {
     console.error('ADMIN_CLAIMS_QUERY_FAILED', { message: error.message, code: error.code });
-    return res.status(500).json({ ok: false, status: 'ADMIN_CLAIMS_QUERY_FAILED', error: 'Failed to load claims.' });
+    const payload = { ok: false, status: 'ADMIN_CLAIMS_QUERY_FAILED', error: 'Failed to load claims.' };
+    if (process.env.NODE_ENV !== 'production') {
+      payload.debug = {
+        message: error.message,
+        code: error.code
+      };
+    }
+    return res.status(500).json(payload);
   }
 };

@@ -22,22 +22,35 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const claimResult = await db.query('select * from claim_requests where claim_id = $1 limit 1', [claimId]);
-    if (!claimResult.rows.length) {
+    const claimRows = db.normalizeRows(
+      await db.query('select * from claim_requests where claim_id = $1 limit 1', [claimId])
+    );
+    if (!claimRows.length) {
       return res.status(404).json({ ok: false, status: 'CLAIM_NOT_FOUND' });
     }
 
-    const agentsResult = await db.query('select * from claim_agents where claim_id = $1 order by capability asc', [claimId]);
-    const eventsResult = await db.query('select * from claim_events where claim_id = $1 order by created_at asc', [claimId]);
+    const agentRows = db.normalizeRows(
+      await db.query('select * from claim_agents where claim_id = $1 order by capability asc', [claimId])
+    );
+    const eventRows = db.normalizeRows(
+      await db.query('select * from claim_events where claim_id = $1 order by created_at asc', [claimId])
+    );
 
     return res.status(200).json({
       ok: true,
-      claim: claimResult.rows[0],
-      agents: agentsResult.rows,
-      events: eventsResult.rows
+      claim: claimRows[0],
+      agents: agentRows,
+      events: eventRows
     });
   } catch (error) {
     console.error('ADMIN_CLAIM_QUERY_FAILED', { message: error.message, code: error.code });
-    return res.status(500).json({ ok: false, status: 'ADMIN_CLAIM_QUERY_FAILED', error: 'Failed to load claim.' });
+    const payload = { ok: false, status: 'ADMIN_CLAIM_QUERY_FAILED', error: 'Failed to load claim.' };
+    if (process.env.NODE_ENV !== 'production') {
+      payload.debug = {
+        message: error.message,
+        code: error.code
+      };
+    }
+    return res.status(500).json(payload);
   }
 };

@@ -14,12 +14,24 @@ function makeRes() {
   };
 }
 
+function normalizeRows(result) {
+  if (Array.isArray(result)) return result;
+  if (result && Array.isArray(result.rows)) return result.rows;
+  return [];
+}
+
 function load(modulePath, mockQuery) {
   const handlerPath = require.resolve(modulePath);
   const dbPath = require.resolve('../lib/db');
   delete require.cache[handlerPath];
   delete require.cache[dbPath];
-  require.cache[dbPath] = { exports: { query: mockQuery, getDatabaseUrl: () => process.env.DATABASE_URL } };
+  require.cache[dbPath] = {
+    exports: {
+      query: mockQuery,
+      normalizeRows,
+      getDatabaseUrl: () => process.env.DATABASE_URL
+    }
+  };
   return require(modulePath);
 }
 
@@ -41,7 +53,7 @@ test('admin claims returns UNAUTHORIZED when auth missing', async () => {
   assert.equal(res.body.status, 'UNAUTHORIZED');
 });
 
-test('admin claims returns list when authorized', async () => {
+test('admin claims returns list when authorized (pg style result)', async () => {
   process.env.ADMIN_API_KEY = 'secret';
   const handler = load('../api/admin/claims', async () => ({
     rows: [{
@@ -71,7 +83,35 @@ test('admin claims returns list when authorized', async () => {
   });
 });
 
-test('admin claim detail returns agents and events when authorized', async () => {
+test('admin claims returns list when authorized (neon direct-array result)', async () => {
+  process.env.ADMIN_API_KEY = 'secret';
+  const handler = load('../api/admin/claims', async () => ([{
+    claim_id: 'clm_test',
+    tenant: 'tenant',
+    authenticated_address: '0xabc',
+    activation_mode: 'cl',
+    pack_id: 'trust',
+    status: 'created',
+    created_at: '2026-05-23T00:00:00Z',
+    agent_count: 10
+  }]));
+  const res = makeRes();
+  await handler({ method: 'GET', headers: { authorization: 'Bearer secret' }, query: {} }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.ok, true);
+  assert.deepEqual(res.body.claims[0], {
+    claimId: 'clm_test',
+    tenant: 'tenant',
+    authenticatedAddress: '0xabc',
+    activationMode: 'cl',
+    packId: 'trust',
+    status: 'created',
+    agentCount: 10,
+    createdAt: '2026-05-23T00:00:00Z'
+  });
+});
+
+test('admin claim detail returns agents and events when authorized (pg style result)', async () => {
   process.env.ADMIN_API_KEY = 'secret';
   const handler = load('../api/admin/claim', async (text) => {
     const q = String(text);
@@ -85,4 +125,21 @@ test('admin claim detail returns agents and events when authorized', async () =>
   assert.equal(res.body.ok, true);
   assert.equal(Array.isArray(res.body.agents), true);
   assert.equal(Array.isArray(res.body.events), true);
+});
+
+test('admin claim detail returns agents and events when authorized (neon direct-array result)', async () => {
+  process.env.ADMIN_API_KEY = 'secret';
+  const handler = load('../api/admin/claim', async (text) => {
+    const q = String(text);
+    if (q.includes('from claim_requests')) return [{ claim_id: 'clm_1', tenant: 'commandlayer', request_json: {} }];
+    if (q.includes('from claim_agents')) return [{ ens: 'x.signagent.eth' }];
+    return [{ event_type: 'claim.created' }];
+  });
+  const res = makeRes();
+  await handler({ method: 'GET', headers: { authorization: 'Bearer secret' }, query: { claimId: 'clm_1' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.ok, true);
+  assert.deepEqual(res.body.claim, { claim_id: 'clm_1', tenant: 'commandlayer', request_json: {} });
+  assert.deepEqual(res.body.agents, [{ ens: 'x.signagent.eth' }]);
+  assert.deepEqual(res.body.events, [{ event_type: 'claim.created' }]);
 });
