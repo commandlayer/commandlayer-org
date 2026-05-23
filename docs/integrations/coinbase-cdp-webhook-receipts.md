@@ -234,3 +234,23 @@ Design intent: payment-trigger logic should depend on CommandLayer receipt seman
 - Third parties cannot independently validate Coinbase authenticity without the shared secret.
 - Public verifiability begins when CommandLayer signs the receipt (Ed25519) and distributes that signed artifact.
 
+
+## Signed example endpoint
+
+A server-side example endpoint is available at `api/examples/coinbase-webhook.js`.
+
+Processing order is strict:
+1. Verify Coinbase webhook authenticity first (`X-Hook0-Signature` HMAC over raw body + signed headers).
+2. Normalize the accepted event into a CLAS-style `observe` receipt.
+3. Sign the normalized receipt with CommandLayer runtime Ed25519 signing material.
+
+This ordering matters: receipt signing happens **only** for accepted, HMAC-verified Coinbase events. Invalid or stale webhook signatures are rejected before parsing JSON and before any receipt signature work.
+
+Required environment variables:
+- `COINBASE_WEBHOOK_SECRET`
+- `COINBASE_WEBHOOK_MAX_AGE_SECONDS` (optional, defaults to 300)
+- `CL_RECEIPT_SIGNER_ID`
+- `CL_RECEIPT_SIGNING_PRIVATE_KEY_PEM`
+- `CL_RECEIPT_SIGNING_KID`
+
+Public portability begins after CommandLayer signs the normalized receipt artifact. Third-party verification depends on signer public key distribution (for example ENS text records expected by local verifier logic).
