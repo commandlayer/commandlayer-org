@@ -1,21 +1,18 @@
 'use strict';
 
 const { verifyCoinbaseWebhook } = require('../../lib/coinbaseWebhook');
-const { signReceipt } = require('../../lib/receiptSigning');
+const { signReceipt, resolveReceiptSigningConfigFromEnv, hasValidSigningConfig } = require('../../lib/receiptSigning');
 
 const seenReceipts = new Map();
 
-function missingSigningConfig() {
-  return !process.env.CL_RECEIPT_SIGNER_ID || !process.env.CL_RECEIPT_SIGNING_PRIVATE_KEY_PEM || !process.env.CL_RECEIPT_SIGNING_KID;
-}
 
-function normalizeReceipt(event) {
+function normalizeReceipt(event, signerId) {
   const eventId = event?.id || event?.event_id || 'unknown';
   const eventType = event?.type || 'coinbase.unknown';
   const txHash = event?.data?.transactionHash || event?.transactionHash || null;
   return {
     receipt_id: `rcpt:coinbase_cdp:${eventId}`,
-    signer: process.env.CL_RECEIPT_SIGNER_ID,
+    signer: signerId,
     verb: 'observe',
     source: 'coinbase.cdp.webhook',
     subject: {
@@ -73,7 +70,8 @@ module.exports = async function handler(req, res) {
     return res.status(verified.httpStatus).json({ ok: false, status: verified.code });
   }
 
-  if (missingSigningConfig()) {
+  const signingCfg = resolveReceiptSigningConfigFromEnv();
+  if (!hasValidSigningConfig(signingCfg)) {
     return res.status(503).json({ ok: false, status: 'signing_unavailable' });
   }
 
@@ -86,12 +84,8 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true, status: 'WEBHOOK_VERIFIED_AND_SIGNED', duplicate: true, receipt: seenReceipts.get(eventId) });
   }
 
-  const unsignedReceipt = normalizeReceipt(verified.event);
-  const receipt = await signReceipt(unsignedReceipt, {
-    signerId: process.env.CL_RECEIPT_SIGNER_ID,
-    privateKeyPem: process.env.CL_RECEIPT_SIGNING_PRIVATE_KEY_PEM,
-    kid: process.env.CL_RECEIPT_SIGNING_KID,
-  });
+  const unsignedReceipt = normalizeReceipt(verified.event, signingCfg.signerId);
+  const receipt = await signReceipt(unsignedReceipt, signingCfg);
 
   seenReceipts.set(eventId, receipt);
   return res.status(200).json({ ok: true, status: 'WEBHOOK_VERIFIED_AND_SIGNED', duplicate: false, receipt });

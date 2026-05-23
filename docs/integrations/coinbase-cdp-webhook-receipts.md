@@ -251,6 +251,7 @@ Required environment variables:
 - `COINBASE_WEBHOOK_MAX_AGE_SECONDS` (optional, defaults to 300)
 - `CL_RECEIPT_SIGNER_ID`
 - `CL_RECEIPT_SIGNING_PRIVATE_KEY_PEM`
+- `RECEIPT_SIGNING_PRIVATE_KEY_PEM_B64` (runtime-compatible alias; base64-encoded PEM)
 - `CL_RECEIPT_SIGNING_KID`
 
 Public portability begins after CommandLayer signs the normalized receipt artifact. Third-party verification depends on signer public key distribution (for example ENS text records expected by local verifier logic).
