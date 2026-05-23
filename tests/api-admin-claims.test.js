@@ -43,19 +43,32 @@ test('admin claims returns UNAUTHORIZED when auth missing', async () => {
 
 test('admin claims returns list when authorized', async () => {
   process.env.ADMIN_API_KEY = 'secret';
-  const calls = [];
-  const handler = load('../api/admin/claims', async (text, params) => {
-    calls.push(String(text));
-    if (String(text).includes('from claim_requests')) {
-      return { rows: [{ claim_id: 'clm_1', tenant: 'commandlayer', authenticated_address: '0x1', activation_mode: 'cl', pack_id: 'trust', status: 'created', created_at: '2026-05-23T00:00:00.000Z' }] };
-    }
-    return { rows: [{ agent_count: 2 }] };
-  });
+  const handler = load('../api/admin/claims', async () => ({
+    rows: [{
+      claim_id: 'clm_1',
+      tenant: 'commandlayer',
+      authenticated_address: '0x1',
+      activation_mode: 'cl',
+      pack_id: 'trust',
+      status: 'created',
+      agent_count: 2,
+      created_at: '2026-05-23T00:00:00.000Z'
+    }]
+  }));
   const res = makeRes();
   await handler({ method: 'GET', headers: { authorization: 'Bearer secret' }, query: {} }, res);
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.ok, true);
-  assert.equal(res.body.claims[0].agentCount, 2);
+  assert.deepEqual(res.body.claims[0], {
+    claimId: 'clm_1',
+    tenant: 'commandlayer',
+    authenticatedAddress: '0x1',
+    activationMode: 'cl',
+    packId: 'trust',
+    status: 'created',
+    agentCount: 2,
+    createdAt: '2026-05-23T00:00:00.000Z'
+  });
 });
 
 test('admin claim detail returns agents and events when authorized', async () => {

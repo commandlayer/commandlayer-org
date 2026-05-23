@@ -27,16 +27,8 @@ module.exports = async function handler(req, res) {
       return res.status(404).json({ ok: false, status: 'CLAIM_NOT_FOUND' });
     }
 
-    const agentsResult = await db.query(
-      `select ens, capability, canonical_parent, skill, skill_family, created_at
-       from claim_agents where claim_id = $1 order by created_at asc`,
-      [claimId]
-    );
-    const eventsResult = await db.query(
-      `select event_type, message, metadata_json, created_at
-       from claim_events where claim_id = $1 order by created_at asc`,
-      [claimId]
-    );
+    const agentsResult = await db.query('select * from claim_agents where claim_id = $1 order by capability asc', [claimId]);
+    const eventsResult = await db.query('select * from claim_events where claim_id = $1 order by created_at asc', [claimId]);
 
     return res.status(200).json({
       ok: true,
@@ -45,6 +37,7 @@ module.exports = async function handler(req, res) {
       events: eventsResult.rows
     });
   } catch (error) {
-    return res.status(500).json({ ok: false, status: 'ADMIN_CLAIM_QUERY_FAILED' });
+    console.error('ADMIN_CLAIM_QUERY_FAILED', { message: error.message, code: error.code });
+    return res.status(500).json({ ok: false, status: 'ADMIN_CLAIM_QUERY_FAILED', error: 'Failed to load claim.' });
   }
 };
