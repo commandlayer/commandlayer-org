@@ -23,34 +23,44 @@ module.exports = async function handler(req, res) {
 
   try {
     const result = await db.query(
-      `select claim_id, tenant, authenticated_address, activation_mode, pack_id, status, created_at
-       from claim_requests
-       order by created_at desc
+      `select
+         cr.claim_id,
+         cr.tenant,
+         cr.authenticated_address,
+         cr.activation_mode,
+         cr.pack_id,
+         cr.status,
+         cr.created_at,
+         count(ca.id)::int as agent_count
+       from claim_requests cr
+       left join claim_agents ca on ca.claim_id = cr.claim_id
+       group by
+         cr.claim_id,
+         cr.tenant,
+         cr.authenticated_address,
+         cr.activation_mode,
+         cr.pack_id,
+         cr.status,
+         cr.created_at
+       order by cr.created_at desc
        limit $1`,
       [limit]
     );
 
-    const claims = [];
-    for (const row of result.rows) {
-      const countResult = await db.query(
-        'select count(*)::int as agent_count from claim_agents where claim_id = $1',
-        [row.claim_id]
-      );
-      const agentCount = countResult.rows && countResult.rows[0] ? Number(countResult.rows[0].agent_count || 0) : 0;
-      claims.push({
-        claimId: row.claim_id,
-        tenant: row.tenant,
-        authenticatedAddress: row.authenticated_address,
-        activationMode: row.activation_mode,
-        packId: row.pack_id,
-        status: row.status,
-        agentCount,
-        createdAt: row.created_at
-      });
-    }
+    const claims = result.rows.map((row) => ({
+      claimId: row.claim_id,
+      tenant: row.tenant,
+      authenticatedAddress: row.authenticated_address,
+      activationMode: row.activation_mode,
+      packId: row.pack_id,
+      status: row.status,
+      agentCount: Number(row.agent_count || 0),
+      createdAt: row.created_at
+    }));
 
     return res.status(200).json({ ok: true, claims });
   } catch (error) {
-    return res.status(500).json({ ok: false, status: 'ADMIN_CLAIMS_QUERY_FAILED' });
+    console.error('ADMIN_CLAIMS_QUERY_FAILED', { message: error.message, code: error.code });
+    return res.status(500).json({ ok: false, status: 'ADMIN_CLAIMS_QUERY_FAILED', error: 'Failed to load claims.' });
   }
 };
