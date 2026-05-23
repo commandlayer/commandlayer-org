@@ -83,6 +83,35 @@ test('valid runtime-style receipt verifies', async () => {
   const { receipt, rawPub } = await makeRuntimeReceipt();
   const out = await verifyReceipt(receipt, { ens: { textResolver: makeTextResolver(rawPub) } });
   assert.equal(out.status, 'VERIFIED');
+  assert.equal(out.public_key_source, 'ens_txt');
+});
+
+test('fails when ENS key is unavailable and fallback is disabled', async () => {
+  const { receipt } = await makeRuntimeReceipt();
+  const out = await verifyReceipt(receipt, {
+    ens: {
+      textResolver: async () => null,
+      allowLocalFallback: false,
+    },
+  });
+
+  assert.equal(out.status, 'INVALID');
+  assert.equal(out.reason, 'ens_key_unavailable');
+  assert.equal(out.public_key_source, 'ens_txt');
+});
+
+test('allows explicit local fallback for test/demo mode only when enabled', async () => {
+  const { receipt } = await makeRuntimeReceipt();
+  const out = await verifyReceipt(receipt, {
+    ens: {
+      textResolver: async () => null,
+      allowLocalFallback: true,
+    },
+  });
+
+  assert.equal(out.status, 'INVALID');
+  assert.equal(out.public_key_source, 'local_test_fallback');
+  assert.equal(out.reason, 'Receipt is invalid, tampered, or does not match the signer key metadata.');
 });
 
 test('tampered receipt invalidates', async () => {

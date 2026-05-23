@@ -33,7 +33,8 @@ test('POST /api/agents/verifyagent with canonical sample fixture => INVALID', as
   assert.equal(res.body.action, 'verify_receipt');
   assert.equal(res.body.ok, false);
   assert.equal(res.body.status, 'INVALID');
-  assert.equal(res.body.result.reason, 'Receipt is invalid, tampered, or does not match the signer key metadata.');
+  assert.equal(res.body.result.reason, 'ens_key_unavailable');
+  assert.equal(typeof res.body.result.public_key_source, 'string');
 });
 
 test('POST /api/agents/verifyagent with tampered receipt => INVALID', async () => {
