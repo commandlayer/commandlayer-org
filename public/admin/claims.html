@@ -19,6 +19,7 @@
     button { padding: 8px 12px; }
     .muted { color: #6b7280; }
     .status-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #e5e7eb; font-weight: 700; }
+    .error-panel { margin: 10px 0; padding: 10px; border-radius: 8px; border: 1px solid #fecaca; background: #fef2f2; color: #991b1b; }
   </style>
 </head>
 <body>
@@ -37,6 +38,7 @@
   const claimsBody = document.getElementById('claimsBody');
   const detail = document.getElementById('detail');
   let selectedClaimId = '';
+  let claimActionError = null;
   apiKeyInput.value = sessionStorage.getItem('cl_admin_api_key') || localStorage.getItem('cl_admin_api_key') || '';
   function authHeaders() { return { Authorization: `Bearer ${apiKeyInput.value.trim()}`, 'Content-Type': 'application/json' }; }
   saveKeyBtn.addEventListener('click', () => { const v = apiKeyInput.value.trim(); sessionStorage.setItem('cl_admin_api_key', v); localStorage.setItem('cl_admin_api_key', v); statusEl.textContent = 'Saved.'; });
@@ -50,8 +52,19 @@
   async function claimAction(action, payload = {}) {
     const res = await fetch('/api/admin/claim-action', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ claimId: selectedClaimId, action, actor: 'admin', ...payload }) });
     const data = await res.json();
-    if (!res.ok || !data.ok) { alert(`${data.status}: ${data.error || 'request failed'}`); return; }
-    await loadDetail(selectedClaimId); await loadClaims();
+    if (!res.ok || !data.ok) {
+      claimActionError = {
+        status: data.status || 'REQUEST_FAILED',
+        error: data.error || 'Request failed.',
+        fromStatus: data.fromStatus,
+        action: data.action || action
+      };
+      await loadDetail(selectedClaimId);
+      return;
+    }
+    claimActionError = null;
+    await loadDetail(selectedClaimId);
+    await loadClaims();
   }
   async function loadDetail(claimId) {
     selectedClaimId = claimId;
@@ -60,6 +73,7 @@
     if (!res.ok || !data.ok) { detail.textContent = `${res.status} ${data.status || 'error'}`; return; }
     const status = data.claim.status;
     detail.innerHTML = `<p><strong>claim ID:</strong> ${data.claim.claim_id}</p><p><strong>Status:</strong> <span class="status-badge">${status}</span></p>
+      <div id="actionErrorPanel"></div>
       <div class="row" id="actionRow"></div><p id="nextStep" class="muted"></p>
       <div><label>Reason</label><input id="reasonInput" placeholder="Reason for reject/failure" /></div>
       <div><label>Notes</label><textarea id="notesInput" placeholder="Admin notes"></textarea></div>
@@ -68,10 +82,18 @@
       <h3>Events</h3><pre>${JSON.stringify(data.events || [], null, 2)}</pre>
       <h3>Agents</h3><pre>${JSON.stringify(data.agents || [], null, 2)}</pre>`;
     const actionRow = document.getElementById('actionRow');
+    const errorPanel = document.getElementById('actionErrorPanel');
+    if (claimActionError) {
+      errorPanel.className = 'error-panel';
+      errorPanel.textContent = `Action failed: ${claimActionError.status} — ${claimActionError.error}`;
+    } else {
+      errorPanel.textContent = '';
+      errorPanel.className = '';
+    }
     const mk = (label, cb) => { const b = document.createElement('button'); b.textContent = label; b.addEventListener('click', cb); actionRow.appendChild(b); };
     if (status === 'created') { mk('Approve', () => claimAction('approve', { notes: document.getElementById('notesInput').value })); mk('Reject', () => claimAction('reject', { reason: document.getElementById('reasonInput').value })); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
     if (status === 'approved') { document.getElementById('nextStep').textContent = 'Next: Publish agent cards (placeholder)'; mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
-    if (status === 'rejected') { mk('Reopen / Approve (override)', () => claimAction('approve', { override: true, reason: document.getElementById('reasonInput').value, notes: document.getElementById('notesInput').value })); }
+    if (status === 'rejected') { mk('Reopen / Approve (override)', () => claimAction('approve', { override: true, reason: document.getElementById('reasonInput').value, notes: document.getElementById('notesInput').value })); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
     if (status === 'failed') { document.getElementById('nextStep').textContent = 'Failed status: auto-retry is not enabled yet.'; }
     document.getElementById('saveNoteBtn').addEventListener('click', () => claimAction('add_note', { notes: document.getElementById('notesInput').value, reason: document.getElementById('reasonInput').value }));
     document.getElementById('refreshBtn').addEventListener('click', () => loadDetail(claimId));
