@@ -53,7 +53,7 @@ module.exports = async function handler(req, res) {
     if (action === 'approve') {
       const allow = fromStatus === CLAIM_STATUSES.CREATED || (fromStatus === CLAIM_STATUSES.REJECTED && override);
       if (!allow) {
-        return res.status(409).json({ ok: false, status: 'INVALID_STATUS_TRANSITION', error: `Cannot approve claim from ${fromStatus}` });
+        return res.status(409).json({ ok: false, status: 'INVALID_STATUS_TRANSITION', error: `Cannot approve claim from ${fromStatus} status.`, fromStatus, action });
       }
       await db.query(
         `update claim_requests
@@ -71,7 +71,7 @@ module.exports = async function handler(req, res) {
 
     if (action === 'reject') {
       if (fromStatus !== CLAIM_STATUSES.CREATED) {
-        return res.status(409).json({ ok: false, status: 'INVALID_STATUS_TRANSITION', error: `Cannot reject claim from ${fromStatus}` });
+        return res.status(409).json({ ok: false, status: 'INVALID_STATUS_TRANSITION', error: `Cannot reject claim from ${fromStatus} status.`, fromStatus, action });
       }
       await db.query(
         `update claim_requests
@@ -89,7 +89,7 @@ module.exports = async function handler(req, res) {
 
     if (action === 'mark_failed') {
       if (fromStatus === CLAIM_STATUSES.LIVE) {
-        return res.status(409).json({ ok: false, status: 'INVALID_STATUS_TRANSITION', error: `Cannot mark_failed claim from ${fromStatus}` });
+        return res.status(409).json({ ok: false, status: 'INVALID_STATUS_TRANSITION', error: `Cannot mark_failed claim from ${fromStatus} status.`, fromStatus, action });
       }
       await db.query(
         `update claim_requests

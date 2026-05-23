@@ -78,12 +78,16 @@ test('reject created claim with reason succeeds; reject without reason fails', a
   assert.equal(res.statusCode, 400); assert.equal(res.body.status, 'REASON_REQUIRED');
 });
 
-test('invalid transition fails', async () => {
+test('approving an already approved claim returns explicit transition error', async () => {
   process.env.ADMIN_API_KEY = 'secret';
-  const handler = load('../api/admin/claim-action', async (text) => String(text).includes('from claim_requests') ? [{ claim_id: 'clm_1', status: 'cards_published' }] : []);
+  const handler = load('../api/admin/claim-action', async (text) => String(text).includes('from claim_requests') ? [{ claim_id: 'clm_1', status: 'approved' }] : []);
   const res = makeRes();
   await handler({ method: 'POST', headers: { authorization: 'Bearer secret' }, body: { claimId: 'clm_1', action: 'approve', actor: 'admin' } }, res);
-  assert.equal(res.statusCode, 409); assert.equal(res.body.status, 'INVALID_STATUS_TRANSITION');
+  assert.equal(res.statusCode, 409);
+  assert.equal(res.body.status, 'INVALID_STATUS_TRANSITION');
+  assert.equal(res.body.error, 'Cannot approve claim from approved status.');
+  assert.equal(res.body.fromStatus, 'approved');
+  assert.equal(res.body.action, 'approve');
 });
 
 test('mark_failed requires reason and add_note does not change status while inserting event', async () => {
