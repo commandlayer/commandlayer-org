@@ -23,7 +23,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const claimRows = db.normalizeRows(
-      await db.query('select * from claim_requests where claim_id = $1 limit 1', [claimId])
+      await db.query(`select cr.*, (select cp.metadata_json->>'checkoutUrl' from claim_payments cp where cp.claim_id = cr.claim_id order by cp.created_at desc limit 1) as stripe_checkout_url from claim_requests cr where cr.claim_id = $1 limit 1`, [claimId])
     );
     if (!claimRows.length) {
       return res.status(404).json({ ok: false, status: 'CLAIM_NOT_FOUND' });
