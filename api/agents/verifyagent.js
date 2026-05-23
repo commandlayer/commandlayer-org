@@ -87,6 +87,7 @@ module.exports = async function handler(req, res) {
         signature_valid: verification.signature_valid,
         ens_resolved: verification.ens_resolved,
         key_id: verification.key_id,
+        public_key_source: verification.public_key_source,
       },
     });
   } catch (error) {
