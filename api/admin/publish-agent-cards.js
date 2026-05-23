@@ -151,7 +151,7 @@ function buildCardJson(agent, ens, capability) {
     type: 'erc8004/registration/v1',
     name: ens,
     description: `CommandLayer Trust Verification agent for ${capability}.`,
-    image: 'https://www.commandlayer.org/icon2.png',
+    image: 'https://www.commandlayer.org/favicon.ico',
     services: [
       { type: 'ens', endpoint: ens },
       { type: 'commandlayer_runtime', endpoint: 'https://runtime.commandlayer.org' },
