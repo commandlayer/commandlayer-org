@@ -43,12 +43,17 @@ module.exports = async function handler(req, res) {
   if ((action === 'reject' || action === 'mark_failed') && !reason) {
     return res.status(400).json({ ok: false, status: 'REASON_REQUIRED' });
   }
+  if (action === 'add_note' && !notes) {
+    return res.status(400).json({ ok: false, status: 'NOTES_REQUIRED' });
+  }
+
+  let fromStatus = null;
 
   try {
     const claimRows = db.normalizeRows(await db.query('select * from claim_requests where claim_id = $1 limit 1', [claimId]));
     if (!claimRows.length) return res.status(404).json({ ok: false, status: 'CLAIM_NOT_FOUND' });
     const claim = claimRows[0];
-    const fromStatus = claim.status;
+    fromStatus = claim.status;
 
     if (action === 'approve') {
       const allow = fromStatus === CLAIM_STATUSES.CREATED || (fromStatus === CLAIM_STATUSES.REJECTED && override);
@@ -99,29 +104,33 @@ module.exports = async function handler(req, res) {
          where claim_id = $1`,
         [claimId, CLAIM_STATUSES.FAILED, reason]
       );
-      await insertEventAndTransition({ claimId, fromStatus, toStatus: CLAIM_STATUSES.FAILED, action, actor, reason, notes, eventType: 'claim.failed' });
+      await insertEventAndTransition({ claimId, fromStatus, toStatus: CLAIM_STATUSES.FAILED, action, actor, reason, notes, eventType: 'claim.failed', metadata: { previousStatus: fromStatus, actor } });
       return res.status(200).json({ ok: true, status: 'CLAIM_ACTION_APPLIED', claimId, action, claimStatus: CLAIM_STATUSES.FAILED });
     }
 
-    const mergedNotes = [claim.admin_notes, notes || reason].filter(Boolean).join('\n').trim();
-    await db.query('update claim_requests set admin_notes = $2 where claim_id = $1', [claimId, mergedNotes]);
+    const mergedNotes = [claim.admin_notes, notes].filter(Boolean).join('\n').trim();
+    await db.query('update claim_requests set admin_notes = $2 where claim_id = $1', [claimId, mergedNotes || notes]);
     await db.query(
-      `insert into claim_events (claim_id, event_type, actor, event_json)
-       values ($1, 'claim.note_added', $2, $3::jsonb)`,
-      [claimId, actor, JSON.stringify({ action, reason, notes })]
+      `insert into claim_events (claim_id, event_type, actor, message, event_json)
+       values ($1, 'claim.note_added', $2, $3, $4::jsonb)`,
+      [claimId, actor, notes, JSON.stringify({ action, notes, actor })]
     );
     return res.status(200).json({ ok: true, status: 'CLAIM_ACTION_APPLIED', claimId, action, claimStatus: fromStatus });
   } catch (error) {
-    console.error('ADMIN_CLAIM_ACTION_FAILED', { message: error.message, code: error.code });
-    return res.status(500).json({ ok: false, status: 'ADMIN_CLAIM_ACTION_FAILED', error: 'Failed to apply claim action.' });
+    const debug = { message: error.message, code: error.code };
+    console.error('ADMIN_CLAIM_ACTION_FAILED', { ...debug, action, claimId, currentStatus: typeof fromStatus === 'string' ? fromStatus : null });
+    const payload = { ok: false, status: 'ADMIN_CLAIM_ACTION_FAILED', error: 'Failed to apply claim action.' };
+    if (process.env.NODE_ENV !== 'production') payload.debug = debug;
+    return res.status(500).json(payload);
   }
 };
 
 async function insertEventAndTransition({ claimId, fromStatus, toStatus, action, actor, reason, notes, eventType, metadata }) {
+  const message = eventType === 'claim.failed' ? reason : notes || reason || null;
   await db.query(
-    `insert into claim_events (claim_id, event_type, actor, event_json)
-     values ($1, $2, $3, $4::jsonb)`,
-    [claimId, eventType, actor, JSON.stringify({ action, reason, notes, ...(metadata || {}) })]
+    `insert into claim_events (claim_id, event_type, actor, message, event_json)
+     values ($1, $2, $3, $4, $5::jsonb)`,
+    [claimId, eventType, actor, message, JSON.stringify({ action, reason, notes, ...(metadata || {}) })]
   );
   await db.query(
     `insert into claim_status_transitions (claim_id, from_status, to_status, action, actor, reason, metadata_json)

@@ -90,18 +90,62 @@ test('approving an already approved claim returns explicit transition error', as
   assert.equal(res.body.action, 'approve');
 });
 
-test('mark_failed requires reason and add_note does not change status while inserting event', async () => {
+test('mark_failed without reason returns REASON_REQUIRED', async () => {
   process.env.ADMIN_API_KEY = 'secret';
-  let handler = load('../api/admin/claim-action', async () => []);
-  let res = makeRes();
+  const handler = load('../api/admin/claim-action', async () => []);
+  const res = makeRes();
   await handler({ method: 'POST', headers: { authorization: 'Bearer secret' }, body: { claimId: 'clm_1', action: 'mark_failed', actor: 'admin' } }, res);
-  assert.equal(res.statusCode, 400); assert.equal(res.body.status, 'REASON_REQUIRED');
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.status, 'REASON_REQUIRED');
+});
 
+test('mark_failed from approved succeeds, inserts event and transition', async () => {
+  process.env.ADMIN_API_KEY = 'secret';
   const calls = [];
-  handler = load('../api/admin/claim-action', async (text, params) => { calls.push(String(text)); if (String(text).includes('from claim_requests')) return [{ claim_id: 'clm_1', status: 'approved', admin_notes: 'n1' }]; return []; });
-  res = makeRes();
+  const handler = load('../api/admin/claim-action', async (text, params) => {
+    calls.push({ text: String(text), params });
+    if (String(text).includes('from claim_requests')) return [{ claim_id: 'clm_1', status: 'approved', admin_notes: 'n1' }];
+    return [];
+  });
+  const res = makeRes();
+  await handler({ method: 'POST', headers: { authorization: 'Bearer secret' }, body: { claimId: 'clm_1', action: 'mark_failed', actor: 'admin', reason: 'ops failed' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.claimStatus, 'failed');
+  assert.ok(calls.some((c) => c.text.includes('update claim_requests') && c.params[1] === 'failed' && c.params[2] === 'ops failed'));
+  assert.ok(calls.some((c) => c.text.includes('insert into claim_events') && c.params[1] === 'claim.failed' && c.params[3] === 'ops failed'));
+  assert.ok(calls.some((c) => c.text.includes('insert into claim_status_transitions') && c.params[1] === 'approved' && c.params[2] === 'failed'));
+});
+
+test('add_note from approved succeeds, inserts note event, does not insert transition', async () => {
+  process.env.ADMIN_API_KEY = 'secret';
+  const calls = [];
+  const handler = load('../api/admin/claim-action', async (text, params) => {
+    calls.push({ text: String(text), params });
+    if (String(text).includes('from claim_requests')) return [{ claim_id: 'clm_1', status: 'approved', admin_notes: 'n1' }];
+    return [];
+  });
+  const res = makeRes();
   await handler({ method: 'POST', headers: { authorization: 'Bearer secret' }, body: { claimId: 'clm_1', action: 'add_note', actor: 'admin', notes: 'n2' } }, res);
-  assert.equal(res.statusCode, 200); assert.equal(res.body.claimStatus, 'approved');
-  assert.ok(calls.some((q) => q.includes('insert into claim_events')));
-  assert.equal(calls.some((q) => q.includes('insert into claim_status_transitions')), false);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.claimStatus, 'approved');
+  assert.ok(calls.some((c) => c.text.includes('update claim_requests set admin_notes')));
+  assert.ok(calls.some((c) => c.text.includes("insert into claim_events (claim_id, event_type, actor, message") && c.params[2] === 'n2'));
+  assert.equal(calls.some((c) => c.text.includes('insert into claim_status_transitions')), false);
+});
+
+test('add_note without notes returns NOTES_REQUIRED', async () => {
+  process.env.ADMIN_API_KEY = 'secret';
+  const handler = load('../api/admin/claim-action', async () => []);
+  const res = makeRes();
+  await handler({ method: 'POST', headers: { authorization: 'Bearer secret' }, body: { claimId: 'clm_1', action: 'add_note', actor: 'admin' } }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.status, 'NOTES_REQUIRED');
+});
+
+
+
+test('frontend claim actions use expected payload keys', async () => {
+  const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '../public/admin/claims.html'), 'utf8');
+  assert.ok(html.includes("claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })"));
+  assert.ok(html.includes("claimAction('add_note', { notes: document.getElementById('notesInput').value"));
 });
