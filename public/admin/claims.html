@@ -14,38 +14,19 @@
     tr:hover { background: #f9fafb; cursor: pointer; }
     pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; }
     .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    input { padding: 8px; min-width: 300px; }
+    input, textarea { padding: 8px; min-width: 300px; }
+    textarea { min-height: 80px; }
     button { padding: 8px 12px; }
     .muted { color: #6b7280; }
+    .status-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #e5e7eb; font-weight: 700; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>CommandLayer Claims Admin</h1>
-    <div class="card">
-      <div class="row">
-        <label for="apiKey">Admin API key</label>
-        <input id="apiKey" type="password" placeholder="Enter ADMIN_API_KEY" />
-        <button id="saveKey">Save key</button>
-        <button id="loadClaims">Load claims</button>
-        <span id="status" class="muted"></span>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>Claims</h2>
-      <table>
-        <thead>
-          <tr><th>Claim ID</th><th>Tenant</th><th>Wallet</th><th>Pack</th><th>Status</th><th>Agents</th><th>Created</th></tr>
-        </thead>
-        <tbody id="claimsBody"></tbody>
-      </table>
-    </div>
-
-    <div class="card">
-      <h2>Claim detail</h2>
-      <div id="detail" class="muted">Select a claim row to view details.</div>
-    </div>
+    <div class="card"><div class="row"><label for="apiKey">Admin API key</label><input id="apiKey" type="password" placeholder="Enter ADMIN_API_KEY" /><button id="saveKey">Save key</button><button id="loadClaims">Load claims</button><span id="status" class="muted"></span></div></div>
+    <div class="card"><h2>Claims</h2><table><thead><tr><th>Claim ID</th><th>Tenant</th><th>Wallet</th><th>Pack</th><th>Status</th><th>Agents</th><th>Created</th></tr></thead><tbody id="claimsBody"></tbody></table></div>
+    <div class="card"><h2>Claim detail</h2><div id="detail" class="muted">Select a claim row to view details.</div></div>
   </div>
 <script>
 (() => {
@@ -55,74 +36,47 @@
   const statusEl = document.getElementById('status');
   const claimsBody = document.getElementById('claimsBody');
   const detail = document.getElementById('detail');
-
+  let selectedClaimId = '';
   apiKeyInput.value = sessionStorage.getItem('cl_admin_api_key') || localStorage.getItem('cl_admin_api_key') || '';
-
-  function authHeaders() {
-    return { Authorization: `Bearer ${apiKeyInput.value.trim()}` };
-  }
-
-  saveKeyBtn.addEventListener('click', () => {
-    const v = apiKeyInput.value.trim();
-    sessionStorage.setItem('cl_admin_api_key', v);
-    localStorage.setItem('cl_admin_api_key', v);
-    statusEl.textContent = 'Saved.';
-  });
-
-  async function loadClaims() {
-    statusEl.textContent = 'Loading claims...';
-    claimsBody.innerHTML = '';
-    const res = await fetch('/api/admin/claims', { headers: authHeaders() });
-    const data = await res.json();
-    if (!res.ok || !data.ok) {
-      statusEl.textContent = `${res.status} ${data.status || 'error'}`;
-      return;
-    }
-    for (const claim of data.claims) {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${claim.claimId}</td><td>${claim.tenant}</td><td>${claim.authenticatedAddress}</td><td>${claim.packId}</td><td>${claim.status}</td><td>${claim.agentCount}</td><td>${claim.createdAt}</td>`;
-      tr.addEventListener('click', () => loadDetail(claim.claimId));
-      claimsBody.appendChild(tr);
-    }
+  function authHeaders() { return { Authorization: `Bearer ${apiKeyInput.value.trim()}`, 'Content-Type': 'application/json' }; }
+  saveKeyBtn.addEventListener('click', () => { const v = apiKeyInput.value.trim(); sessionStorage.setItem('cl_admin_api_key', v); localStorage.setItem('cl_admin_api_key', v); statusEl.textContent = 'Saved.'; });
+  async function loadClaims() { /* unchanged */
+    statusEl.textContent = 'Loading claims...'; claimsBody.innerHTML = '';
+    const res = await fetch('/api/admin/claims', { headers: { Authorization: authHeaders().Authorization } }); const data = await res.json();
+    if (!res.ok || !data.ok) { statusEl.textContent = `${res.status} ${data.status || 'error'}`; return; }
+    for (const claim of data.claims) { const tr = document.createElement('tr'); tr.innerHTML = `<td>${claim.claimId}</td><td>${claim.tenant}</td><td>${claim.authenticatedAddress}</td><td>${claim.packId}</td><td>${claim.status}</td><td>${claim.agentCount}</td><td>${claim.createdAt}</td>`; tr.addEventListener('click', () => loadDetail(claim.claimId)); claimsBody.appendChild(tr); }
     statusEl.textContent = `Loaded ${data.claims.length} claims.`;
   }
-
-  async function loadDetail(claimId) {
-    const res = await fetch(`/api/admin/claim?claimId=${encodeURIComponent(claimId)}`, { headers: authHeaders() });
+  async function claimAction(action, payload = {}) {
+    const res = await fetch('/api/admin/claim-action', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ claimId: selectedClaimId, action, actor: 'admin', ...payload }) });
     const data = await res.json();
-    if (!res.ok || !data.ok) {
-      detail.textContent = `${res.status} ${data.status || 'error'}`;
-      return;
-    }
-    const reqJson = data.claim.request_json || {};
-    const ensRecords = reqJson && reqJson.records ? reqJson.records : null;
-    detail.innerHTML = `
-      <p><strong>claim ID:</strong> ${data.claim.claim_id}</p>
-      <p><strong>tenant:</strong> ${data.claim.tenant}</p>
-      <p><strong>wallet:</strong> ${data.claim.authenticated_address}</p>
-      <p><strong>pack:</strong> ${data.claim.pack_id}</p>
-      <p><strong>public key:</strong> ${data.claim.public_key || ''}</p>
-      <p><strong>kid:</strong> ${data.claim.kid || ''}</p>
-      <p><strong>status:</strong> ${data.claim.status}</p>
-      <h3>Agents</h3>
-      <pre>${JSON.stringify(data.agents, null, 2)}</pre>
-      <h3>Events</h3>
-      <pre>${JSON.stringify(data.events, null, 2)}</pre>
-      <button id="copyClaimJson">Copy claim JSON</button>
-      ${ensRecords ? '<button id="copyEnsRecords">Copy ENS records</button>' : ''}
-    `;
-    document.getElementById('copyClaimJson').addEventListener('click', async () => {
-      await navigator.clipboard.writeText(JSON.stringify(data.claim, null, 2));
-    });
-    if (ensRecords) {
-      document.getElementById('copyEnsRecords').addEventListener('click', async () => {
-        await navigator.clipboard.writeText(JSON.stringify(ensRecords, null, 2));
-      });
-    }
+    if (!res.ok || !data.ok) { alert(`${data.status}: ${data.error || 'request failed'}`); return; }
+    await loadDetail(selectedClaimId); await loadClaims();
   }
-
+  async function loadDetail(claimId) {
+    selectedClaimId = claimId;
+    const res = await fetch(`/api/admin/claim?claimId=${encodeURIComponent(claimId)}`, { headers: { Authorization: authHeaders().Authorization } });
+    const data = await res.json();
+    if (!res.ok || !data.ok) { detail.textContent = `${res.status} ${data.status || 'error'}`; return; }
+    const status = data.claim.status;
+    detail.innerHTML = `<p><strong>claim ID:</strong> ${data.claim.claim_id}</p><p><strong>Status:</strong> <span class="status-badge">${status}</span></p>
+      <div class="row" id="actionRow"></div><p id="nextStep" class="muted"></p>
+      <div><label>Reason</label><input id="reasonInput" placeholder="Reason for reject/failure" /></div>
+      <div><label>Notes</label><textarea id="notesInput" placeholder="Admin notes"></textarea></div>
+      <div class="row"><button id="saveNoteBtn">Save note</button><button id="refreshBtn">Refresh timeline</button></div>
+      <h3>Transitions</h3><pre>${JSON.stringify(data.transitions || [], null, 2)}</pre>
+      <h3>Events</h3><pre>${JSON.stringify(data.events || [], null, 2)}</pre>
+      <h3>Agents</h3><pre>${JSON.stringify(data.agents || [], null, 2)}</pre>`;
+    const actionRow = document.getElementById('actionRow');
+    const mk = (label, cb) => { const b = document.createElement('button'); b.textContent = label; b.addEventListener('click', cb); actionRow.appendChild(b); };
+    if (status === 'created') { mk('Approve', () => claimAction('approve', { notes: document.getElementById('notesInput').value })); mk('Reject', () => claimAction('reject', { reason: document.getElementById('reasonInput').value })); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
+    if (status === 'approved') { document.getElementById('nextStep').textContent = 'Next: Publish agent cards (placeholder)'; mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
+    if (status === 'rejected') { mk('Reopen / Approve (override)', () => claimAction('approve', { override: true, reason: document.getElementById('reasonInput').value, notes: document.getElementById('notesInput').value })); }
+    if (status === 'failed') { document.getElementById('nextStep').textContent = 'Failed status: auto-retry is not enabled yet.'; }
+    document.getElementById('saveNoteBtn').addEventListener('click', () => claimAction('add_note', { notes: document.getElementById('notesInput').value, reason: document.getElementById('reasonInput').value }));
+    document.getElementById('refreshBtn').addEventListener('click', () => loadDetail(claimId));
+  }
   loadClaimsBtn.addEventListener('click', loadClaims);
 })();
 </script>
-</body>
-</html>
+</body></html>
