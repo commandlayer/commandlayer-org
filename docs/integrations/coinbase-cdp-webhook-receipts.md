@@ -317,3 +317,79 @@ Example verified result pattern (redacted for safety):
 This proves CommandLayer can turn a verified Coinbase-style webhook into a signed, portable receipt.
 
 Real Coinbase webhook production use requires the Coinbase-provided webhook secret, and that secret must remain server-side. Coinbase HMAC verification authenticates ingress to CommandLayer, while public portability starts after CommandLayer signing.
+
+## Real Coinbase delivery
+
+Use this procedure to deliver live Coinbase CDP webhook events into:
+
+- `POST https://www.commandlayer.org/api/examples/coinbase-webhook`
+
+### Setup steps
+
+1. In Coinbase CDP, open (or create) the project that owns your payments integration.
+2. Create a webhook subscription in that project.
+3. Set the webhook target URL to:
+   - `https://www.commandlayer.org/api/examples/coinbase-webhook`
+4. Choose event type:
+   - `payments.transfers.completed`
+   - or another available `payments.transfers.*` event from your CDP console.
+5. Copy the Coinbase-provided webhook signing secret from CDP.
+6. Set these Vercel environment variables (server-side only):
+   - `COINBASE_WEBHOOK_SECRET` (the Coinbase-provided webhook signing secret)
+   - `CL_RECEIPT_SIGNER_ID`
+   - `CL_RECEIPT_SIGNING_KID`
+   - `RECEIPT_SIGNING_PRIVATE_KEY_PEM_B64`
+7. Redeploy Vercel so the updated environment is active.
+
+> **Do not expose secrets**
+> - Never commit webhook secrets.
+> - Never commit private keys.
+> - Never place signing material in client-side code.
+
+### Expected endpoint responses
+
+- `GET /api/examples/coinbase-webhook` → `405 METHOD_NOT_ALLOWED`
+- `POST /api/examples/coinbase-webhook` without `X-Hook0-Signature` → `400 missing_signature`
+- Valid Coinbase delivery with correct signature and fresh timestamp → `WEBHOOK_VERIFIED_AND_SIGNED`
+
+### Receipt verification after delivery
+
+1. Copy the returned signed receipt from the webhook response, or retrieve it from logs.
+2. Submit the receipt JSON to:
+   - `POST https://www.commandlayer.org/api/verify`
+3. Expected verification fields:
+   - `status`: `VERIFIED`
+   - `hash_matches`: `true`
+   - `signature_valid`: `true`
+
+This verifies CommandLayer's signed receipt artifact. Coinbase HMAC verification remains a private server-side ingress control and is not a public proof artifact by itself.
+
+### Troubleshooting
+
+- `invalid_signature`
+  - Most likely `COINBASE_WEBHOOK_SECRET` mismatch between Coinbase CDP and Vercel env.
+  - Recopy secret from CDP, update env, and redeploy.
+- `stale_signature`
+  - Delivery timestamp exceeded the allowed signature window.
+  - Check clock sync and replay delay; retry with a fresh webhook delivery.
+- `signing_unavailable`
+  - Receipt-signing env is missing or invalid (`CL_RECEIPT_SIGNER_ID`, `CL_RECEIPT_SIGNING_KID`, `RECEIPT_SIGNING_PRIVATE_KEY_PEM_B64`).
+  - Correct env values and redeploy.
+- `normalization_failed`
+  - Event payload shape is unsupported by current normalizer.
+  - Confirm you are sending a supported `payments.transfers.*` event and inspect logs for payload mapping details.
+
+### Real delivery readiness checklist
+
+- Coinbase CDP webhook subscription exists and points to production endpoint.
+- `payments.transfers.*` event type is selected.
+- `COINBASE_WEBHOOK_SECRET` is configured in Vercel (server-side only).
+- Receipt signing envs are configured in Vercel:
+  - `CL_RECEIPT_SIGNER_ID`
+  - `CL_RECEIPT_SIGNING_KID`
+  - `RECEIPT_SIGNING_PRIVATE_KEY_PEM_B64`
+- Vercel deployment has been redeployed after env updates.
+- `GET` returns `405 METHOD_NOT_ALLOWED`.
+- Unsigned `POST` returns `400 missing_signature`.
+- Signed Coinbase delivery returns `WEBHOOK_VERIFIED_AND_SIGNED`.
+- Receipt verifies at `/api/verify` with `VERIFIED`, `hash_matches: true`, and `signature_valid: true`.
