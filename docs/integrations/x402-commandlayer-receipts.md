@@ -268,3 +268,45 @@ Future adapters may use Coinbase AgentKit or Agentic Wallet primitives as one x4
 - This design does **not** claim x402 alone proves agent/runtime execution.
 - This design does **not** require Coinbase/CDP as the only x402 provider.
 - This design does **not** introduce production x402 runtime code in this change.
+
+## Signed example endpoint
+
+A server-side example endpoint is available at `POST /api/examples/x402-paid-action` (`api/examples/x402-paid-action.js`).
+
+### Request example
+
+```json
+{
+  "request_id": "req_9f2f5f25",
+  "action": "summarize.text",
+  "input": {
+    "text": "Long technical document..."
+  },
+  "payment": {
+    "payment_id": "pay_x402_7f31",
+    "protocol": "x402",
+    "status": "accepted",
+    "asset": "USDC",
+    "amount": "0.01",
+    "network": "base"
+  }
+}
+```
+
+### Success status
+
+The endpoint returns status `PAID_ACTION_EXECUTED_AND_SIGNED` with a signed CLAS-style receipt.
+
+### Verification command
+
+You can verify the returned receipt with the existing verify endpoint:
+
+```bash
+curl -sS -X POST http://localhost:3000/api/verify \
+  -H 'content-type: application/json' \
+  -d '{"receipt": {"...": "signed receipt payload"}}'
+```
+
+### Trust boundary reminder
+
+x402 payment acceptance is not the same as execution proof. Payment rails attest payment acceptance/settlement state, while CommandLayer receipts attest the requested action, execution result, and signer-bound proof for that execution.
