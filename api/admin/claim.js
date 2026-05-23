@@ -38,13 +38,17 @@ module.exports = async function handler(req, res) {
     const transitionRows = db.normalizeRows(
       await db.query('select * from claim_status_transitions where claim_id = $1 order by created_at asc', [claimId])
     );
+    const cardRows = db.normalizeRows(
+      await db.query('select * from agent_cards where claim_id = $1 order by ens asc', [claimId])
+    );
 
     return res.status(200).json({
       ok: true,
       claim: claimRows[0],
       agents: agentRows,
       events: eventRows,
-      transitions: transitionRows
+      transitions: transitionRows,
+      cards: cardRows
     });
   } catch (error) {
     console.error('ADMIN_CLAIM_QUERY_FAILED', { message: error.message, code: error.code });

@@ -6,129 +6,53 @@
   <title>CommandLayer Claims Admin</title>
   <link rel="stylesheet" href="/css/site.css" />
   <style>
-    body { background: #fafafa; color: #111827; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-    .card { background: white; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; margin-bottom: 16px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { text-align: left; border-bottom: 1px solid #e5e7eb; padding: 8px; }
-    tr:hover { background: #f9fafb; cursor: pointer; }
-    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px; }
-    .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-    input, textarea { padding: 8px; min-width: 300px; }
-    textarea { min-height: 80px; }
-    button { padding: 8px 12px; }
-    .muted { color: #6b7280; }
-    .status-badge { display: inline-block; padding: 4px 10px; border-radius: 999px; background: #e5e7eb; font-weight: 700; }
-    .error-panel { margin: 10px 0; padding: 10px; border-radius: 8px; border: 1px solid #fecaca; background: #fef2f2; color: #991b1b; }
+    body { background:#f8fafc; color:#111827; font-family: Inter, system-ui, sans-serif; }
+    .container { max-width:1180px; margin:0 auto; padding:24px 16px 40px; }
+    .panel { background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:18px; box-shadow:0 1px 2px rgba(0,0,0,.04); }
+    .auth { margin:14px 0 18px; }
+    .grid { display:grid; grid-template-columns:360px minmax(0,1fr); gap:16px; }
+    @media (max-width: 980px) { .grid { grid-template-columns: 1fr; } }
+    .btn { border:1px solid #d1d5db; border-radius:10px; padding:9px 14px; background:#fff; cursor:pointer; }
+    .btn-primary { background:#2563eb; border-color:#2563eb; color:#fff; } .btn-secondary { background:#eef2ff; }
+    .btn-danger { background:#fee2e2; border-color:#fecaca; color:#991b1b; } .btn-muted { background:#f3f4f6; }
+    input,textarea { border:1px solid #d1d5db; border-radius:10px; padding:10px; width:100%; }
+    .row { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+    .muted { color:#6b7280; }
+    table { width:100%; border-collapse:collapse; } th,td { padding:10px; border-bottom:1px solid #f1f5f9; text-align:left; }
+    .clickable{cursor:pointer;} .selected{background:#eef2ff;}
+    .badge{padding:4px 10px; border-radius:999px; font-size:12px; font-weight:700; display:inline-block;}
+    .created{background:#e5e7eb;} .approved{background:#dbeafe;color:#1e40af;} .cards_published{background:#ede9fe;color:#5b21b6;}
+    .failed{background:#fee2e2;color:#991b1b;} .rejected{background:#ffedd5;color:#9a3412;} .live{background:#dcfce7;color:#166534;}
+    .error-panel{border:1px solid #fecaca;background:#fef2f2;color:#991b1b;padding:10px;border-radius:10px;margin-bottom:12px;}
   </style>
 </head>
-<body>
-  <div class="container">
-    <h1>CommandLayer Claims Admin</h1>
-    <div class="card"><div class="row"><label for="apiKey">Admin API key</label><input id="apiKey" type="password" placeholder="Enter ADMIN_API_KEY" /><button id="saveKey">Save key</button><button id="loadClaims">Load claims</button><span id="status" class="muted"></span></div></div>
-    <div class="card"><h2>Claims</h2><table><thead><tr><th>Claim ID</th><th>Tenant</th><th>Wallet</th><th>Pack</th><th>Status</th><th>Agents</th><th>Created</th></tr></thead><tbody id="claimsBody"></tbody></table></div>
-    <div class="card"><h2>Claim detail</h2><div id="detail" class="muted">Select a claim row to view details.</div></div>
-  </div>
+<body><div class="container">
+  <h1>CommandLayer Claims Admin</h1><p class="muted">Internal operator dashboard for claim review and activation pipeline.</p>
+  <div class="panel auth"><div class="row"><input id="apiKey" type="password" placeholder="Admin API key" style="max-width:320px"><button id="saveKey" class="btn">Save key</button><button id="loadClaims" class="btn btn-primary">Load claims</button><span id="status" class="muted"></span></div></div>
+  <div class="grid"><div class="panel"><h3>Claims <span id="claimsCount" class="muted"></span></h3><table><thead><tr><th>Claim</th><th>Tenant</th><th>Pack</th><th>Status</th><th>Agents</th><th>Created</th></tr></thead><tbody id="claimsBody"></tbody></table></div><div id="detailPanel" class="panel"><p class="muted">Select a claim to review.</p></div></div>
+</div>
 <script>
 (() => {
-  const apiKeyInput = document.getElementById('apiKey');
-  const saveKeyBtn = document.getElementById('saveKey');
-  const loadClaimsBtn = document.getElementById('loadClaims');
-  const statusEl = document.getElementById('status');
-  const claimsBody = document.getElementById('claimsBody');
-  const detail = document.getElementById('detail');
-  let selectedClaimId = '';
-  let claimActionError = null;
-  apiKeyInput.value = sessionStorage.getItem('cl_admin_api_key') || localStorage.getItem('cl_admin_api_key') || '';
-  function authHeaders() { return { Authorization: `Bearer ${apiKeyInput.value.trim()}`, 'Content-Type': 'application/json' }; }
-  saveKeyBtn.addEventListener('click', () => { const v = apiKeyInput.value.trim(); sessionStorage.setItem('cl_admin_api_key', v); localStorage.setItem('cl_admin_api_key', v); statusEl.textContent = 'Saved.'; });
-  async function loadClaims() { /* unchanged */
-    statusEl.textContent = 'Loading claims...'; claimsBody.innerHTML = '';
-    const res = await fetch('/api/admin/claims', { headers: { Authorization: authHeaders().Authorization } }); const data = await res.json();
-    if (!res.ok || !data.ok) { statusEl.textContent = `${res.status} ${data.status || 'error'}`; return; }
-    for (const claim of data.claims) { const tr = document.createElement('tr'); tr.innerHTML = `<td>${claim.claimId}</td><td>${claim.tenant}</td><td>${claim.authenticatedAddress}</td><td>${claim.packId}</td><td>${claim.status}</td><td>${claim.agentCount}</td><td>${claim.createdAt}</td>`; tr.addEventListener('click', () => loadDetail(claim.claimId)); claimsBody.appendChild(tr); }
-    statusEl.textContent = `Loaded ${data.claims.length} claims.`;
-  }
-  async function claimAction(action, payload = {}) {
-    const res = await fetch('/api/admin/claim-action', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ claimId: selectedClaimId, action, actor: 'admin', ...payload }) });
-    const data = await res.json();
-    if (!res.ok || !data.ok) {
-      claimActionError = {
-        status: data.status || 'REQUEST_FAILED',
-        error: data.error || 'Request failed.',
-        debug: data.debug || null,
-        fromStatus: data.fromStatus,
-        action: data.action || action
-      };
-      await loadDetail(selectedClaimId);
-      return;
-    }
-    claimActionError = null;
-    await loadDetail(selectedClaimId);
-    await loadClaims();
-  }
-  async function publishAgentCards() {
-    const res = await fetch('/api/admin/publish-agent-cards', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ claimId: selectedClaimId }) });
-    const data = await res.json();
-    if (!res.ok || !data.ok) {
-      claimActionError = { status: data.status || 'REQUEST_FAILED', error: data.error || 'Request failed.', debug: data.debug || null };
-      await loadDetail(selectedClaimId);
-      return;
-    }
-    claimActionError = null;
-    await loadDetail(selectedClaimId);
-    await loadClaims();
-  }
-
-  async function loadDetail(claimId) {
-    selectedClaimId = claimId;
-    const res = await fetch(`/api/admin/claim?claimId=${encodeURIComponent(claimId)}`, { headers: { Authorization: authHeaders().Authorization } });
-    const data = await res.json();
-    if (!res.ok || !data.ok) { detail.textContent = `${res.status} ${data.status || 'error'}`; return; }
-    const status = data.claim.status;
-    detail.innerHTML = `<p><strong>claim ID:</strong> ${data.claim.claim_id}</p><p><strong>Status:</strong> <span class="status-badge">${status}</span></p>
-      <div id="actionErrorPanel"></div>
-      <div class="row" id="actionRow"></div><p id="nextStep" class="muted"></p>
-      <div><label>Reason</label><input id="reasonInput" placeholder="Reason for reject/failure" /></div>
-      <div><label>Notes</label><textarea id="notesInput" placeholder="Admin notes"></textarea></div>
-      <div class="row"><button id="saveNoteBtn">Save note</button><button id="refreshBtn">Refresh timeline</button></div>
-      <h3>Transitions</h3><pre>${JSON.stringify(data.transitions || [], null, 2)}</pre>
-      <h3>Events</h3><pre>${JSON.stringify(data.events || [], null, 2)}</pre>
-      <h3>Agents</h3><pre>${JSON.stringify(data.agents || [], null, 2)}</pre>`;
-    const actionRow = document.getElementById('actionRow');
-    const errorPanel = document.getElementById('actionErrorPanel');
-    if (claimActionError) {
-      errorPanel.className = 'error-panel';
-      const detailText = claimActionError.debug && claimActionError.debug.message ? `\nDetails: ${claimActionError.debug.message}` : '';
-      errorPanel.textContent = `Action failed:\n${claimActionError.status} — ${claimActionError.error}${detailText}`;
-    } else {
-      errorPanel.textContent = '';
-      errorPanel.className = '';
-    }
-    const mk = (label, cb) => { const b = document.createElement('button'); b.textContent = label; b.addEventListener('click', cb); actionRow.appendChild(b); };
-    if (status === 'created') { mk('Approve', () => claimAction('approve', { notes: document.getElementById('notesInput').value })); mk('Reject', () => claimAction('reject', { reason: document.getElementById('reasonInput').value })); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
-    if (status === 'approved') { document.getElementById('nextStep').textContent = 'Next: Publish agent cards'; mk('Publish agent cards', () => publishAgentCards()); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
-    if (status === 'rejected') { mk('Reopen / Approve (override)', () => claimAction('approve', { override: true, reason: document.getElementById('reasonInput').value, notes: document.getElementById('notesInput').value })); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
-    if (status === 'cards_published') {
-      const urls = (data.agents || []).map((a) => a.card_url).filter(Boolean);
-      document.getElementById('nextStep').textContent = 'Next: Stripe checkout / payment placeholder';
-      if (urls.length) {
-        const wrap = document.createElement('div');
-        wrap.innerHTML = `<h3>Published card URLs</h3><pre>${JSON.stringify(urls, null, 2)}</pre>`;
-        const row = document.createElement('div'); row.className = 'row';
-        const copyBtn = document.createElement('button'); copyBtn.textContent = 'Copy all card URLs';
-        copyBtn.addEventListener('click', async () => { await navigator.clipboard.writeText(urls.join('\n')); statusEl.textContent = 'Card URLs copied.'; });
-        const openBtn = document.createElement('button'); openBtn.textContent = 'Open first card';
-        openBtn.addEventListener('click', () => window.open(urls[0], '_blank'));
-        row.appendChild(copyBtn); row.appendChild(openBtn); wrap.appendChild(row);
-        detail.appendChild(wrap);
-      }
-    }
-    if (status === 'failed') { document.getElementById('nextStep').textContent = 'Failed status: auto-retry is not enabled yet.'; }
-    document.getElementById('saveNoteBtn').addEventListener('click', () => claimAction('add_note', { notes: document.getElementById('notesInput').value, reason: document.getElementById('reasonInput').value }));
-    document.getElementById('refreshBtn').addEventListener('click', () => loadDetail(claimId));
-  }
-  loadClaimsBtn.addEventListener('click', loadClaims);
+const s={claims:[],selected:'',detail:null,error:null};
+const apiKey=document.getElementById('apiKey'); apiKey.value=sessionStorage.getItem('cl_admin_api_key')||localStorage.getItem('cl_admin_api_key')||'';
+const headers=()=>({Authorization:`Bearer ${apiKey.value.trim()}`,'Content-Type':'application/json'});
+const short=(v,n=10)=>v?`${v.slice(0,n)}…`:''; const dt=(v)=>v?new Date(v).toLocaleString():'-';
+const badge=(status)=>`<span class="badge ${status}">${status}</span>`;
+function renderClaims(){const b=document.getElementById('claimsBody');b.innerHTML='';document.getElementById('claimsCount').textContent=`(${s.claims.length} loaded)`;for(const c of s.claims){const tr=document.createElement('tr');tr.className=`clickable ${s.selected===c.claimId?'selected':''}`;tr.innerHTML=`<td>${short(c.claimId,12)}</td><td>${c.tenant||'-'}</td><td>${c.packId||'-'}</td><td>${badge(c.status)}</td><td>${c.agentCount||0}</td><td>${dt(c.createdAt)}</td>`;tr.onclick=()=>loadDetail(c.claimId);b.appendChild(tr);}}
+async function loadClaims(){status('Loading claims...');const r=await fetch('/api/admin/claims',{headers:{Authorization:headers().Authorization}});const d=await r.json();if(!r.ok||!d.ok){status(`${r.status} ${d.status}`);return;}s.claims=d.claims||[];renderClaims();status(`Loaded ${s.claims.length} claims.`);}
+async function loadDetail(id){s.selected=id;renderClaims();const r=await fetch(`/api/admin/claim?claimId=${encodeURIComponent(id)}`,{headers:{Authorization:headers().Authorization}});const d=await r.json();if(!r.ok||!d.ok)return; s.detail=d; renderDetail();}
+async function action(action,p={}){const r=await fetch('/api/admin/claim-action',{method:'POST',headers:headers(),body:JSON.stringify({claimId:s.selected,action,actor:'admin',...p})});const d=await r.json();if(!r.ok||!d.ok){s.error=`${d.status}: ${d.error}`;renderDetail();return;}s.error=null;await loadClaims();await loadDetail(s.selected);} 
+async function publish(){const r=await fetch('/api/admin/publish-agent-cards',{method:'POST',headers:headers(),body:JSON.stringify({claimId:s.selected})});const d=await r.json();if(!r.ok||!d.ok){s.error=`${d.status}: ${d.error}`;renderDetail();return;}s.error=null;await loadClaims();await loadDetail(s.selected);} 
+function pipeline(status){const steps=['created','approved','cards_published','payment_pending','paid','erc8004','ens_provisioned','live'];return `<div class='row'>${steps.map(x=>`<span class='badge ${status===x|| (x==='created')|| (status==='approved'&&x==='created')|| (status==='cards_published'&&(x==='created'||x==='approved')) ? (['payment_pending','paid','erc8004','ens_provisioned'].includes(x)?'created':x):'created'}'>${x.replaceAll('_',' ')}</span>`).join('')}</div><p class='muted'>Future steps are coming next.</p>`}
+function renderDetail(){const el=document.getElementById('detailPanel');if(!s.detail){el.innerHTML='<p class="muted">Select a claim to review.</p>';return;}const {claim,agents=[],events=[],transitions=[],cards=[]}=s.detail;const urls=cards.map(c=>c.card_url).filter(Boolean);const missing=claim.status==='cards_published'&&agents.some(a=>!a.card_url);el.innerHTML=`${s.error?`<div class='error-panel'>${s.error}</div>`:''}<h3>Claim ${short(claim.claim_id,16)} <button id='copyClaim' class='btn btn-muted'>Copy</button> ${badge(claim.status)}</h3><p class='muted'>Tenant: ${claim.tenant||'-'} · Wallet: ${short(claim.authenticated_address||'',12)} · Pack: ${claim.pack_id||'-'} · Agents: ${agents.length} · Created: ${dt(claim.created_at)}</p><h4>Pipeline</h4>${pipeline(claim.status)}<h4>Next action</h4><div class='row'><input id='reasonInput' placeholder='Reason'><input id='notesInput' placeholder='Notes'></div><div class='row' id='actions'></div><h4>Agents</h4><table><thead><tr><th>ENS</th><th>Capability</th><th>Parent</th><th>Skill</th><th>Card status</th><th>Card URL</th></tr></thead><tbody>${agents.map(a=>`<tr><td>${a.ens||'-'}</td><td>${a.capability||'-'}</td><td>${a.canonical_parent||'-'}</td><td>${a.skill||'-'}</td><td>${a.card_status||'-'}</td><td>${a.card_url?`<a href='${a.card_url}' target='_blank'>open</a>`:'-'}</td></tr>`).join('')}</tbody></table>${urls.length?`<h4>Agent cards</h4><ul>${urls.map(u=>`<li><a href='${u}' target='_blank'>${u}</a></li>`).join('')}</ul><div class='row'><button id='copyUrls' class='btn btn-secondary'>Copy all URLs</button><button id='openFirst' class='btn btn-secondary'>Open first card</button></div>`:''}<h4>Events</h4>${events.map(e=>`<div class='panel' style='margin-bottom:8px'><strong>${e.event_type}</strong><div>${e.message||''}</div><div class='muted'>${dt(e.created_at)}</div><details><summary>metadata</summary><pre>${JSON.stringify(e.event_json||{},null,2)}</pre></details></div>`).join('')||'<p class="muted">No events.</p>'}<h4>Transitions</h4>${transitions.map(t=>`<div class='panel' style='margin-bottom:8px'>${t.from_status||'-'} → ${t.to_status||'-'} · ${t.action||'-'} · ${t.actor||'-'}<div class='muted'>${dt(t.created_at)} ${t.reason?`· ${t.reason}`:''}</div></div>`).join('')||'<p class="muted">No transitions.</p>'}<details><summary>Show raw JSON</summary><pre>${JSON.stringify(s.detail,null,2)}</pre></details>`;
+const a=document.getElementById('actions');const mk=(t,c,cls='btn')=>{const b=document.createElement('button');b.textContent=t;b.className=cls;b.onclick=c;a.appendChild(b);};
+if(claim.status==='created'){mk('Approve',()=>action('approve',{notes:document.getElementById('notesInput').value}),'btn btn-primary');mk('Reject',()=>action('reject',{reason:document.getElementById('reasonInput').value}),'btn btn-secondary');mk('Mark failed',()=>action('mark_failed',{reason:document.getElementById('reasonInput').value}),'btn btn-danger');}
+if(claim.status==='approved'){mk('Publish agent cards',()=>publish(),'btn btn-primary');mk('Mark failed',()=>action('mark_failed',{reason:document.getElementById('reasonInput').value}),'btn btn-danger');mk('Add note',()=>action('add_note',{notes:document.getElementById('notesInput').value,reason:document.getElementById('reasonInput').value}),'btn');}
+if(claim.status==='cards_published'){if(missing)mk('Repair / Publish cards',()=>publish(),'btn btn-primary');mk('Add note',()=>action('add_note',{notes:document.getElementById('notesInput').value,reason:document.getElementById('reasonInput').value}),'btn');}
+if(claim.status==='failed'||claim.status==='rejected'){mk('Add note',()=>action('add_note',{notes:document.getElementById('notesInput').value,reason:document.getElementById('reasonInput').value}),'btn');}
+const copy=document.getElementById('copyClaim');if(copy)copy.onclick=()=>navigator.clipboard.writeText(claim.claim_id);const cu=document.getElementById('copyUrls');if(cu)cu.onclick=()=>navigator.clipboard.writeText(urls.join('\n'));const of=document.getElementById('openFirst');if(of)of.onclick=()=>window.open(urls[0],'_blank'); }
+const status=(m)=>document.getElementById('status').textContent=m;
+document.getElementById('saveKey').onclick=()=>{const v=apiKey.value.trim();sessionStorage.setItem('cl_admin_api_key',v);localStorage.setItem('cl_admin_api_key',v);status('Saved.');};
+document.getElementById('loadClaims').onclick=loadClaims;
 })();
-</script>
-</body></html>
+</script></body></html>

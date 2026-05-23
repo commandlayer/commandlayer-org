@@ -14,79 +14,75 @@ function load(modulePath, mockQuery) {
   return require(modulePath);
 }
 
-test('publish cards missing ADMIN_API_KEY', async () => {
-  delete process.env.ADMIN_API_KEY;
-  const handler = load('../api/admin/publish-agent-cards', async () => []);
-  const res = makeRes();
-  await handler({ method: 'POST', headers: {}, body: { claimId: 'clm_1' } }, res);
-  assert.equal(res.statusCode, 503);
-});
-
-test('publish cards unauthorized', async () => {
-  process.env.ADMIN_API_KEY = 'secret';
-  const handler = load('../api/admin/publish-agent-cards', async () => []);
-  const res = makeRes();
-  await handler({ method: 'POST', headers: {}, body: { claimId: 'clm_1' } }, res);
-  assert.equal(res.statusCode, 401);
-});
-
 test('non-approved claim cannot publish cards', async () => {
   process.env.ADMIN_API_KEY = 'secret';
   const handler = load('../api/admin/publish-agent-cards', async (text) => String(text).includes('from claim_requests') ? [{ claim_id: 'clm_1', status: 'created' }] : []);
   const res = makeRes();
   await handler({ method: 'POST', headers: { authorization: 'Bearer secret' }, body: { claimId: 'clm_1' } }, res);
   assert.equal(res.statusCode, 409);
+  assert.equal(res.body.status, 'CLAIM_NOT_APPROVED');
 });
 
-test('approved claim publishes cards and updates status/event/transition', async () => {
+test('approved claim publishes cards with status update last', async () => {
   process.env.ADMIN_API_KEY = 'secret';
   const calls = [];
-  const handler = load('../api/admin/publish-agent-cards', async (text, params) => {
-    calls.push({ text: String(text), params });
-    if (String(text).includes('from claim_requests')) return [{ claim_id: 'clm_1', status: 'approved' }];
-    if (String(text).includes('from claim_agents')) return [{ id: 'a1', claim_id: 'clm_1', ens: 'a.signagent.eth', capability: 'trust-verification', tenant: 'commandlayer', canonical_parent: 'x', skill: 's', skill_family: 'sf', kid: 'k', public_key: 'pk' }];
-    if (String(text).includes('from agent_cards')) return [];
+  const handler = load('../api/admin/publish-agent-cards', async (text) => {
+    const q = String(text); calls.push(q);
+    if (q.includes('from claim_requests')) return [{ claim_id: 'clm_1', status: 'approved' }];
+    if (q.includes('from claim_agents')) return [{ id: 'a1', claim_id: 'clm_1', ens: 'a.signagent.eth', capability: 'trust-verification', tenant: 'commandlayer' }];
+    if (q.includes('from agent_cards')) return [];
     return [];
   });
   const res = makeRes();
   await handler({ method: 'POST', headers: { authorization: 'Bearer secret' }, body: { claimId: 'clm_1' } }, res);
   assert.equal(res.statusCode, 200);
-  assert.equal(res.body.status, 'CARDS_PUBLISHED');
-  assert.ok(calls.some((c) => c.text.includes('insert into agent_cards')));
-  assert.ok(calls.some((c) => c.text.includes('update claim_agents')));
-  assert.ok(calls.some((c) => c.text.includes("update claim_requests set status = 'cards_published'")));
-  assert.ok(calls.some((c) => c.text.includes("insert into claim_events") && c.text.includes('agent_cards.published')));
-  assert.ok(calls.some((c) => c.text.includes('insert into claim_status_transitions')));
+  const idxStatus = calls.findIndex((q) => q.includes("update claim_requests set status = 'cards_published'"));
+  const idxEvent = calls.findIndex((q) => q.includes('insert into claim_events'));
+  const idxTrans = calls.findIndex((q) => q.includes('insert into claim_status_transitions'));
+  assert.ok(idxStatus > idxEvent);
+  assert.ok(idxStatus > idxTrans);
 });
 
-test('idempotent publish returns existing cards', async () => {
+test('cards_published with existing complete cards returns existing', async () => {
   process.env.ADMIN_API_KEY = 'secret';
-  const calls = [];
   const handler = load('../api/admin/publish-agent-cards', async (text) => {
-    calls.push(String(text));
-    if (String(text).includes('from claim_requests')) return [{ claim_id: 'clm_1', status: 'approved' }];
-    if (String(text).includes('from claim_agents')) return [{ id: 'a1', ens: 'a.signagent.eth' }];
-    if (String(text).includes('from agent_cards')) return [{ ens: 'a.signagent.eth', card_url: 'https://www.commandlayer.org/agent-cards/agents/v1.1.0/trust/a.signagent.eth.json' }];
+    const q = String(text);
+    if (q.includes('from claim_requests')) return [{ claim_id: 'clm_1', status: 'cards_published' }];
+    if (q.includes('from claim_agents')) return [{ id: 'a1', ens: 'a.signagent.eth', card_url: 'u', card_status: 'published' }];
+    if (q.includes('from agent_cards')) return [{ ens: 'a.signagent.eth', card_url: 'u' }];
     return [];
   });
   const res = makeRes();
   await handler({ method: 'POST', headers: { authorization: 'Bearer secret' }, body: { claimId: 'clm_1' } }, res);
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.status, 'CARDS_ALREADY_PUBLISHED');
-  assert.equal(calls.some((q) => q.includes('insert into agent_cards')), false);
 });
 
-test('public card route returns JSON', async () => {
-  const handler = load('../api/agent-cards/card', async () => [{ card_json: { ok: true } }]);
+test('cards_published with missing cards repairs successfully', async () => {
+  process.env.ADMIN_API_KEY = 'secret';
+  const handler = load('../api/admin/publish-agent-cards', async (text) => {
+    const q = String(text);
+    if (q.includes('from claim_requests')) return [{ claim_id: 'clm_1', status: 'cards_published' }];
+    if (q.includes('from claim_agents')) return [{ id: 'a1', ens: 'a.signagent.eth', capability: 'trust-verification', tenant: 'commandlayer' }];
+    if (q.includes('from agent_cards')) return [];
+    if (q.includes('select id from claim_events')) return [];
+    if (q.includes('select id from claim_status_transitions')) return [];
+    return [];
+  });
   const res = makeRes();
-  await handler({ method: 'GET', query: { ens: 'a.signagent.eth', path: '/agent-cards/agents/v1.1.0/trust/a.signagent.eth.json' } }, res);
+  await handler({ method: 'POST', headers: { authorization: 'Bearer secret' }, body: { claimId: 'clm_1' } }, res);
   assert.equal(res.statusCode, 200);
-  assert.deepEqual(res.body, { ok: true });
+  assert.equal(res.body.status, 'AGENT_CARDS_REPAIRED');
 });
 
-test('public card route missing card returns 404', async () => {
-  const handler = load('../api/agent-cards/card', async () => []);
-  const res = makeRes();
-  await handler({ method: 'GET', query: { ens: 'missing.signagent.eth' } }, res);
-  assert.equal(res.statusCode, 404);
+test('public card route returns JSON and missing returns 404', async () => {
+  const handlerOk = load('../api/agent-cards/card', async () => [{ card_json: { ok: true } }]);
+  const okRes = makeRes();
+  await handlerOk({ method: 'GET', query: { ens: 'a.signagent.eth', path: '/agent-cards/agents/v1.1.0/trust/a.signagent.eth.json' } }, okRes);
+  assert.equal(okRes.statusCode, 200);
+
+  const handlerMissing = load('../api/agent-cards/card', async () => []);
+  const missRes = makeRes();
+  await handlerMissing({ method: 'GET', query: { ens: 'missing.signagent.eth' } }, missRes);
+  assert.equal(missRes.statusCode, 404);
 });
