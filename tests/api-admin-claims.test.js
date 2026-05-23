@@ -28,17 +28,18 @@ test('admin claims returns UNAUTHORIZED when auth missing', async () => {
   assert.equal(res.statusCode, 401); assert.equal(res.body.status, 'UNAUTHORIZED');
 });
 
-test('admin claim detail includes transitions', async () => {
+test('admin claim detail includes transitions and cards', async () => {
   process.env.ADMIN_API_KEY = 'secret';
   const handler = load('../api/admin/claim', async (text) => {
     const q = String(text);
     if (q.includes('from claim_requests')) return [{ claim_id: 'clm_1', tenant: 'commandlayer', request_json: {} }];
     if (q.includes('from claim_agents')) return [{ ens: 'x.signagent.eth' }];
     if (q.includes('from claim_events')) return [{ event_type: 'claim.created' }];
-    return [{ to_status: 'approved' }];
+    if (q.includes('from claim_status_transitions')) return [{ to_status: 'approved' }];
+    return [{ ens: 'x.signagent.eth', card_url: 'https://www.commandlayer.org/c.json' }];
   });
   const res = makeRes(); await handler({ method: 'GET', headers: { authorization: 'Bearer secret' }, query: { claimId: 'clm_1' } }, res);
-  assert.equal(res.statusCode, 200); assert.deepEqual(res.body.transitions, [{ to_status: 'approved' }]);
+  assert.equal(res.statusCode, 200); assert.deepEqual(res.body.transitions, [{ to_status: 'approved' }]); assert.equal(Array.isArray(res.body.cards), true);
 });
 
 test('claim action auth and config checks', async () => {
@@ -144,8 +145,9 @@ test('add_note without notes returns NOTES_REQUIRED', async () => {
 
 
 
-test('frontend claim actions use expected payload keys', async () => {
+test('frontend admin dashboard includes status-aware actions and raw-json toggle', async () => {
   const html = require('node:fs').readFileSync(require('node:path').join(__dirname, '../public/admin/claims.html'), 'utf8');
-  assert.ok(html.includes("claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })"));
-  assert.ok(html.includes("claimAction('add_note', { notes: document.getElementById('notesInput').value"));
+  assert.ok(html.includes('Repair / Publish cards'));
+  assert.ok(html.includes('Show raw JSON'));
+  assert.ok(html.includes('claim-action'));
 });
