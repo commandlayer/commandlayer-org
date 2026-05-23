@@ -67,6 +67,29 @@
     await loadDetail(selectedClaimId);
     await loadClaims();
   }
+
+  async function publishAgentCards(claimId) {
+    const res = await fetch('/api/admin/publish-agent-cards', {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({ claimId, actor: 'admin' })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.ok) {
+      claimActionError = {
+        status: data.status || 'REQUEST_FAILED',
+        error: data.error || 'Request failed.',
+        debug: data.debug || null,
+        action: 'publish-agent-cards'
+      };
+      await loadDetail(claimId);
+      return;
+    }
+    claimActionError = null;
+    await loadDetail(claimId);
+    await loadClaims();
+  }
+
   async function loadDetail(claimId) {
     selectedClaimId = claimId;
     const res = await fetch(`/api/admin/claim?claimId=${encodeURIComponent(claimId)}`, { headers: { Authorization: authHeaders().Authorization } });
@@ -94,7 +117,7 @@
     }
     const mk = (label, cb) => { const b = document.createElement('button'); b.textContent = label; b.addEventListener('click', cb); actionRow.appendChild(b); };
     if (status === 'created') { mk('Approve', () => claimAction('approve', { notes: document.getElementById('notesInput').value })); mk('Reject', () => claimAction('reject', { reason: document.getElementById('reasonInput').value })); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
-    if (status === 'approved') { document.getElementById('nextStep').textContent = 'Next: Publish agent cards (placeholder)'; mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
+    if (status === 'approved') { document.getElementById('nextStep').textContent = 'Next: Publish agent cards.'; mk('Publish agent cards', () => publishAgentCards(selectedClaimId)); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
     if (status === 'rejected') { mk('Reopen / Approve (override)', () => claimAction('approve', { override: true, reason: document.getElementById('reasonInput').value, notes: document.getElementById('notesInput').value })); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
     if (status === 'failed') { document.getElementById('nextStep').textContent = 'Failed status: auto-retry is not enabled yet.'; }
     document.getElementById('saveNoteBtn').addEventListener('click', () => claimAction('add_note', { notes: document.getElementById('notesInput').value, reason: document.getElementById('reasonInput').value }));
