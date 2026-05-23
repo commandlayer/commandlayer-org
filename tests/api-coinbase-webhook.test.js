@@ -113,6 +113,42 @@ test('missing signing env returns 503 after valid HMAC', async () => {
   assert.equal(res.body.status, 'signing_unavailable');
 });
 
+
+test('invalid base64 signing key after valid HMAC returns 503', async () => {
+  process.env.COINBASE_WEBHOOK_SECRET = 'test_secret';
+  process.env.RECEIPT_SIGNER_ID = 'runtime.commandlayer.eth';
+  process.env.RECEIPT_SIGNING_KID = 'test-kid-bad';
+  process.env.RECEIPT_SIGNING_PRIVATE_KEY_PEM_B64 = Buffer.from('not a pem', 'utf8').toString('base64');
+
+  const rawBody = JSON.stringify({ id: 'evt_bad_key', type: 'wallet.transaction' });
+  const timestamp = Math.floor(Date.now() / 1000);
+  const headers = { 'content-type': 'application/json' };
+  const sig = signHook({ secret: process.env.COINBASE_WEBHOOK_SECRET, timestamp, headers, rawBody });
+
+  const res = makeRes();
+  await handler({ method: 'POST', headers: { ...headers, 'x-hook0-signature': sig }, body: rawBody }, res);
+  assert.equal(res.statusCode, 503);
+  assert.equal(res.body.status, 'signing_unavailable');
+});
+
+test('malformed event shape after valid HMAC returns 400 normalization_failed', async () => {
+  process.env.COINBASE_WEBHOOK_SECRET = 'test_secret';
+  process.env.CL_RECEIPT_SIGNER_ID = 'runtime.commandlayer.eth';
+  process.env.CL_RECEIPT_SIGNING_KID = 'test-kid-shape';
+  const { privateKey } = crypto.generateKeyPairSync('ed25519');
+  process.env.CL_RECEIPT_SIGNING_PRIVATE_KEY_PEM = privateKey.export({ type: 'pkcs8', format: 'pem' });
+
+  const rawBody = JSON.stringify({ id: 'evt_bad_shape' });
+  const timestamp = Math.floor(Date.now() / 1000);
+  const headers = { 'content-type': 'application/json' };
+  const sig = signHook({ secret: process.env.COINBASE_WEBHOOK_SECRET, timestamp, headers, rawBody });
+
+  const res = makeRes();
+  await handler({ method: 'POST', headers: { ...headers, 'x-hook0-signature': sig }, body: rawBody }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.status, 'normalization_failed');
+});
+
 test('valid payload returns signed receipt and duplicate returns same receipt', async () => {
   process.env.COINBASE_WEBHOOK_SECRET = 'test_secret';
   process.env.CL_RECEIPT_SIGNER_ID = 'runtime.commandlayer.eth';

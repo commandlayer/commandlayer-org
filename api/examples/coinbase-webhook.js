@@ -7,8 +7,16 @@ const seenReceipts = new Map();
 
 
 function normalizeReceipt(event, signerId) {
-  const eventId = event?.id || event?.event_id || 'unknown';
-  const eventType = event?.type || 'coinbase.unknown';
+  if (!event || typeof event !== 'object' || Array.isArray(event)) {
+    throw new Error('unsupported_event_shape');
+  }
+
+  const eventId = event.id || event.event_id;
+  const eventType = event.type;
+  if (!eventId || typeof eventId !== 'string' || !eventType || typeof eventType !== 'string') {
+    throw new Error('unsupported_event_shape');
+  }
+
   const txHash = event?.data?.transactionHash || event?.transactionHash || null;
   return {
     receipt_id: `rcpt:coinbase_cdp:${eventId}`,
@@ -77,18 +85,25 @@ module.exports = async function handler(req, res) {
 
   const eventId = verified.event?.id || verified.event?.event_id;
   if (!eventId) {
-    return res.status(400).json({ ok: false, status: 'malformed_payload' });
+    return res.status(400).json({ ok: false, status: 'normalization_failed' });
   }
 
   if (seenReceipts.has(eventId)) {
     return res.status(200).json({ ok: true, status: 'WEBHOOK_VERIFIED_AND_SIGNED', duplicate: true, receipt: seenReceipts.get(eventId) });
   }
 
-  const unsignedReceipt = normalizeReceipt(verified.event, signingCfg.signerId);
-  const receipt = await signReceipt(unsignedReceipt, signingCfg);
+  try {
+    const unsignedReceipt = normalizeReceipt(verified.event, signingCfg.signerId);
+    const receipt = await signReceipt(unsignedReceipt, signingCfg);
 
-  seenReceipts.set(eventId, receipt);
-  return res.status(200).json({ ok: true, status: 'WEBHOOK_VERIFIED_AND_SIGNED', duplicate: false, receipt });
+    seenReceipts.set(eventId, receipt);
+    return res.status(200).json({ ok: true, status: 'WEBHOOK_VERIFIED_AND_SIGNED', duplicate: false, receipt });
+  } catch (error) {
+    if (error && error.message === 'unsupported_event_shape') {
+      return res.status(400).json({ ok: false, status: 'normalization_failed' });
+    }
+    return res.status(503).json({ ok: false, status: 'signing_unavailable' });
+  }
 };
 
 module.exports._internal = {
