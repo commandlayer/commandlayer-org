@@ -75,14 +75,25 @@ test('cards_published with missing cards repairs successfully', async () => {
   assert.equal(res.body.status, 'AGENT_CARDS_REPAIRED');
 });
 
-test('public card route returns JSON and missing returns 404', async () => {
-  const handlerOk = load('../api/agent-cards/card', async () => [{ card_json: { ok: true } }]);
-  const okRes = makeRes();
-  await handlerOk({ method: 'GET', query: { ens: 'a.signagent.eth', path: '/agent-cards/agents/v1.1.0/trust/a.signagent.eth.json' } }, okRes);
-  assert.equal(okRes.statusCode, 200);
+test('public card route supports ens and pretty path lookup with .json stripping', async () => {
+  const queries = [];
+  const handlerOk = load('../api/agent-cards/card', async (text, params) => {
+    queries.push(params);
+    return [{ card_json: { ok: true } }];
+  });
 
-  const handlerMissing = load('../api/agent-cards/card', async () => []);
+  const ensRes = makeRes();
+  await handlerOk({ method: 'GET', query: { ens: 'tenant.approveagent.eth' } }, ensRes);
+  assert.equal(ensRes.statusCode, 200);
+  assert.equal(queries[0][0], 'tenant.approveagent.eth');
+
+  const pathRes = makeRes();
+  await handlerOk({ method: 'GET', query: { path: '/agent-cards/agents/v1.1.0/trust/tenant.approveagent.eth.json' } }, pathRes);
+  assert.equal(pathRes.statusCode, 200);
+  assert.equal(queries[1][0], 'tenant.approveagent.eth');
+
   const missRes = makeRes();
-  await handlerMissing({ method: 'GET', query: { ens: 'missing.signagent.eth' } }, missRes);
+  const handlerMissing = load('../api/agent-cards/card', async () => []);
+  await handlerMissing({ method: 'GET', query: { path: '/agent-cards/agents/v1.1.0/trust/missing.approveagent.eth.json' } }, missRes);
   assert.equal(missRes.statusCode, 404);
 });

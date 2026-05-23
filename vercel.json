@@ -1,5 +1,6 @@
 {
   "rewrites": [
-    { "source": "/verify/r/:receipt_id", "destination": "/verify/r/index.html" }
+    { "source": "/verify/r/:receipt_id", "destination": "/verify/r/index.html" },
+    { "source": "/agent-cards/agents/v1.1.0/trust/:ens(.+).json", "destination": "/api/agent-cards/card?ens=:ens" }
   ]
 }

@@ -2,14 +2,23 @@
 
 const db = require('../../lib/db');
 
+function ensFromPath(pathValue) {
+  if (!pathValue) return '';
+  const clean = String(pathValue).split('?')[0].trim();
+  const match = clean.match(/\/agent-cards\/agents\/v[\d.]+\/trust\/([^/]+)$/i);
+  if (!match) return '';
+  return decodeURIComponent(match[1]).replace(/\.json$/i, '');
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'GET') {
     res.setHeader('Allow', 'GET');
     return res.status(405).json({ ok: false, status: 'METHOD_NOT_ALLOWED' });
   }
 
-  const ens = typeof req.query?.ens === 'string' ? req.query.ens.trim() : '';
+  const ensQuery = typeof req.query?.ens === 'string' ? req.query.ens.trim() : '';
   const path = typeof req.query?.path === 'string' ? req.query.path.trim() : '';
+  const ens = ensQuery || ensFromPath(path);
 
   if (!ens && !path) return res.status(400).json({ ok: false, status: 'INVALID_CARD_LOOKUP' });
 
@@ -27,3 +36,5 @@ module.exports = async function handler(req, res) {
     return res.status(500).json({ ok: false, status: 'PUBLIC_AGENT_CARD_LOOKUP_FAILED' });
   }
 };
+
+module.exports.ensFromPath = ensFromPath;
