@@ -197,6 +197,107 @@ test('valid payload returns signed receipt and duplicate returns same receipt', 
 });
 
 
+
+
+test('payments.transfers.completed normalizes payment transfer subject and fields', async () => {
+  process.env.COINBASE_WEBHOOK_SECRET = 'test_secret';
+  process.env.CL_RECEIPT_SIGNER_ID = 'runtime.commandlayer.eth';
+  process.env.CL_RECEIPT_SIGNING_KID = 'test-kid-transfer-completed';
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
+  process.env.CL_RECEIPT_SIGNING_PRIVATE_KEY_PEM = privateKey.export({ type: 'pkcs8', format: 'pem' });
+
+  const pubRaw = publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('base64');
+  const rawBody = JSON.stringify({
+    id: 'evt_transfer_1',
+    type: 'payments.transfers.completed',
+    data: {
+      id: 'pay_123',
+      transfer_id: 'tr_123',
+      payment_id: 'pmt_123',
+      asset: 'USDC',
+      amount: '10.5',
+      network: 'base',
+    },
+  });
+  const timestamp = Math.floor(Date.now() / 1000);
+  const headers = { 'content-type': 'application/json' };
+  const sig = signHook({ secret: process.env.COINBASE_WEBHOOK_SECRET, timestamp, headers, rawBody });
+
+  const res = makeRes();
+  await handler({ method: 'POST', headers: { ...headers, 'x-hook0-signature': sig }, body: rawBody }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.receipt.subject.type, 'payment_transfer');
+  assert.equal(res.body.receipt.subject.id, 'pay_123');
+  assert.equal(res.body.receipt.output.observation.transfer_status, 'completed');
+  assert.equal(res.body.receipt.output.observation.transfer_id, 'tr_123');
+  assert.equal(res.body.receipt.output.observation.asset, 'USDC');
+  assert.equal(res.body.receipt.output.observation.amount, '10.5');
+  assert.equal(res.body.receipt.output.observation.network, 'base');
+  assert.equal(res.body.receipt.metadata.trace.tags.transfer_status, 'completed');
+  assert.equal(res.body.receipt.metadata.trace.tags.transfer_id, 'tr_123');
+
+  const verification = await verifyReceipt(res.body.receipt, {
+    ens: {
+      textResolver: async (name, key) => {
+        if (name !== 'runtime.commandlayer.eth') return null;
+        const records = {
+          'cl.sig.pub': `ed25519:${pubRaw}`,
+          'cl.sig.kid': 'test-kid-transfer-completed',
+          'cl.sig.canonical': 'json.sorted_keys.v1',
+          'cl.receipt.signer': 'runtime.commandlayer.eth',
+        };
+        return records[key] || null;
+      },
+    },
+  });
+  assert.equal(verification.ok, true);
+});
+
+test('payments.transfers.failed includes failed transfer status', async () => {
+  process.env.COINBASE_WEBHOOK_SECRET = 'test_secret';
+  process.env.CL_RECEIPT_SIGNER_ID = 'runtime.commandlayer.eth';
+  process.env.CL_RECEIPT_SIGNING_KID = 'test-kid-transfer-failed';
+  const { privateKey } = crypto.generateKeyPairSync('ed25519');
+  process.env.CL_RECEIPT_SIGNING_PRIVATE_KEY_PEM = privateKey.export({ type: 'pkcs8', format: 'pem' });
+
+  const rawBody = JSON.stringify({
+    id: 'evt_transfer_2',
+    type: 'payments.transfers.failed',
+    data: { transfer_id: 'tr_failed_1' },
+  });
+  const timestamp = Math.floor(Date.now() / 1000);
+  const headers = { 'content-type': 'application/json' };
+  const sig = signHook({ secret: process.env.COINBASE_WEBHOOK_SECRET, timestamp, headers, rawBody });
+
+  const res = makeRes();
+  await handler({ method: 'POST', headers: { ...headers, 'x-hook0-signature': sig }, body: rawBody }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.receipt.output.observation.transfer_status, 'failed');
+  assert.equal(res.body.receipt.metadata.trace.tags.transfer_status, 'failed');
+});
+
+test('unknown event type falls back to event id subject', async () => {
+  process.env.COINBASE_WEBHOOK_SECRET = 'test_secret';
+  process.env.CL_RECEIPT_SIGNER_ID = 'runtime.commandlayer.eth';
+  process.env.CL_RECEIPT_SIGNING_KID = 'test-kid-unknown';
+  const { privateKey } = crypto.generateKeyPairSync('ed25519');
+  process.env.CL_RECEIPT_SIGNING_PRIVATE_KEY_PEM = privateKey.export({ type: 'pkcs8', format: 'pem' });
+
+  const rawBody = JSON.stringify({ id: 'evt_unknown_1', type: 'some.new.event', data: {} });
+  const timestamp = Math.floor(Date.now() / 1000);
+  const headers = { 'content-type': 'application/json' };
+  const sig = signHook({ secret: process.env.COINBASE_WEBHOOK_SECRET, timestamp, headers, rawBody });
+
+  const res = makeRes();
+  await handler({ method: 'POST', headers: { ...headers, 'x-hook0-signature': sig }, body: rawBody }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.receipt.subject.type, 'some.new.event');
+  assert.equal(res.body.receipt.subject.id, 'evt_unknown_1');
+});
+
 test('runtime-compatible alias RECEIPT_SIGNING_PRIVATE_KEY_PEM_B64 signs successfully', async () => {
   process.env.COINBASE_WEBHOOK_SECRET = 'test_secret';
   process.env.RECEIPT_SIGNER_ID = 'runtime.commandlayer.eth';
