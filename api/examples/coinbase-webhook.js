@@ -18,14 +18,18 @@ function normalizeReceipt(event, signerId) {
   }
 
   const txHash = event?.data?.transactionHash || event?.transactionHash || null;
+  const isPaymentTransfer = eventType.startsWith('payments.transfers.');
+  const transferStatus = isPaymentTransfer ? eventType.slice('payments.transfers.'.length) : null;
+  const transferId = event?.data?.transfer_id || event?.data?.id || null;
+  const paymentSubjectId = event?.data?.id || event?.data?.transfer_id || event?.data?.payment_id || eventId;
   return {
     receipt_id: `rcpt:coinbase_cdp:${eventId}`,
     signer: signerId,
     verb: 'observe',
     source: 'coinbase.cdp.webhook',
     subject: {
-      type: eventType,
-      id: txHash || eventId,
+      type: isPaymentTransfer ? 'payment_transfer' : eventType,
+      id: isPaymentTransfer ? paymentSubjectId : (txHash || eventId),
     },
     input: {
       raw_event_summary: {
@@ -39,6 +43,13 @@ function normalizeReceipt(event, signerId) {
         accepted: true,
         provider: 'coinbase_cdp',
         event_type: eventType,
+        ...(isPaymentTransfer ? {
+          transfer_status: transferStatus,
+          ...(transferId ? { transfer_id: transferId } : {}),
+          ...(event?.data?.asset ? { asset: event.data.asset } : {}),
+          ...(event?.data?.amount ? { amount: event.data.amount } : {}),
+          ...(event?.data?.network ? { network: event.data.network } : {}),
+        } : {}),
       },
     },
     execution: {
@@ -53,6 +64,10 @@ function normalizeReceipt(event, signerId) {
         tags: {
           provider: 'coinbase_cdp',
           event_type: eventType,
+          ...(isPaymentTransfer ? {
+            transfer_status: transferStatus,
+            ...(transferId ? { transfer_id: transferId } : {}),
+          } : {}),
         },
       },
     },
