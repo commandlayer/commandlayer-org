@@ -67,26 +67,16 @@
     await loadDetail(selectedClaimId);
     await loadClaims();
   }
-
-  async function publishAgentCards(claimId) {
-    const res = await fetch('/api/admin/publish-agent-cards', {
-      method: 'POST',
-      headers: authHeaders(),
-      body: JSON.stringify({ claimId, actor: 'admin' })
-    });
+  async function publishAgentCards() {
+    const res = await fetch('/api/admin/publish-agent-cards', { method: 'POST', headers: authHeaders(), body: JSON.stringify({ claimId: selectedClaimId }) });
     const data = await res.json();
     if (!res.ok || !data.ok) {
-      claimActionError = {
-        status: data.status || 'REQUEST_FAILED',
-        error: data.error || 'Request failed.',
-        debug: data.debug || null,
-        action: 'publish-agent-cards'
-      };
-      await loadDetail(claimId);
+      claimActionError = { status: data.status || 'REQUEST_FAILED', error: data.error || 'Request failed.', debug: data.debug || null };
+      await loadDetail(selectedClaimId);
       return;
     }
     claimActionError = null;
-    await loadDetail(claimId);
+    await loadDetail(selectedClaimId);
     await loadClaims();
   }
 
@@ -117,8 +107,23 @@
     }
     const mk = (label, cb) => { const b = document.createElement('button'); b.textContent = label; b.addEventListener('click', cb); actionRow.appendChild(b); };
     if (status === 'created') { mk('Approve', () => claimAction('approve', { notes: document.getElementById('notesInput').value })); mk('Reject', () => claimAction('reject', { reason: document.getElementById('reasonInput').value })); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
-    if (status === 'approved') { document.getElementById('nextStep').textContent = 'Next: Publish agent cards.'; mk('Publish agent cards', () => publishAgentCards(selectedClaimId)); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
+    if (status === 'approved') { document.getElementById('nextStep').textContent = 'Next: Publish agent cards'; mk('Publish agent cards', () => publishAgentCards()); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
     if (status === 'rejected') { mk('Reopen / Approve (override)', () => claimAction('approve', { override: true, reason: document.getElementById('reasonInput').value, notes: document.getElementById('notesInput').value })); mk('Mark failed', () => claimAction('mark_failed', { reason: document.getElementById('reasonInput').value })); }
+    if (status === 'cards_published') {
+      const urls = (data.agents || []).map((a) => a.card_url).filter(Boolean);
+      document.getElementById('nextStep').textContent = 'Next: Stripe checkout / payment placeholder';
+      if (urls.length) {
+        const wrap = document.createElement('div');
+        wrap.innerHTML = `<h3>Published card URLs</h3><pre>${JSON.stringify(urls, null, 2)}</pre>`;
+        const row = document.createElement('div'); row.className = 'row';
+        const copyBtn = document.createElement('button'); copyBtn.textContent = 'Copy all card URLs';
+        copyBtn.addEventListener('click', async () => { await navigator.clipboard.writeText(urls.join('\n')); statusEl.textContent = 'Card URLs copied.'; });
+        const openBtn = document.createElement('button'); openBtn.textContent = 'Open first card';
+        openBtn.addEventListener('click', () => window.open(urls[0], '_blank'));
+        row.appendChild(copyBtn); row.appendChild(openBtn); wrap.appendChild(row);
+        detail.appendChild(wrap);
+      }
+    }
     if (status === 'failed') { document.getElementById('nextStep').textContent = 'Failed status: auto-retry is not enabled yet.'; }
     document.getElementById('saveNoteBtn').addEventListener('click', () => claimAction('add_note', { notes: document.getElementById('notesInput').value, reason: document.getElementById('reasonInput').value }));
     document.getElementById('refreshBtn').addEventListener('click', () => loadDetail(claimId));

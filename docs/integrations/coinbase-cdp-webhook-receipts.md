@@ -255,3 +255,46 @@ Required environment variables:
 - `CL_RECEIPT_SIGNING_KID`
 
 Public portability begins after CommandLayer signs the normalized receipt artifact. Third-party verification depends on signer public key distribution (for example ENS text records expected by local verifier logic).
+
+
+## Verified local test flow
+
+Use the local test helper to exercise a Coinbase-style webhook request through the signed example endpoint:
+
+```bash
+node test-coinbase-webhook.js
+```
+
+Expected endpoint result fields:
+
+- `status`: `WEBHOOK_VERIFIED_AND_SIGNED`
+- `signer`: `runtime.commandlayer.eth`
+- `kid`: `vC4WbcNoq2znSCiQ`
+- `canonicalization`: `json.sorted_keys.v1`
+
+Then verify the emitted receipt with the public verifier endpoint:
+
+```bash
+curl -sS -X POST https://www.commandlayer.org/api/verify \
+  -H "Content-Type: application/json" \
+  --data-binary @coinbase-receipt.json
+```
+
+Expected verification result fields:
+
+- `status`: `VERIFIED`
+- `hash_matches`: `true`
+- `signature_valid`: `true`
+- `ens_resolved`: `true`
+- `key_id`: `vC4WbcNoq2znSCiQ`
+
+Trust chain for this flow:
+
+1. Coinbase-style HMAC verified server-side.
+2. Verified event normalized to a CLAS `observe` receipt.
+3. Normalized receipt signed by the CommandLayer runtime signer.
+4. Signed receipt verified by the CommandLayer verifier.
+
+> **Security note**
+> Do not paste or commit `COINBASE_WEBHOOK_SECRET` or private signing keys.
+> Rotate any secret accidentally shared during testing.
