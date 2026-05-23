@@ -30,7 +30,11 @@ module.exports = async function handler(req, res) {
     if (!rows.length) return res.status(404).json({ ok: false, status: 'CARD_NOT_FOUND' });
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=300');
-    return res.status(200).json(rows[0].card_json);
+    const payload = JSON.stringify(rows[0].card_json, null, 2);
+    if (typeof res.send === 'function') return res.status(200).send(payload);
+    if (typeof res.end === 'function') return res.status(200).end(payload);
+    if (typeof res.json === 'function') return res.status(200).json(JSON.parse(payload));
+    return res.status(200);
   } catch (error) {
     console.error('PUBLIC_AGENT_CARD_LOOKUP_FAILED', { message: error.message, code: error.code });
     return res.status(500).json({ ok: false, status: 'PUBLIC_AGENT_CARD_LOOKUP_FAILED' });
