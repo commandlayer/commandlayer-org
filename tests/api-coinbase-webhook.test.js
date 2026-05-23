@@ -159,3 +159,43 @@ test('valid payload returns signed receipt and duplicate returns same receipt', 
   assert.equal(res2.body.duplicate, true);
   assert.deepEqual(res2.body.receipt, res1.body.receipt);
 });
+
+
+test('runtime-compatible alias RECEIPT_SIGNING_PRIVATE_KEY_PEM_B64 signs successfully', async () => {
+  process.env.COINBASE_WEBHOOK_SECRET = 'test_secret';
+  process.env.RECEIPT_SIGNER_ID = 'runtime.commandlayer.eth';
+  process.env.RECEIPT_SIGNING_KID = 'test-kid-2';
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
+  process.env.RECEIPT_SIGNING_PRIVATE_KEY_PEM_B64 = Buffer
+    .from(privateKey.export({ type: 'pkcs8', format: 'pem' }), 'utf8')
+    .toString('base64');
+
+  const pubRaw = publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('base64');
+  const rawBody = JSON.stringify({ id: 'evt_alias_1', type: 'wallet.transaction', data: { transactionHash: '0xdef' } });
+  const timestamp = Math.floor(Date.now() / 1000);
+  const headers = { 'content-type': 'application/json' };
+  const sig = signHook({ secret: process.env.COINBASE_WEBHOOK_SECRET, timestamp, headers, rawBody });
+
+  const res = makeRes();
+  await handler({ method: 'POST', headers: { ...headers, 'x-hook0-signature': sig }, body: rawBody }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.status, 'WEBHOOK_VERIFIED_AND_SIGNED');
+  assert.equal(res.body.receipt.metadata.proof.signature.kid, 'test-kid-2');
+
+  const verification = await verifyReceipt(res.body.receipt, {
+    ens: {
+      textResolver: async (name, key) => {
+        if (name !== 'runtime.commandlayer.eth') return null;
+        const records = {
+          'cl.sig.pub': `ed25519:${pubRaw}`,
+          'cl.sig.kid': 'test-kid-2',
+          'cl.sig.canonical': 'json.sorted_keys.v1',
+          'cl.receipt.signer': 'runtime.commandlayer.eth',
+        };
+        return records[key] || null;
+      },
+    },
+  });
+  assert.equal(verification.ok, true);
+});
