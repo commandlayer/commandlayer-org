@@ -16,8 +16,8 @@
   "implements": ["purchase"],
 
   "schemas": {
-    "request": "https://commandlayer.org/schemas/v1.0.0/commercial/purchase/requests/purchase.request.schema.json",
-    "receipt": "https://commandlayer.org/schemas/v1.0.0/commercial/purchase/receipts/purchase.receipt.schema.json"
+    "request": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.0.0/commercial/purchase/requests/purchase.request.schema.json",
+    "receipt": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.0.0/commercial/purchase/receipts/purchase.receipt.schema.json"
   },
   "schemas_mirror": {
     "request": "https://ipfs.io/ipfs/bafybeiftjpyw6lwy3zm52sipbbwryssg5hoyu2qhr53j5gaqjvwfgfc344/commercial/purchase/requests/purchase.request.schema.json",

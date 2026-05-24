@@ -20,7 +20,7 @@
   "bindings": {
     "shape": "flat",
     "entry_pattern": "x402://<agent>/<verb>/v1.1.0",
-    "schema_root": "https://commandlayer.org/schemas/v1.1.0/commercial"
+    "schema_root": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.1.0/commercial"
   },
   "meta": {
     "agent_cards_version": "1.1.0",

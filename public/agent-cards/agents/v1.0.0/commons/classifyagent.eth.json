@@ -18,8 +18,8 @@
     "receipt": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/classify/receipts/classify.receipt.schema.json"
   },
   "schemas_mirror": {
-    "request": "https://commandlayer.org/schemas/v1.0.0/commons/classify/requests/classify.request.schema.json",
-    "receipt": "https://commandlayer.org/schemas/v1.0.0/commons/classify/receipts/classify.receipt.schema.json"
+    "request": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.0.0/commons/classify/requests/classify.request.schema.json",
+    "receipt": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.0.0/commons/classify/receipts/classify.receipt.schema.json"
   },
   "entry": "x402://classifyagent.eth/classify/v1.0.0",
   "capabilities": {

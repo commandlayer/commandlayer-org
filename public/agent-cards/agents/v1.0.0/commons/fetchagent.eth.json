@@ -18,8 +18,8 @@
     "receipt": "ipfs://bafybeigvf6nkzws7dblos74dqqjkguwkrwn4a2c27ieygoxmgofyzdkz6m/commons/fetch/receipts/fetch.receipt.schema.json"
   },
   "schemas_mirror": {
-    "request": "https://commandlayer.org/schemas/v1.0.0/commons/fetch/requests/fetch.request.schema.json",
-    "receipt": "https://commandlayer.org/schemas/v1.0.0/commons/fetch/receipts/fetch.receipt.schema.json"
+    "request": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.0.0/commons/fetch/requests/fetch.request.schema.json",
+    "receipt": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.0.0/commons/fetch/receipts/fetch.receipt.schema.json"
   },
   "entry": "x402://fetchagent.eth/fetch/v1.0.0",
   "capabilities": {

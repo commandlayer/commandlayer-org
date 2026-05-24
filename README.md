@@ -86,4 +86,4 @@ Tampered receipt:
 
 ## Schema source of truth
 
-CommandLayer commons schemas are canonical in `commandlayer-clas`. This repository may mirror selected stable public schemas only when required for verifier/docs convenience. Stale commons and commercial schema families are not hosted here by default.
+Canonical CLAS schemas live in commandlayer-clas. commandlayer.org hosts docs, verifier surfaces, and selected public examples only.

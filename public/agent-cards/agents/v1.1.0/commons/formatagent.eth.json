@@ -11,8 +11,8 @@
     "format"
   ],
   "schemas": {
-    "request": "https://commandlayer.org/schemas/v1.1.0/commons/format/format.request.schema.json",
-    "receipt": "https://commandlayer.org/schemas/v1.1.0/commons/format/format.receipt.schema.json"
+    "request": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.1.0/commons/format/format.request.schema.json",
+    "receipt": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.1.0/commons/format/format.receipt.schema.json"
   },
   "entry": "https://runtime.commandlayer.org/execute",
   "networks": [
