@@ -12,6 +12,36 @@ function asConflict(res, status, error) {
   return res.status(409).json({ ok: false, status, error });
 }
 
+function getSanitizedSiteUrl() {
+  const rawSiteUrl = process.env.COMMANDLAYER_SITE_URL;
+  const siteUrl = typeof rawSiteUrl === 'string' && rawSiteUrl.trim()
+    ? rawSiteUrl.trim()
+    : 'https://www.commandlayer.org';
+
+  if (siteUrl.includes(',')) {
+    const error = new Error('COMMANDLAYER_SITE_URL must be a valid https://www.commandlayer.org URL.');
+    error.code = 'SITE_URL_INVALID';
+    throw error;
+  }
+
+  let parsed;
+  try {
+    parsed = new URL(siteUrl);
+  } catch (_error) {
+    const error = new Error('COMMANDLAYER_SITE_URL must be a valid https://www.commandlayer.org URL.');
+    error.code = 'SITE_URL_INVALID';
+    throw error;
+  }
+
+  if (parsed.protocol !== 'https:' || !['commandlayer.org', 'www.commandlayer.org'].includes(parsed.hostname)) {
+    const error = new Error('COMMANDLAYER_SITE_URL must be a valid https://www.commandlayer.org URL.');
+    error.code = 'SITE_URL_INVALID';
+    throw error;
+  }
+
+  return `${parsed.origin}${parsed.pathname}`.replace(/\/$/, '');
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
@@ -63,7 +93,16 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const siteUrl = process.env.COMMANDLAYER_SITE_URL || 'https://www.commandlayer.org';
+    let siteUrl;
+    try {
+      siteUrl = getSanitizedSiteUrl();
+    } catch (error) {
+      if (error?.code === 'SITE_URL_INVALID') {
+        return asServiceUnavailable(res, 'SITE_URL_INVALID', 'COMMANDLAYER_SITE_URL must be a valid https://www.commandlayer.org URL.');
+      }
+      throw error;
+    }
+
     const successUrl = `${siteUrl}/claim/status.html?claimId=${encodeURIComponent(claimId)}&payment=success`;
     const cancelUrl = `${siteUrl}/claim/status.html?claimId=${encodeURIComponent(claimId)}&payment=cancelled`;
 
