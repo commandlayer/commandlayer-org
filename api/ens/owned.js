@@ -8,7 +8,28 @@ function getAddressInput(req) {
 }
 
 function hasProviderConfig() {
-  return Boolean(process.env.ALCHEMY_ETH_RPC_URL || process.env.ETH_RPC_URL || process.env.ALCHEMY_ETH_API_KEY || process.env.SIMPLEHASH_API_KEY);
+  return Boolean(
+    getMainnetRpcUrl() ||
+    process.env.ALCHEMY_ETH_API_KEY ||
+    process.env.ALCHEMY_API_KEY ||
+    process.env.SIMPLEHASH_API_KEY
+  );
+}
+
+function getMainnetRpcUrl() {
+  const direct = [
+    process.env.ETHEREUM_RPC_URL,
+    process.env.MAINNET_RPC_URL,
+    process.env.ALCHEMY_ETHEREUM_RPC_URL,
+    process.env.ALCHEMY_ETH_RPC_URL,
+    process.env.ETH_RPC_URL,
+  ].find((value) => typeof value === 'string' && value.trim());
+  if (direct) return direct.trim();
+
+  const alchemyKey = [process.env.ALCHEMY_API_KEY, process.env.ALCHEMY_ETH_API_KEY]
+    .find((value) => typeof value === 'string' && value.trim());
+  if (alchemyKey) return `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey.trim()}`;
+  return '';
 }
 
 function normalizeAddress(raw) {
@@ -20,8 +41,9 @@ function normalizeAddress(raw) {
 async function reverseResolvePrimary(address) {
   try {
     const { ethers } = require('ethers');
-    const rpcUrl = process.env.ALCHEMY_ETH_RPC_URL || process.env.ETH_RPC_URL || '';
-    const provider = rpcUrl ? new ethers.JsonRpcProvider(rpcUrl) : new ethers.AlchemyProvider('mainnet', process.env.ALCHEMY_ETH_API_KEY);
+    const rpcUrl = getMainnetRpcUrl();
+    if (!rpcUrl) return null;
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
     const primary = await provider.lookupAddress(address);
     return primary || null;
   } catch {
@@ -91,4 +113,8 @@ module.exports = async function handler(req, res) {
       controlStatus: 'not_checked'
     }))
   });
+};
+
+module.exports._private = {
+  getMainnetRpcUrl,
 };
