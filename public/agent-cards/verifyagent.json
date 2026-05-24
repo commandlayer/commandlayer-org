@@ -1,0 +1,17 @@
+{
+  "agent_id": "verifyagent.eth",
+  "name": "VerifyAgent",
+  "version": "1.0.0",
+  "description": "Public verification agent card for CommandLayer receipt proof validation.",
+  "capabilities": [
+    "receipt.verify"
+  ],
+  "endpoints": {
+    "verifier": "https://runtime.commandlayer.org/verify",
+    "docs": "https://commandlayer.org/verifyagent.html"
+  },
+  "identity": {
+    "organization": "CommandLayer",
+    "website": "https://commandlayer.org"
+  }
+}
