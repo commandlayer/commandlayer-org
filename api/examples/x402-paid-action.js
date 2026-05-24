@@ -1,6 +1,7 @@
 'use strict';
 
 const { signReceipt, resolveReceiptSigningConfigFromEnv, hasValidSigningConfig } = require('../../lib/receiptSigning');
+const { verifyWithProvider } = require('../../lib/x402ProviderVerification');
 
 const seenReceipts = new Map();
 const MAX_TEXT_LENGTH = 4000;
@@ -11,12 +12,12 @@ function buildDeterministicSummary(text) {
   return prefix.length < normalized.length ? `${prefix}…` : prefix;
 }
 
-function normalizePaidActionReceipt(payload, signerId) {
+function normalizePaidActionReceipt(payload, signerId, verificationResult) {
   const timestamp = new Date().toISOString();
   const paymentId = payload.payment.payment_id;
   const requestId = payload.request_id;
 
-  return {
+  const receipt = {
     receipt_id: `rcpt:x402:${paymentId}:${requestId}`,
     signer: signerId,
     verb: 'summarize',
@@ -40,6 +41,7 @@ function normalizePaidActionReceipt(payload, signerId) {
     output: {
       summary: buildDeterministicSummary(payload.input.text),
       payment_accepted: true,
+      payment_verification_mode: verificationResult.paymentVerificationMode,
     },
     execution: { status: 'succeeded' },
     ts: timestamp,
@@ -52,10 +54,23 @@ function normalizePaidActionReceipt(payload, signerId) {
           payment_protocol: 'x402',
           payment_id: paymentId,
           action: 'summarize.text',
+          payment_verification_mode: verificationResult.paymentVerificationMode,
         },
       },
     },
   };
+
+  if (verificationResult.provider) {
+    const safeProvider = {};
+    if (verificationResult.provider.provider) safeProvider.provider = verificationResult.provider.provider;
+    if (verificationResult.provider.status) safeProvider.status = verificationResult.provider.status;
+    if (verificationResult.provider.reference) safeProvider.reference = verificationResult.provider.reference;
+    if (Object.keys(safeProvider).length) {
+      receipt.metadata.trace.provider_verification = safeProvider;
+    }
+  }
+
+  return receipt;
 }
 
 function parsePayload(body) {
@@ -115,6 +130,11 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ ok: false, status: 'payment_invalid' });
   }
 
+  const verificationResult = await verifyWithProvider({ payload, req });
+  if (!verificationResult.ok) {
+    return res.status(verificationResult.httpStatus).json({ ok: false, status: verificationResult.status });
+  }
+
   const dedupeKey = `${requestId}::${payment.payment_id}`;
   if (seenReceipts.has(dedupeKey)) {
     return res.status(200).json({ ok: true, status: 'PAID_ACTION_EXECUTED_AND_SIGNED', duplicate: true, receipt: seenReceipts.get(dedupeKey) });
@@ -126,7 +146,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const unsignedReceipt = normalizePaidActionReceipt(payload, signingCfg.signerId || 'runtime.commandlayer.eth');
+    const unsignedReceipt = normalizePaidActionReceipt(payload, signingCfg.signerId || 'runtime.commandlayer.eth', verificationResult);
     const receipt = await signReceipt(unsignedReceipt, signingCfg);
     seenReceipts.set(dedupeKey, receipt);
     return res.status(200).json({ ok: true, status: 'PAID_ACTION_EXECUTED_AND_SIGNED', duplicate: false, receipt });

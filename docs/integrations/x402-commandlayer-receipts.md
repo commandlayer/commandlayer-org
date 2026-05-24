@@ -297,6 +297,23 @@ A server-side example endpoint is available at `POST /api/examples/x402-paid-act
 
 The endpoint returns status `PAID_ACTION_EXECUTED_AND_SIGNED` with a signed CLAS-style receipt.
 
+### Verification modes
+
+The example supports two server-side payment verification modes:
+
+- `demo_accepted_envelope` (default): used when `X402_PROVIDER_VERIFICATION_URL` is not configured. In this mode, the endpoint accepts the declared `payment.protocol = x402` + `payment.status = accepted` envelope and marks the receipt with `payment_verification_mode: "demo_accepted_envelope"`.
+- `provider_verified`: enabled only when `X402_PROVIDER_VERIFICATION_URL` is configured. In this mode, the server posts the payment envelope and request metadata to the provider verification endpoint and executes only when provider verification indicates accepted/settled payment.
+
+Optional provider auth:
+
+- `X402_PROVIDER_API_KEY`: when set, the server sends `Authorization: Bearer <key>` to the provider verification endpoint.
+- Keys are not returned in API responses or receipt metadata.
+
+Failure mapping in provider mode:
+
+- Provider payment rejection: `400 payment_invalid` or `402 payment_required`.
+- Provider unavailable/network/malformed response: `503 payment_provider_unavailable`.
+
 ### Verification command
 
 You can verify the returned receipt with the existing verify endpoint:
@@ -323,6 +340,6 @@ Example verified result pattern (redacted for safety):
 - signature_valid: `true`
 - key_id: `vC4WbcNoq2znSCiQ`
 
-This shows a paid action can emit signed execution proof after an accepted x402 payment envelope is validated.
+This shows a paid action can emit signed execution proof after payment verification succeeds under the active mode.
 
-The example validates an accepted x402 payment envelope; it does not claim full production settlement unless wired to a real x402 provider.
+Important: CommandLayer proves execution and receipt integrity; x402 + the configured provider prove payment acceptance/settlement. The default example remains a demo accepted-envelope flow unless `X402_PROVIDER_VERIFICATION_URL` is configured.
