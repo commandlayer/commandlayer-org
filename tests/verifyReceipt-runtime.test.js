@@ -114,6 +114,57 @@ test('allows explicit local fallback for test/demo mode only when enabled', asyn
   assert.equal(out.reason, 'Receipt is invalid, tampered, or does not match the signer key metadata.');
 });
 
+
+test('fails with key_resolution_failed when ENS resolver throws', async () => {
+  const { receipt } = await makeRuntimeReceipt();
+  const out = await verifyReceipt(receipt, {
+    ens: {
+      textResolver: async () => {
+        throw new Error('resolver offline');
+      },
+      allowLocalFallback: false,
+    },
+  });
+
+  assert.equal(out.status, 'INVALID');
+  assert.equal(out.reason, 'Receipt is invalid, tampered, or does not match the signer key metadata.');
+  assert.equal(out.debug.key_resolution_error, 'key_resolution_failed');
+  assert.equal(out.public_key_source, 'ens_txt');
+});
+
+test('allows env-flag local fallback only when COMMANDLAYER_ALLOW_LOCAL_KEY_FALLBACK=true', async () => {
+  const previous = process.env.COMMANDLAYER_ALLOW_LOCAL_KEY_FALLBACK;
+  const previousNodeEnv = process.env.NODE_ENV;
+
+  try {
+    process.env.NODE_ENV = 'production';
+    process.env.COMMANDLAYER_ALLOW_LOCAL_KEY_FALLBACK = 'false';
+
+    const { receipt } = await makeRuntimeReceipt();
+    const withoutFlag = await verifyReceipt(receipt, {
+      ens: { textResolver: async () => null },
+    });
+
+    assert.equal(withoutFlag.status, 'INVALID');
+    assert.equal(withoutFlag.reason, 'ens_key_unavailable');
+    assert.equal(withoutFlag.public_key_source, 'ens_txt');
+
+    process.env.COMMANDLAYER_ALLOW_LOCAL_KEY_FALLBACK = 'true';
+    const withFlag = await verifyReceipt(receipt, {
+      ens: { textResolver: async () => null },
+    });
+
+    assert.equal(withFlag.status, 'INVALID');
+    assert.equal(withFlag.public_key_source, 'local_test_fallback');
+  } finally {
+    if (previous === undefined) delete process.env.COMMANDLAYER_ALLOW_LOCAL_KEY_FALLBACK;
+    else process.env.COMMANDLAYER_ALLOW_LOCAL_KEY_FALLBACK = previous;
+
+    if (previousNodeEnv === undefined) delete process.env.NODE_ENV;
+    else process.env.NODE_ENV = previousNodeEnv;
+  }
+});
+
 test('tampered receipt invalidates', async () => {
   const { receipt, rawPub } = await makeRuntimeReceipt();
   receipt.output.ok = false;

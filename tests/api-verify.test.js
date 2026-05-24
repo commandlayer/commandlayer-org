@@ -32,7 +32,8 @@ test('POST /api/verify with canonical sample fixture => INVALID', async () => {
   assert.equal(res.body.ok, false);
   assert.equal(res.body.status, 'INVALID');
   assert.equal(typeof res.body.public_key_source, 'string');
-  });
+  assert.equal(res.body.public_key_source, 'ens_txt');
+});
 
 
 
