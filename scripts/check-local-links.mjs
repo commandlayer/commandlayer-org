@@ -10,7 +10,6 @@ const DYNAMIC_ROUTE_ALLOWLIST = new Set([
   '/api/verify',
   '/api/agents/verifyagent',
   '/api/examples/coinbase-webhook',
-  '/api/examples/x402-paid-action',
   '/api/auth/nonce',
   '/api/auth/verify',
   '/api/ens/owned'
