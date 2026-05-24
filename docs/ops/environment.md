@@ -6,8 +6,8 @@ This document lists production-focused environment variables used by `commandlay
 
 For production ENS-related lookups, configure **one explicit mainnet RPC endpoint**:
 
-- Preferred: `ETHEREUM_RPC_URL`
-- Backward-compatible alternatives: `MAINNET_RPC_URL`, `ALCHEMY_ETHEREUM_RPC_URL`
+- Preferred: `ETHEREUM_RPC_URL=https://eth-mainnet.g.alchemy.com/v2/<key>`
+- Backward-compatible alternatives: `MAINNET_RPC_URL`, `ALCHEMY_ETHEREUM_RPC_URL`, `ALCHEMY_ETH_RPC_URL`, `ETH_RPC_URL`
 - If only `ALCHEMY_API_KEY` is set, the app constructs `https://eth-mainnet.g.alchemy.com/v2/<key>`.
 - Default/provider fallback is last resort and can hit shared-rate limits.
 
@@ -15,7 +15,7 @@ For production ENS-related lookups, configure **one explicit mainnet RPC endpoin
 
 | Env var | Required | Used by | Production purpose | Safe example placeholder |
 |---|---|---|---|---|
-| `ETHEREUM_RPC_URL` | Recommended | `api/ens/owned.js` | Primary explicit Ethereum mainnet RPC for ENS reverse lookup without shared default provider throttling. | `https://mainnet.example-rpc.com/v1/<project-id>` |
+| `ETHEREUM_RPC_URL` | Recommended | `api/ens/owned.js`, `lib/verifyReceipt.js` (`/api/verify`, `/api/agents/verifyagent`) | Primary explicit Ethereum mainnet RPC for ENS reverse lookup and receipt ENS TXT verification without shared default provider throttling. | `https://mainnet.example-rpc.com/v1/<project-id>` |
 | `MAINNET_RPC_URL` | Optional | `api/ens/owned.js` | Backward-compatible alternative mainnet RPC variable. | `https://mainnet.example-rpc.com/v1/<project-id>` |
 | `ALCHEMY_ETHEREUM_RPC_URL` | Optional | `api/ens/owned.js` | Backward-compatible explicit Alchemy HTTPS RPC URL. | `https://eth-mainnet.g.alchemy.com/v2/<alchemy-key>` |
 | `ALCHEMY_API_KEY` | Optional | `api/ens/owned.js` | If set (without explicit RPC URL), converted to an Alchemy mainnet HTTPS RPC URL. | `<alchemy-api-key>` |

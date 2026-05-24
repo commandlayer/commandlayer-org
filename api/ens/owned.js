@@ -1,5 +1,7 @@
 'use strict';
 
+const { createMainnetProvider, getMainnetRpcUrl } = require('../../lib/mainnetRpc');
+
 function getAddressInput(req) {
   const queryAddress = req && req.query && typeof req.query.address === 'string' ? req.query.address : '';
   if (queryAddress) return queryAddress;
@@ -16,22 +18,6 @@ function hasProviderConfig() {
   );
 }
 
-function getMainnetRpcUrl() {
-  const direct = [
-    process.env.ETHEREUM_RPC_URL,
-    process.env.MAINNET_RPC_URL,
-    process.env.ALCHEMY_ETHEREUM_RPC_URL,
-    process.env.ALCHEMY_ETH_RPC_URL,
-    process.env.ETH_RPC_URL,
-  ].find((value) => typeof value === 'string' && value.trim());
-  if (direct) return direct.trim();
-
-  const alchemyKey = [process.env.ALCHEMY_API_KEY, process.env.ALCHEMY_ETH_API_KEY]
-    .find((value) => typeof value === 'string' && value.trim());
-  if (alchemyKey) return `https://eth-mainnet.g.alchemy.com/v2/${alchemyKey.trim()}`;
-  return '';
-}
-
 function normalizeAddress(raw) {
   const value = String(raw || '').trim();
   if (!/^0x[a-fA-F0-9]{40}$/.test(value)) throw new Error('invalid_address');
@@ -40,10 +26,8 @@ function normalizeAddress(raw) {
 
 async function reverseResolvePrimary(address) {
   try {
-    const { ethers } = require('ethers');
-    const rpcUrl = getMainnetRpcUrl();
-    if (!rpcUrl) return null;
-    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    const provider = createMainnetProvider();
+    if (!provider) return null;
     const primary = await provider.lookupAddress(address);
     return primary || null;
   } catch {

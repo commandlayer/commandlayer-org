@@ -72,7 +72,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const verification = await verifyReceipt(req.body.receipt);
+    const verification = await verifyReceipt(req.body.receipt, req.verifyOptions || {});
     return res.status(200).json({
       agent: 'verifyagent.eth',
       action: 'verify_receipt',
