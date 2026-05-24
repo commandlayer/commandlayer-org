@@ -21,8 +21,8 @@
   "commandLayerVerb": "convert",
   "commandLayerVersion": "1.1.0",
   "agentCard": "https://commandlayer.org/agent-cards/agents/v1.1.0/commons/convertagent.eth.json",
-  "schemaRequest": "https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.request.schema.json",
-  "schemaReceipt": "https://commandlayer.org/schemas/v1.1.0/commons/convert/convert.receipt.schema.json",
+  "schemaRequest": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.1.0/commons/convert/convert.request.schema.json",
+  "schemaReceipt": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.1.0/commons/convert/convert.receipt.schema.json",
   "receiptSigner": "runtime.commandlayer.eth",
   "receiptAlgorithm": "ed25519",
   "owner": "commandlayer.eth"

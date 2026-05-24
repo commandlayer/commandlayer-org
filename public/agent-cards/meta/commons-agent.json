@@ -20,7 +20,7 @@
   "bindings": {
     "shape": "flat",
     "entry": "https://runtime.commandlayer.org/execute",
-    "schema_root": "https://commandlayer.org/schemas/v1.1.0/commons"
+    "schema_root": "https://github.com/commandlayer/commandlayer-clas/tree/main/schemas/v1.1.0/commons"
   },
   "meta": {
     "agent_cards_version": "1.1.0",
