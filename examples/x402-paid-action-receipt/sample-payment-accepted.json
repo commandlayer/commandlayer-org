@@ -1,9 +1,0 @@
-{
-  "event": "payment.accepted",
-  "request_id": "req_9f2f5f25",
-  "payment_id": "pay_x402_7f31",
-  "provider": "x402-compatible",
-  "settled_amount": "0.05",
-  "currency": "USD",
-  "accepted_at": "2026-05-22T12:00:01Z"
-}

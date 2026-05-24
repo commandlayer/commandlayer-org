@@ -25,8 +25,6 @@ For production ENS-related lookups, configure **one explicit mainnet RPC endpoin
 | `CL_RECEIPT_SIGNER_ID` | Required (for CL-prefixed signing path) | `lib/receiptSigning.js`, webhook/x402 APIs | Canonical signer ID used in receipt proof metadata. | `runtime.commandlayer.eth` |
 | `CL_RECEIPT_SIGNING_KID` | Required (for CL-prefixed signing path) | `lib/receiptSigning.js`, webhook/x402 APIs | Key identifier for receipt signature metadata. | `kid_prod_2026_01` |
 | `RECEIPT_SIGNING_PRIVATE_KEY_PEM_B64` | Required (legacy/non-CL path) | `lib/receiptSigning.js`, webhook/x402 APIs | Base64-encoded PEM private key used to sign receipts when legacy variable path is used. | `<base64-encoded-pem>` |
-| `X402_PROVIDER_VERIFICATION_URL` | Optional (required for provider-verification mode) | `lib/x402ProviderVerification.js`, `api/examples/x402-paid-action.js` | External payment-provider verification endpoint for x402 flow. | `https://provider.example.com/verify` |
-| `X402_PROVIDER_API_KEY` | Optional | `lib/x402ProviderVerification.js` | Bearer token for provider-verification endpoint authentication. | `<provider-api-key>` |
 
 ## Notes
 
