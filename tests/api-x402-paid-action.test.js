@@ -19,6 +19,7 @@ function makeRes() {
 }
 
 const originalEnv = { ...process.env };
+const originalFetch = global.fetch;
 
 function validPayload(overrides = {}) {
   return {
@@ -37,6 +38,14 @@ function validPayload(overrides = {}) {
   };
 }
 
+function setSigningEnv() {
+  process.env.CL_RECEIPT_SIGNER_ID = 'runtime.commandlayer.eth';
+  process.env.CL_RECEIPT_SIGNING_KID = 'x402-kid-1';
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
+  process.env.CL_RECEIPT_SIGNING_PRIVATE_KEY_PEM = privateKey.export({ type: 'pkcs8', format: 'pem' });
+  return publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('base64');
+}
+
 test.beforeEach(() => {
   process.env = { ...originalEnv };
   delete process.env.CL_RECEIPT_SIGNER_ID;
@@ -45,11 +54,15 @@ test.beforeEach(() => {
   delete process.env.RECEIPT_SIGNER_ID;
   delete process.env.RECEIPT_SIGNING_KID;
   delete process.env.RECEIPT_SIGNING_PRIVATE_KEY_PEM_B64;
+  delete process.env.X402_PROVIDER_VERIFICATION_URL;
+  delete process.env.X402_PROVIDER_API_KEY;
+  global.fetch = originalFetch;
   handler._internal.clearSeen();
 });
 
 test.after(() => {
   process.env = originalEnv;
+  global.fetch = originalFetch;
 });
 
 test('GET returns 405', async () => {
@@ -100,22 +113,16 @@ test('missing signing env returns 503 after valid request', async () => {
   assert.equal(res.body.status, 'signing_unavailable');
 });
 
-test('valid paid action returns signed receipt; duplicate returns same receipt; verifies locally', async () => {
-  process.env.CL_RECEIPT_SIGNER_ID = 'runtime.commandlayer.eth';
-  process.env.CL_RECEIPT_SIGNING_KID = 'x402-kid-1';
-  const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
-  process.env.CL_RECEIPT_SIGNING_PRIVATE_KEY_PEM = privateKey.export({ type: 'pkcs8', format: 'pem' });
-
-  const pubRaw = publicKey.export({ format: 'der', type: 'spki' }).subarray(-32).toString('base64');
+test('demo mode returns signed receipt, includes verification mode, duplicate returns same receipt; verifies locally', async () => {
+  const pubRaw = setSigningEnv();
 
   const res1 = makeRes();
   await handler({ method: 'POST', headers: {}, body: validPayload() }, res1);
   assert.equal(res1.statusCode, 200);
   assert.equal(res1.body.status, 'PAID_ACTION_EXECUTED_AND_SIGNED');
   assert.equal(res1.body.duplicate, false);
-  assert.equal(res1.body.receipt.metadata.trace.trace_id, 'x402:req_1');
-  assert.equal(res1.body.receipt.metadata.proof.hash.alg, 'SHA-256');
-  assert.equal(res1.body.receipt.metadata.proof.signature.alg, 'Ed25519');
+  assert.equal(res1.body.receipt.output.payment_verification_mode, 'demo_accepted_envelope');
+  assert.equal(res1.body.receipt.metadata.trace.tags.payment_verification_mode, 'demo_accepted_envelope');
 
   const verification = await verifyReceipt(res1.body.receipt, {
     ens: {
@@ -138,4 +145,79 @@ test('valid paid action returns signed receipt; duplicate returns same receipt; 
   assert.equal(res2.statusCode, 200);
   assert.equal(res2.body.duplicate, true);
   assert.deepEqual(res2.body.receipt, res1.body.receipt);
+});
+
+test('provider mode success returns provider_verified and safe provider metadata', async () => {
+  const pubRaw = setSigningEnv();
+  process.env.X402_PROVIDER_VERIFICATION_URL = 'https://provider.example/verify';
+  process.env.X402_PROVIDER_API_KEY = 'super-secret-token';
+
+  global.fetch = async (_url, options) => {
+    assert.equal(options.headers.Authorization, 'Bearer super-secret-token');
+    return {
+      ok: true,
+      status: 200,
+      async json() {
+        return { accepted: true, status: 'settled', reference: 'prov_ref_123', provider: 'demo-provider' };
+      },
+    };
+  };
+
+  const res = makeRes();
+  await handler({ method: 'POST', headers: {}, body: validPayload() }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.receipt.output.payment_verification_mode, 'provider_verified');
+  assert.equal(res.body.receipt.metadata.trace.tags.payment_verification_mode, 'provider_verified');
+  assert.equal(res.body.receipt.metadata.trace.provider_verification.reference, 'prov_ref_123');
+  assert.equal(JSON.stringify(res.body).includes('super-secret-token'), false);
+
+  const verification = await verifyReceipt(res.body.receipt, {
+    ens: {
+      textResolver: async (name, key) => {
+        if (name !== 'runtime.commandlayer.eth') return null;
+        const records = {
+          'cl.sig.pub': `ed25519:${pubRaw}`,
+          'cl.sig.kid': 'x402-kid-1',
+          'cl.sig.canonical': 'json.sorted_keys.v1',
+          'cl.receipt.signer': 'runtime.commandlayer.eth',
+        };
+        return records[key] || null;
+      },
+    },
+  });
+  assert.equal(verification.ok, true);
+});
+
+test('provider mode rejection returns payment_invalid/payment_required', async () => {
+  setSigningEnv();
+  process.env.X402_PROVIDER_VERIFICATION_URL = 'https://provider.example/verify';
+
+  global.fetch = async () => ({ ok: false, status: 400, async json() { return { status: 'invalid' }; } });
+  const invalidRes = makeRes();
+  await handler({ method: 'POST', headers: {}, body: validPayload() }, invalidRes);
+  assert.equal(invalidRes.statusCode, 400);
+  assert.equal(invalidRes.body.status, 'payment_invalid');
+
+  global.fetch = async () => ({ ok: false, status: 402, async json() { return { status: 'required' }; } });
+  const requiredRes = makeRes();
+  await handler({ method: 'POST', headers: {}, body: validPayload({ request_id: 'req_2', payment: { ...validPayload().payment, payment_id: 'pay_2' } }) }, requiredRes);
+  assert.equal(requiredRes.statusCode, 402);
+  assert.equal(requiredRes.body.status, 'payment_required');
+});
+
+test('provider unavailable/malformed response returns 503 payment_provider_unavailable', async () => {
+  setSigningEnv();
+  process.env.X402_PROVIDER_VERIFICATION_URL = 'https://provider.example/verify';
+
+  global.fetch = async () => { throw new Error('network'); };
+  const networkRes = makeRes();
+  await handler({ method: 'POST', headers: {}, body: validPayload() }, networkRes);
+  assert.equal(networkRes.statusCode, 503);
+  assert.equal(networkRes.body.status, 'payment_provider_unavailable');
+
+  global.fetch = async () => ({ ok: true, status: 200, async json() { return 'bad'; } });
+  const malformedRes = makeRes();
+  await handler({ method: 'POST', headers: {}, body: validPayload({ request_id: 'req_3', payment: { ...validPayload().payment, payment_id: 'pay_3' } }) }, malformedRes);
+  assert.equal(malformedRes.statusCode, 503);
+  assert.equal(malformedRes.body.status, 'payment_provider_unavailable');
 });
