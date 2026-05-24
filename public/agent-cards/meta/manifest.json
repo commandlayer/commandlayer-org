@@ -26,7 +26,7 @@
   },
   "bindings": {
     "commons": {
-      "source_repo": "https://github.com/commandlayer/protocol-commons",
+      "source_repo": "https://github.com/commandlayer/commandlayer-clas",
       "source_tag": "v1.1.0",
       "shape": "flat",
       "count": 10,
