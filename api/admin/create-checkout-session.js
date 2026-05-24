@@ -54,6 +54,7 @@ module.exports = async function handler(req, res) {
 
   const body = req.body || {};
   const claimId = typeof body.claimId === 'string' ? body.claimId.trim() : '';
+  const forceNew = body.forceNew === true;
   if (!claimId) return res.status(400).json({ ok: false, status: 'INVALID_CLAIM_ID' });
 
   let stripe;
@@ -83,7 +84,7 @@ module.exports = async function handler(req, res) {
       return asConflict(res, 'CLAIM_NOT_READY_FOR_PAYMENT', 'Claim must be cards_published before creating checkout.');
     }
 
-    if (claim.status === 'payment_pending' && claim.stripe_checkout_session_id) {
+    if (claim.status === 'payment_pending' && claim.stripe_checkout_session_id && !forceNew) {
       return res.status(200).json({
         ok: true,
         status: 'CHECKOUT_SESSION_CREATED',
@@ -146,8 +147,13 @@ module.exports = async function handler(req, res) {
     await db.query(
       `insert into claim_payments (claim_id, provider, stripe_checkout_session_id, amount_cents, currency, status, metadata_json)
        values ($1, 'stripe', $2, $3, 'usd', 'pending', $4::jsonb)
-       on conflict (stripe_checkout_session_id)
-       do update set status = excluded.status, metadata_json = excluded.metadata_json, updated_at = now()`,
+       on conflict (claim_id, provider)
+       do update set stripe_checkout_session_id = excluded.stripe_checkout_session_id,
+                     amount_cents = excluded.amount_cents,
+                     currency = excluded.currency,
+                     status = excluded.status,
+                     metadata_json = excluded.metadata_json,
+                     updated_at = now()`,
       [claimId, session.id, 2000, JSON.stringify({ checkoutUrl: session.url || null })]
     );
 
@@ -163,10 +169,17 @@ module.exports = async function handler(req, res) {
       [claimId, 2000, session.id]
     );
 
+    const eventType = forceNew && fromStatus === 'payment_pending'
+      ? 'payment.checkout_regenerated'
+      : 'payment.checkout_created';
+    const eventMessage = forceNew && fromStatus === 'payment_pending'
+      ? 'Stripe checkout regenerated.'
+      : 'Stripe checkout created.';
+
     await db.query(
       `insert into claim_events (claim_id, event_type, actor, message, event_json)
-       values ($1, 'payment.checkout_created', 'system', $2, $3::jsonb)`,
-      [claimId, 'Stripe checkout created.', JSON.stringify({ sessionId: session.id, checkoutUrl: session.url || null })]
+       values ($1, $2, 'system', $3, $4::jsonb)`,
+      [claimId, eventType, eventMessage, JSON.stringify({ sessionId: session.id, checkoutUrl: session.url || null })]
     );
 
     if (fromStatus === 'cards_published') {
@@ -177,7 +190,13 @@ module.exports = async function handler(req, res) {
       );
     }
 
-    return res.status(200).json({ ok: true, status: 'CHECKOUT_SESSION_CREATED', claimId, checkoutUrl: session.url || null, sessionId: session.id });
+    return res.status(200).json({
+      ok: true,
+      status: forceNew && fromStatus === 'payment_pending' ? 'CHECKOUT_SESSION_REGENERATED' : 'CHECKOUT_SESSION_CREATED',
+      claimId,
+      checkoutUrl: session.url || null,
+      sessionId: session.id
+    });
   } catch (error) {
     console.error('ADMIN_CREATE_CHECKOUT_SESSION_UNEXPECTED', { message: error?.message, code: error?.code, claimId });
     return res.status(500).json({ ok: false, status: 'ADMIN_CREATE_CHECKOUT_SESSION_FAILED', error: 'Failed to create checkout session.' });
