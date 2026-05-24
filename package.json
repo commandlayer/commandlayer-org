@@ -13,6 +13,7 @@
     "ajv-formats": "^3.0.1",
     "ethers": "^6.16.0",
     "siwe": "^3.0.0",
-    "@neondatabase/serverless": "^1.0.0"
+    "@neondatabase/serverless": "^1.0.0",
+    "stripe": "^18.3.0"
   }
 }
