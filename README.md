@@ -82,3 +82,8 @@ Tampered receipt:
 - Schemas describe.
 - Schema-valid alone is not verified.
 - Webhook sender authentication is separate from receipt verification.
+
+
+## Schema source of truth
+
+CommandLayer commons schemas are canonical in `commandlayer-clas`. This repository may mirror selected stable public schemas only when required for verifier/docs convenience. Stale commons and commercial schema families are not hosted here by default.
