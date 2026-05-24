@@ -127,7 +127,7 @@ test('fails with key_resolution_failed when ENS resolver throws', async () => {
   });
 
   assert.equal(out.status, 'INVALID');
-  assert.equal(out.reason, 'Receipt is invalid, tampered, or does not match the signer key metadata.');
+  assert.equal(out.reason, 'key_resolution_failed');
   assert.equal(out.debug.key_resolution_error, 'key_resolution_failed');
   assert.equal(out.public_key_source, 'ens_txt');
 });
@@ -217,4 +217,30 @@ test('multi-signature proof shape does not crash runtime verifier', async () => 
   assert.ok(primarySignature);
   const out = await verifyReceipt(receipt, { ens: { textResolver: makeTextResolver(rawPub) } });
   assert.equal(out.status, 'INVALID');
+});
+
+
+test('uses configured provider path for ENS TXT resolution when no textResolver injected', async () => {
+  const { receipt, rawPub } = await makeRuntimeReceipt();
+  const calls = [];
+  const provider = {
+    async getResolver(name) {
+      calls.push(name);
+      return {
+        async getText(key) {
+          return ({
+            'cl.sig.pub': `ed25519:${rawPub}`,
+            'cl.sig.kid': 'vC4WbcNoq2znSCiQ',
+            'cl.sig.canonical': 'json.sorted_keys.v1',
+            'cl.receipt.signer': 'runtime.commandlayer.eth',
+          })[key] || null;
+        },
+      };
+    },
+  };
+
+  const out = await verifyReceipt(receipt, { ens: { provider } });
+  assert.equal(out.status, 'VERIFIED');
+  assert.equal(calls.length > 0, true);
+  assert.equal(out.public_key_source, 'ens_txt');
 });

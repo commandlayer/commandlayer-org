@@ -40,7 +40,7 @@ module.exports = async function handler(req, res) {
     : req.body;
 
   try {
-    const result = await verifyReceipt(payload);
+    const result = await verifyReceipt(payload, req.verifyOptions || {});
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ ok: false, status: 'INVALID', reason: `Unexpected verification failure: ${error.message}` });
