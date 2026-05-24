@@ -71,6 +71,7 @@ Tampered receipt:
 - Production verification resolves signer keys from ENS TXT records: `cl.sig.pub`, `cl.sig.kid`, `cl.sig.canonical`, and `cl.receipt.signer`.
 - Local key fallback is test/demo only and must be explicitly enabled with `COMMANDLAYER_ALLOW_LOCAL_KEY_FALLBACK=true` (or test mode).
 - Verifier responses expose `public_key_source` as `ens_txt` or `local_test_fallback`.
+- Production environment variable guidance (RPC, ENS ownership lookup, signing, and webhook/provider secrets): `docs/ops/environment.md`.
 
 ## Trust boundaries
 

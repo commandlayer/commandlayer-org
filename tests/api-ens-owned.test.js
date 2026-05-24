@@ -32,6 +32,10 @@ test('GET /api/ens/owned rejects invalid address', async () => {
 
 test('GET /api/ens/owned returns provider unavailable when config missing', async () => {
   const prev = { ...process.env };
+  delete process.env.ETHEREUM_RPC_URL;
+  delete process.env.MAINNET_RPC_URL;
+  delete process.env.ALCHEMY_ETHEREUM_RPC_URL;
+  delete process.env.ALCHEMY_API_KEY;
   delete process.env.ALCHEMY_ETH_API_KEY;
   delete process.env.ALCHEMY_ETH_RPC_URL;
   delete process.env.ETH_RPC_URL;
@@ -45,6 +49,10 @@ test('GET /api/ens/owned returns provider unavailable when config missing', asyn
 
 test('GET /api/ens/owned stable unavailable response shape', async () => {
   const prev = { ...process.env };
+  delete process.env.ETHEREUM_RPC_URL;
+  delete process.env.MAINNET_RPC_URL;
+  delete process.env.ALCHEMY_ETHEREUM_RPC_URL;
+  delete process.env.ALCHEMY_API_KEY;
   delete process.env.ALCHEMY_ETH_API_KEY;
   delete process.env.ALCHEMY_ETH_RPC_URL;
   delete process.env.ETH_RPC_URL;
@@ -98,4 +106,42 @@ test('GET /api/ens/owned returns ENS names when SimpleHash key is configured', a
 
   process.env = prevEnv;
   global.fetch = prevFetch;
+});
+
+test('mainnet RPC resolution prefers ETHEREUM_RPC_URL', async () => {
+  const prevEnv = { ...process.env };
+  const { _private } = require('../api/ens/owned');
+  process.env.ETHEREUM_RPC_URL = 'https://rpc-1.example';
+  process.env.MAINNET_RPC_URL = 'https://rpc-2.example';
+  process.env.ALCHEMY_ETHEREUM_RPC_URL = 'https://rpc-3.example';
+  process.env.ALCHEMY_API_KEY = 'alchemy';
+  assert.equal(_private.getMainnetRpcUrl(), 'https://rpc-1.example');
+  process.env = prevEnv;
+});
+
+test('mainnet RPC resolution maps ALCHEMY_API_KEY to alchemy HTTPS URL', async () => {
+  const prevEnv = { ...process.env };
+  const { _private } = require('../api/ens/owned');
+  delete process.env.ETHEREUM_RPC_URL;
+  delete process.env.MAINNET_RPC_URL;
+  delete process.env.ALCHEMY_ETHEREUM_RPC_URL;
+  delete process.env.ALCHEMY_ETH_RPC_URL;
+  delete process.env.ETH_RPC_URL;
+  process.env.ALCHEMY_API_KEY = 'abc123';
+  assert.equal(_private.getMainnetRpcUrl(), 'https://eth-mainnet.g.alchemy.com/v2/abc123');
+  process.env = prevEnv;
+});
+
+test('mainnet RPC resolution returns empty string as last resort', async () => {
+  const prevEnv = { ...process.env };
+  const { _private } = require('../api/ens/owned');
+  delete process.env.ETHEREUM_RPC_URL;
+  delete process.env.MAINNET_RPC_URL;
+  delete process.env.ALCHEMY_ETHEREUM_RPC_URL;
+  delete process.env.ALCHEMY_ETH_RPC_URL;
+  delete process.env.ETH_RPC_URL;
+  delete process.env.ALCHEMY_API_KEY;
+  delete process.env.ALCHEMY_ETH_API_KEY;
+  assert.equal(_private.getMainnetRpcUrl(), '');
+  process.env = prevEnv;
 });
