@@ -5,79 +5,95 @@ import path from 'node:path';
 const repoRoot = process.cwd();
 const publicDir = path.join(repoRoot, 'public');
 
-const ALLOWLIST_PREFIXES = [
+const DYNAMIC_ROUTE_ALLOWLIST = new Set([
+  '/verify/r',
   '/api/verify',
+  '/api/agents/verifyagent',
   '/api/examples/coinbase-webhook',
   '/api/examples/x402-paid-action',
-  '/verify/r'
-];
+  '/api/auth/nonce',
+  '/api/auth/verify',
+  '/api/ens/owned'
+]);
 
 const IGNORE_SCHEMES = ['http://', 'https://', 'mailto:', 'tel:', 'javascript:'];
+const FORBIDDEN_TOKEN = ['icon', '2', '.png'].join('');
 
-function walk(dir, filter) {
-  const results = [];
+function walk(dir, shouldIncludeFile) {
+  const output = [];
   const entries = fs.readdirSync(dir, { withFileTypes: true });
+
   for (const entry of entries) {
-    const full = path.join(dir, entry.name);
+    const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) {
-      results.push(...walk(full, filter));
-    } else if (!filter || filter(full)) {
-      results.push(full);
+      if (entry.name === '.git' || entry.name === 'node_modules') {
+        continue;
+      }
+      output.push(...walk(fullPath, shouldIncludeFile));
+      continue;
+    }
+
+    if (!shouldIncludeFile || shouldIncludeFile(fullPath)) {
+      output.push(fullPath);
     }
   }
-  return results;
+
+  return output;
 }
 
-function normalizeRef(raw) {
+function normalizeLocalRef(raw) {
   if (!raw) return null;
   const value = raw.trim();
-  if (!value) return null;
-  if (value === '#' || value.startsWith('#')) return null;
+  if (!value || value === '#' || value.startsWith('#')) return null;
+
   const lower = value.toLowerCase();
-  if (IGNORE_SCHEMES.some((scheme) => lower.startsWith(scheme))) return null;
+  if (IGNORE_SCHEMES.some((prefix) => lower.startsWith(prefix))) return null;
   if (!value.startsWith('/')) return null;
-  return value.split('#')[0].split('?')[0] || '/';
+
+  const noHash = value.split('#')[0];
+  const noQuery = noHash.split('?')[0];
+  return noQuery || '/';
 }
 
-function isAllowlistedRoute(refPath) {
-  return ALLOWLIST_PREFIXES.some((prefix) => refPath === prefix || refPath.startsWith(`${prefix}/`) || refPath.startsWith(`${prefix}?`));
-}
+function resolvePublicCandidates(localPath) {
+  if (localPath === '/') {
+    return [path.join(publicDir, 'index.html')];
+  }
 
-function resolveCandidates(refPath) {
-  if (refPath === '/') return [path.join(publicDir, 'index.html')];
+  const relativePath = localPath.slice(1);
+  const base = path.join(publicDir, relativePath);
 
-  const local = refPath.startsWith('/') ? refPath.slice(1) : refPath;
-  const full = path.join(publicDir, local);
-  const ext = path.extname(local);
-
-  if (ext) return [full];
+  if (path.extname(relativePath)) {
+    return [base];
+  }
 
   return [
-    `${full}.html`,
-    path.join(full, 'index.html')
+    `${base}.html`,
+    path.join(base, 'index.html')
   ];
 }
 
-function existsAny(candidates) {
-  return candidates.some((candidate) => fs.existsSync(candidate));
-}
-
-function collectRefs(html) {
+function collectHtmlRefs(html) {
   const refs = [];
 
   const attrRegex = /\b(href|src|content)\s*=\s*(["'])(.*?)\2/gi;
   for (const match of html.matchAll(attrRegex)) {
     const attr = match[1].toLowerCase();
     const raw = match[3];
-    if (attr === 'content' && !raw.trim().startsWith('/')) continue;
+
+    if (attr === 'content' && !raw.trim().startsWith('/')) {
+      continue;
+    }
+
     refs.push({ attr, raw });
   }
 
-  const styleRegex = /<style\b[^>]*>([\s\S]*?)<\/style>/gi;
-  for (const block of html.matchAll(styleRegex)) {
-    const css = block[1];
-    const urlRegex = /url\(\s*(["']?)(.*?)\1\s*\)/gi;
-    for (const urlMatch of css.matchAll(urlRegex)) {
+  const styleBlockRegex = /<style\b[^>]*>([\s\S]*?)<\/style>/gi;
+  for (const styleBlock of html.matchAll(styleBlockRegex)) {
+    const css = styleBlock[1];
+    const cssUrlRegex = /url\(\s*(["']?)(.*?)\1\s*\)/gi;
+
+    for (const urlMatch of css.matchAll(cssUrlRegex)) {
       refs.push({ attr: 'style:url', raw: urlMatch[2] });
     }
   }
@@ -85,53 +101,53 @@ function collectRefs(html) {
   return refs;
 }
 
-function containsIcon2Png(filePath) {
-  const content = fs.readFileSync(filePath, 'utf8');
-  const forbidden = `icon${2}.png`;
-  return content.includes(forbidden);
-}
-
-const htmlFiles = walk(publicDir, (file) => file.endsWith('.html'));
-const allRepoFiles = walk(repoRoot, (file) => {
-  const rel = path.relative(repoRoot, file);
-  return !rel.startsWith('.git' + path.sep) && !rel.startsWith('node_modules' + path.sep);
-});
-
-const iconViolations = allRepoFiles.filter((file) => containsIcon2Png(file));
-if (iconViolations.length > 0) {
-  console.error('Found forbidden reference to forbidden icon filename in:');
-  for (const file of iconViolations) {
-    console.error(`- ${path.relative(repoRoot, file)}`);
-  }
-  process.exit(1);
-}
-
-const missing = [];
+const htmlFiles = walk(publicDir, (filePath) => filePath.endsWith('.html'));
+const missingRefs = [];
 
 for (const htmlFile of htmlFiles) {
   const html = fs.readFileSync(htmlFile, 'utf8');
-  const refs = collectRefs(html);
+  const refs = collectHtmlRefs(html);
 
   for (const ref of refs) {
-    const normalized = normalizeRef(ref.raw);
+    const normalized = normalizeLocalRef(ref.raw);
     if (!normalized) continue;
-    if (isAllowlistedRoute(normalized)) continue;
+    if ([...DYNAMIC_ROUTE_ALLOWLIST].some((route) => normalized === route || normalized.startsWith(`${route}/`))) continue;
 
-    const candidates = resolveCandidates(normalized);
-    if (!existsAny(candidates)) {
-      missing.push({
+    const candidates = resolvePublicCandidates(normalized);
+    const exists = candidates.some((candidate) => fs.existsSync(candidate));
+
+    if (!exists) {
+      missingRefs.push({
         source: path.relative(repoRoot, htmlFile),
-        ref: normalized,
+        path: normalized,
         attr: ref.attr
       });
     }
   }
 }
 
-if (missing.length > 0) {
-  console.error(`Missing local link/asset targets: ${missing.length}`);
-  for (const item of missing) {
-    console.error(`- source=${item.source} attr=${item.attr} ref=${item.ref}`);
+const repoFiles = walk(repoRoot);
+const forbiddenFiles = [];
+
+for (const filePath of repoFiles) {
+  const content = fs.readFileSync(filePath, 'utf8');
+  if (content.includes(FORBIDDEN_TOKEN)) {
+    forbiddenFiles.push(path.relative(repoRoot, filePath));
+  }
+}
+
+if (forbiddenFiles.length > 0) {
+  console.error(`Forbidden token \"${FORBIDDEN_TOKEN}\" found in:`);
+  for (const file of forbiddenFiles) {
+    console.error(`- ${file}`);
+  }
+  process.exit(1);
+}
+
+if (missingRefs.length > 0) {
+  console.error(`Missing local link/asset targets: ${missingRefs.length}`);
+  for (const entry of missingRefs) {
+    console.error(`- source=${entry.source} attr=${entry.attr} ref=${entry.path}`);
   }
   process.exit(1);
 }
