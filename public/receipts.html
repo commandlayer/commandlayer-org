@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Receipts | CommandLayer</title>
+  <meta name="description" content="The CommandLayer receipt model — canonical structure, proof fields, trace metadata, trust verification verbs, and verification lifecycle." />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="container">
+      <a href="/">CommandLayer</a>
+      <a href="/protocol.html">Protocol</a>
+      <a href="/capabilities.html">Capabilities</a>
+      <a href="/proof.html">Live Proof</a>
+      <a href="/receipts.html" aria-current="page">Receipts</a>
+      <a href="/verify.html">Verifier</a>
+      <a href="/sdk-records.html">SDK</a>
+    </div>
+  </nav>
+
+  <main class="container" style="padding:48px 0 72px; max-width: 980px;">
+    <header style="margin-bottom:28px;">
+      <h1>Receipts</h1>
+      <p>A CommandLayer receipt is not a log entry. It is a cryptographic artifact that proves what an agent, runtime, or external system did — and lets anyone verify it independently after the fact.</p>
+    </header>
+
+    <section style="margin-bottom:24px;"><h2>What a receipt proves</h2><p>Receipts provide tamper-evident evidence of normalized actions/events, signer identity, and verification outcome.</p></section>
+    <section style="margin-bottom:24px;"><h2>Required proof fields</h2><p>CommandLayer verification depends on canonicalization (<code>json.sorted_keys.v1</code>), hashing (<code>SHA-256</code>), and signature validation (<code>Ed25519</code>).</p></section>
+    <section style="margin-bottom:24px;"><h2>metadata.trace</h2><p>Trace metadata links execution context across runtime, services, and integration boundaries for auditability.</p></section>
+    <section style="margin-bottom:24px;"><h2>metadata.proof</h2><p>Includes signer and signature material used by verifiers, including signer identity like <code>runtime.commandlayer.eth</code>, <code>public_key_source: ens_txt</code>, <code>key_id: vC4WbcNoq2znSCiQ</code>, and verification signals such as <code>ens_resolved: true</code>, <code>hash_matches: true</code>, and <code>signature_valid: true</code>.</p></section>
+    <section style="margin-bottom:24px;"><h2>Verification lifecycle</h2><p>Resolve signer key → canonicalize payload → recompute hash → verify signature → return deterministic validity.</p></section>
+    <section style="margin-bottom:24px;"><h2>Trust Verification verbs</h2><p><code>verify</code>, <code>authenticate</code>, <code>authorize</code>, <code>attest</code>, <code>sign</code>, <code>permit</code>, <code>grant</code>, <code>approve</code>, <code>reject</code>, <code>endorse</code>.</p></section>
+    <section style="margin-bottom:24px;"><h2>Integration receipt types</h2><p>Receipts can describe external events (for example webhook observations) and paid actions while preserving canonical proof semantics.</p></section>
+    <section style="margin-bottom:24px;"><h2>VerifyAgent</h2><p>VerifyAgent is the reference verifier for CommandLayer receipts. It does not sign receipts, execute actions, or hold runtime keys. It verifies proof produced by signers such as runtime.commandlayer.eth.</p></section>
+
+    <section style="margin-bottom:24px;">
+      <h2>Verification warning</h2>
+      <p><strong>Schema validation checks shape. Proof verification checks truth. A schema-valid receipt can still fail verification if the hash or signature is wrong.</strong></p>
+    </section>
+
+    <section>
+      <h2>Links</h2>
+      <p><a href="/verify.html">Verify a receipt</a></p>
+      <p><a href="/proof.html">View live proof</a></p>
+      <p><a href="/stack-proof-demo.html">Production proof</a></p>
+      <p><a href="/canonical-receipts.html">Canonical receipts legacy/reference</a></p>
+      <p><a href="/trust-verification.html">Trust verification legacy/reference</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container" style="padding:24px 0;">
+      <a href="/protocol.html">Protocol</a> ·
+      <a href="/capabilities.html">Capabilities</a> ·
+      <a href="/proof.html">Live Proof</a> ·
+      <a href="/receipts.html">Receipts</a> ·
+      <a href="/verify.html">Verifier</a>
+    </div>
+  </footer>
+</body>
+</html>

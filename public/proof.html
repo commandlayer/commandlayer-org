@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Live Proof | CommandLayer</title>
+  <meta name="description" content="Live proof flows for CommandLayer receipts — runtime signs, verifier validates, tampering is rejected, and paid actions produce signed execution receipts." />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/css/site.css" />
+</head>
+<body>
+  <nav class="site-nav">
+    <div class="container">
+      <a href="/">CommandLayer</a>
+      <a href="/protocol.html">Protocol</a>
+      <a href="/capabilities.html">Capabilities</a>
+      <a href="/proof.html" aria-current="page">Live Proof</a>
+      <a href="/receipts.html">Receipts</a>
+      <a href="/verify.html">Verifier</a>
+      <a href="/sdk-records.html">SDK</a>
+    </div>
+  </nav>
+
+  <main class="container" style="padding:48px 0 72px; max-width: 980px;">
+    <header style="margin-bottom:30px;">
+      <h1>Live Proof</h1>
+      <p>The runtime signs. The verifier validates. Tampering is rejected.</p>
+    </header>
+
+    <section style="margin-bottom:28px;">
+      <h2>Trust boundary upfront</h2>
+      <p>The Coinbase webhook step in browser demos is simulated because real Coinbase delivery requires COINBASE_WEBHOOK_SECRET server-side. The x402 paid-action and verifier steps are live network calls. x402 runs in demo_accepted_envelope mode by default; provider_verified mode requires X402_PROVIDER_VERIFICATION_URL. Demo mode is not real settlement.</p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>Automatic verification</h2>
+      <p>Use the webhook flow to see acceptance/rejection behavior for signed receipts.</p>
+      <p><a href="/webhook-auto-verify.html">Automatic Webhook Verification</a></p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>Full proof flow</h2>
+      <p>Run the complete resolve → sign → verify → tamper → reject flow.</p>
+      <p><a href="/proof-flow-composer.html">Full Proof Flow Composer</a></p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>What each step proves</h2>
+      <ul>
+        <li><strong>Resolve:</strong> signer identity and key material can be located for verification.</li>
+        <li><strong>Sign:</strong> runtime emits a signed receipt tied to canonical payload bytes.</li>
+        <li><strong>Verify:</strong> hash and signature checks match the signed receipt.</li>
+        <li><strong>Tamper + reject:</strong> payload mutation breaks proof and is rejected.</li>
+      </ul>
+      <p><a href="/verify.html">Verifier</a> · <a href="/receipts.html">Receipts</a></p>
+    </section>
+
+    <section>
+      <h2>What this does not replace</h2>
+      <p>Live proof does not replace webhook sender authentication, payment-rail guarantees, or settlement systems. It proves the normalized event/action receipt and whether it verifies cryptographically.</p>
+      <p><a href="/stack-proof-demo.html">Production proof</a></p>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container" style="padding:24px 0;">
+      <a href="/protocol.html">Protocol</a> ·
+      <a href="/capabilities.html">Capabilities</a> ·
+      <a href="/proof.html">Live Proof</a> ·
+      <a href="/receipts.html">Receipts</a> ·
+      <a href="/verify.html">Verifier</a>
+    </div>
+  </footer>
+</body>
+</html>
