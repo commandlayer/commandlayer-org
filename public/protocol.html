@@ -4,7 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Protocol | CommandLayer</title>
-<meta name="description" content="CommandLayer is a protocol stack for turning agent actions into signed, independently verifiable receipts." />
+<meta name="description" content="CommandLayer architecture and trust boundaries for signed, portable, independently verifiable agent and event receipts." />
 <link rel="icon" href="/favicon.ico" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,28 +14,26 @@
   .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}.nav-links a.active{color:var(--text);background:var(--surface)}
   .hero{padding:84px 0 64px;background:radial-gradient(1200px 360px at 50% -10%,rgba(82,152,255,.15),transparent 70%),#fff;text-align:center}
   .hero h1{font-size:clamp(2.3rem,5vw,4rem);line-height:1.06;letter-spacing:-.04em;margin:0 0 14px}
-  .hero p{max-width:860px;margin:0 auto;color:var(--text-2);font-size:1.08rem;line-height:1.7}
+  .hero p{max-width:900px;margin:0 auto;color:var(--text-2);font-size:1.08rem;line-height:1.7}
   .hero-actions{margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
   .section{padding:56px 0}
-  .stack-grid,.boundaries-grid,.family-grid{display:grid;gap:14px}
-  .stack-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .boundaries-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
-  .family-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .stack-grid,.boundaries-grid,.link-grid{display:grid;gap:14px}
+  .stack-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .boundaries-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .link-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
   .card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 8px 22px rgba(99,91,255,.07)}
   .card h3{margin:0 0 8px;font-size:1.04rem}
   .card p{margin:0;color:var(--text-2);line-height:1.6}
-  .dark-block{background:#0E1322;color:#E2E8F0;border:1px solid rgba(30,41,59,.45);border-radius:14px;padding:16px;overflow:auto;font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-  .list{margin:0;padding-left:18px;color:var(--text-2);line-height:1.7}
-  .flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
-  .node{padding:8px 10px;border-radius:999px;background:#eef4ff;border:1px solid #c8dafe;font-weight:700;color:#1e3a8a;font-size:13px}
-  .arrow{color:#64748b;font-weight:800}
-  .proof-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-  .cta-panel{background:linear-gradient(135deg,#5298FF 0%,#635BFF 100%);border-radius:18px;padding:26px;color:#fff;text-align:center}
-  .cta-panel p{margin:0 0 14px;color:#eaf3ff}
+  .dark-block{background:#0E1322;color:#E2E8F0;border:1px solid rgba(30,41,59,.45);border-radius:14px;padding:16px;overflow:auto}
+  .dark-block h3{margin-top:0;color:#fff}
+  .dark-block ul{margin:0;padding-left:18px;line-height:1.8}
+  .list{margin:0;padding-left:18px;color:var(--text-2);line-height:1.8}
+  .flow-list{margin:0;padding-left:18px;line-height:1.8;color:var(--text-2)}
+  .tag{display:inline-block;background:#eef4ff;border:1px solid #c8dafe;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:700;color:#1e3a8a;margin-bottom:8px}
   footer{border-top:1px solid var(--border);background:#fff}.footer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:36px 0}.footer-grid h4{font-size:14px;margin-bottom:10px}.footer-grid a{display:block;color:var(--text-2);margin:8px 0;font-size:14px}
   .foot-links{display:flex;align-items:center;justify-content:center;gap:28px;font-size:13px;flex-wrap:wrap}
   .foot-links a{color:var(--muted);text-decoration:none}.foot-links a:hover{color:var(--purple)}
-  @media(max-width:900px){.stack-grid,.boundaries-grid,.family-grid,.proof-grid{grid-template-columns:1fr}.flow{align-items:flex-start}.hero{padding:62px 0 42px}}
+  @media(max-width:900px){.stack-grid,.boundaries-grid,.link-grid{grid-template-columns:1fr}.hero{padding:62px 0 42px}}
 .nav-links a:hover,.nav-drop:hover>a,.nav-drop:focus-within>a,.nav-drop>a.active{color:var(--text);background:var(--surface)}.nav-drop{position:relative}.nav-drop>a{display:inline-flex;align-items:center;gap:4px}.nav-drop-menu{position:absolute;top:calc(100% - 1px);left:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 34px rgba(15,23,42,.12);padding:8px;display:none;min-width:260px;z-index:200}.nav-drop-menu::before{content:"";position:absolute;left:0;right:0;top:-8px;height:8px}.nav-drop-menu a{display:block;white-space:nowrap}.nav-drop:hover .nav-drop-menu,.nav-drop:focus-within .nav-drop-menu{display:grid}@media(max-width:900px){.nav-drop{width:100%}.nav-drop-menu{position:static;display:grid;margin-top:2px;min-width:0;box-shadow:none}}</style>
 </head>
 <body>
@@ -49,117 +47,123 @@
 <main>
   <section class="hero">
     <div class="container">
-      <div class="hero-badge"><span class="badge-dot"></span>Protocol</div>
-      <h1>The receipt layer for verifiable agent actions.</h1>
-      <p>CommandLayer defines how agent actions are described, signed, transported, and verified — without making MCP, SDKs, or apps the trust root.</p>
+      <div class="hero-badge"><span class="badge-dot"></span>Protocol Architecture</div>
+      <h1>CommandLayer is the receipt layer for external events, paid machine actions, and agent execution.</h1>
+      <p>CommandLayer defines how agent actions, external events, and paid machine workflows are described, signed, transported, and verified — without making MCP, SDKs, or transport layers the trust root. Agents don’t make claims — they produce proof.</p>
       <div class="hero-actions">
-        <a class="btn btn-primary btn-lg" href="/stack-proof-demo.html">View production proof</a>
-        <a class="btn btn-secondary btn-lg" href="/capabilities.html">Explore capabilities</a>
+        <a class="btn btn-primary btn-lg" href="/proof.html">View live proof</a>
+        <a class="btn btn-secondary btn-lg" href="/verify.html">Verify a receipt</a>
       </div>
     </div>
   </section>
 
   <section class="section"><div class="container">
     <p class="section-eyebrow">Architecture stack</p>
-    <h2 class="section-h2">Protocol layers and trust ownership.</h2>
+    <h2 class="section-h2">What each layer does — and what it does not do.</h2>
     <div class="stack-grid">
-      <article class="card"><h3>CLAS</h3><p>Defines action and receipt contracts.</p></article>
-      <article class="card"><h3>runtime-core</h3><p>Canonicalization, hashing, signing, verification. Canonical crypto truth for receipts.</p></article>
-      <article class="card"><h3>runtime</h3><p>Executes actions and signs canonical receipts in production.</p></article>
-      <article class="card"><h3>MCP</h3><p>Bridge for MCP clients. Does not sign. Does not hold keys.</p></article>
-      <article class="card"><h3>VerifyAgent</h3><p>Verifier that checks hash/signature/proof validity and returns VALID or INVALID.</p></article>
-      <article class="card"><h3>agent-sdk</h3><p>Developer wrapper for emitting receipts from agent actions.</p></article>
+      <article class="card"><span class="tag">Schema and contract</span><h3>CLAS</h3><p>Defines action and receipt contracts. Canonical schema source for verb request/receipt shapes.</p></article>
+      <article class="card"><span class="tag">Action surface</span><h3>Capabilities</h3><p>Organize the verb/action surface available to builders. Trust Verification is live; other families may be draft or planned.</p></article>
+      <article class="card"><span class="tag">Crypto primitives</span><h3>runtime-core</h3><p>Canonicalization, hashing, signing, and verification primitives.</p></article>
+      <article class="card"><span class="tag">Signing runtime</span><h3>runtime</h3><p>Executes actions and signs canonical receipts in production.</p></article>
+      <article class="card"><span class="tag">Reference verifier</span><h3>VerifyAgent</h3><p>Checks hash, signature, signer identity, key id, and canonicalization.</p></article>
+      <article class="card"><span class="tag">Transport integration</span><h3>MCP Bridge</h3><p>Integration plumbing for MCP clients. It does not sign and does not hold runtime keys.</p></article>
+      <article class="card"><span class="tag">Developer integration</span><h3>agent-sdk</h3><p>Developer wrapper for emitting receipts from agent actions. Not the trust root.</p></article>
+      <article class="card"><span class="tag">Identity anchor</span><h3>ENS</h3><p>Anchors signer identity through runtime.commandlayer.eth TXT records.</p></article>
     </div>
-    <p class="section-p" style="margin-top:16px">commandlayer.org documents, demonstrates, and exposes verifier surfaces for this stack.</p>
   </div></section>
 
   <section class="section" style="background:#f8faff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)"><div class="container">
-    <p class="section-eyebrow">Canonical receipt model</p>
-    <div class="dark-block"><pre>{
-  "verb": "sign",
-  "class": "trust-verification",
-  "result": {
-    "payload": {
-      "message": "hello from MCP"
-    }
-  },
-  "metadata": {
-    "proof": {
-      "canonicalization": "json.sorted_keys.v1",
-      "hash": {
-        "alg": "SHA-256",
-        "value": "..."
-      },
-      "signature": {
-        "alg": "Ed25519",
-        "kid": "vC4WbcNoq2znSCiQ",
-        "value": "..."
-      },
-      "signer_id": "runtime.commandlayer.eth"
-    }
-  }
-}</pre></div>
-  </div></section>
-
-  <section class="section"><div class="container">
     <p class="section-eyebrow">Trust boundaries</p>
-    <div class="boundaries-grid">
-      <article class="card"><h3>Runtime signs.</h3><p>Signing authority is runtime, not transport surfaces.</p></article>
-      <article class="card"><h3>Verifier verifies.</h3><p>Verification requires recomputed hash plus signature check.</p></article>
-      <article class="card"><h3>MCP bridges.</h3><p>MCP is integration plumbing and never the signer.</p></article>
-      <article class="card"><h3>SDK wraps.</h3><p>SDK helps developers emit receipts; it is not trust root.</p></article>
-      <article class="card"><h3>Schemas describe.</h3><p>Schema-valid does not mean verified.</p></article>
-      <article class="card"><h3>Apps consume.</h3><p>Apps consume verified results after proof checks pass.</p></article>
+    <div class="dark-block">
+      <h3>Trust boundary: responsibilities by layer</h3>
+      <ul>
+        <li>Runtime signs.</li>
+        <li>VerifyAgent verifies.</li>
+        <li>MCP bridges.</li>
+        <li>SDK wraps.</li>
+        <li>Schemas describe.</li>
+        <li>Capabilities organize.</li>
+        <li>ENS anchors identity.</li>
+        <li>Apps consume verified results.</li>
+      </ul>
     </div>
     <ul class="list" style="margin-top:14px">
-      <li>MCP is not the signer.</li>
-      <li>Schema-valid does not mean verified.</li>
-      <li>A receipt is only verified when hash and signature checks pass.</li>
-      <li>Tampering must produce INVALID.</li>
+      <li>Coinbase HMAC authenticates webhook delivery to the receiving server.</li>
+      <li>x402/payment rails prove payment acceptance or settlement.</li>
+      <li>CommandLayer proves the normalized event/action receipt.</li>
+      <li>ENS anchors signer identity.</li>
+      <li>VerifyAgent verifies hash, signature, signer, key id, and canonicalization.</li>
     </ul>
   </div></section>
 
-  <section class="section" style="background:#f8faff"><div class="container">
+  <section class="section"><div class="container">
     <p class="section-eyebrow">Verification lifecycle</p>
-    <div class="flow">
-      <span class="node">Action requested</span><span class="arrow">→</span>
-      <span class="node">Runtime executes/signs</span><span class="arrow">→</span>
-      <span class="node">Receipt emitted</span><span class="arrow">→</span>
-      <span class="node">Verifier recomputes hash</span><span class="arrow">→</span>
-      <span class="node">Verifier checks Ed25519 signature</span><span class="arrow">→</span>
-      <span class="node">VALID or INVALID</span>
+    <h2 class="section-h2">From event/action input to verifiable receipt output.</h2>
+    <ol class="flow-list">
+      <li>Action/event received.</li>
+      <li>Normalized into CLAS receipt.</li>
+      <li>Canonical payload rebuilt using <code>json.sorted_keys.v1</code>.</li>
+      <li>SHA-256 hash computed.</li>
+      <li>Receipt signed with Ed25519.</li>
+      <li>Signer public key resolved from ENS TXT.</li>
+      <li>Verifier checks hash/signature/signer/kid/canonicalization.</li>
+      <li>VERIFIED or INVALID.</li>
+    </ol>
+    <div class="card" style="margin-top:14px">
+      <h3>Successful production verification fields</h3>
+      <ul class="list">
+        <li>status: VERIFIED</li>
+        <li>public_key_source: ens_txt</li>
+        <li>ens_resolved: true</li>
+        <li>hash_matches: true</li>
+        <li>signature_valid: true</li>
+        <li>key_id: vC4WbcNoq2znSCiQ</li>
+      </ul>
     </div>
-  </div></section>
-
-  <section class="section"><div class="container">
-    <p class="section-eyebrow">Production proof summary</p>
-    <div class="proof-grid">
-      <article class="card"><h3>STEP 1 SIGNED</h3><p>Runtime production is live and signs canonical Trust Verification receipts.</p></article>
-      <article class="card"><h3>STEP 2 VERIFIED</h3><p>hash_matches=true<br/>signature_valid=true</p></article>
-      <article class="card"><h3>STEP 3 TAMPERED INVALID</h3><p>tampered hash_matches=false<br/>tampered signature_error=hash_mismatch</p></article>
-    </div>
-    <p class="section-p" style="margin-top:14px">MCP E2E against production runtime passes: STEP 1 SIGNED, STEP 2 VERIFIED, STEP 3 TAMPERED INVALID.</p>
   </div></section>
 
   <section class="section" style="background:#f8faff"><div class="container">
-    <p class="section-eyebrow">Capability families</p>
-    <h2 class="section-h2">Expandable groups on top of protocol receipts.</h2>
-    <div class="family-grid">
-      <article class="card"><h3>Trust Verification v1</h3><p>verify, sign, attest, authorize, approve, reject, permit, grant, authenticate, endorse</p></article>
-      <article class="card"><h3>AI / Utility Actions</h3><p>summarize, classify, clean, parse, explain, analyze, format, convert, describe, fetch</p></article>
-      <article class="card"><h3>Future families</h3><p>commerce, identity, governance, data, messaging, payments, policy, compliance</p></article>
+    <p class="section-eyebrow">How external systems connect</p>
+    <p class="section-p">External systems authenticate events or payments to the receiving server using their own mechanism. CommandLayer signs the normalized result as a portable receipt. Public verifiability begins after CommandLayer signs.</p>
+    <div class="stack-grid" style="margin-top:14px">
+      <article class="card">
+        <h3>Coinbase Payments Webhook</h3>
+        <ul class="list">
+          <li>endpoint: <code>/api/examples/coinbase-webhook</code></li>
+          <li>server-side HMAC verification</li>
+          <li>normalized observe receipt</li>
+          <li>signed by runtime.commandlayer.eth</li>
+          <li>verified through <code>/api/verify</code></li>
+          <li>Coinbase HMAC is private server authentication, not public proof by itself</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>x402 Paid Action</h3>
+        <ul class="list">
+          <li>endpoint: <code>/api/examples/x402-paid-action</code></li>
+          <li><code>demo_accepted_envelope</code> mode by default</li>
+          <li><code>provider_verified</code> mode when <code>X402_PROVIDER_VERIFICATION_URL</code> is configured</li>
+          <li>payment rail proves payment acceptance/settlement</li>
+          <li>CommandLayer proves execution/receipt</li>
+        </ul>
+      </article>
     </div>
   </div></section>
 
   <section class="section"><div class="container">
-    <div class="cta-panel">
-      <h2 style="margin:0 0 8px">Build on the protocol.</h2>
-      <p>Use canonical metadata.proof receipts with json.sorted_keys.v1 + SHA-256 + Ed25519 under signer runtime.commandlayer.eth.</p>
-      <div class="hero-actions">
-        <a class="btn btn-ghost-white btn-lg" href="/stack-proof-demo.html">View proof</a>
-        <a class="btn btn-ghost-white btn-lg" href="/capabilities.html">Explore capabilities</a>
-        <a class="btn btn-ghost-white btn-lg" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">Install SDK</a>
-      </div>
+    <p class="section-eyebrow">Relationship to ENS and ERC-8004</p>
+    <p class="section-p">CLAS is network-agnostic. ENS and ERC-8004 are identity/discovery layers that can complement CLAS. ENS TXT records anchor the runtime signer key. ERC-8004 can provide agent registry and identity. CLAS defines what the action/receipt proves.</p>
+  </div></section>
+
+  <section class="section" style="background:#f8faff"><div class="container">
+    <p class="section-eyebrow">Where to go next</p>
+    <div class="link-grid">
+      <a class="card" href="/capabilities.html"><h3>Explore Capabilities</h3><p>See live and planned verb families.</p></a>
+      <a class="card" href="/receipts.html"><h3>Read Receipts</h3><p>Inspect the artifact model and fields.</p></a>
+      <a class="card" href="/proof.html"><h3>View Live Proof</h3><p>Observe production verification behavior.</p></a>
+      <a class="card" href="/integrations.html"><h3>Explore Integrations</h3><p>Map external systems to receipt outputs.</p></a>
+      <a class="card" href="/sdk-records.html"><h3>Build with SDK</h3><p>Emit receipts from your agent workflows.</p></a>
+      <a class="card" href="/verify.html"><h3>Verify a Receipt</h3><p>Run verifier checks against payloads.</p></a>
     </div>
   </div></section>
 </main>
