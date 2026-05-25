@@ -22,7 +22,7 @@
   .card h3{margin:0 0 8px;font-size:1.04rem}
   .card p{margin:0;color:var(--text-2);line-height:1.6}
   .list{margin:8px 0 0;padding-left:18px;color:var(--text-2);line-height:1.8}
-  .status-block{background:#0E1322;color:#E2E8F0;border:1px solid rgba(30,41,59,.45);border-radius:14px;padding:16px;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;line-height:1.8}
+  .status-block{background:#0E1322;color:#E2E8F0;border:1px solid rgba(30,41,59,.45);border-radius:14px;padding:16px;overflow:auto;white-space:pre;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;line-height:1.8}
   .status-block strong{color:#fff}
   .link-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
   footer{border-top:1px solid var(--border);background:#fff}.footer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:36px 0}.footer-grid h4{font-size:14px;margin-bottom:10px}.footer-grid a{display:block;color:var(--text-2);margin:8px 0;font-size:14px}
@@ -64,12 +64,12 @@
       <article class="card">
         <h3>Automatic verification</h3>
         <p>Generate a receipt, verify it, tamper with it, and watch verification fail.</p>
-        <p style="margin-top:10px"><a href="/webhook-auto-verify.html">Automatic Webhook Verification → /webhook-auto-verify.html</a></p>
+        <p style="margin-top:10px"><a class="btn btn-secondary" href="/webhook-auto-verify.html">Automatic Webhook Verification</a></p>
       </article>
       <article class="card">
         <h3>Full proof flow</h3>
         <p>Simulated Coinbase event → live x402 signed endpoint → action execution → live verifier.</p>
-        <p style="margin-top:10px"><a href="/proof-flow-composer.html">Full Proof Flow Composer → /proof-flow-composer.html</a></p>
+        <p style="margin-top:10px"><a class="btn btn-secondary" href="/proof-flow-composer.html">Full Proof Flow Composer</a></p>
       </article>
     </div>
   </div></section>
