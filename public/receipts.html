@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Receipts | CommandLayer</title>
-  <meta name="description" content="The CommandLayer receipt model — canonical structure, proof fields, trace metadata, trust verification verbs, and verification lifecycle." />
+  <meta name="description" content="Canonical CommandLayer receipt reference: proof model, structure, verification lifecycle, trust boundaries, and VerifyAgent behavior." />
   <link rel="icon" href="/favicon.ico" />
   <link rel="stylesheet" href="/css/site.css" />
 </head>
@@ -27,27 +27,160 @@
       <p>A CommandLayer receipt is not a log entry. It is a cryptographic artifact that proves what an agent, runtime, or external system did — and lets anyone verify it independently after the fact.</p>
     </header>
 
-    <section style="margin-bottom:24px;"><h2>What a receipt proves</h2><p>Receipts provide tamper-evident evidence of normalized actions/events, signer identity, and verification outcome.</p></section>
-    <section style="margin-bottom:24px;"><h2>Required proof fields</h2><p>CommandLayer verification depends on canonicalization (<code>json.sorted_keys.v1</code>), hashing (<code>SHA-256</code>), and signature validation (<code>Ed25519</code>).</p></section>
-    <section style="margin-bottom:24px;"><h2>metadata.trace</h2><p>Trace metadata links execution context across runtime, services, and integration boundaries for auditability.</p></section>
-    <section style="margin-bottom:24px;"><h2>metadata.proof</h2><p>Includes signer and signature material used by verifiers, including signer identity like <code>runtime.commandlayer.eth</code>, <code>public_key_source: ens_txt</code>, <code>key_id: vC4WbcNoq2znSCiQ</code>, and verification signals such as <code>ens_resolved: true</code>, <code>hash_matches: true</code>, and <code>signature_valid: true</code>.</p></section>
-    <section style="margin-bottom:24px;"><h2>Verification lifecycle</h2><p>Resolve signer key → canonicalize payload → recompute hash → verify signature → return deterministic validity.</p></section>
-    <section style="margin-bottom:24px;"><h2>Trust Verification verbs</h2><p><code>verify</code>, <code>authenticate</code>, <code>authorize</code>, <code>attest</code>, <code>sign</code>, <code>permit</code>, <code>grant</code>, <code>approve</code>, <code>reject</code>, <code>endorse</code>.</p></section>
-    <section style="margin-bottom:24px;"><h2>Integration receipt types</h2><p>Receipts can describe external events (for example webhook observations) and paid actions while preserving canonical proof semantics.</p></section>
-    <section style="margin-bottom:24px;"><h2>VerifyAgent</h2><p>VerifyAgent is the reference verifier for CommandLayer receipts. It does not sign receipts, execute actions, or hold runtime keys. It verifies proof produced by signers such as runtime.commandlayer.eth.</p></section>
-
-    <section style="margin-bottom:24px;">
-      <h2>Verification warning</h2>
+    <section style="margin-bottom:28px;">
+      <h2>What a receipt proves</h2>
+      <ul>
+        <li>Which verb/action ran.</li>
+        <li>What input was provided.</li>
+        <li>What output was returned.</li>
+        <li>Which signer produced the proof.</li>
+        <li>Which canonicalization/hash/signature algorithms were used.</li>
+        <li>Whether the result was tampered with after signing.</li>
+      </ul>
       <p><strong>Schema validation checks shape. Proof verification checks truth. A schema-valid receipt can still fail verification if the hash or signature is wrong.</strong></p>
     </section>
 
-    <section>
-      <h2>Links</h2>
-      <p><a href="/verify.html">Verify a receipt</a></p>
-      <p><a href="/proof.html">View live proof</a></p>
-      <p><a href="/stack-proof-demo.html">Production proof</a></p>
-      <p><a href="/receipts.html">Canonical receipts legacy/reference</a></p>
-      <p><a href="/receipts.html">Trust verification legacy/reference</a></p>
+    <section style="margin-bottom:28px;">
+      <h2>Receipt structure</h2>
+      <pre><code>{
+  "receipt_id": "rcpt_01J9XK4TAV9ZJH0YQWE8YQ23Z7",
+  "signer": "runtime.commandlayer.eth",
+  "verb": "authorize",
+  "source": { "system": "commandlayer.runtime", "env": "prod" },
+  "subject": { "type": "payment", "id": "pay_2M9eQ" },
+  "input": { "amount": "49.99", "currency": "USD" },
+  "output": { "decision": "approved", "policy": "risk.v3" },
+  "execution": { "status": "ok", "duration_ms": 87 },
+  "ts": "2026-05-25T12:34:56.000Z",
+  "metadata": {
+    "trace": {
+      "trace_id": "trc_6GqHk8z1Jf9",
+      "span_id": "spn_8sQ2xR5b"
+    },
+    "proof": {
+      "canonicalization": "json.sorted_keys.v1",
+      "hash": {
+        "alg": "SHA-256",
+        "value": "3d68cfcf4a84d82e2f8f5019d76f4ef31236d98ae56db89f665c2a9960df2a71"
+      },
+      "signature": {
+        "alg": "Ed25519",
+        "kid": "vC4WbcNoq2znSCiQ",
+        "value": "3Fh9vG6kXo...redacted_example...j2Q="
+      },
+      "signer_id": "runtime.commandlayer.eth"
+    }
+  }
+}</code></pre>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>Required proof fields</h2>
+      <ul>
+        <li><code>metadata.proof.canonicalization</code></li>
+        <li><code>metadata.proof.hash.alg</code></li>
+        <li><code>metadata.proof.hash.value</code></li>
+        <li><code>metadata.proof.signature</code></li>
+        <li><code>metadata.proof.signer_id</code></li>
+        <li><code>metadata.trace</code> optional for span/workflow linking</li>
+      </ul>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>metadata.trace</h2>
+      <p><code>metadata.trace</code> links spans across workflows: <strong>event → payment → action → verification</strong>. Use <code>trace_id</code> for cross-system correlation and <code>span_id</code> for step-level lineage.</p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>metadata.proof</h2>
+      <p><code>metadata.proof</code> is the portable proof envelope containing canonicalization, hash, signature, key id, and signer identity.</p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>Canonicalization</h2>
+      <p><code>json.sorted_keys.v1</code> is the standard canonical JSON receipt path. Deterministic canonicalization creates stable bytes for hashing and signing.</p>
+      <p>For composable authorization paths, <code>erc8211.composable.v1</code> may be used where applicable; Merkle authorization verification is deferred pending companion spec.</p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>Verification lifecycle</h2>
+      <p>Receipt received<br />
+      → structure checked<br />
+      → canonical payload rebuilt using <code>json.sorted_keys.v1</code><br />
+      → SHA-256 hash recomputed<br />
+      → hash compared against <code>metadata.proof.hash.value</code><br />
+      → signer public key resolved from ENS TXT records<br />
+      → Ed25519 signature verified<br />
+      → signer, kid, and canonicalization checked<br />
+      → VERIFIED or INVALID</p>
+      <p>Production success fields:</p>
+      <ul>
+        <li><code>status: VERIFIED</code></li>
+        <li><code>public_key_source: ens_txt</code></li>
+        <li><code>ens_resolved: true</code></li>
+        <li><code>hash_matches: true</code></li>
+        <li><code>signature_valid: true</code></li>
+        <li><code>key_id: vC4WbcNoq2znSCiQ</code></li>
+      </ul>
+      <p><strong>There is no silent local fallback key in production.</strong></p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>Trust Verification verbs</h2>
+      <p><code>verify</code>, <code>authenticate</code>, <code>authorize</code>, <code>attest</code>, <code>sign</code>, <code>permit</code>, <code>grant</code>, <code>approve</code>, <code>reject</code>, <code>endorse</code>.</p>
+      <p>These verbs produce or validate receipts using the same <code>metadata.proof</code> envelope.</p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>Integration receipt types</h2>
+      <p><strong>observe receipts</strong>: external events such as Coinbase webhook payment transfers. Coinbase HMAC authenticates the inbound event to the server; CommandLayer signing makes the normalized event portable and publicly verifiable.</p>
+      <p><strong>action receipts</strong>: paid or executed actions such as x402 paid actions. The payment rail proves payment acceptance/settlement; CommandLayer proves what executed after payment acceptance.</p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>Valid vs tampered</h2>
+      <p><strong>Valid:</strong><br /><code>status: VERIFIED</code><br /><code>hash_matches: true</code><br /><code>signature_valid: true</code></p>
+      <p><strong>Tampered:</strong><br /><code>status: INVALID</code><br /><code>hash_matches: false</code><br /><code>signature_valid: false</code></p>
+      <p>Any byte change breaks the canonical hash. A broken hash breaks the signature.</p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>Trust boundaries</h2>
+      <ul>
+        <li>Runtime signs.</li>
+        <li>VerifyAgent verifies.</li>
+        <li>MCP bridges.</li>
+        <li>SDK wraps.</li>
+        <li>Schemas describe.</li>
+        <li>Capabilities organize.</li>
+        <li>ENS anchors signer identity.</li>
+      </ul>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>Relationship to ENS and ERC-8004</h2>
+      <p>CLAS is network-agnostic. ENS and ERC-8004 are identity/discovery layers that complement CLAS. ENS TXT records on <code>runtime.commandlayer.eth</code> carry the public key used for verification. ERC-8004 can provide agent registry/identity. CLAS defines what the action/receipt proves.</p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>VerifyAgent</h2>
+      <p>VerifyAgent is the reference verifier for CommandLayer receipts. It does not sign receipts, execute actions, or hold runtime keys. It verifies proof produced by signers such as <code>runtime.commandlayer.eth</code>.</p>
+      <p>It checks:</p>
+      <ul>
+        <li><code>metadata.proof</code> envelope</li>
+        <li>canonical payload using <code>json.sorted_keys.v1</code></li>
+        <li>SHA-256 hash match</li>
+        <li>Ed25519 signature validity</li>
+        <li>ENS TXT public key resolution</li>
+        <li>key id match</li>
+        <li>signer identity match</li>
+        <li>canonicalization match</li>
+      </ul>
+      <p><a href="/verify.html">Verify a receipt</a> → /verify.html</p>
+      <p><a href="/proof.html">View Live Proof</a> → /proof.html</p>
+      <p><a href="/stack-proof-demo.html">Production Proof</a> → /stack-proof-demo.html</p>
+      <p><a href="/capabilities.html">Explore Capabilities</a> → /capabilities.html</p>
+      <p><a href="/sdk-records.html">Build with SDK</a> → /sdk-records.html</p>
     </section>
   </main>
 
