@@ -24,7 +24,7 @@
   <main class="container" style="padding:48px 0 72px; max-width: 980px;">
     <header style="margin-bottom:30px;">
       <h1>Live Proof</h1>
-      <p>The runtime signs. The verifier validates. Tampering is rejected.</p>
+      <p>The runtime signs. The verifier validates. Tampering is rejected. These demos show CommandLayer receipts moving from action/event to signed proof to independent verification.</p>
     </header>
 
     <section style="margin-bottom:28px;">
@@ -34,31 +34,45 @@
 
     <section style="margin-bottom:28px;">
       <h2>Automatic verification</h2>
-      <p>Use the webhook flow to see acceptance/rejection behavior for signed receipts.</p>
-      <p><a href="/proof.html">Automatic Webhook Verification</a></p>
+      <p>Generate a receipt, verify it, tamper with it, and watch verification fail.</p>
+      <p><a href="/webhook-auto-verify.html">Automatic Webhook Verification</a></p>
     </section>
 
     <section style="margin-bottom:28px;">
       <h2>Full proof flow</h2>
-      <p>Run the complete resolve → sign → verify → tamper → reject flow.</p>
-      <p><a href="/proof.html">Full Proof Flow Composer</a></p>
+      <p>Simulated Coinbase event → live x402 signed endpoint → action execution → live verifier.</p>
+      <p><a href="/proof-flow-composer.html">Full Proof Flow Composer</a></p>
+      <p>Successful runs should show <code>status: VERIFIED</code>, <code>public_key_source: ens_txt</code>, <code>ens_resolved: true</code>, <code>hash_matches: true</code>, and <code>signature_valid: true</code>.</p>
     </section>
 
     <section style="margin-bottom:28px;">
       <h2>What each step proves</h2>
       <ul>
-        <li><strong>Resolve:</strong> signer identity and key material can be located for verification.</li>
-        <li><strong>Sign:</strong> runtime emits a signed receipt tied to canonical payload bytes.</li>
-        <li><strong>Verify:</strong> hash and signature checks match the signed receipt.</li>
-        <li><strong>Tamper + reject:</strong> payload mutation breaks proof and is rejected.</li>
+        <li><strong>Coinbase:</strong> event authenticity to server via HMAC; public portability begins after CommandLayer signing.</li>
+        <li><strong>x402:</strong> payment rail proves payment acceptance/settlement; CommandLayer proves execution result.</li>
+        <li><strong>Verify:</strong> ENS TXT public key, hash check, Ed25519 signature check.</li>
       </ul>
-      <p><a href="/verify.html">Verifier</a> · <a href="/receipts.html">Receipts</a></p>
+    </section>
+
+    <section style="margin-bottom:28px;">
+      <h2>What this does not replace</h2>
+      <ul>
+        <li>sender authentication for production webhooks</li>
+        <li>replay protection</li>
+        <li>rate limiting</li>
+        <li>real settlement unless provider_verified mode is configured</li>
+        <li>schema validation alone</li>
+      </ul>
     </section>
 
     <section>
-      <h2>What this does not replace</h2>
-      <p>Live proof does not replace webhook sender authentication, payment-rail guarantees, or settlement systems. It proves the normalized event/action receipt and whether it verifies cryptographically.</p>
-      <p><a href="/stack-proof-demo.html">Production proof</a></p>
+      <h2>Where to go next</h2>
+      <ul>
+        <li><a href="/receipts.html">Read Receipts</a></li>
+        <li><a href="/verify.html">Try Verifier</a></li>
+        <li><a href="/integrations.html">Explore Integrations</a></li>
+        <li><a href="/protocol.html">Explore Protocol</a></li>
+      </ul>
     </section>
   </main>
 

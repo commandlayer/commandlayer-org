@@ -14,7 +14,9 @@ Action requested
 
 - Manual verifier: `/verify.html`
 - Production proof: `/stack-proof-demo.html`
-- Automatic verification demo: `/webhook-auto-verify.html`
+- Live proof hub: `/proof.html`
+- Automatic verification demo (direct): `/webhook-auto-verify.html`
+- Full proof flow composer (direct): `/proof-flow-composer.html`
 - Runtime verifier: `POST https://runtime.commandlayer.org/verify`
 - Runtime signer endpoints: `POST https://runtime.commandlayer.org/trust-verification/{verb}/v1.0.0`
 - SDK: `@commandlayer/agent-sdk@1.2.0`
