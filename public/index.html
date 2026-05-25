@@ -1061,16 +1061,15 @@
           Production proof live
         </div>
         <h1 class="hero-h1">
-          CommandLayer turns agent actions into<br><span class="grad">signed, independently verifiable receipts.</span>
+          CommandLayer turns agent actions, external events, and paid machine workflows into<br><span class="grad">signed, independently verifiable receipts.</span>
         </h1>
         <p class="hero-sub">
-          A protocol stack for proving what agents did — using canonical receipts, runtime signing, and independent verification.
+          CommandLayer is the receipt layer for external events, paid machine actions, and agent execution.
         </p>
         <div class="hero-actions">
-          <a class="btn btn-primary btn-lg" href="/stack-proof-demo.html">View the proof</a>
-          <a class="btn btn-secondary btn-lg" href="/capabilities.html">Explore capabilities</a>
-          <a class="btn btn-outline btn-lg" href="https://github.com/commandlayer/agent-sdk" target="_blank" rel="noopener">Install SDK</a>
-          <a class="btn btn-outline btn-lg" href="/webhook-auto-verify.html">Run Auto-Verify Demo</a>
+          <a class="btn btn-primary btn-lg" href="/proof.html">View Live Proof</a>
+          <a class="btn btn-secondary btn-lg" href="/capabilities.html">Explore Capabilities</a>
+          <a class="btn btn-outline btn-lg" href="/protocol.html">Explore Protocol</a>
         </div>
       </div>
 
@@ -1181,17 +1180,17 @@
       <p class="section-eyebrow">From preview to production</p>
       <h2>The animation above explains the model.<br><span class="grad">The live proof below runs it.</span></h2>
       <div class="mini-card" style="margin-top:16px;text-align:left;">
-        <h3 style="margin-bottom:8px;">Live external proof examples</h3>
-        <p>CommandLayer now demonstrates external rails becoming verifiable receipts:</p>
+        <h3 style="margin-bottom:8px;">What is live today</h3>
         <ul style="padding-left:18px;margin:8px 0 10px;">
-          <li>Coinbase Payments webhook → signed observe receipt → VERIFIED</li>
-          <li>x402 paid action → signed action receipt → VERIFIED</li>
+          <li>Trust Verification receipts</li>
+          <li><code>runtime.commandlayer.eth</code> receipt signing</li>
+          <li>ENS TXT verification with <code>public_key_source: ens_txt</code></li>
+          <li>Coinbase webhook-to-receipt example: server-side HMAC verification, normalized observe receipt, runtime signature, ENS-backed verification.</li>
+          <li>x402 paid-action example: demo_accepted_envelope mode by default, provider_verified mode when configured, signed action receipt verified through <code>/api/verify</code>.</li>
+          <li>VerifyAgent/API verifier</li>
+          <li>SDK receipt wrapping</li>
         </ul>
-        <div class="hero-actions" style="justify-content:flex-start;">
-          <a class="btn btn-secondary" href="/proof-flow-composer.html">View Proof Flow Composer</a>
-          <a class="btn btn-secondary" href="/integrations.html">Explore Integrations</a>
-          <a class="btn btn-secondary" href="/verify.html">Verify a Receipt</a>
-        </div>
+        <p>These flows are live and currently verifiable across runtime and verifier surfaces.</p>
       </div>
     </div>
   </section>
@@ -1392,6 +1391,23 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
       </div>
     </div>
   </section>
+  <section class="section section-alt">
+    <div class="container">
+      <div style="text-align: center; max-width: 760px; margin: 0 auto;">
+        <p class="section-eyebrow">Explore CommandLayer</p>
+        <h2 class="section-h2">Where to start by audience</h2>
+      </div>
+      <div class="features-grid">
+        <a class="feat-card" href="/protocol.html" style="text-decoration:none;color:inherit;"><div class="feat-title">Protocol researchers</div><div class="feat-desc">Read protocol framing, trust boundaries, and verification flow.</div></a>
+        <a class="feat-card" href="/sdk-records.html" style="text-decoration:none;color:inherit;"><div class="feat-title">Builders</div><div class="feat-desc">Wrap actions into receipts and ship verification in developer workflows.</div></a>
+        <a class="feat-card" href="/capabilities.html" style="text-decoration:none;color:inherit;"><div class="feat-title">Capability/schema explorers</div><div class="feat-desc">Explore the CLAS capability map and schema discovery surface.</div></a>
+        <a class="feat-card" href="/proof.html" style="text-decoration:none;color:inherit;"><div class="feat-title">Proof reviewers</div><div class="feat-desc">Inspect live receipts and verify canonical proof outputs.</div></a>
+        <a class="feat-card" href="/integrations.html" style="text-decoration:none;color:inherit;"><div class="feat-title">External integrations</div><div class="feat-desc">Review Coinbase and x402 integration paths and boundaries.</div></a>
+        <a class="feat-card" href="/receipts.html" style="text-decoration:none;color:inherit;"><div class="feat-title">Receipt model</div><div class="feat-desc">Read receipt structure, canonicalization, and verification semantics.</div></a>
+      </div>
+    </div>
+  </section>
+
 
   <!-- ── API SECTION ───────────────────────────────── -->
   <section class="section">
@@ -1400,11 +1416,11 @@ console.<span class="t-fn">log</span>(<span class="t-var">verified</span>.<span 
         <div>
           <p class="section-eyebrow">Verification surfaces</p>
           <h2 class="section-h2">Runtime-validated verification.<br>Public verifier surface.</h2>
-          <p class="section-p" style="max-width: 52ch;">Runtime <code>/verify</code> has been validated against production runtime receipts. Website <code>/api/verify</code> is a public verifier surface and should align with the same canonical proof model. Webhook sender authentication is separate from receipt verification.</p>
+          <p class="section-p" style="max-width: 52ch;">Runtime <code>/verify</code> has been validated against production runtime receipts. Website <code>/api/verify</code> is a public verifier surface and should align with the same canonical proof model. Coinbase HMAC authenticates webhook delivery to the receiving server. x402/payment rails prove payment acceptance or settlement. CommandLayer proves the normalized event/action receipt. ENS anchors signer identity. VerifyAgent verifies hash, signature, signer, key id, and canonicalization.</p>
         </div>
         <div class="api-actions">
-          <a class="btn btn-primary" href="/verify.html">Open Verifier</a>
-          <a class="btn btn-secondary" href="/docs/wrap-your-agent.html">View Docs</a>
+          <a class="btn btn-primary" href="/receipts.html">Read Receipts</a>
+          <a class="btn btn-secondary" href="/sdk-records.html">Build with SDK</a>
         </div>
       </div>
       <div class="endpoint-grid">
