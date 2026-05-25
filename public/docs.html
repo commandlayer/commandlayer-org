@@ -55,8 +55,8 @@
   <main class="container">
     <section class="hero">
       <div class="eyebrow">Docs</div>
-      <h1>Build verifiable agent actions.</h1>
-      <p class="lead">CommandLayer docs cover the protocol model, SDK integration, runtime signing, MCP bridging, verifier checks, schemas, and capability activation.</p>
+      <h1>Developer docs for CommandLayer.</h1>
+      <p class="lead">CommandLayer docs help builders understand the protocol architecture, CLAS capabilities, receipt model, live proof flows, integrations, and SDK usage.</p>
       <div class="actions">
         <a class="btn btn-primary" href="/docs/wrap-your-agent.html">Wrap Your Agent</a>
         <a class="btn btn-secondary" href="/stack-proof-demo.html">View Production Proof</a>
@@ -64,60 +64,54 @@
     </section>
 
     <section>
-      <h2>Start here</h2>
+      <h2>Start building</h2>
       <div class="grid">
-        <a class="card" href="/protocol.html"><h3>Protocol Overview</h3><p>Explain CLAS, receipts, and trust boundaries.</p></a>
         <a class="card" href="/docs/wrap-your-agent.html"><h3>Wrap Your Agent</h3><p>Use the SDK to wrap actions and emit canonical receipts.</p></a>
-        <a class="card" href="/verify.html"><h3>Verify Receipts</h3><p>Paste a receipt or verify programmatically.</p></a>
-        <a class="card" href="/stack-proof-demo.html"><h3>Production Proof</h3><p>MCP → runtime → verifier → tamper invalid.</p></a>
-        <a class="card" href="/capabilities.html"><h3>Capabilities</h3><p>Explore Trust Verification v1 and future capability families.</p></a>
-        <a class="card" href="/sdk-records.html"><h3>SDK</h3><p>Install @commandlayer/agent-sdk@1.2.0.</p></a><a class="card" href="/integrations.html"><h3>Integrations</h3><p>Live Coinbase webhook and x402 signed receipt examples.</p></a><a class="card" href="/proof.html"><h3>Proof Flow Composer</h3><p>Simulated Coinbase + live x402 + live verify flow.</p></a>
+        <a class="card" href="/sdk-records.html"><h3>SDK Records</h3><p>Install the SDK and emit canonical action records and receipts.</p></a>
+        <a class="card" href="/api.html"><h3>API Reference</h3><p>Inspect endpoints, payloads, and validation behavior.</p></a>
       </div>
     </section>
 
     <section>
-      <h2>Architecture docs</h2>
+      <h2>Understand the protocol</h2>
       <div class="grid">
-        <a class="card" href="/protocol.html"><h3>CLAS</h3><p>Core protocol model and semantics.</p></a>
-        <a class="card" href="/runtime-core.html"><h3>runtime-core</h3><p>Deterministic canonicalization and signing internals.</p></a>
-        <a class="card" href="/runtime.html"><h3>runtime</h3><p>Production runtime behavior and receipt emission.</p></a>
-        <a class="card" href="/mcp.html"><h3>MCP bridge</h3><p>Protocol bridge from MCP clients to runtime actions.</p></a>
-        <a class="card" href="/receipts.html"><h3>VerifyAgent</h3><p>Public verifier flow and validation checks.</p></a>
-        <a class="card" href="/sdk-records.html"><h3>agent-sdk</h3><p>Application integration and wrapping utilities.</p></a>
+        <a class="card" href="/protocol.html"><h3>Protocol</h3><p>Core architecture, CLAS model, and trust boundaries.</p></a>
+        <a class="card" href="/capabilities.html"><h3>Capabilities</h3><p>Understand the CLAS action surface and capability families.</p></a>
+        <a class="card" href="/receipts.html"><h3>Receipts</h3><p>See canonical receipt structure and verifier expectations.</p></a>
+        <a class="card" href="/proof.html"><h3>Live Proof</h3><p>Walk through proof flow and tamper-invalid verification outcomes.</p></a>
       </div>
-      <ul class="trust-list">
-        <li>Runtime signs.</li><li>Verifier validates.</li><li>MCP bridges.</li><li>SDK wraps.</li><li>Schema-valid alone is not verified.</li>
-      </ul>
     </section>
 
     <section>
-      <h2>Canonical proof model</h2>
-      <p class="lead" style="font-size:15px;margin-bottom:14px;">Runtime production is live, runtime signs canonical Trust Verification receipts, and MCP E2E against production runtime passes: STEP 1 SIGNED · STEP 2 VERIFIED · STEP 3 TAMPERED INVALID.</p>
-      <pre>metadata.proof.canonicalization = "json.sorted_keys.v1"
-metadata.proof.hash.alg = "SHA-256"
-metadata.proof.signature.alg = "Ed25519"
-metadata.proof.signature.kid = "vC4WbcNoq2znSCiQ"
-metadata.proof.signer_id = "runtime.commandlayer.eth"</pre>
+      <h2>Runtime and integrations</h2>
+      <div class="grid">
+        <a class="card" href="/runtime.html"><h3>Runtime</h3><p>Production runtime behavior, signing, and receipt emission.</p></a>
+        <a class="card" href="/mcp.html"><h3>MCP Bridge</h3><p>Bridge MCP clients to runtime actions and receipt outputs.</p></a>
+        <a class="card" href="/integrations.html"><h3>Integrations</h3><p>External system patterns and interoperability examples.</p></a>
+        <a class="card" href="/schemas.html"><h3>Schemas</h3><p>Validate payload and receipt shapes used throughout the stack.</p></a>
+      </div>
     </section>
 
     <section>
-      <h2>Developer paths</h2>
+      <h2>Activation / namespace</h2>
+      <div class="grid">
+        <a class="card" href="/claim.html"><h3>Claim / Namespace Activation</h3><p>Activate namespace ownership and signer metadata for public verification.</p></a>
+      </div>
+    </section>
+
+    <section>
+      <h2>Recommended paths</h2>
       <div class="paths">
-        <div class="path"><h3>Fast path</h3><p>Install SDK → wrap action → verify receipt.</p></div>
-        <div class="path"><h3>Protocol path</h3><p>Read protocol → inspect schemas → implement verifier.</p></div>
-        <div class="path"><h3>Capability path</h3><p>Choose capability family → define schema → publish metadata.</p></div>
+        <div class="path"><h3>New to CommandLayer</h3><p>Protocol → Receipts → Live Proof</p></div>
+        <div class="path"><h3>Building an agent</h3><p>Wrap Your Agent → SDK → Capabilities</p></div>
+        <div class="path"><h3>Verifying receipts</h3><p>Receipts → Verifier → Live Proof</p></div>
+        <div class="path"><h3>External systems</h3><p>Integrations → Protocol → Receipts</p></div>
       </div>
     </section>
 
     <section>
-      <h2>Automatic Verification</h2><div class="grid"><a class="card" href="/proof.html"><h3>Automatic Verification</h3><p>See a webhook-style receipt verification flow.</p></a></div>
-    </section>
-
-    <section>
-      <h2>Reference links</h2>
-      <div class="grid">
-        <a class="card" href="/api.html"><h3>API Reference</h3></a><a class="card" href="/schemas.html"><h3>Schemas</h3></a><a class="card" href="/receipts.html"><h3>Trust Verification</h3></a><a class="card" href="/runtime.html"><h3>Runtime</h3></a><a class="card" href="/mcp.html"><h3>MCP Bridge</h3></a><a class="card" href="/claim.html"><h3>Claim</h3></a>
-      </div>
+      <h2>Legacy and discovery docs</h2>
+      <p class="lead" style="font-size:15px;margin-bottom:14px;">If you are looking for older concepts such as Commons, Commercial, or Agent Cards, treat them as legacy/discovery material. The current developer journey is centered on Protocol, Capabilities, Receipts, Live Proof, Integrations, and SDK.</p>
     </section>
   </main>
 
