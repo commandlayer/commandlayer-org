@@ -17,12 +17,17 @@
   "metadata": {
     "proof": {
       "canonicalization": "json.sorted_keys.v1",
-      "hash_sha256": "4ff674e92434833a00a8f9aac6941a7962b19bf7472f6d4a184ae54168dfc379"
+      "hash": {
+        "alg": "SHA-256",
+        "value": "4ff674e92434833a00a8f9aac6941a7962b19bf7472f6d4a184ae54168dfc379"
+      },
+      "signature": {
+        "alg": "Ed25519",
+        "kid": "vC4WbcNoq2znSCiQ",
+        "value": "kpnRCnN2Eg7d3g/nqvRXpEed7qS6Y9/JLyXyU2iQwvP6G2D/h75bcQgKRD2yJaJ/yVN/Ug7//ngrnga8UxUbDw==",
+        "role": "runtime"
+      },
+      "signer_id": "runtime.commandlayer.eth"
     }
-  },
-  "signature": {
-    "alg": "ed25519",
-    "kid": "vC4WbcNoq2znSCiQ",
-    "sig": "kpnRCnN2Eg7d3g/nqvRXpEed7qS6Y9/JLyXyU2iQwvP6G2D/h75bcQgKRD2yJaJ/yVN/Ug7//ngrnga8UxUbDw=="
   }
 }
