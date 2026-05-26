@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.commandlayer.org/schemas/v1.0.0/trust/_shared/proof.schema.json",
+  "title": "CLAS Trust Proof",
+  "description": "Shared proof envelope for trust verification receipts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "canonicalization",
+    "hash",
+    "signature"
+  ],
+  "properties": {
+    "canonicalization": {
+      "$comment": "erc8211.composable.v1: ERC-8211 composable execution canonicalization recognized. Merkle authorization verification is deferred pending the companion Merkle authorization ERC.",
+      "enum": [
+        "json.sorted_keys.v1",
+        "erc8211.composable.v1"
+      ]
+    },
+    "hash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "alg",
+        "value"
+      ],
+      "properties": {
+        "alg": {
+          "const": "SHA-256"
+        },
+        "value": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        }
+      }
+    },
+    "signature": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "alg",
+            "value",
+            "kid"
+          ],
+          "properties": {
+            "alg": {
+              "const": "Ed25519"
+            },
+            "value": {
+              "type": "string",
+              "minLength": 16
+            },
+            "kid": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        },
+        {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "alg",
+              "value",
+              "kid",
+              "role"
+            ],
+            "properties": {
+              "alg": {
+                "const": "Ed25519"
+              },
+              "value": {
+                "type": "string",
+                "minLength": 16
+              },
+              "kid": {
+                "type": "string",
+                "minLength": 1
+              },
+              "role": {
+                "type": "string",
+                "enum": [
+                  "user",
+                  "solver",
+                  "relayer",
+                  "agent",
+                  "runtime",
+                  "verifier"
+                ]
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
