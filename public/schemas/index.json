@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-05-26T00:00:00Z",
+  "source": "https://github.com/commandlayer/commandlayer-clas",
+  "families": [
+    {
+      "family_id": "trust-verification",
+      "family_name": "Trust Verification v1",
+      "family_status": "live",
+      "verbs": ["verify","sign","attest","authorize","approve","reject","permit","grant","authenticate","endorse"],
+      "request_schema_path_prefix": "/schemas/trust/",
+      "receipt_schema_path_prefix": "/schemas/trust/",
+      "manifest_path": "/capabilities/trust-verification/manifest.json",
+      "source_repo_url": "https://github.com/commandlayer/commandlayer-clas"
+    }
+  ]
+}
