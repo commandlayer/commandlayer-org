@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.commandlayer.org/schemas/v1.0.0/trust/attest/attest.receipt.schema.json",
+  "title": "CLAS Trust Attest Receipt",
+  "description": "A signed receipt proving that an attestation was issued.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "family",
+    "verb",
+    "receipt_id",
+    "request",
+    "attestation",
+    "ts",
+    "metadata"
+  ],
+  "properties": {
+    "version": {
+      "const": "1.0.0"
+    },
+    "family": {
+      "const": "trust"
+    },
+    "verb": {
+      "const": "attest"
+    },
+    "receipt_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "request": {
+      "$ref": "./attest.request.schema.json"
+    },
+    "attestation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "status",
+        "statement"
+      ],
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": [
+            "attested",
+            "refused",
+            "revoked"
+          ]
+        },
+        "statement": {
+          "type": "string"
+        },
+        "attestation_id": {
+          "type": "string"
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "ts": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proof"
+      ],
+      "properties": {
+        "proof": {
+          "$ref": "../_shared/proof.schema.json"
+        },
+        "trace": {
+          "$ref": "../_shared/trace.schema.json"
+        }
+      }
+    }
+  }
+}
