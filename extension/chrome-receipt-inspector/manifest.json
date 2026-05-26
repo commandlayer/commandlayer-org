@@ -1,0 +1,24 @@
+{
+  "manifest_version": 3,
+  "name": "CommandLayer Receipt Inspector (Developer Preview)",
+  "version": "0.0.1",
+  "description": "Developer preview foundation for scanning potential CommandLayer receipt IDs and verifying pasted receipts.",
+  "permissions": ["storage"],
+  "host_permissions": [
+    "https://www.commandlayer.org/*",
+    "https://commandlayer.org/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    }
+  ]
+}
