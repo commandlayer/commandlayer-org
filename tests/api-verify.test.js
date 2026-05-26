@@ -109,7 +109,7 @@ test('GET /api/verify => 405', async () => {
   await handler(req, res);
 
   assert.equal(res.statusCode, 405);
-  assert.equal(res.headers.allow, 'POST');
+  assert.equal(res.headers.allow, 'POST,OPTIONS');
   assert.equal(res.body.ok, false);
 });
 

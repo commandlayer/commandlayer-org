@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CommandLayer Playground</title>
+<link rel="icon" href="/favicon.ico" />
+<link rel="stylesheet" href="/css/site.css" />
+<style>
+.play-wrap{padding:64px 0 88px;background:linear-gradient(180deg,#F9FAFF 0%,#F3F6FF 100%)}
+.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:18px;box-shadow:0 1px 2px rgba(15,23,42,.04)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.row{margin-bottom:12px}
+textarea,select,input{width:100%;border:1px solid rgba(15,23,42,.18);border-radius:10px;padding:10px;font:14px/1.5 Inter,sans-serif}
+textarea{min-height:140px}.btns{display:flex;gap:8px;flex-wrap:wrap}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;white-space:pre-wrap;word-break:break-word}
+@media(max-width:960px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<nav><div class="container nav-inner"><a href="/" class="brand"><img src="/commandlayer-logo.png" alt="CommandLayer" /><span>CommandLayer</span></a><ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/proof.html">Live Proof</a></li><li><a href="/verify.html">Verifier</a></li><li><a href="/docs.html">Docs</a></li></ul></div></nav>
+<main class="play-wrap"><div class="container">
+<h1 class="section-h2">Playground</h1>
+<p class="section-p">Try a CommandLayer-style flow: choose a verb, submit text, and verify a sample receipt.</p>
+<div class="grid" style="margin-top:16px;">
+<section class="card">
+<div class="row"><label>Verb</label><select id="verb"><option>verify</option><option>attest</option><option>authorize</option><option>approve</option></select></div>
+<div class="row"><label>Input text</label><textarea id="input" placeholder="Paste text"></textarea></div>
+<div class="btns"><button id="runBtn" class="btn btn-primary" type="button">Run</button><button id="sampleBtn" type="button">Use sample receipt</button></div>
+<p id="runtimeNote" style="margin-top:10px;color:#334155;">Live runtime unavailable. Use sample receipt.</p>
+</section>
+<section class="card">
+<h3>Receipt JSON</h3><pre id="receipt" class="mono">No receipt yet.</pre>
+<div class="btns" style="margin-top:10px"><a class="btn btn-secondary" id="openVerify" href="/verify.html">Open verifier</a></div>
+</section>
+</div></div></main>
+<script>
+const sampleEndpoint='/receipts/demo-valid-receipt.json';
+const receiptEl=document.getElementById('receipt');
+const openVerify=document.getElementById('openVerify');
+let latestReceipt=null;
+async function loadSample(){
+  const r=await fetch(sampleEndpoint,{cache:'no-store'});
+  if(!r.ok) throw new Error('Sample receipt unavailable');
+  latestReceipt=await r.json();
+  receiptEl.textContent=JSON.stringify(latestReceipt,null,2);
+  openVerify.href='/verify.html#manual-verifier';
+}
+document.getElementById('sampleBtn').addEventListener('click',async()=>{try{await loadSample()}catch(e){receiptEl.textContent=e.message;}});
+document.getElementById('runBtn').addEventListener('click',async()=>{receiptEl.textContent='Live runtime unavailable. Use sample receipt.';});
+</script>
+</body>
+</html>
