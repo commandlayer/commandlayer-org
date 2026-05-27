@@ -66,6 +66,7 @@ test('cards_published creates checkout and moves to payment_pending', async () =
     queries.push(q);
     if (q.includes('from claim_requests where')) return { rows: [{ claim_id: 'c1', tenant: 'tenant1', pack_id: 'starter', status: 'cards_published', payment_status: 'unpaid' }] };
     if (q.includes('from claim_payments')) return { rows: [] };
+    if (q.includes('information_schema.tables')) return { rows: [{ '?column?': 1 }] };
     if (q.includes('information_schema.columns')) return { rows: [{ '?column?': 1 }] };
     return { rows: [] };
   };
@@ -96,6 +97,7 @@ test('payment_pending with forceNew creates new checkout', async () => {
   db.query = async (q) => {
     if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c3', tenant: 'tenant1', pack_id: 'starter', status: 'payment_pending', payment_status: 'pending' }] };
     if (q.includes('from claim_payments')) return { rows: [{ checkout_url: 'https://checkout.stripe.com/c/pay/cs_old', stripe_checkout_session_id: 'cs_old' }] };
+    if (q.includes('information_schema.tables')) return { rows: [{ '?column?': 1 }] };
     if (q.includes('information_schema.columns')) return { rows: [{ '?column?': 1 }] };
     return { rows: [] };
   };
@@ -126,6 +128,7 @@ test('DB write failure returns CHECKOUT_SESSION_DB_WRITE_FAILED', async () => {
   db.query = async (q) => {
     if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c7', tenant: 'tenant1', pack_id: 'starter', status: 'cards_published', payment_status: 'unpaid' }] };
     if (q.includes('from claim_payments')) return { rows: [] };
+    if (q.includes('information_schema.tables')) return { rows: [{ '?column?': 1 }] };
     if (q.includes('information_schema.columns')) return { rows: [{ '?column?': 1 }] };
     if (q.includes('insert into claim_payments')) throw new Error('db insert failed');
     return { rows: [] };
@@ -136,6 +139,8 @@ test('DB write failure returns CHECKOUT_SESSION_DB_WRITE_FAILED', async () => {
   await handler(makeReq({ claimId: 'c7' }, { authorization: 'Bearer admin-secret' }), res);
   assert.equal(res.statusCode, 500);
   assert.equal(res.body.status, 'CHECKOUT_SESSION_DB_WRITE_FAILED');
+  assert.equal(res.body.error, 'Checkout was created but payment state could not be saved.');
+  assert.equal(typeof res.body.debug.message, 'string');
 });
 
 test('no secrets logged', async () => {
