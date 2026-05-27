@@ -3,23 +3,38 @@
 const db = require('../../lib/db');
 const { stableStringify, sha256Hex, pinJsonToPinata } = require('../../lib/ipfsPinning');
 
-function firstObjectValue(agent, keys) {
-  for (const key of keys) {
-    const value = agent && agent[key];
+function firstObjectValue(obj) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
+  for (const key of Object.keys(obj)) {
+    const value = obj[key];
     if (value && typeof value === 'object' && !Array.isArray(value)) return value;
   }
   return null;
 }
 
-function deriveCardJsonFromClaimAgent(agent) {
-  return firstObjectValue(agent, [
-    'card_json',
-    'published_card_json',
-    'published_card',
-    'card',
-    'published_json',
-    'source_json',
-  ]);
+function parseCardCandidate(value) {
+  if (!value) return null;
+  if (typeof value === 'string') {
+    try {
+      const parsed = JSON.parse(value);
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : null;
+    } catch (_error) {
+      return null;
+    }
+  }
+  if (typeof value === 'object' && !Array.isArray(value)) return value;
+  return null;
+}
+
+function deriveCardJsonFromClaimAgent(claimAgent) {
+  const preferredFields = ['published_card_json', 'card_json', 'published_card', 'source_json'];
+  for (const field of preferredFields) {
+    const direct = parseCardCandidate(claimAgent && claimAgent[field]);
+    if (direct) return direct;
+    const nested = firstObjectValue(claimAgent && claimAgent[field]);
+    if (nested) return nested;
+  }
+  return null;
 }
 
 module.exports = async function handler(req, res) {
@@ -61,6 +76,12 @@ module.exports = async function handler(req, res) {
     );
 
     for (const agent of agentsResult.rows) {
+      const hasExistingRow = await db.query(
+        `select id from agent_cards where claim_id = $1 and ens = $2 limit 1`,
+        [claimId, agent.ens]
+      );
+      if (hasExistingRow.rows[0]) continue;
+
       const cardJson = deriveCardJsonFromClaimAgent(agent);
       if (!cardJson) {
         console.warn('[admin.pin-agent-cards] CARD_JSON_MISSING', { claimId, ens: agent.ens });
