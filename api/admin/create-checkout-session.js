@@ -33,8 +33,13 @@ function isNonProduction() {
 }
 
 function buildErrorResponse(status, debug) {
-  if (!isNonProduction() || !debug) return { ok: false, status };
-  return { ok: false, status, debug: { message: debug.message || null, code: debug.code || null } };
+  const response = { ok: false, status };
+  if (status === 'CHECKOUT_SESSION_DB_WRITE_FAILED') {
+    response.error = 'Checkout was created but payment state could not be saved.';
+  }
+  if (!isNonProduction() || !debug) return response;
+  response.debug = { message: debug.message || null, code: debug.code || null };
+  return response;
 }
 
 function parseSiteUrl(rawSiteUrl) {
@@ -46,6 +51,17 @@ function parseSiteUrl(rawSiteUrl) {
   } catch {
     return null;
   }
+}
+
+async function hasTable(tableName) {
+  const result = await db.query(
+    `select 1
+       from information_schema.tables
+      where table_schema = 'public' and table_name = $1
+      limit 1`,
+    [tableName],
+  );
+  return result.rows.length > 0;
 }
 
 async function hasColumn(tableName, columnName) {
@@ -150,29 +166,65 @@ module.exports = async function handler(req, res) {
     const stripeSession = await createStripeCheckoutSession({ stripeSecretKey, amountCents, claim });
 
     try {
-      const hasCheckoutUrlColumn = await hasColumn('claim_payments', 'checkout_url');
-      if (hasCheckoutUrlColumn) {
-        await db.query(
-          `insert into claim_payments (claim_id, provider, payment_status, stripe_checkout_session_id, checkout_url, updated_at)
-           values ($1, 'stripe', 'pending', $2, $3, now())
-           on conflict (claim_id, provider)
-           do update set payment_status = excluded.payment_status,
-                         stripe_checkout_session_id = excluded.stripe_checkout_session_id,
-                         checkout_url = excluded.checkout_url,
-                         updated_at = now()`,
-          [claimId, stripeSession.id, stripeSession.url],
-        );
-      } else {
-        await db.query(
-          `insert into claim_payments (claim_id, provider, payment_status, stripe_checkout_session_id, updated_at)
-           values ($1, 'stripe', 'pending', $2, now())
-           on conflict (claim_id, provider)
-           do update set payment_status = excluded.payment_status,
-                         stripe_checkout_session_id = excluded.stripe_checkout_session_id,
-                         updated_at = now()`,
-          [claimId, stripeSession.id],
-        );
+      if (!(await hasTable('claim_payments'))) {
+        const missingPaymentsTableError = new Error('claim_payments table missing');
+        missingPaymentsTableError.code = 'CLAIM_PAYMENTS_TABLE_MISSING';
+        throw missingPaymentsTableError;
       }
+
+      const hasPaymentsStatusColumn = await hasColumn('claim_payments', 'payment_status');
+      const hasLegacyPaymentsStatusColumn = await hasColumn('claim_payments', 'status');
+      const hasPaymentsStripeSessionColumn = await hasColumn('claim_payments', 'stripe_checkout_session_id');
+      const hasCheckoutUrlColumn = await hasColumn('claim_payments', 'checkout_url');
+      const hasPaymentsUpdatedAtColumn = await hasColumn('claim_payments', 'updated_at');
+
+      const paymentColumns = ['claim_id', 'provider'];
+      const paymentValues = ['$1', "'stripe'"];
+      const paymentUpdates = [];
+      const paymentParams = [claimId];
+      let nextParam = 2;
+
+      if (hasPaymentsStatusColumn) {
+        paymentColumns.push('payment_status');
+        paymentValues.push("'pending'");
+        paymentUpdates.push("payment_status = 'pending'");
+      } else if (hasLegacyPaymentsStatusColumn) {
+        paymentColumns.push('status');
+        paymentValues.push("'pending'");
+        paymentUpdates.push("status = 'pending'");
+      }
+      if (hasPaymentsStripeSessionColumn) {
+        paymentColumns.push('stripe_checkout_session_id');
+        paymentValues.push(`$${nextParam}`);
+        paymentUpdates.push('stripe_checkout_session_id = excluded.stripe_checkout_session_id');
+        paymentParams.push(stripeSession.id);
+        nextParam += 1;
+      }
+      if (hasCheckoutUrlColumn) {
+        paymentColumns.push('checkout_url');
+        paymentValues.push(`$${nextParam}`);
+        paymentUpdates.push('checkout_url = excluded.checkout_url');
+        paymentParams.push(stripeSession.url);
+        nextParam += 1;
+      }
+      if (hasPaymentsUpdatedAtColumn) {
+        paymentColumns.push('updated_at');
+        paymentValues.push('now()');
+        paymentUpdates.push('updated_at = now()');
+      }
+      if (paymentUpdates.length === 0) {
+        const missingWritableColumnsError = new Error('claim_payments has no writable checkout columns');
+        missingWritableColumnsError.code = 'CLAIM_PAYMENTS_COLUMNS_MISSING';
+        throw missingWritableColumnsError;
+      }
+
+      await db.query(
+        `insert into claim_payments (${paymentColumns.join(', ')})
+         values (${paymentValues.join(', ')})
+         on conflict (claim_id, provider)
+         do update set ${paymentUpdates.join(', ')}`,
+        paymentParams,
+      );
 
       const hasPaymentStatus = await hasColumn('claim_requests', 'payment_status');
       const hasStripeSession = await hasColumn('claim_requests', 'stripe_checkout_session_id');
@@ -184,7 +236,7 @@ module.exports = async function handler(req, res) {
         await db.query(`update claim_requests set ${setClauses.join(', ')} where claim_id = $1`, [claimId, stripeSession.id]);
       }
 
-      if (claim.status === 'cards_published') {
+      if (claim.status === 'cards_published' && (await hasTable('claim_status_transitions'))) {
         await db.query(
           `insert into claim_status_transitions (claim_id, from_status, to_status)
            select $1, 'cards_published', 'payment_pending'
@@ -197,12 +249,14 @@ module.exports = async function handler(req, res) {
       }
 
       const eventType = forceNew ? 'payment.checkout_regenerated' : 'payment.checkout_created';
-      const hasMessageColumn = await hasColumn('claim_events', 'message');
-      const hasMetadataJsonColumn = await hasColumn('claim_events', 'metadata_json');
-      if (hasMessageColumn && hasMetadataJsonColumn) {
-        await db.query('insert into claim_events (claim_id, event_type, message, metadata_json) values ($1, $2, $3, $4::jsonb)', [claimId, eventType, 'Stripe checkout session prepared', JSON.stringify({ provider: 'stripe' })]);
-      } else if (hasMessageColumn) {
-        await db.query('insert into claim_events (claim_id, event_type, message) values ($1, $2, $3)', [claimId, eventType, 'Stripe checkout session prepared']);
+      if (await hasTable('claim_events')) {
+        const hasMessageColumn = await hasColumn('claim_events', 'message');
+        const hasMetadataJsonColumn = await hasColumn('claim_events', 'metadata_json');
+        if (hasMessageColumn && hasMetadataJsonColumn) {
+          await db.query('insert into claim_events (claim_id, event_type, message, metadata_json) values ($1, $2, $3, $4::jsonb)', [claimId, eventType, 'Stripe checkout session prepared', JSON.stringify({ provider: 'stripe' })]);
+        } else if (hasMessageColumn) {
+          await db.query('insert into claim_events (claim_id, event_type, message) values ($1, $2, $3)', [claimId, eventType, 'Stripe checkout session prepared']);
+        }
       }
     } catch (error) {
       error.status = 'CHECKOUT_SESSION_DB_WRITE_FAILED';
