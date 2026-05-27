@@ -3,6 +3,25 @@
 const db = require('../../lib/db');
 const { stableStringify, sha256Hex, pinJsonToPinata } = require('../../lib/ipfsPinning');
 
+function firstObjectValue(agent, keys) {
+  for (const key of keys) {
+    const value = agent && agent[key];
+    if (value && typeof value === 'object' && !Array.isArray(value)) return value;
+  }
+  return null;
+}
+
+function deriveCardJsonFromClaimAgent(agent) {
+  return firstObjectValue(agent, [
+    'card_json',
+    'published_card_json',
+    'published_card',
+    'card',
+    'published_json',
+    'source_json',
+  ]);
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
@@ -27,14 +46,47 @@ module.exports = async function handler(req, res) {
   if (!claim) return res.status(404).json({ ok: false, status: 'CLAIM_NOT_FOUND' });
   if (claim.status !== 'paid' && claim.status !== 'cards_pinned') return res.status(400).json({ ok: false, status: 'CLAIM_NOT_PAID' });
 
-  const cardsResult = await db.query(
+  let cardsResult = await db.query(
     `select id, claim_id, ens, card_json, card_cid, card_ipfs_uri, card_gateway_url, card_sha256, pin_status
      from agent_cards
      where claim_id = $1 and status = 'published'
      order by created_at asc`,
     [claimId]
   );
-  if (!cardsResult.rows.length) return res.status(400).json({ ok: false, status: 'NO_PUBLISHED_CARDS' });
+
+  if (!cardsResult.rows.length && claim.status === 'paid') {
+    const agentsResult = await db.query(
+      `select * from claim_agents where claim_id = $1 and status = 'published' order by created_at asc`,
+      [claimId]
+    );
+
+    for (const agent of agentsResult.rows) {
+      const cardJson = deriveCardJsonFromClaimAgent(agent);
+      if (!cardJson) {
+        console.warn('[admin.pin-agent-cards] CARD_JSON_MISSING', { claimId, ens: agent.ens });
+        continue;
+      }
+
+      await db.query(
+        `insert into agent_cards (claim_id, ens, card_json, status, pin_status)
+         values ($1, $2, $3::jsonb, 'published', 'pending')`,
+        [claimId, agent.ens, JSON.stringify(cardJson)]
+      );
+    }
+
+    cardsResult = await db.query(
+      `select id, claim_id, ens, card_json, card_cid, card_ipfs_uri, card_gateway_url, card_sha256, pin_status
+       from agent_cards
+       where claim_id = $1 and status = 'published'
+       order by created_at asc`,
+      [claimId]
+    );
+  }
+
+  if (!cardsResult.rows.length) {
+    console.warn('[admin.pin-agent-cards] NO_AGENT_CARDS_TO_PIN', { claimId });
+    return res.status(400).json({ ok: false, status: 'NO_AGENT_CARDS_TO_PIN' });
+  }
 
   const allPinned = cardsResult.rows.every((r) => r.card_cid && r.card_ipfs_uri && r.card_sha256);
   if (allPinned) return res.status(200).json({ ok: true, status: 'ALREADY_PINNED', claimId, cards: cardsResult.rows });
@@ -44,6 +96,11 @@ module.exports = async function handler(req, res) {
   try {
     const pinned = [];
     for (const row of cardsResult.rows) {
+      if (!row.card_json) {
+        console.warn('[admin.pin-agent-cards] CARD_JSON_MISSING', { claimId, ens: row.ens });
+        continue;
+      }
+
       const canonical = stableStringify(row.card_json);
       const hash = sha256Hex(canonical);
 
@@ -52,17 +109,23 @@ module.exports = async function handler(req, res) {
         continue;
       }
 
-      const cid = await pinJsonToPinata(row.card_json);
-      const ipfsUri = `ipfs://${cid}`;
-      const gatewayUrl = `${gatewayBase}/${cid}`;
-      await db.query(
-        `update agent_cards
-         set card_cid = $2, card_ipfs_uri = $3, card_gateway_url = $4, card_sha256 = $5,
-             card_pinned_at = now(), pinning_provider = $6, pin_status = 'pinned', pin_error = null
-         where id = $1`,
-        [row.id, cid, ipfsUri, gatewayUrl, hash, provider]
-      );
-      pinned.push({ ens: row.ens, card_cid: cid, card_sha256: hash, card_gateway_url: gatewayUrl });
+      try {
+        const cid = await pinJsonToPinata(row.card_json);
+        const ipfsUri = `ipfs://${cid}`;
+        const gatewayUrl = `${gatewayBase}/${cid}`;
+        await db.query(
+          `update agent_cards
+           set card_cid = $2, card_ipfs_uri = $3, card_gateway_url = $4, card_sha256 = $5,
+               card_pinned_at = now(), pinning_provider = $6, pin_status = 'pinned', pin_error = null
+           where id = $1`,
+          [row.id, cid, ipfsUri, gatewayUrl, hash, provider]
+        );
+        pinned.push({ ens: row.ens, card_cid: cid, card_sha256: hash, card_gateway_url: gatewayUrl });
+      } catch (error) {
+        await db.query("update agent_cards set pin_status = 'error', pin_error = $2 where id = $1", [row.id, String(error && error.message ? error.message : 'pinning_failed')]);
+        console.error('[admin.pin-agent-cards] IPFS_PIN_FAILED', { claimId, ens: row.ens });
+        throw error;
+      }
     }
 
     await db.query('update claim_requests set status = $2, updated_at = now() where claim_id = $1', [claimId, 'cards_pinned']);
@@ -76,13 +139,10 @@ module.exports = async function handler(req, res) {
        values ($1, 'paid', 'cards_pinned')`,
       [claimId]
     );
+    console.log('[admin.pin-agent-cards] IPFS_PIN_SUCCESS', { claimId, count: pinned.length });
 
     return res.status(200).json({ ok: true, status: 'CARDS_PINNED', claimId, provider, cards: pinned });
   } catch (error) {
-    await db.query(
-      `update agent_cards set pin_status = 'error', pin_error = $2 where claim_id = $1 and status = 'published'`,
-      [claimId, String(error && error.message ? error.message : 'pinning_failed')]
-    );
-    return res.status(502).json({ ok: false, status: 'PINNING_FAILED', claimId });
+    return res.status(502).json({ ok: false, status: 'IPFS_PIN_FAILED', claimId });
   }
 };

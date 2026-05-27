@@ -17,14 +17,20 @@ test('unpaid claims rejected', async () => {
   assert.equal(res.body.status, 'CLAIM_NOT_PAID');
 });
 
-test('paid claim pins cards', async () => {
+test('paid claim with no agent_cards populates and pins cards', async () => {
   process.env.ADMIN_API_KEY = 'k';
   process.env.PINATA_JWT = 'jwt';
   const calls = [];
+  let firstCardsLookup = true;
   global.fetch = async () => ({ ok: true, json: async () => ({ IpfsHash: 'bafy123' }) });
-  db.query = async (q, p) => {
+  db.query = async (q) => {
     calls.push(q);
     if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c2', status: 'paid' }] };
+    if (q.includes('from agent_cards') && firstCardsLookup) {
+      firstCardsLookup = false;
+      return { rows: [] };
+    }
+    if (q.includes('from claim_agents')) return { rows: [{ ens: 'x.eth', status: 'published', published_card_json: { a: 1 } }] };
     if (q.includes('from agent_cards')) return { rows: [{ id: 'a1', ens: 'x.eth', claim_id: 'c2', card_json: { a: 1 }, status: 'published' }] };
     return { rows: [] };
   };
@@ -32,7 +38,7 @@ test('paid claim pins cards', async () => {
   await handler({ method: 'POST', headers: { 'x-admin-api-key': 'k' }, body: { claimId: 'c2' } }, res);
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.status, 'CARDS_PINNED');
-  assert.ok(calls.some((q) => q.includes('update claim_requests set status')));
+  assert.ok(calls.some((q) => q.includes('insert into agent_cards')));
 });
 
 test('already pinned claim returns existing CID', async () => {
@@ -48,6 +54,24 @@ test('already pinned claim returns existing CID', async () => {
   assert.equal(res.body.status, 'ALREADY_PINNED');
 });
 
+test('pinning populates ipfs fields and moves claim to cards_pinned', async () => {
+  process.env.ADMIN_API_KEY = 'k';
+  process.env.PINATA_JWT = 'jwt';
+  const queries = [];
+  global.fetch = async () => ({ ok: true, json: async () => ({ IpfsHash: 'bafyxyz' }) });
+  db.query = async (q) => {
+    queries.push(q);
+    if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c4', status: 'paid' }] };
+    if (q.includes('from agent_cards')) return { rows: [{ id: 'a1', ens: 'x.eth', card_json: { a: 1 }, status: 'published' }] };
+    return { rows: [] };
+  };
+  const res = makeRes();
+  await handler({ method: 'POST', headers: { 'x-admin-api-key': 'k' }, body: { claimId: 'c4' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.ok(queries.some((q) => q.includes('set card_cid = $2')));
+  assert.ok(queries.some((q) => q.includes('update claim_requests set status')));
+});
+
 test('provider error records pin_error and does not mark cards_pinned', async () => {
   process.env.ADMIN_API_KEY = 'k';
   process.env.PINATA_JWT = 'jwt';
@@ -55,13 +79,14 @@ test('provider error records pin_error and does not mark cards_pinned', async ()
   global.fetch = async () => ({ ok: false, status: 500, json: async () => ({}) });
   db.query = async (q) => {
     queries.push(q);
-    if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c4', status: 'paid' }] };
+    if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c5', status: 'paid' }] };
     if (q.includes('from agent_cards')) return { rows: [{ id: 'a1', card_json: { a: 1 }, status: 'published' }] };
     return { rows: [] };
   };
   const res = makeRes();
-  await handler({ method: 'POST', headers: { 'x-admin-api-key': 'k' }, body: { claimId: 'c4' } }, res);
+  await handler({ method: 'POST', headers: { 'x-admin-api-key': 'k' }, body: { claimId: 'c5' } }, res);
   assert.equal(res.statusCode, 502);
+  assert.equal(res.body.status, 'IPFS_PIN_FAILED');
   assert.ok(queries.some((q) => q.includes("set pin_status = 'error'")));
   assert.ok(!queries.some((q) => q.includes('update claim_requests set status')));
 });
@@ -72,9 +97,9 @@ test('no secrets are logged', async () => {
   const logs = [];
   const oldLog = console.log;
   console.log = (...a) => logs.push(a.join(' '));
-  db.query = async (q) => (q.includes('from claim_requests') ? { rows: [{ claim_id: 'c5', status: 'paid' }] } : { rows: [] });
+  db.query = async (q) => (q.includes('from claim_requests') ? { rows: [{ claim_id: 'c6', status: 'paid' }] } : { rows: [] });
   const res = makeRes();
-  await handler({ method: 'POST', headers: { 'x-admin-api-key': 'k' }, body: { claimId: 'c5' } }, res);
+  await handler({ method: 'POST', headers: { 'x-admin-api-key': 'k' }, body: { claimId: 'c6' } }, res);
   console.log = oldLog;
   assert.equal(logs.join('\n').includes('super-secret-jwt'), false);
 });
