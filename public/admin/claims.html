@@ -57,8 +57,64 @@ const short=(v,n=10)=>v?`${v.slice(0,n)}…`:''; const dt=(v)=>v?new Date(v).toL
 const badge=(status)=>`<span class="badge ${status}">${status}</span>`;
 const copyBtn=(txt)=>`<button class='btn btn-muted copy-url' data-url='${txt.replaceAll("'", '&#39;')}'>Copy URL</button>`;
 function renderClaims(){const b=document.getElementById('claimsBody');b.innerHTML='';document.getElementById('claimsCount').textContent=`(${s.claims.length} loaded)`;for(const c of s.claims){const row=document.createElement('button');row.type='button';row.className=`claim-item ${s.selected===c.claimId?'selected':''}`;row.innerHTML=`<div class='claim-head'><span class='mono'>${short(c.claimId,14)}</span>${badge(c.status)}</div><div class='claim-meta'><span>${c.tenant||'-'}</span><span>${c.packId||'-'} · ${c.agentCount||0} agents</span></div><div class='claim-meta'><span>${dt(c.createdAt)}</span></div>`;row.onclick=()=>loadDetail(c.claimId);b.appendChild(row);}}
-async function loadClaims(){status('Loading claims...');const r=await fetch('/api/admin/claims',{headers:{Authorization:headers().Authorization}});const d=await r.json();if(!r.ok||!d.ok){status(`${r.status} ${d.status}`);return;}s.claims=d.claims||[];renderClaims();status(`Loaded ${s.claims.length} claims.`);}
-async function loadDetail(id){s.selected=id;renderClaims();const r=await fetch(`/api/admin/claim?claimId=${encodeURIComponent(id)}`,{headers:{Authorization:headers().Authorization}});const d=await r.json();if(!r.ok||!d.ok)return; s.detail=d; renderDetail();}
+async function loadClaims(){
+  const endpoint='/api/admin/claims';
+  status('Loading claims...');
+  try{
+    const r=await fetch(endpoint,{headers:{Authorization:headers().Authorization}});
+    const raw=await r.text();
+    let d={};
+    try{d=raw?JSON.parse(raw):{};}catch{d={error:raw||'Invalid JSON response'};}
+    console.debug('[claims-admin] loadClaims',{endpoint,httpStatus:r.status,responseStatus:d?.status,responseError:d?.error});
+    if(!r.ok||d?.ok===false){
+      const detail=d?.error||raw||'Request failed';
+      status(`Load failed: ${r.status} — ${detail}`);
+      s.claims=[];
+      s.selected='';
+      s.detail=null;
+      renderClaims();
+      renderDetail();
+      return;
+    }
+    const claims=Array.isArray(d)?d:Array.isArray(d?.claims)?d.claims:[];
+    s.claims=claims;
+    renderClaims();
+    status(`Loaded ${s.claims.length} claims.`);
+  }catch(e){
+    console.debug('[claims-admin] loadClaims:error',{endpoint,error:e?.message});
+    s.claims=[];
+    s.selected='';
+    s.detail=null;
+    renderClaims();
+    renderDetail();
+    status(`Load failed: 0 — ${e?.message||'Request failed'}`);
+  }
+}
+async function loadDetail(id){
+  const endpoint=`/api/admin/claim?claimId=${encodeURIComponent(id)}`;
+  s.selected=id;
+  renderClaims();
+  try{
+    const r=await fetch(endpoint,{headers:{Authorization:headers().Authorization}});
+    const raw=await r.text();
+    let d={};
+    try{d=raw?JSON.parse(raw):{};}catch{d={error:raw||'Invalid JSON response'};}
+    console.debug('[claims-admin] loadDetail',{endpoint,httpStatus:r.status,responseStatus:d?.status,responseError:d?.error});
+    if(!r.ok||d?.ok===false){
+      s.error=`Load failed: ${r.status} — ${d?.error||raw||'Request failed'}`;
+      s.detail=null;
+      renderDetail();
+      return;
+    }
+    s.error=null;
+    s.detail=d;
+    renderDetail();
+  }catch(e){
+    s.error=`Load failed: 0 — ${e?.message||'Request failed'}`;
+    s.detail=null;
+    renderDetail();
+  }
+}
 async function action(action,p={}){const r=await fetch('/api/admin/claim-action',{method:'POST',headers:headers(),body:JSON.stringify({claimId:s.selected,action,actor:'admin',...p})});const d=await r.json();if(!r.ok||!d.ok){s.error=`${d.status}: ${d.error}`;renderDetail();return;}s.error=null;await loadClaims();await loadDetail(s.selected);} 
 async function publish(){const r=await fetch('/api/admin/publish-agent-cards',{method:'POST',headers:headers(),body:JSON.stringify({claimId:s.selected})});const d=await r.json();if(!r.ok||!d.ok){s.error=`${d.status}: ${d.error}`;renderDetail();return;}s.error=null;await loadClaims();await loadDetail(s.selected);} 
 async function createCheckoutSession(claimId,forceNew=false){if(!claimId){s.error='400 — claimId is required';renderDetail();return;}s.error=null;s.checkoutUrl=null;s.checkoutLoading=true;renderDetail();try{const r=await fetch('/api/admin/create-checkout-session',{method:'POST',headers:headers(),body:JSON.stringify({claimId,forceNew})});const d=await r.json().catch(()=>({}));if(!r.ok||!d.ok){const detail=d?.debug?.message?`\nDetails: ${d.debug.message}`:'';s.error=`Checkout failed:\n${d.status||r.status} — ${d.error||'Request failed'}${detail}`;return;}s.checkoutUrl=d.checkoutUrl||d.url||null;await loadClaims();await loadDetail(claimId);}catch(e){s.error=`500 — ${e?.message||'Request failed'}`;}finally{s.checkoutLoading=false;renderDetail();}}
