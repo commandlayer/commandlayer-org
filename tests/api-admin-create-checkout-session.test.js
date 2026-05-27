@@ -67,7 +67,6 @@ test('cards_published creates checkout and moves to payment_pending', async () =
     if (q.includes('from claim_requests where')) return { rows: [{ claim_id: 'c1', tenant: 'tenant1', pack_id: 'starter', status: 'cards_published', payment_status: 'unpaid' }] };
     if (q.includes('from claim_payments')) return { rows: [] };
     if (q.includes('information_schema.tables')) return { rows: [{ '?column?': 1 }] };
-    if (q.includes('information_schema.columns')) return { rows: [{ '?column?': 1 }] };
     return { rows: [] };
   };
   global.fetch = async () => ({ ok: true, json: async () => ({ id: 'cs_1', url: 'https://checkout.stripe.com/c/pay/cs_1' }) });
@@ -98,7 +97,6 @@ test('payment_pending with forceNew creates new checkout', async () => {
     if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c3', tenant: 'tenant1', pack_id: 'starter', status: 'payment_pending', payment_status: 'pending' }] };
     if (q.includes('from claim_payments')) return { rows: [{ checkout_url: 'https://checkout.stripe.com/c/pay/cs_old', stripe_checkout_session_id: 'cs_old' }] };
     if (q.includes('information_schema.tables')) return { rows: [{ '?column?': 1 }] };
-    if (q.includes('information_schema.columns')) return { rows: [{ '?column?': 1 }] };
     return { rows: [] };
   };
   global.fetch = async () => ({ ok: true, json: async () => ({ id: 'cs_new', url: 'https://checkout.stripe.com/c/pay/cs_new' }) });
@@ -124,13 +122,98 @@ test('stripe API error returns STRIPE_CHECKOUT_CREATE_FAILED', async () => {
   assert.equal(res.body.debug.code, 'resource_missing');
 });
 
+
+
+test('existing claim_payments row updates without insert', async () => {
+  const queries = [];
+  db.query = async (q) => {
+    queries.push(q);
+    if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c9', tenant: 'tenant1', pack_id: 'starter', status: 'cards_published', payment_status: 'unpaid' }] };
+    if (q.includes('from claim_payments')) return { rows: [] };
+    if (q.includes('information_schema.tables')) return { rows: [{ '?column?': 1 }] };
+    if (q.includes('update claim_payments')) return { rowCount: 1, rows: [] };
+    return { rows: [] };
+  };
+  global.fetch = async () => ({ ok: true, json: async () => ({ id: 'cs_9', url: 'https://checkout.stripe.com/c/pay/cs_9' }) });
+
+  const res = makeRes();
+  await handler(makeReq({ claimId: 'c9' }, { authorization: 'Bearer admin-secret' }), res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(queries.some((q) => q.includes('insert into claim_payments')), false);
+});
+
+test('missing claim_payments row inserts', async () => {
+  const queries = [];
+  db.query = async (q) => {
+    queries.push(q);
+    if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c10', tenant: 'tenant1', pack_id: 'starter', status: 'cards_published', payment_status: 'unpaid' }] };
+    if (q.includes('from claim_payments')) return { rows: [] };
+    if (q.includes('information_schema.tables')) return { rows: [{ '?column?': 1 }] };
+    if (q.includes('update claim_payments')) return { rowCount: 0, rows: [] };
+    if (q.includes('insert into claim_payments')) return { rowCount: 1, rows: [] };
+    return { rows: [] };
+  };
+  global.fetch = async () => ({ ok: true, json: async () => ({ id: 'cs_10', url: 'https://checkout.stripe.com/c/pay/cs_10' }) });
+
+  const res = makeRes();
+  await handler(makeReq({ claimId: 'c10' }, { authorization: 'Bearer admin-secret' }), res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(queries.some((q) => q.includes('insert into claim_payments')), true);
+});
+
+test('duplicate insert race retries update once', async () => {
+  let updateCalls = 0;
+  let insertCalls = 0;
+  db.query = async (q) => {
+    if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c11', tenant: 'tenant1', pack_id: 'starter', status: 'cards_published', payment_status: 'unpaid' }] };
+    if (q.includes('from claim_payments')) return { rows: [] };
+    if (q.includes('information_schema.tables')) return { rows: [{ '?column?': 1 }] };
+    if (q.includes('update claim_payments')) {
+      updateCalls += 1;
+      return { rowCount: 0, rows: [] };
+    }
+    if (q.includes('insert into claim_payments')) {
+      insertCalls += 1;
+      const err = new Error('duplicate key');
+      err.code = '23505';
+      throw err;
+    }
+    return { rows: [] };
+  };
+  global.fetch = async () => ({ ok: true, json: async () => ({ id: 'cs_11', url: 'https://checkout.stripe.com/c/pay/cs_11' }) });
+
+  const res = makeRes();
+  await handler(makeReq({ claimId: 'c11' }, { authorization: 'Bearer admin-secret' }), res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(insertCalls, 1);
+  assert.equal(updateCalls, 2);
+});
+
+test('no ON CONFLICT required for claim_payments write', async () => {
+  const queries = [];
+  db.query = async (q) => {
+    queries.push(q);
+    if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c12', tenant: 'tenant1', pack_id: 'starter', status: 'cards_published', payment_status: 'unpaid' }] };
+    if (q.includes('from claim_payments')) return { rows: [] };
+    if (q.includes('information_schema.tables')) return { rows: [{ '?column?': 1 }] };
+    if (q.includes('update claim_payments')) return { rowCount: 1, rows: [] };
+    return { rows: [] };
+  };
+  global.fetch = async () => ({ ok: true, json: async () => ({ id: 'cs_12', url: 'https://checkout.stripe.com/c/pay/cs_12' }) });
+
+  const res = makeRes();
+  await handler(makeReq({ claimId: 'c12' }, { authorization: 'Bearer admin-secret' }), res);
+  assert.equal(res.statusCode, 200);
+  const serialized = queries.join('\n').toLowerCase();
+  assert.equal(serialized.includes('on conflict'), false);
+});
+
 test('DB write failure returns CHECKOUT_SESSION_DB_WRITE_FAILED', async () => {
   db.query = async (q) => {
     if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c7', tenant: 'tenant1', pack_id: 'starter', status: 'cards_published', payment_status: 'unpaid' }] };
     if (q.includes('from claim_payments')) return { rows: [] };
     if (q.includes('information_schema.tables')) return { rows: [{ '?column?': 1 }] };
-    if (q.includes('information_schema.columns')) return { rows: [{ '?column?': 1 }] };
-    if (q.includes('insert into claim_payments')) throw new Error('db insert failed');
+    if (q.includes('update claim_payments')) throw new Error('db update failed');
     return { rows: [] };
   };
   global.fetch = async () => ({ ok: true, json: async () => ({ id: 'cs_7', url: 'https://checkout.stripe.com/c/pay/cs_7' }) });

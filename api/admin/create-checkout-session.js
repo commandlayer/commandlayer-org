@@ -172,59 +172,54 @@ module.exports = async function handler(req, res) {
         throw missingPaymentsTableError;
       }
 
-      const hasPaymentsStatusColumn = await hasColumn('claim_payments', 'payment_status');
-      const hasLegacyPaymentsStatusColumn = await hasColumn('claim_payments', 'status');
-      const hasPaymentsStripeSessionColumn = await hasColumn('claim_payments', 'stripe_checkout_session_id');
-      const hasCheckoutUrlColumn = await hasColumn('claim_payments', 'checkout_url');
-      const hasPaymentsUpdatedAtColumn = await hasColumn('claim_payments', 'updated_at');
-
-      const paymentColumns = ['claim_id', 'provider'];
-      const paymentValues = ['$1', "'stripe'"];
-      const paymentUpdates = [];
-      const paymentParams = [claimId];
-      let nextParam = 2;
-
-      if (hasPaymentsStatusColumn) {
-        paymentColumns.push('payment_status');
-        paymentValues.push("'pending'");
-        paymentUpdates.push("payment_status = 'pending'");
-      } else if (hasLegacyPaymentsStatusColumn) {
-        paymentColumns.push('status');
-        paymentValues.push("'pending'");
-        paymentUpdates.push("status = 'pending'");
-      }
-      if (hasPaymentsStripeSessionColumn) {
-        paymentColumns.push('stripe_checkout_session_id');
-        paymentValues.push(`$${nextParam}`);
-        paymentUpdates.push('stripe_checkout_session_id = excluded.stripe_checkout_session_id');
-        paymentParams.push(stripeSession.id);
-        nextParam += 1;
-      }
-      if (hasCheckoutUrlColumn) {
-        paymentColumns.push('checkout_url');
-        paymentValues.push(`$${nextParam}`);
-        paymentUpdates.push('checkout_url = excluded.checkout_url');
-        paymentParams.push(stripeSession.url);
-        nextParam += 1;
-      }
-      if (hasPaymentsUpdatedAtColumn) {
-        paymentColumns.push('updated_at');
-        paymentValues.push('now()');
-        paymentUpdates.push('updated_at = now()');
-      }
-      if (paymentUpdates.length === 0) {
-        const missingWritableColumnsError = new Error('claim_payments has no writable checkout columns');
-        missingWritableColumnsError.code = 'CLAIM_PAYMENTS_COLUMNS_MISSING';
-        throw missingWritableColumnsError;
-      }
-
-      await db.query(
-        `insert into claim_payments (${paymentColumns.join(', ')})
-         values (${paymentValues.join(', ')})
-         on conflict (claim_id, provider)
-         do update set ${paymentUpdates.join(', ')}`,
+      const metadataJson = JSON.stringify({ provider: 'stripe' });
+      const paymentParams = [stripeSession.id, amountCents, 'usd', metadataJson, claimId];
+      const paymentUpdateResult = await db.query(
+        `update claim_payments
+            set stripe_checkout_session_id = $1,
+                status = 'pending',
+                amount_cents = $2,
+                currency = $3,
+                metadata_json = $4::jsonb,
+                updated_at = now()
+          where claim_id = $5 and provider = 'stripe'`,
         paymentParams,
       );
+
+      if (paymentUpdateResult.rowCount === 0) {
+        try {
+          await db.query(
+            `insert into claim_payments (
+               claim_id,
+               provider,
+               stripe_checkout_session_id,
+               amount_cents,
+               currency,
+               status,
+               metadata_json,
+               created_at,
+               updated_at
+             ) values ($1, 'stripe', $2, $3, $4, 'pending', $5::jsonb, now(), now())`,
+            [claimId, stripeSession.id, amountCents, 'usd', metadataJson],
+          );
+        } catch (insertError) {
+          if (insertError && insertError.code === '23505') {
+            await db.query(
+              `update claim_payments
+                  set stripe_checkout_session_id = $1,
+                      status = 'pending',
+                      amount_cents = $2,
+                      currency = $3,
+                      metadata_json = $4::jsonb,
+                      updated_at = now()
+                where claim_id = $5 and provider = 'stripe'`,
+              paymentParams,
+            );
+          } else {
+            throw insertError;
+          }
+        }
+      }
 
       const hasPaymentStatus = await hasColumn('claim_requests', 'payment_status');
       const hasStripeSession = await hasColumn('claim_requests', 'stripe_checkout_session_id');
