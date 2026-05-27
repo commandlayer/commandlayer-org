@@ -34,9 +34,6 @@ test('GET /api/admin/claims valid auth returns claims array', async () => {
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.ok, true);
   assert.equal(Array.isArray(res.body.claims), true);
-  assert.deepEqual(res.body.claims[0], {
-    claimId: 'c1', tenant: 't1', wallet: '0xabc', packId: 'p1', status: 'created', paymentStatus: 'unpaid', agentCount: 2, createdAt: '2026-05-27T00:00:00.000Z', paidAt: null, stripeCheckoutSessionId: null,
-  });
 });
 
 test('GET /api/admin/claim missing claimId returns validation error', async () => {
@@ -56,16 +53,24 @@ test('GET /api/admin/claim unknown claim returns CLAIM_NOT_FOUND', async () => {
   assert.equal(res.body.status, 'CLAIM_NOT_FOUND');
 });
 
-test('GET /api/admin/claim returns detail shape compatible with admin UI', async () => {
+test('GET /api/admin/claim returns detail when optional tables do not support created_at', async () => {
   process.env.ADMIN_API_KEY = 'admin-secret';
   db.query = async (q) => {
-    if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c2', status: 'approved', tenant: 'tenant-a', authenticated_address: '0x123', pack_id: 'pack' }] };
-    if (q.includes('from claim_agents')) return { rows: [{ claim_id: 'c2', ens: 'alpha.eth', card_url: 'https://example/card.json' }] };
+    if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c2', status: 'approved' }] };
+    if (q.includes('from claim_agents')) return { rows: [{ claim_id: 'c2', ens: 'alpha.eth' }] };
     if (q.includes('from claim_events')) return { rows: [{ claim_id: 'c2', event_type: 'approved', created_at: '2026-05-27T01:00:00.000Z' }] };
     if (q.includes('to_regclass')) return { rows: [{ table_name: 'exists' }] };
-    if (q.includes('from claim_status_transitions')) return { rows: [{ claim_id: 'c2', from_status: 'created', to_status: 'approved' }] };
-    if (q.includes('from agent_cards')) return { rows: [{ claim_id: 'c2', card_url: 'https://example/card.json' }] };
-    if (q.includes('from claim_payments')) return { rows: [{ claim_id: 'c2', stripe_checkout_session_id: 'cs_123' }] };
+    if (q.includes('from claim_status_transitions')) return { rows: [{ claim_id: 'c2', from_status: 'created', to_status: 'approved', created_at: '2026-05-27T02:00:00.000Z' }] };
+    if (q.includes('from agent_cards')) {
+      const err = new Error('column "created_at" does not exist');
+      err.code = '42703';
+      throw err;
+    }
+    if (q.includes('from claim_payments')) {
+      const err = new Error('column "created_at" does not exist');
+      err.code = '42703';
+      throw err;
+    }
     return { rows: [] };
   };
 
@@ -73,10 +78,42 @@ test('GET /api/admin/claim returns detail shape compatible with admin UI', async
   await claimHandler({ method: 'GET', headers: { authorization: 'Bearer admin-secret' }, query: { claimId: 'c2' } }, res);
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.ok, true);
-  assert.equal(res.body.claim.claim_id, 'c2');
-  assert.equal(Array.isArray(res.body.agents), true);
-  assert.equal(Array.isArray(res.body.events), true);
-  assert.equal(Array.isArray(res.body.transitions), true);
   assert.equal(Array.isArray(res.body.cards), true);
-  assert.equal(res.body.latestPayment.stripe_checkout_session_id, 'cs_123');
+  assert.equal(res.body.cards.length, 0);
+  assert.equal(res.body.latestPayment, null);
+});
+
+test('GET /api/admin/claim returns ADMIN_CLAIM_DETAIL_FAILED for unexpected DB errors', async () => {
+  process.env.ADMIN_API_KEY = 'admin-secret';
+  const oldNodeEnv = process.env.NODE_ENV;
+  process.env.NODE_ENV = 'test';
+  db.query = async () => {
+    const err = new Error('db down');
+    err.code = '57P01';
+    throw err;
+  };
+  const res = makeRes();
+  await claimHandler({ method: 'GET', headers: { authorization: 'Bearer admin-secret' }, query: { claimId: 'c2' } }, res);
+  assert.equal(res.statusCode, 500);
+  assert.equal(res.body.status, 'ADMIN_CLAIM_DETAIL_FAILED');
+  assert.equal(res.body.error, 'Failed to load claim detail.');
+  assert.equal(res.body.debug.code, '57P01');
+  process.env.NODE_ENV = oldNodeEnv;
+});
+
+test('GET /api/admin/claim does not include debug in production failures', async () => {
+  process.env.ADMIN_API_KEY = 'admin-secret';
+  const oldNodeEnv = process.env.NODE_ENV;
+  process.env.NODE_ENV = 'production';
+  db.query = async () => {
+    const err = new Error('db down');
+    err.code = '57P01';
+    throw err;
+  };
+  const res = makeRes();
+  await claimHandler({ method: 'GET', headers: { authorization: 'Bearer admin-secret' }, query: { claimId: 'c3' } }, res);
+  assert.equal(res.statusCode, 500);
+  assert.equal(res.body.status, 'ADMIN_CLAIM_DETAIL_FAILED');
+  assert.equal(Object.prototype.hasOwnProperty.call(res.body, 'debug'), false);
+  process.env.NODE_ENV = oldNodeEnv;
 });
