@@ -4,6 +4,7 @@ const db = require('../../lib/db');
 const { requireAdminAuth } = require('./_auth');
 
 const READY_STATUSES = new Set(['cards_published', 'payment_pending']);
+const CHECKOUT_BASE_URL = 'https://www.commandlayer.org/claim/status.html';
 
 function parseJsonBody(req) {
   if (!req || req.body == null) return {};
@@ -18,8 +19,33 @@ function parseJsonBody(req) {
   return null;
 }
 
-function safeLog(message, code, claimId) {
-  console.error('[admin.create-checkout-session]', { message, code: code || null, claimId: claimId || null });
+function safeLog(message, code, type, claimId) {
+  console.error('[admin.create-checkout-session]', {
+    message: message || 'unknown',
+    code: code || null,
+    type: type || null,
+    claimId: claimId || null,
+  });
+}
+
+function isNonProduction() {
+  return process.env.NODE_ENV !== 'production';
+}
+
+function buildErrorResponse(status, debug) {
+  if (!isNonProduction() || !debug) return { ok: false, status };
+  return { ok: false, status, debug: { message: debug.message || null, code: debug.code || null } };
+}
+
+function parseSiteUrl(rawSiteUrl) {
+  try {
+    const parsed = new URL(rawSiteUrl);
+    if (parsed.protocol !== 'https:') return null;
+    if (parsed.hostname !== 'www.commandlayer.org') return null;
+    return parsed;
+  } catch {
+    return null;
+  }
 }
 
 async function hasColumn(tableName, columnName) {
@@ -33,11 +59,11 @@ async function hasColumn(tableName, columnName) {
   return result.rows.length > 0;
 }
 
-async function createStripeCheckoutSession({ stripeSecretKey, amountCents, siteUrl, claim }) {
+async function createStripeCheckoutSession({ stripeSecretKey, amountCents, claim }) {
   const params = new URLSearchParams();
   params.set('mode', 'payment');
-  params.set('success_url', `${siteUrl}/claim/status.html?claimId=${encodeURIComponent(claim.claim_id)}&payment=success`);
-  params.set('cancel_url', `${siteUrl}/claim/status.html?claimId=${encodeURIComponent(claim.claim_id)}&payment=cancel`);
+  params.set('success_url', `${CHECKOUT_BASE_URL}?claimId=${encodeURIComponent(claim.claim_id)}&payment=success`);
+  params.set('cancel_url', `${CHECKOUT_BASE_URL}?claimId=${encodeURIComponent(claim.claim_id)}&payment=cancel`);
   params.set('line_items[0][price_data][currency]', 'usd');
   params.set('line_items[0][price_data][product_data][name]', 'CommandLayer Founding Activation');
   params.set('line_items[0][price_data][unit_amount]', String(amountCents));
@@ -57,8 +83,11 @@ async function createStripeCheckoutSession({ stripeSecretKey, amountCents, siteU
 
   const payload = await response.json().catch(() => ({}));
   if (!response.ok || !payload || !payload.id || !payload.url) {
-    const error = new Error('Failed to create Stripe checkout session');
-    error.code = 'CHECKOUT_SESSION_CREATE_FAILED';
+    const stripeError = payload && payload.error ? payload.error : null;
+    const error = new Error('Stripe checkout session creation failed');
+    error.code = stripeError && stripeError.code ? stripeError.code : 'STRIPE_CHECKOUT_CREATE_FAILED';
+    error.type = stripeError && stripeError.type ? stripeError.type : null;
+    error.status = 'STRIPE_CHECKOUT_CREATE_FAILED';
     throw error;
   }
   return payload;
@@ -79,6 +108,9 @@ module.exports = async function handler(req, res) {
   if (!stripeSecretKey) return res.status(500).json({ ok: false, status: 'STRIPE_NOT_CONFIGURED' });
   if (stripeSecretKey.startsWith('pk_')) return res.status(500).json({ ok: false, status: 'STRIPE_SECRET_KEY_INVALID' });
 
+  const siteUrl = process.env.COMMANDLAYER_SITE_URL || 'https://www.commandlayer.org';
+  if (!parseSiteUrl(siteUrl)) return res.status(500).json({ ok: false, status: 'SITE_URL_INVALID' });
+
   const body = parseJsonBody(req);
   if (!body || typeof body !== 'object') return res.status(400).json({ ok: false, status: 'INVALID_JSON_BODY' });
 
@@ -86,7 +118,6 @@ module.exports = async function handler(req, res) {
   const forceNew = body.forceNew === true;
   if (!claimId) return res.status(400).json({ ok: false, status: 'CLAIM_ID_REQUIRED' });
 
-  const siteUrl = process.env.COMMANDLAYER_SITE_URL || 'https://www.commandlayer.org';
   const amountCents = Number.parseInt(process.env.STRIPE_FOUNDING_PRICE_CENTS || '2000', 10);
 
   try {
@@ -116,57 +147,77 @@ module.exports = async function handler(req, res) {
       });
     }
 
-    const stripeSession = await createStripeCheckoutSession({ stripeSecretKey, amountCents, siteUrl, claim });
+    const stripeSession = await createStripeCheckoutSession({ stripeSecretKey, amountCents, claim });
 
-    const hasCheckoutUrlColumn = await hasColumn('claim_payments', 'checkout_url');
-    if (hasCheckoutUrlColumn) {
-      await db.query(
-        `insert into claim_payments (claim_id, provider, payment_status, stripe_checkout_session_id, checkout_url, updated_at)
-         values ($1, 'stripe', 'pending', $2, $3, now())
-         on conflict (claim_id, provider)
-         do update set payment_status = excluded.payment_status,
-                       stripe_checkout_session_id = excluded.stripe_checkout_session_id,
-                       checkout_url = excluded.checkout_url,
-                       updated_at = now()`,
-        [claimId, stripeSession.id, stripeSession.url],
-      );
-    } else {
-      await db.query(
-        `insert into claim_payments (claim_id, provider, payment_status, stripe_checkout_session_id, updated_at)
-         values ($1, 'stripe', 'pending', $2, now())
-         on conflict (claim_id, provider)
-         do update set payment_status = excluded.payment_status,
-                       stripe_checkout_session_id = excluded.stripe_checkout_session_id,
-                       updated_at = now()`,
-        [claimId, stripeSession.id],
-      );
+    try {
+      const hasCheckoutUrlColumn = await hasColumn('claim_payments', 'checkout_url');
+      if (hasCheckoutUrlColumn) {
+        await db.query(
+          `insert into claim_payments (claim_id, provider, payment_status, stripe_checkout_session_id, checkout_url, updated_at)
+           values ($1, 'stripe', 'pending', $2, $3, now())
+           on conflict (claim_id, provider)
+           do update set payment_status = excluded.payment_status,
+                         stripe_checkout_session_id = excluded.stripe_checkout_session_id,
+                         checkout_url = excluded.checkout_url,
+                         updated_at = now()`,
+          [claimId, stripeSession.id, stripeSession.url],
+        );
+      } else {
+        await db.query(
+          `insert into claim_payments (claim_id, provider, payment_status, stripe_checkout_session_id, updated_at)
+           values ($1, 'stripe', 'pending', $2, now())
+           on conflict (claim_id, provider)
+           do update set payment_status = excluded.payment_status,
+                         stripe_checkout_session_id = excluded.stripe_checkout_session_id,
+                         updated_at = now()`,
+          [claimId, stripeSession.id],
+        );
+      }
+
+      const hasPaymentStatus = await hasColumn('claim_requests', 'payment_status');
+      const hasStripeSession = await hasColumn('claim_requests', 'stripe_checkout_session_id');
+      const setClauses = [];
+      if (claim.status === 'cards_published') setClauses.push("status = 'payment_pending'");
+      if (hasPaymentStatus) setClauses.push("payment_status = 'pending'");
+      if (hasStripeSession) setClauses.push('stripe_checkout_session_id = $2');
+      if (setClauses.length > 0) {
+        await db.query(`update claim_requests set ${setClauses.join(', ')} where claim_id = $1`, [claimId, stripeSession.id]);
+      }
+
+      if (claim.status === 'cards_published') {
+        await db.query(
+          `insert into claim_status_transitions (claim_id, from_status, to_status)
+           select $1, 'cards_published', 'payment_pending'
+           where not exists (
+             select 1 from claim_status_transitions
+             where claim_id = $1 and from_status = 'cards_published' and to_status = 'payment_pending'
+           )`,
+          [claimId],
+        );
+      }
+
+      const eventType = forceNew ? 'payment.checkout_regenerated' : 'payment.checkout_created';
+      const hasMessageColumn = await hasColumn('claim_events', 'message');
+      const hasMetadataJsonColumn = await hasColumn('claim_events', 'metadata_json');
+      if (hasMessageColumn && hasMetadataJsonColumn) {
+        await db.query('insert into claim_events (claim_id, event_type, message, metadata_json) values ($1, $2, $3, $4::jsonb)', [claimId, eventType, 'Stripe checkout session prepared', JSON.stringify({ provider: 'stripe' })]);
+      } else if (hasMessageColumn) {
+        await db.query('insert into claim_events (claim_id, event_type, message) values ($1, $2, $3)', [claimId, eventType, 'Stripe checkout session prepared']);
+      }
+    } catch (error) {
+      error.status = 'CHECKOUT_SESSION_DB_WRITE_FAILED';
+      throw error;
     }
-
-    const isFirstTransition = claim.status === 'cards_published';
-    if (isFirstTransition) {
-      await db.query("update claim_requests set status = 'payment_pending', payment_status = 'pending', stripe_checkout_session_id = $2 where claim_id = $1", [claimId, stripeSession.id]);
-      await db.query(
-        `insert into claim_status_transitions (claim_id, from_status, to_status)
-         select $1, 'cards_published', 'payment_pending'
-         where not exists (
-           select 1 from claim_status_transitions
-           where claim_id = $1 and from_status = 'cards_published' and to_status = 'payment_pending'
-         )`,
-        [claimId],
-      );
-    } else {
-      await db.query('update claim_requests set payment_status = $2, stripe_checkout_session_id = $3 where claim_id = $1', [claimId, 'pending', stripeSession.id]);
-    }
-
-    const eventType = forceNew ? 'payment.checkout_regenerated' : 'payment.checkout_created';
-    await db.query('insert into claim_events (claim_id, event_type, metadata) values ($1, $2, $3::jsonb)', [claimId, eventType, JSON.stringify({ provider: 'stripe' })]);
 
     return res.status(200).json({ ok: true, checkoutUrl: stripeSession.url, stripeCheckoutSessionId: stripeSession.id, claimId });
   } catch (error) {
-    safeLog('checkout session creation failed', error && error.code, claimId);
-    if (error && error.code === 'CHECKOUT_SESSION_CREATE_FAILED') {
-      return res.status(502).json({ ok: false, status: 'CHECKOUT_SESSION_CREATE_FAILED' });
+    safeLog(error && error.message, error && error.code, error && error.type, claimId);
+    if (error && error.status === 'STRIPE_CHECKOUT_CREATE_FAILED') {
+      return res.status(502).json(buildErrorResponse('STRIPE_CHECKOUT_CREATE_FAILED', error));
     }
-    return res.status(500).json({ ok: false, status: 'CHECKOUT_SESSION_CREATE_FAILED' });
+    if (error && error.status === 'CHECKOUT_SESSION_DB_WRITE_FAILED') {
+      return res.status(500).json(buildErrorResponse('CHECKOUT_SESSION_DB_WRITE_FAILED', error));
+    }
+    return res.status(500).json(buildErrorResponse('CHECKOUT_SESSION_CREATE_FAILED', error));
   }
 };
