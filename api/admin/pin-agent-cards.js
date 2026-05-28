@@ -37,6 +37,10 @@ function deriveCardJsonFromClaimAgent(claimAgent) {
   return null;
 }
 
+function logPinError(code, step, claimId) {
+  console.error('[admin.pin-agent-cards] ERROR', { code, step, claimId });
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
@@ -65,7 +69,7 @@ module.exports = async function handler(req, res) {
     `select id, claim_id, ens, card_json, card_cid, card_ipfs_uri, card_gateway_url, card_sha256, pin_status
      from agent_cards
      where claim_id = $1 and status = 'published'
-     order by created_at asc`,
+     order by updated_at asc`,
     [claimId]
   );
 
@@ -99,7 +103,7 @@ module.exports = async function handler(req, res) {
       `select id, claim_id, ens, card_json, card_cid, card_ipfs_uri, card_gateway_url, card_sha256, pin_status
        from agent_cards
        where claim_id = $1 and status = 'published'
-       order by created_at asc`,
+       order by updated_at asc`,
       [claimId]
     );
   }
@@ -144,7 +148,7 @@ module.exports = async function handler(req, res) {
         pinned.push({ ens: row.ens, card_cid: cid, card_sha256: hash, card_gateway_url: gatewayUrl });
       } catch (error) {
         await db.query("update agent_cards set pin_status = 'error', pin_error = $2 where id = $1", [row.id, String(error && error.message ? error.message : 'pinning_failed')]);
-        console.error('[admin.pin-agent-cards] IPFS_PIN_FAILED', { claimId, ens: row.ens });
+        logPinError('IPFS_PIN_FAILED', 'pinJsonToPinata', claimId);
         throw error;
       }
     }
@@ -164,6 +168,7 @@ module.exports = async function handler(req, res) {
 
     return res.status(200).json({ ok: true, status: 'CARDS_PINNED', claimId, provider, cards: pinned });
   } catch (error) {
+    logPinError('IPFS_PIN_FAILED', 'handler', claimId);
     return res.status(502).json({ ok: false, status: 'IPFS_PIN_FAILED', claimId });
   }
 };

@@ -41,6 +41,8 @@ test('paid claim with no agent_cards populates and pins cards', async () => {
   assert.equal(res.body.status, 'CARDS_PINNED');
   assert.ok(calls.some((q) => q.includes('insert into agent_cards')));
   assert.ok(calls.some((q) => q.includes('select id from agent_cards')));
+  assert.equal(calls.some((q) => q.includes('from agent_cards') && q.includes('order by created_at')), false);
+  assert.ok(calls.some((q) => q.includes('order by updated_at asc')));
 });
 
 test('backfills only missing agent_cards rows for paid claim', async () => {
@@ -135,7 +137,7 @@ test('provider error logging remains secret-safe', async () => {
   process.env.PINATA_JWT = 'super-secret-jwt';
   const errors = [];
   const prevError = console.error;
-  console.error = (...args) => errors.push(args.join(' '));
+  console.error = (...args) => errors.push(args);
   global.fetch = async () => ({ ok: false, status: 500, json: async () => ({}) });
   db.query = async (q) => {
     if (q.includes('from claim_requests')) return { rows: [{ claim_id: 'c8', status: 'paid' }] };
@@ -146,8 +148,12 @@ test('provider error logging remains secret-safe', async () => {
   await handler({ method: 'POST', headers: { 'x-admin-api-key': 'k' }, body: { claimId: 'c8' } }, res);
   console.error = prevError;
   assert.equal(res.statusCode, 502);
-  assert.equal(errors.join('\n').includes('super-secret-jwt'), false);
-  assert.ok(errors.some((l) => l.includes('IPFS_PIN_FAILED')));
+  const flattened = errors.map((a) => a.map((p) => (typeof p === 'string' ? p : JSON.stringify(p))).join(' ')).join('\n');
+  assert.equal(flattened.includes('super-secret-jwt'), false);
+  assert.ok(flattened.includes('IPFS_PIN_FAILED'));
+  assert.ok(flattened.includes('claimId'));
+  assert.ok(flattened.includes('step'));
+  assert.ok(flattened.includes('code'));
 });
 
 test('no secrets are logged', async () => {
