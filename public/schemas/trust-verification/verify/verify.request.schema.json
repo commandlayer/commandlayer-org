@@ -5,26 +5,61 @@
   "description": "A request to verify a claim, artifact, receipt, credential, identity, or action.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "family", "verb", "subject", "verification_type"],
+  "required": [
+    "version",
+    "family",
+    "verb",
+    "subject",
+    "verification_type"
+  ],
   "properties": {
-    "version": { "const": "1.0.0" },
-    "family": { "const": "trust" },
-    "verb": { "const": "verify" },
+    "version": {
+      "const": "1.0.0"
+    },
+    "family": {
+      "const": "trust"
+    },
+    "verb": {
+      "const": "verify"
+    },
     "subject": {
       "type": "object",
       "description": "The thing being verified.",
       "additionalProperties": true,
-      "required": ["type", "id"],
+      "required": [
+        "type",
+        "id"
+      ],
       "properties": {
-        "type": { "type": "string", "minLength": 1 },
-        "id": { "type": "string", "minLength": 1 },
-        "content_hash": { "type": "string", "pattern": "^sha256:[a-fA-F0-9]{64}$" },
-        "uri": { "type": "string" }
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "content_hash": {
+          "type": "string",
+          "pattern": "^sha256:[a-fA-F0-9]{64}$"
+        },
+        "uri": {
+          "type": "string"
+        }
       }
     },
     "verification_type": {
       "type": "string",
-      "enum": ["signature", "identity", "receipt", "credential", "claim", "artifact", "policy", "other"]
+      "enum": [
+        "signature",
+        "identity",
+        "receipt",
+        "credential",
+        "claim",
+        "artifact",
+        "policy",
+        "other"
+      ]
     },
     "criteria": {
       "type": "object",
@@ -34,6 +69,14 @@
     "context": {
       "type": "object",
       "additionalProperties": true
+    },
+    "parent_receipt_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional parent receipt identifier to link the requested action to a prior receipt. Chain continuity is not enforced until full receipt storage is available.",
+      "minLength": 1
     }
   }
 }

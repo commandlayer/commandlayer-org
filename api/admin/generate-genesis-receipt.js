@@ -41,7 +41,7 @@ module.exports = async function handler(req, res) {
 
   const firstAgent = cardsResult.rows[0].ens || '';
   const [label, namespace] = firstAgent.split('.');
-  const { receipt, receiptHash, chainRoot, generatedAt } = await createGenesisReceipt({
+  const { receipt, receiptHash, receiptChainRoot, generatedAt } = await createGenesisReceipt({
     claimId,
     label,
     namespace,
@@ -63,8 +63,8 @@ module.exports = async function handler(req, res) {
          receipt_chain_root = $6,
          updated_at = now()
      where claim_id = $1`,
-    [claimId, JSON.stringify(receipt), receiptHash, receipt.receipt_id, generatedAt, chainRoot]
+    [claimId, JSON.stringify(receipt), receiptHash, receipt.receipt_id, generatedAt, receiptChainRoot]
   );
 
-  return res.status(200).json({ ok: true, claimId, receipt_id: receipt.receipt_id, receipt_hash: receiptHash, chain_root: chainRoot, generated_at: generatedAt, receipt, cards: cardsResult.rows });
+  return res.status(200).json({ ok: true, claimId, receipt_id: receipt.receipt_id, receipt_hash: receiptHash, receipt_chain_root: receiptChainRoot, chain_root: receiptChainRoot, generated_at: generatedAt, receipt, cards: cardsResult.rows });
 };

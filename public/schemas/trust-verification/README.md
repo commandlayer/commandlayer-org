@@ -81,7 +81,18 @@ Shared proof fields (as defined in `_shared/proof.schema.json`):
 
 These fields provide a common cryptographic envelope model across all verb receipts.
 
-## 6. Schema-valid vs cryptographically valid
+## 6. Optional receipt chain fields
+
+Receipts may include optional chain-linking fields without requiring full chain continuity enforcement yet:
+
+- `chain_root` — the receipt chain root. For genesis receipts this is the claim `receipt_chain_root`; action/example receipts may set it to `null` until full receipt storage is available.
+- `previous_receipt_hash` — the prior receipt hash, or `null` when the prior receipt is not stored/resolved yet.
+- `chain_index` — the zero-based chain index. Genesis receipts use `0`; action/example receipts may set it to `null`.
+- `parent_receipt_id` — an optional caller-supplied parent receipt identifier, or `null`.
+
+Request schemas also allow optional `parent_receipt_id` input so callers can link a new action to a prior receipt before strict chain continuity is enforced.
+
+## 7. Schema-valid vs cryptographically valid
 
 A receipt can be valid JSON and pass schema validation while still failing cryptographic verification.
 
@@ -89,7 +100,7 @@ Tampered receipts are expected to remain schema-valid but fail signature/hash ve
 
 Schema conformance and cryptographic integrity are separate checks and must both be evaluated.
 
-## 7. Examples
+## 8. Examples
 
 Each verb's `examples/` folder includes:
 
@@ -98,7 +109,7 @@ Each verb's `examples/` folder includes:
 - `tampered.receipt.json`: a schema-valid receipt whose payload/proof relationship has been altered and should fail cryptographic verification.
 - `invalid.receipt.json`: a receipt that fails schema validation.
 
-## 8. File convention
+## 9. File convention
 
 Each verb folder contains:
 

@@ -22,6 +22,8 @@ test('creates genesis receipt with deterministic hash and chain root', async () 
   assert.equal(a.receipt.previous_receipt_hash, null);
   assert.equal(a.receipt.parent_receipt_id, null);
   assert.equal(a.chainRoot, `sha256:${a.receiptHash}`);
+  assert.equal(a.receiptChainRoot, a.chainRoot);
+  assert.equal(a.receipt.chain_root, a.receiptChainRoot);
   assert.equal(a.receiptHash, b.receiptHash);
 });
 

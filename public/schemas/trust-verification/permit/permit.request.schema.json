@@ -5,33 +5,85 @@
   "description": "A request to permit a principal to take a scoped action under defined conditions.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "family", "verb", "issuer", "principal", "permission"],
+  "required": [
+    "version",
+    "family",
+    "verb",
+    "issuer",
+    "principal",
+    "permission"
+  ],
   "properties": {
-    "version": { "const": "1.0.0" },
-    "family": { "const": "trust" },
-    "verb": { "const": "permit" },
-    "issuer": { "type": "string", "minLength": 1 },
-    "principal": { "type": "string", "minLength": 1 },
+    "version": {
+      "const": "1.0.0"
+    },
+    "family": {
+      "const": "trust"
+    },
+    "verb": {
+      "const": "permit"
+    },
+    "issuer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "principal": {
+      "type": "string",
+      "minLength": 1
+    },
     "permission": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["action", "resource"],
+      "required": [
+        "action",
+        "resource"
+      ],
       "properties": {
-        "action": { "type": "string", "minLength": 1 },
+        "action": {
+          "type": "string",
+          "minLength": 1
+        },
         "resource": {
           "type": "object",
           "additionalProperties": true,
-          "required": ["type", "id"],
+          "required": [
+            "type",
+            "id"
+          ],
           "properties": {
-            "type": { "type": "string", "minLength": 1 },
-            "id": { "type": "string", "minLength": 1 },
-            "uri": { "type": "string" }
+            "type": {
+              "type": "string",
+              "minLength": 1
+            },
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "uri": {
+              "type": "string"
+            }
           }
         },
-        "scope": { "type": "string" }
+        "scope": {
+          "type": "string"
+        }
       }
     },
-    "conditions": { "type": "object", "additionalProperties": true },
-    "context": { "type": "object", "additionalProperties": true }
+    "conditions": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "context": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "parent_receipt_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional parent receipt identifier to link the requested action to a prior receipt. Chain continuity is not enforced until full receipt storage is available.",
+      "minLength": 1
+    }
   }
 }

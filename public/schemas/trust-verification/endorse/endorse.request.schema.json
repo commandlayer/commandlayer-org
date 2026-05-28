@@ -5,31 +5,78 @@
   "description": "A request to endorse a subject, claim, agent, action, artifact, or credential.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "family", "verb", "endorser", "subject", "endorsement"],
+  "required": [
+    "version",
+    "family",
+    "verb",
+    "endorser",
+    "subject",
+    "endorsement"
+  ],
   "properties": {
-    "version": { "const": "1.0.0" },
-    "family": { "const": "trust" },
-    "verb": { "const": "endorse" },
-    "endorser": { "type": "string", "minLength": 1 },
+    "version": {
+      "const": "1.0.0"
+    },
+    "family": {
+      "const": "trust"
+    },
+    "verb": {
+      "const": "endorse"
+    },
+    "endorser": {
+      "type": "string",
+      "minLength": 1
+    },
     "subject": {
       "type": "object",
       "additionalProperties": true,
-      "required": ["type", "id"],
+      "required": [
+        "type",
+        "id"
+      ],
       "properties": {
-        "type": { "type": "string", "minLength": 1 },
-        "id": { "type": "string", "minLength": 1 }
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "endorsement": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["statement"],
+      "required": [
+        "statement"
+      ],
       "properties": {
-        "statement": { "type": "string", "minLength": 1 },
-        "scope": { "type": "string" },
-        "confidence": { "type": "number", "minimum": 0, "maximum": 1 }
+        "statement": {
+          "type": "string",
+          "minLength": 1
+        },
+        "scope": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
       }
     },
-    "context": { "type": "object", "additionalProperties": true }
+    "context": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "parent_receipt_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional parent receipt identifier to link the requested action to a prior receipt. Chain continuity is not enforced until full receipt storage is available.",
+      "minLength": 1
+    }
   }
 }
