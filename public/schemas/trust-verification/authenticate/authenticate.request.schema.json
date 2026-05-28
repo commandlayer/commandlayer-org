@@ -5,22 +5,49 @@
   "description": "A request to authenticate the identity of an actor, signer, service, key, agent, or caller.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["version", "family", "verb", "subject"],
+  "required": [
+    "version",
+    "family",
+    "verb",
+    "subject"
+  ],
   "properties": {
-    "version": { "const": "1.0.0" },
-    "family": { "const": "trust" },
-    "verb": { "const": "authenticate" },
+    "version": {
+      "const": "1.0.0"
+    },
+    "family": {
+      "const": "trust"
+    },
+    "verb": {
+      "const": "authenticate"
+    },
     "subject": {
       "type": "object",
       "description": "The identity-bearing subject being authenticated.",
       "additionalProperties": true,
-      "required": ["type", "id"],
+      "required": [
+        "type",
+        "id"
+      ],
       "properties": {
-        "type": { "type": "string", "minLength": 1 },
-        "id": { "type": "string", "minLength": 1 },
-        "uri": { "type": "string" },
-        "claimed_identity": { "type": "string" },
-        "content_hash": { "type": "string", "pattern": "^sha256:[a-fA-F0-9]{64}$" }
+        "type": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "uri": {
+          "type": "string"
+        },
+        "claimed_identity": {
+          "type": "string"
+        },
+        "content_hash": {
+          "type": "string",
+          "pattern": "^sha256:[a-fA-F0-9]{64}$"
+        }
       }
     },
     "method": {
@@ -33,6 +60,14 @@
     "context": {
       "type": "object",
       "additionalProperties": true
+    },
+    "parent_receipt_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional parent receipt identifier to link the requested action to a prior receipt. Chain continuity is not enforced until full receipt storage is available.",
+      "minLength": 1
     }
   }
 }

@@ -86,6 +86,38 @@
           "$ref": "../_shared/trace.schema.json"
         }
       }
+    },
+    "chain_root": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional receipt chain root. Genesis receipts set this to the claim receipt_chain_root; action/example receipts may use null until full receipt storage is available.",
+      "minLength": 1
+    },
+    "previous_receipt_hash": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional hash of the previous receipt in the chain. May be null until full receipt storage is available.",
+      "minLength": 1
+    },
+    "chain_index": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "description": "Optional zero-based index in the receipt chain. Genesis receipts use 0; action/example receipts may use null until full receipt storage is available.",
+      "minimum": 0
+    },
+    "parent_receipt_id": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "description": "Optional parent receipt identifier supplied by the caller when a receipt is linked to an earlier receipt. May be null until full receipt storage is available.",
+      "minLength": 1
     }
   }
 }

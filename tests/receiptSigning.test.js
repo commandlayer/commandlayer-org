@@ -78,3 +78,30 @@ test('invalid key returns signing_unavailable-safe path (sign fails without cras
     signReceipt({ signer: cfg.signerId, verb: 'observe', input: {}, output: {}, execution: {}, ts: new Date().toISOString() }, cfg),
   );
 });
+
+test('signReceipt preserves optional receipt chain fields without requiring continuity', async () => {
+  const { privateKey } = crypto.generateKeyPairSync('ed25519');
+  process.env.RECEIPT_SIGNER_ID = 'runtime.commandlayer.eth';
+  process.env.RECEIPT_SIGNING_KID = 'kid-chain-fields';
+  process.env.RECEIPT_SIGNING_PRIVATE_KEY_PEM_B64 = Buffer.from(privateKey.export({ type: 'pkcs8', format: 'pem' }), 'utf8').toString('base64');
+
+  const cfg = resolveReceiptSigningConfigFromEnv();
+  const signed = await signReceipt({
+    signer: cfg.signerId,
+    verb: 'observe',
+    input: {},
+    output: {},
+    execution: {},
+    ts: '2026-05-28T00:00:00.000Z',
+    chain_root: null,
+    previous_receipt_hash: null,
+    chain_index: null,
+    parent_receipt_id: 'cl_genesis_c1',
+  }, cfg);
+
+  assert.equal(signed.chain_root, null);
+  assert.equal(signed.previous_receipt_hash, null);
+  assert.equal(signed.chain_index, null);
+  assert.equal(signed.parent_receipt_id, 'cl_genesis_c1');
+  assert.equal(signed.metadata.proof.signature.alg, 'Ed25519');
+});
