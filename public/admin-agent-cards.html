@@ -2,25 +2,65 @@
 <html><head><meta charset="utf-8"><title>Admin Agent Cards</title></head>
 <body>
   <h1>Admin Agent Card Pinning</h1>
-  <input id="claimId" placeholder="claim id" />
-  <button id="loadBtn">Load</button>
+  <div>
+    <input id="apiKey" type="password" placeholder="ADMIN_API_KEY" />
+    <button id="saveKeyBtn">Save key</button>
+  </div>
+  <div>
+    <input id="claimId" placeholder="claim id" />
+    <button id="loadBtn">Load</button>
+  </div>
   <div id="status"></div>
   <div id="actions"></div>
   <pre id="details"></pre>
 <script>
+const ADMIN_KEY_STORAGE='cl_admin_api_key';
+const apiKeyInput=document.getElementById('apiKey');
+apiKeyInput.value=sessionStorage.getItem(ADMIN_KEY_STORAGE)||localStorage.getItem(ADMIN_KEY_STORAGE)||'';
+
+function authHeaders(contentType=false){
+  const key=apiKeyInput.value.trim();
+  const h={Authorization:`Bearer ${key}`,'x-admin-api-key':key};
+  if(contentType) h['content-type']='application/json';
+  return h;
+}
+
+function describeError(payload,statusCode){
+  const status=(payload&& (payload.status||payload.error)) || String(statusCode||'error');
+  if(status==='UNAUTHORIZED') return 'Admin key missing or invalid.';
+  return `Request failed: ${status}`;
+}
+
 async function loadClaim(){
   const claimId=document.getElementById('claimId').value.trim();
-  const key=localStorage.getItem('adminApiKey')||'';
   const status=document.getElementById('status');
   const actions=document.getElementById('actions');
   const details=document.getElementById('details');
   status.textContent=''; actions.innerHTML=''; details.textContent='';
   if(!claimId) return;
+
+  const loadResp=await fetch(`/api/admin/claim?claimId=${encodeURIComponent(claimId)}`,{headers:authHeaders()});
+  const loadJson=await loadResp.json().catch(()=>({}));
+  if(!loadResp.ok||loadJson?.ok===false){
+    status.textContent=describeError(loadJson,loadResp.status);
+    details.textContent=JSON.stringify(loadJson,null,2);
+    return;
+  }
+
+  details.textContent=JSON.stringify(loadJson,null,2);
+
   const paidBtn=document.createElement('button');
   paidBtn.textContent='Pin cards to IPFS';
   paidBtn.onclick=async()=>{
-    const r=await fetch('/api/admin/pin-agent-cards',{method:'POST',headers:{'content-type':'application/json','x-admin-api-key':key},body:JSON.stringify({claimId})});
-    details.textContent=JSON.stringify(await r.json(),null,2);
+    const r=await fetch('/api/admin/pin-agent-cards',{method:'POST',headers:authHeaders(true),body:JSON.stringify({claimId})});
+    const payload=await r.json().catch(()=>({}));
+    if(!r.ok||payload?.ok===false){
+      status.textContent=describeError(payload,r.status);
+      details.textContent=JSON.stringify(payload,null,2);
+      return;
+    }
+    status.textContent='Pinning request accepted.';
+    details.textContent=JSON.stringify(payload,null,2);
   };
   const ensBtn=document.createElement('button');
   ensBtn.textContent='Copy ENS records';
@@ -29,6 +69,12 @@ async function loadClaim(){
   actions.appendChild(paidBtn); actions.appendChild(ensBtn);
 }
 
+document.getElementById('saveKeyBtn').onclick=()=>{
+  const key=apiKeyInput.value.trim();
+  sessionStorage.setItem(ADMIN_KEY_STORAGE,key);
+  localStorage.setItem(ADMIN_KEY_STORAGE,key);
+  document.getElementById('status').textContent='Saved admin key.';
+};
 document.getElementById('loadBtn').onclick=loadClaim;
 </script>
 </body></html>
