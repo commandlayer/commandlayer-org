@@ -6,3 +6,4 @@ verify.out.json
 .env
 .env.local
 .env.*.local
+.local/
