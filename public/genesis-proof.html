@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Genesis Receipt Proof | CommandLayer</title>
+<meta name="description" content="Retrieve and verify a stored CommandLayer genesis receipt by ID, including chain root, canonical hash, ENS-bound signer identity, and Ed25519 signature." />
+<link rel="canonical" href="https://www.commandlayer.org/genesis-proof.html" />
+<meta property="og:title" content="Genesis Receipt Proof | CommandLayer" />
+<meta property="og:description" content="Retrieve and verify a stored CommandLayer genesis receipt by ID, including chain root, canonical hash, ENS-bound signer identity, and Ed25519 signature." />
+<meta property="og:url" content="https://www.commandlayer.org/genesis-proof.html" />
+<meta property="og:type" content="website" />
+<link rel="icon" href="/favicon.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/css/site.css" />
+<style>
+  .brand{gap:0}.brand img{height:68px;width:auto;object-fit:contain}.brand span{display:none}.nav-links a.active{color:var(--text);background:var(--surface)}
+  .hero{padding:84px 0 64px;background:radial-gradient(1200px 360px at 50% -10%,rgba(82,152,255,.15),transparent 70%),#fff;text-align:center}
+  .hero h1{font-size:clamp(2.2rem,5vw,3.8rem);line-height:1.06;letter-spacing:-.04em;margin:0 0 14px}
+  .hero p{max-width:920px;margin:0 auto;color:var(--text-2);font-size:1.06rem;line-height:1.7}
+  .hero-actions{margin-top:24px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+  .section{padding:56px 0}.section-alt{background:#f8faff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .proof-shell{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,.8fr);gap:18px;align-items:start}.card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 1px 2px rgba(15,23,42,.04),0 8px 22px rgba(99,91,255,.07)}
+  .card h2,.card h3{margin:0 0 10px}.card p{margin:0;color:var(--text-2);line-height:1.65}.label{display:block;font-size:13px;font-weight:800;color:var(--text);margin-bottom:8px}.input-row{display:flex;gap:10px;align-items:center}.input-row input{width:100%;border:1px solid rgba(15,23,42,.16);border-radius:12px;padding:14px 14px;font:inherit;color:var(--text);outline:none}.input-row input:focus{border-color:var(--blue);box-shadow:0 0 0 4px rgba(82,152,255,.14)}
+  .status-card{min-height:230px}.status-top{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:8px 12px;font-weight:800;letter-spacing:.06em;font-size:13px;background:#eef2ff;color:#3730a3}.badge.verified{background:#dcfce7;color:#166534}.badge.invalid{background:#fee2e2;color:#991b1b}.badge.not-found{background:#fff7ed;color:#9a3412}.badge.error{background:#f1f5f9;color:#334155}.status-note{margin-top:12px!important}.detail-grid{display:grid;grid-template-columns:180px minmax(0,1fr);gap:10px 14px;margin-top:18px}.detail-grid dt{font-weight:800;color:var(--text);font-size:13px}.detail-grid dd{color:var(--text-2);font-size:13px;overflow-wrap:anywhere}.checks{display:grid;gap:8px;margin:18px 0 0;padding:0;list-style:none}.checks li{display:flex;align-items:center;justify-content:space-between;gap:12px;border:1px solid var(--border);border-radius:12px;padding:10px 12px;color:var(--text-2);font-size:14px}.checks strong{color:var(--text)}.check-pass{color:#15803d;font-weight:800}.check-fail{color:#b91c1c;font-weight:800}.copy-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.copy-status{color:var(--muted);font-size:13px;margin-top:10px;min-height:20px}.json-panel{display:none;margin-top:18px}.json-panel.show{display:block}.json-panel pre{background:#0E1322;color:#E2E8F0;border:1px solid rgba(30,41,59,.45);border-radius:14px;padding:16px;overflow:auto;font-size:12px;line-height:1.6;max-height:420px}.callout{background:#f8fbff;border:1px solid #d8e5ff;border-radius:14px;padding:14px;color:#1e3a8a;font-weight:600}.list{margin:8px 0 0;padding-left:18px;color:var(--text-2);line-height:1.8}
+  footer{border-top:1px solid var(--border);background:#fff}.footer-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:36px 0}.footer-grid h4{font-size:14px;margin-bottom:10px}.footer-grid a{display:block;color:var(--text-2);margin:8px 0;font-size:14px}
+  .nav-links a:hover,.nav-drop:hover>a,.nav-drop:focus-within>a,.nav-drop>a.active{color:var(--text);background:var(--surface)}.nav-drop{position:relative}.nav-drop>a{display:inline-flex;align-items:center;gap:4px}.nav-drop-menu{position:absolute;top:calc(100% - 1px);left:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 10px 34px rgba(15,23,42,.12);padding:8px;display:none;min-width:260px;z-index:200}.nav-drop-menu::before{content:"";position:absolute;left:0;right:0;top:-8px;height:8px}.nav-drop-menu a{display:block;white-space:nowrap}.nav-drop:hover .nav-drop-menu,.nav-drop:focus-within .nav-drop-menu{display:grid}
+  @media(max-width:900px){.hero{padding:62px 0 42px}.proof-shell{grid-template-columns:1fr}.input-row{flex-direction:column;align-items:stretch}.detail-grid{grid-template-columns:1fr}.footer-grid{grid-template-columns:1fr}.nav-drop{width:100%}.nav-drop-menu{position:static;display:grid;margin-top:2px;min-width:0;box-shadow:none}}
+</style>
+</head>
+<body>
+<nav>
+  <div class="container nav-inner">
+    <a href="/" class="brand"><img src="/commandlayer-logo.png" alt="CommandLayer" /><span>CommandLayer</span></a>
+    <ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/protocol.html">Protocol</a></li><li><a href="/capabilities.html">Capabilities</a></li><li><a href="/receipts.html">Receipts</a></li><li><a href="/proof.html">Live Proof</a></li><li><a href="/sdk-records.html">SDK</a></li><li class="nav-drop"><a href="/docs.html" aria-haspopup="true">Docs ▾</a><div class="nav-drop-menu"><a href="/docs.html">Docs Home</a><a href="/docs/wrap-your-agent.html">Wrap Your Agent</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP Bridge</a><a href="/schemas.html">Schemas</a><a href="/api.html">API Reference</a><a href="/integrations.html">Integrations</a><a href="/verify.html">Verifier</a><a href="/playground.html">Playground</a><a href="/webhook-auto-verify.html">Webhook Demo</a></div></li><li><a href="/claim.html">Claim</a></li><li><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></li></ul>
+  </div>
+</nav>
+<main>
+  <section class="hero"><div class="container"><div class="hero-badge"><span class="badge-dot"></span>GENESIS RECEIPTS LIVE</div><h1>Verify an agent’s origin receipt.</h1><p>A claimed agent begins with a signed genesis receipt after its public cards are pinned. Retrieve that receipt by ID and independently verify its chain root, canonical hash, ENS-bound signer identity, and Ed25519 signature.</p><div class="hero-actions"><a class="btn btn-secondary btn-lg" href="/verify.html">Verify Raw Receipt JSON</a><a class="btn btn-secondary btn-lg" href="/receipts.html">Read the Receipt Model</a></div></div></section>
+  <section class="section section-alt"><div class="container proof-shell">
+    <section class="card" aria-labelledby="form-title">
+      <h2 id="form-title">Stored genesis receipt lookup</h2>
+      <p>Submit a public genesis receipt ID. The page posts only that ID to <code>/api/verify-id</code>, then retrieves the stored public receipt JSON from <code>/api/receipts/:id</code> when a receipt is found.</p>
+      <form id="genesisForm" style="margin-top:18px">
+        <label class="label" for="receiptId">Genesis Receipt ID</label>
+        <div class="input-row">
+          <input id="receiptId" name="receipt_id" type="text" autocomplete="off" spellcheck="false" placeholder="cl_genesis_clm_..." />
+          <button class="btn btn-primary btn-lg" type="submit">Verify Genesis Receipt</button>
+        </div>
+      </form>
+      <div class="hero-actions" style="justify-content:flex-start"><a class="btn btn-secondary" href="/verify.html">Verify Raw Receipt JSON</a><a class="btn btn-secondary" href="/receipts.html">Read the Receipt Model</a></div>
+      <div class="callout" style="margin-top:18px">Genesis verification does not require exposing payment, claim internals, admin data, private keys, or database implementation details.</div>
+    </section>
+    <section class="card status-card" aria-live="polite" aria-labelledby="status-title">
+      <div class="status-top"><h2 id="status-title">Verification status</h2><span id="statusBadge" class="badge">IDLE</span></div>
+      <p id="statusNote" class="status-note">Enter a genesis receipt ID to retrieve and verify its stored proof.</p>
+      <dl id="detailGrid" class="detail-grid" hidden></dl>
+      <ul id="checksList" class="checks" hidden></ul>
+      <div id="copyRow" class="copy-row" hidden><button class="btn btn-secondary" type="button" data-copy="receipt_id">Copy Receipt ID</button><button class="btn btn-secondary" type="button" data-copy="chain_root">Copy Chain Root</button><button class="btn btn-secondary" type="button" data-copy="json">Copy Public Receipt JSON</button></div>
+      <div id="copyStatus" class="copy-status" aria-live="polite"></div>
+      <div id="jsonPanel" class="json-panel"><h3>Public receipt JSON</h3><pre id="receiptJson">{}</pre></div>
+    </section>
+  </div></section>
+  <section class="section"><div class="container"><div class="card"><h3>What is verified?</h3><ul class="list"><li>The stored receipt is located by public receipt ID.</li><li>The verifier response safely reports public fields such as status, receipt type, signer, and verification booleans.</li><li>The public receipt JSON supplies genesis fields such as chain root, chain index, and null parent-link fields.</li><li>Future receipt-linking fields are supported; this page does not claim full chain-continuity enforcement.</li></ul></div></div></section>
+</main>
+<footer><div class="container footer-grid"><div><h4>Product</h4><a href="/protocol.html">Protocol</a><a href="/capabilities.html">Capabilities</a><a href="/receipts.html">Receipts</a><a href="/proof.html">Live Proof</a><a href="/integrations.html">Integrations</a><a href="/sdk-records.html">SDK</a><a href="/claim.html">Claim</a></div><div><h4>Developers</h4><a href="/docs.html">Docs</a><a href="/docs/wrap-your-agent.html">Wrap Your Agent</a><a href="/runtime.html">Runtime</a><a href="/mcp.html">MCP Bridge</a><a href="/schemas.html">Schemas</a><a href="/api.html">API Reference</a><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub</a></div><div><h4>Proof</h4><a href="/verify.html">Verifier</a><a href="/stack-proof-demo.html">Production Proof</a><a href="/receipts.html">Receipts</a><a href="/proof.html">Live Proof</a></div></div></footer>
+<script>
+(() => {
+  const form = document.getElementById('genesisForm');
+  const input = document.getElementById('receiptId');
+  const badge = document.getElementById('statusBadge');
+  const note = document.getElementById('statusNote');
+  const details = document.getElementById('detailGrid');
+  const checks = document.getElementById('checksList');
+  const copyRow = document.getElementById('copyRow');
+  const copyStatus = document.getElementById('copyStatus');
+  const jsonPanel = document.getElementById('jsonPanel');
+  const receiptJson = document.getElementById('receiptJson');
+  let currentReceipt = null;
+  let currentVerification = null;
+
+  function text(value) {
+    if (value === null || value === undefined || value === '') return '—';
+    return String(value);
+  }
+
+  function genesisNone(value) {
+    return value === null || value === undefined || value === '' ? 'None — genesis origin' : String(value);
+  }
+
+  function setBadge(label, className) {
+    badge.textContent = label;
+    badge.className = `badge ${className || ''}`.trim();
+  }
+
+  function resetPanels() {
+    details.hidden = true;
+    details.innerHTML = '';
+    checks.hidden = true;
+    checks.innerHTML = '';
+    copyRow.hidden = true;
+    copyStatus.textContent = '';
+    jsonPanel.classList.remove('show');
+    receiptJson.textContent = '{}';
+    currentReceipt = null;
+    currentVerification = null;
+  }
+
+  function setIdle(message) {
+    resetPanels();
+    setBadge('IDLE', '');
+    note.textContent = message || 'Enter a genesis receipt ID to retrieve and verify its stored proof.';
+  }
+
+  function renderDetails(rows) {
+    details.innerHTML = rows.map(([label, value]) => `<dt>${label}</dt><dd>${text(value)}</dd>`).join('');
+    details.hidden = false;
+  }
+
+  function renderChecks(verification) {
+    const safeChecks = [];
+    if (typeof verification?.hash_matches === 'boolean') safeChecks.push(['Canonical hash matched', verification.hash_matches]);
+    if (typeof verification?.ens_resolved === 'boolean') safeChecks.push(['Signer identity matched', verification.ens_resolved]);
+    if (typeof verification?.signature_valid === 'boolean') safeChecks.push(['Signature valid', verification.signature_valid]);
+    if (!safeChecks.length) {
+      checks.hidden = true;
+      checks.innerHTML = '';
+      return;
+    }
+    checks.innerHTML = safeChecks.map(([label, value]) => `<li><strong>${label}</strong><span class="${value ? 'check-pass' : 'check-fail'}">${value ? 'true' : 'false'}</span></li>`).join('');
+    checks.hidden = false;
+  }
+
+  async function copyText(label, value) {
+    if (!value) return;
+    try {
+      await navigator.clipboard.writeText(value);
+      copyStatus.textContent = `${label} copied.`;
+    } catch {
+      copyStatus.textContent = `Copy unavailable. Select and copy ${label.toLowerCase()} manually.`;
+    }
+  }
+
+  copyRow.addEventListener('click', (event) => {
+    const button = event.target.closest('button[data-copy]');
+    if (!button || !currentReceipt) return;
+    const kind = button.dataset.copy;
+    if (kind === 'receipt_id') copyText('Receipt ID', currentReceipt.receipt_id || currentVerification?.receipt_id || input.value.trim());
+    if (kind === 'chain_root') copyText('Chain root', currentReceipt.chain_root);
+    if (kind === 'json') copyText('Public receipt JSON', JSON.stringify(currentReceipt, null, 2));
+  });
+
+  async function fetchJson(url, options) {
+    const response = await fetch(url, options);
+    let data = null;
+    try { data = await response.json(); } catch { data = null; }
+    return { response, data };
+  }
+
+  async function handleSubmit(event) {
+    event.preventDefault();
+    const receiptId = input.value.trim();
+    if (!receiptId) {
+      setIdle('Enter a genesis receipt ID to retrieve and verify its stored proof.');
+      input.focus();
+      return;
+    }
+
+    resetPanels();
+    setBadge('LOADING', '');
+    note.textContent = 'Retrieving and verifying genesis receipt…';
+
+    try {
+      const verifyResult = await fetchJson('/api/verify-id', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ receipt_id: receiptId }),
+      });
+      const verification = verifyResult.data || {};
+      currentVerification = verification;
+
+      if (verification.status === 'RECEIPT_NOT_FOUND') {
+        setBadge('RECEIPT NOT FOUND', 'not-found');
+        note.textContent = 'No stored CommandLayer receipt was found for that ID.';
+        renderDetails([['Receipt ID', verification.receipt_id || receiptId]]);
+        return;
+      }
+
+      if (verification.status === 'BAD_REQUEST' || !verification.status) {
+        setBadge('ERROR', 'error');
+        note.textContent = 'Verification request failed. Please try again.';
+        return;
+      }
+
+      const receiptResult = await fetchJson(`/api/receipts/${encodeURIComponent(receiptId)}`);
+      if (!receiptResult.response.ok || !receiptResult.data || typeof receiptResult.data !== 'object') {
+        setBadge('ERROR', 'error');
+        note.textContent = 'Verification request failed. Please try again.';
+        return;
+      }
+      currentReceipt = receiptResult.data;
+
+      if (verification.status === 'VERIFIED') {
+        setBadge('VERIFIED', 'verified');
+        note.textContent = 'This stored genesis receipt passed cryptographic verification.';
+        renderDetails([
+          ['Receipt type', verification.receipt_type || currentReceipt.receipt_type],
+          ['Receipt ID', verification.receipt_id || currentReceipt.receipt_id || receiptId],
+          ['Signer', verification.signer || currentReceipt.signer || currentReceipt.metadata?.proof?.signer_id],
+          ['Chain root', currentReceipt.chain_root],
+          ['Chain index', currentReceipt.chain_index],
+          ['Previous receipt hash', genesisNone(currentReceipt.previous_receipt_hash)],
+          ['Parent receipt ID', genesisNone(currentReceipt.parent_receipt_id)],
+        ]);
+        renderChecks(verification.verification || {});
+        receiptJson.textContent = JSON.stringify(currentReceipt, null, 2);
+        jsonPanel.classList.add('show');
+        copyRow.hidden = false;
+        return;
+      }
+
+      if (verification.status === 'INVALID') {
+        setBadge('INVALID', 'invalid');
+        note.textContent = 'This stored receipt failed cryptographic verification.';
+        renderDetails([['Receipt ID', verification.receipt_id || receiptId], ['Reason', verification.reason || 'Receipt verification failed.']]);
+        renderChecks(verification.verification || {});
+        return;
+      }
+
+      setBadge('ERROR', 'error');
+      note.textContent = 'Verification request failed. Please try again.';
+    } catch {
+      resetPanels();
+      setBadge('ERROR', 'error');
+      note.textContent = 'Verification request failed. Please try again.';
+    }
+  }
+
+  form.addEventListener('submit', handleSubmit);
+  setIdle();
+})();
+</script>
+</body>
+</html>
