@@ -92,7 +92,7 @@
         "string",
         "null"
       ],
-      "description": "Optional receipt chain root. Genesis receipts set this to the claim receipt_chain_root; action/example receipts may use null until full receipt storage is available.",
+      "description": "Optional receipt chain root. Genesis receipts set this to sha256:<genesis_anchor_hash>, where the anchor hash excludes the derived chain_root field to avoid circular hashing; action/example receipts may use null until full receipt storage is available.",
       "minLength": 1
     },
     "previous_receipt_hash": {
