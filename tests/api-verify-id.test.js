@@ -2,12 +2,14 @@
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { webcrypto } = require('node:crypto');
+const crypto = require('node:crypto');
+const { webcrypto } = crypto;
 
 const db = require('../lib/db');
 const verifyIdHandler = require('../api/verify-id');
 const verifyHandler = require('../api/verify');
 const getReceiptHandler = require('../api/receipts/[id]');
+const { createGenesisReceipt } = require('../lib/receipts/create-genesis-receipt');
 
 const subtle = webcrypto.subtle;
 
@@ -30,7 +32,7 @@ function canonicalize(value) {
   return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalize(value[key])}`).join(',')}}`;
 }
 
-async function makeStoredReceipt({ receiptId = 'clrcpt_known_valid', receiptType = 'genesis' } = {}) {
+async function makeStoredReceipt({ receiptId = 'clrcpt_known_valid', receiptType = 'execution' } = {}) {
   const keyPair = await subtle.generateKey({ name: 'Ed25519' }, true, ['sign', 'verify']);
   const rawPub = Buffer.from(await subtle.exportKey('raw', keyPair.publicKey)).toString('base64');
   const receipt = {
@@ -69,6 +71,38 @@ async function makeStoredReceipt({ receiptId = 'clrcpt_known_valid', receiptType
   return { receipt, rawPub, verifyOptions };
 }
 
+
+async function makeStoredGenesisReceipt({ receiptId = 'cl_genesis_known_valid' } = {}) {
+  const { privateKey, publicKey } = crypto.generateKeyPairSync('ed25519');
+  const privateKeyPem = privateKey.export({ type: 'pkcs8', format: 'pem' });
+  const rawPub = publicKey.export({ type: 'spki', format: 'der' }).subarray(-32).toString('base64');
+  const { receipt } = await createGenesisReceipt({
+    claimId: 'claim_known_valid',
+    receiptId,
+    label: 'verifyagent',
+    namespace: 'eth',
+    owner: '0x123',
+    verbs: ['verify'],
+    agentCardHash: 'abc123',
+    agentCardCid: 'ipfs://bafy',
+    signerId: 'runtime.commandlayer.eth',
+    kid: 'kid-genesis',
+    privateKeyPem,
+    createdAt: '2026-05-20T00:00:00.000Z',
+  });
+  const verifyOptions = {
+    ens: {
+      textResolver: async (_ens, key) => ({
+        'cl.sig.pub': `ed25519:${rawPub}`,
+        'cl.sig.kid': 'kid-genesis',
+        'cl.sig.canonical': 'json.sorted_keys.v1',
+        'cl.receipt.signer': 'runtime.commandlayer.eth',
+      })[key] || null,
+    },
+  };
+  return { receipt, rawPub, verifyOptions };
+}
+
 function mockClaimReceipt(receipt) {
   db.query = async (queryText, params) => {
     if (queryText.includes('from claim_requests') && params[0] === receipt.receipt_id) {
@@ -95,7 +129,7 @@ test('POST /api/verify-id unknown receipt_id returns 404 RECEIPT_NOT_FOUND', asy
 });
 
 test('POST /api/verify-id known valid claim genesis receipt returns VERIFIED', async () => {
-  const { receipt, verifyOptions } = await makeStoredReceipt();
+  const { receipt, verifyOptions } = await makeStoredGenesisReceipt();
   mockClaimReceipt(receipt);
   const res = makeRes();
   await verifyIdHandler({ method: 'POST', headers: {}, body: { receipt_id: receipt.receipt_id }, verifyOptions }, res);
@@ -105,13 +139,13 @@ test('POST /api/verify-id known valid claim genesis receipt returns VERIFIED', a
   assert.equal(res.body.receipt_id, receipt.receipt_id);
   assert.equal(res.body.receipt_type, 'genesis');
   assert.equal(res.body.agent, 'verifyagent.eth');
-  assert.equal(res.body.verb, 'agent.execute');
+  assert.equal(res.body.verb, null);
   assert.equal(res.body.signer, 'runtime.commandlayer.eth');
   assert.equal(res.body.verification.hash_matches, true);
   assert.equal(res.body.verification.signature_valid, true);
   assert.equal(res.body.verification.ens_resolved, true);
   assert.equal(res.body.verification.public_key_source, 'ens_txt');
-  assert.equal(res.body.verification.key_id, 'vC4WbcNoq2znSCiQ');
+  assert.equal(res.body.verification.key_id, 'kid-genesis');
 });
 
 test('POST /api/verify-id known tampered receipt returns INVALID', async () => {

@@ -85,7 +85,7 @@ These fields provide a common cryptographic envelope model across all verb recei
 
 Receipts may include optional chain-linking fields without requiring full chain continuity enforcement yet:
 
-- `chain_root` — the receipt chain root. For genesis receipts this is the claim `receipt_chain_root`; action/example receipts may set it to `null` until full receipt storage is available.
+- `chain_root` — the receipt chain root. For genesis receipts, `chain_root` is `sha256:<genesis_anchor_hash>`, where `genesis_anchor_hash` is computed from the canonical genesis payload with the derived `chain_root` field excluded. The signed genesis payload then includes that non-circular `chain_root` value, so tampering with chain fields invalidates the receipt without requiring `chain_root` to equal the final signed receipt hash. Action/example receipts may set it to `null` until full receipt storage is available.
 - `previous_receipt_hash` — the prior receipt hash, or `null` when the prior receipt is not stored/resolved yet.
 - `chain_index` — the zero-based chain index. Genesis receipts use `0`; action/example receipts may set it to `null`.
 - `parent_receipt_id` — an optional caller-supplied parent receipt identifier, or `null`.
