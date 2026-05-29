@@ -79,6 +79,7 @@
         <a class="card" href="/capabilities.html"><h3>Capabilities</h3><p>Understand the CLAS action surface and capability families.</p></a>
         <a class="card" href="/receipts.html"><h3>Receipts</h3><p>See canonical receipt structure and verifier expectations.</p></a>
         <a class="card" href="/proof.html"><h3>Live Proof</h3><p>Walk through proof flow and tamper-invalid verification outcomes.</p></a>
+        <a class="card" href="/genesis-proof.html"><h3>Genesis Receipt Verification</h3><p>Retrieve and cryptographically verify a stored genesis receipt by receipt ID.</p></a>
       </div>
     </section>
 
@@ -104,7 +105,11 @@
       <div class="paths">
         <div class="path"><h3>New to CommandLayer</h3><p>Protocol → Receipts → Live Proof</p></div>
         <div class="path"><h3>Building an agent</h3><p>Wrap Your Agent → SDK → Capabilities</p></div>
-        <div class="path"><h3>Verifying receipts</h3><p>Receipts → Verifier → Live Proof</p></div>
+        <div class="path"><h3>Verifying receipts</h3><p>Receipts → Verifier → Genesis Proof → Live Proof</p><pre style="margin-top:10px"><code>fetch('/api/verify-id', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ receipt_id: 'cl_genesis_clm_...' })
+}).then(r =&gt; r.json());</code></pre></div>
         <div class="path"><h3>External systems</h3><p>Integrations → Protocol → Receipts</p></div>
       </div>
     </section>

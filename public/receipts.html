@@ -43,6 +43,12 @@
 </nav>
 <main>
 <section class="hero"><div class="container"><div class="hero-badge"><span class="badge-dot"></span>Receipts</div><h1>The CommandLayer receipt model</h1><p>A CommandLayer receipt is not a log entry. It is a cryptographic artifact that proves what an agent, runtime, or external system did — and lets anyone verify it independently after the fact.</p><div class="hero-actions"><a class="btn btn-primary btn-lg" href="/verify.html">Verify a Receipt</a><a class="btn btn-secondary btn-lg" href="/proof.html">View Live Proof</a><a class="btn btn-secondary btn-lg" href="/capabilities.html">Explore Capabilities</a></div></div></section>
+
+<section class="section section-alt"><div class="container"><div class="card"><h3>Genesis receipts</h3><p>After a claimed agent’s public cards are pinned, CommandLayer can issue a signed genesis receipt. Genesis is chain index 0: the verifiable origin point for future receipt-linked history.</p><div class="status-block" style="margin-top:14px"><strong>receipt_type:</strong> genesis
+<strong>chain_index:</strong> 0
+<strong>previous_receipt_hash:</strong> null
+<strong>parent_receipt_id:</strong> null
+<strong>chain_root:</strong> sha256:&lt;anchor_hash&gt;</div><p style="margin-top:14px"><a class="btn btn-primary" href="/genesis-proof.html">Verify a Genesis Receipt by ID</a></p></div></div></section>
 <section class="section"><div class="container"><div class="card"><h3>What a receipt proves</h3><ul class="list"><li>which verb/action ran</li><li>what input was provided</li><li>what output was returned</li><li>which signer produced the proof</li><li>which canonicalization/hash/signature algorithms were used</li><li>whether the result was tampered with after signing</li></ul><p class="warn">Schema validation checks shape. Proof verification checks truth. A schema-valid receipt can still fail verification if the hash or signature is wrong.</p></div></div></section>
 <section class="section" style="background:#f8faff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)"><div class="container"><div class="card"><h3>Receipt structure</h3><pre class="code-block"><code>{
   "receipt_id": "rcpt_01J9XK4TAV9ZJH0YQWE8YQ23Z7",

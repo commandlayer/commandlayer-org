@@ -132,10 +132,17 @@
     <h2>Website verifier surfaces</h2>
     <ul>
       <li><code>/verify.html</code> &#8212; Interactive manual verifier.</li>
+      <li><a href="/genesis-proof.html"><code>/genesis-proof.html</code></a> &#8212; Public stored genesis receipt verification by ID.</li>
+      <li><code>POST /api/verify-id</code> &#8212; Verify a stored receipt using <code>receipt_id</code>.</li>
+      <li><code>GET /api/receipts/:id</code> &#8212; Retrieve stored public receipt JSON by ID.</li>
       <li><code>/api/verify</code> &#8212; Website verifier API surface; treat as a website-facing verifier surface unless separately validated for parity with runtime <code>/verify</code>.</li>
       <li><code>/api/agents/verifyagent</code> &#8212; VerifyAgent metadata/API alias surface if present.</li>
     </ul>
-    <div class="inline-note"><strong>Warning:</strong> Do not treat <code>/api/verify</code> as the canonical production verifier unless tests prove parity with runtime <code>/verify</code>.</div>
+    <div class="inline-note"><strong>Warning:</strong> Do not treat <code>/api/verify</code> as the canonical production verifier unless tests prove parity with runtime <code>/verify</code>.</div><pre class="code-panel" style="margin-top:14px"><code>fetch('/api/verify-id', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ receipt_id: 'cl_genesis_clm_...' })
+}).then(r =&gt; r.json());</code></pre><p style="margin-top:10px;color:var(--text-2)">Current public ID lookup supports stored genesis receipts without exposing claim payment data or admin surfaces.</p>
   </section>
 
   <section class="api-card section">
