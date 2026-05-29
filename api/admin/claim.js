@@ -2,6 +2,7 @@
 
 const db = require('../../lib/db');
 const { requireAdminAuth } = require('./_auth');
+const { buildTenantSignerRecordPackage } = require('../../lib/tenantSignerIdentity');
 
 async function hasTable(tableName) {
   const result = await db.query('select to_regclass($1) as table_name', [tableName]);
@@ -81,7 +82,25 @@ module.exports = async function handler(req, res) {
       latestPayment = await queryOptionalOne('select * from claim_payments where claim_id = $1 order by updated_at desc nulls last, paid_at desc nulls last, id desc limit 1', [claimId], 'claim_payments');
     }
 
-    return res.status(200).json({ ok: true, claim, agents: agentsResult.rows, events: eventsResult.rows, transitions, cards, latestPayment });
+    const agents = agentsResult.rows.map((agent) => {
+      if (!agent.tenant_signer_public_key || !agent.tenant_signer_kid) return agent;
+      try {
+        return {
+          ...agent,
+          agent_ens_name: agent.agent_ens_name || agent.ens,
+          tenant_signer_record_package: buildTenantSignerRecordPackage({
+            agent_ens_name: agent.agent_ens_name || agent.ens,
+            tenant_signer_kid: agent.tenant_signer_kid,
+            tenant_signer_public_key: agent.tenant_signer_public_key,
+            tenant_signer_canonicalization: agent.tenant_signer_canonicalization,
+          }),
+        };
+      } catch {
+        return agent;
+      }
+    });
+
+    return res.status(200).json({ ok: true, claim, agents, events: eventsResult.rows, transitions, cards, latestPayment });
   } catch (error) {
     console.error('[admin.claim] failed to load claim detail', { code: error && error.code });
     const payload = {
