@@ -1,6 +1,7 @@
 'use strict';
 
 const db = require('../../lib/db');
+const { getClaimAuth, unauthorizedClaimResponse, stripClaimSecrets } = require('../../lib/claims/access-token');
 
 function cardsStatus(cards) {
   if (!cards.length) return 'not_pinned';
@@ -21,7 +22,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const claimResult = await db.query(
-      `select claim_id, tenant, activation_mode, status, payment_status, paid_at,
+      `select claim_id, claim_access_token_hash, tenant, activation_mode, status, payment_status, paid_at,
         tenant_signer_ens, tenant_signer_record_status, tenant_signer_records_verified_at, tenant_signer_records_network,
         tenant_signer_txt_records, managed_ens_publication_status, managed_ens_parent_namespace,
         managed_ens_parent_authority_audited, tenant_proof_status, tenant_proof_signer, tenant_proof_verified_at,
@@ -31,6 +32,8 @@ module.exports = async function handler(req, res) {
     );
     const claim = claimResult.rows[0];
     if (!claim) return res.status(404).json({ ok: false, status: 'CLAIM_NOT_FOUND' });
+    const auth = getClaimAuth(req, claim);
+    if (!auth.ok) return unauthorizedClaimResponse(res);
     let cards = [];
     try {
       const cardsResult = await db.query(
@@ -52,7 +55,7 @@ module.exports = async function handler(req, res) {
       tenant_action_proof: claim.tenant_proof_status || 'not_submitted',
       agent_live: paymentConfirmed && claim.tenant_signer_record_status === 'records_verified' && cardsStatus(cards) === 'cards_pinned' && claim.genesis_receipt_id && claim.tenant_proof_status === 'verified' ? 'live' : 'not_live',
     };
-    return res.status(200).json({ ok: true, claim: { ...claim, cardsStatus: cardsStatus(cards) }, pipeline, cards });
+    return res.status(200).json({ ok: true, read_only: true, claim: { ...stripClaimSecrets(claim), cardsStatus: cardsStatus(cards) }, pipeline, cards });
   } catch (_error) {
     return res.status(500).json({ ok: false, status: 'CLAIM_STATUS_UNAVAILABLE' });
   }

@@ -3,6 +3,8 @@
 const crypto = require('node:crypto');
 const db = require('../../lib/db');
 const { CANONICALIZATION, buildSignerRecords, normalizeActivationMode } = require('../../lib/claims/signer-records');
+const { generateClaimAccessToken, hashClaimAccessToken } = require('../../lib/claims/access-token');
+const { requireRateLimit } = require('../../lib/rateLimit');
 
 const ADDRESS_RE = /^0x[a-fA-F0-9]{40}$/;
 const TENANT_RE = /^[a-z0-9-]{3,32}$/;
@@ -27,6 +29,10 @@ function safeAgent(agent) {
     delete sanitizedCard.private_key;
     delete sanitizedCard.privateKeyPem;
     delete sanitizedCard.private_key_pem;
+    delete sanitizedCard.claimAccessToken;
+    delete sanitizedCard.claim_access_token;
+    delete sanitizedCard.accessToken;
+    delete sanitizedCard.access_token;
   }
   return {
     ens: String(agent.ens || '').toLowerCase().trim(),
@@ -46,6 +52,8 @@ module.exports = async function handler(req, res) {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ ok: false, status: 'METHOD_NOT_ALLOWED' });
   }
+
+  if (!requireRateLimit(req, res, { bucket: 'claim-intake', max: 20, windowMs: 60_000 })) return;
 
   if (hasPrivateKeyMaterial(req.body)) return invalid(res, 'private_key_material_rejected', 'Private signing keys must stay local and must not be submitted.');
 
@@ -71,6 +79,8 @@ module.exports = async function handler(req, res) {
   if (!process.env.DATABASE_URL) return res.status(503).json({ ok: false, status: 'STORAGE_UNAVAILABLE' });
 
   const claimId = `clm_${crypto.randomUUID().replace(/-/g, '')}`;
+  const claimAccessToken = generateClaimAccessToken();
+  const claimAccessTokenHash = hashClaimAccessToken(claimAccessToken);
   const txtRecords = buildSignerRecords({ publicKey: tenantSignerPublicKey, kid: tenantSignerKid, canonicalization: tenantSignerCanonicalization, signerEns: tenantSignerEns });
   const recordStatus = 'records_generated';
   const managedStatus = activationMode === 'managed_namespace' ? 'not_started' : null;
@@ -97,10 +107,10 @@ module.exports = async function handler(req, res) {
       (claim_id, authenticated_address, tenant, activation_mode, pack_id, public_key, kid, runtime, verifier, schema_version, status,
        tenant_signer_ens, tenant_signer_public_key, tenant_signer_kid, tenant_signer_canonicalization,
        tenant_signer_record_status, tenant_signer_txt_records, managed_ens_publication_status,
-       managed_ens_parent_namespace, managed_ens_parent_authority_audited, tenant_proof_status, request_json)
-      values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'created',$11,$12,$13,$14,$15,$16::jsonb,$17,$18,false,'not_submitted',$19::jsonb)`,
+       managed_ens_parent_namespace, managed_ens_parent_authority_audited, tenant_proof_status, claim_access_token_hash, request_json)
+      values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'created',$11,$12,$13,$14,$15,$16::jsonb,$17,$18,false,'not_submitted',$19,$20::jsonb)`,
       [claimId, authenticatedAddress, tenant, activationMode, packId, tenantSignerPublicKey, tenantSignerKid, safeRequest.runtime, safeRequest.verifier, safeRequest.schemaVersion,
-        tenantSignerEns, tenantSignerPublicKey, tenantSignerKid, tenantSignerCanonicalization, recordStatus, JSON.stringify(txtRecords), managedStatus, managedParent, JSON.stringify(safeRequest)]
+        tenantSignerEns, tenantSignerPublicKey, tenantSignerKid, tenantSignerCanonicalization, recordStatus, JSON.stringify(txtRecords), managedStatus, managedParent, claimAccessTokenHash, JSON.stringify(safeRequest)]
     );
     for (const agent of agents) {
       await db.query(
@@ -127,6 +137,7 @@ module.exports = async function handler(req, res) {
     tenantSignerEns,
     tenantSignerRecordStatus: recordStatus,
     managedEnsPublicationStatus: managedStatus,
+    claimAccessToken,
     agents: agents.map((a) => ({ ens: a.ens, capability: a.capability })),
     message: 'Claim request received.',
   });

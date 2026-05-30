@@ -2,6 +2,7 @@
 
 const db = require('../../lib/db');
 const { requireAdminAuth } = require('./_auth');
+const { stripClaimSecrets } = require('../../lib/claims/access-token');
 
 async function hasTable(tableName) {
   const result = await db.query('select to_regclass($1) as table_name', [tableName]);
@@ -81,7 +82,7 @@ module.exports = async function handler(req, res) {
       latestPayment = await queryOptionalOne('select * from claim_payments where claim_id = $1 order by updated_at desc nulls last, paid_at desc nulls last, id desc limit 1', [claimId], 'claim_payments');
     }
 
-    return res.status(200).json({ ok: true, claim, agents: agentsResult.rows, events: eventsResult.rows, transitions, cards, latestPayment });
+    return res.status(200).json({ ok: true, claim: stripClaimSecrets(claim), agents: agentsResult.rows, events: eventsResult.rows, transitions, cards, latestPayment });
   } catch (error) {
     console.error('[admin.claim] failed to load claim detail', { code: error && error.code });
     const payload = {

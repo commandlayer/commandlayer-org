@@ -1487,10 +1487,38 @@ function renderActivationPipeline(data) {
   }
 }
 
+function claimAccessTokenStorageKey(claimId) { return `cl_claim_access_token:${claimId}`; }
+
+function storeClaimAccessToken(claimId, token) {
+  if (!claimId || !token || !window.sessionStorage) return;
+  sessionStorage.setItem(claimAccessTokenStorageKey(claimId), token);
+}
+
+function getClaimAccessToken(claimId) {
+  if (!claimId || !window.sessionStorage) return '';
+  return sessionStorage.getItem(claimAccessTokenStorageKey(claimId)) || '';
+}
+
+function publicClaimHeaders(claimId, contentType) {
+  const headers = { Accept:'application/json' };
+  if (contentType) headers['Content-Type'] = contentType;
+  const token = getClaimAccessToken(claimId);
+  if (token) headers['x-claim-access-token'] = token;
+  return headers;
+}
+
+function sanitizeActivationResponseForCopy(result) {
+  if (!result || typeof result !== 'object') return result;
+  const copy = { ...result };
+  delete copy.claimAccessToken;
+  delete copy.claim_access_token;
+  return copy;
+}
+
 async function loadClaimPipeline(claimId) {
   if (!claimId) return;
   try {
-    const res = await fetch(`/api/claims/status?claim_id=${encodeURIComponent(claimId)}`, { headers:{Accept:'application/json'} });
+    const res = await fetch(`/api/claims/status?claim_id=${encodeURIComponent(claimId)}`, { headers: publicClaimHeaders(claimId) });
     const data = await res.json();
     if (res.ok && data.ok) renderActivationPipeline(data);
   } catch (_err) {
@@ -1505,7 +1533,7 @@ async function verifyEnsRecords() {
   const btn = document.getElementById('verifyRecordsBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
   try {
-    const res = await fetch('/api/claims/verify-signer-records', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ claim_id: claimId }) });
+    const res = await fetch('/api/claims/verify-signer-records', { method:'POST', headers: publicClaimHeaders(claimId, 'application/json'), body:JSON.stringify({ claim_id: claimId }) });
     const data = await res.json();
     if (resultEl) resultEl.textContent = data.status === 'records_verified' ? 'ENS signer identity verified on Ethereum mainnet' : `Record status: ${data.status || 'unavailable'}`;
     await loadClaimPipeline(claimId);
@@ -1566,6 +1594,7 @@ async function submitActivationRequest() {
       throw err;
     }
     state.submitResult = data;
+    storeClaimAccessToken(data.claimId, data.claimAccessToken);
     document.getElementById('activationOk').style.display = 'block';
     document.getElementById('activationClaimId').textContent = data.claimId;
     document.getElementById('activationWallet').textContent = data.authenticatedAddress;
@@ -1586,12 +1615,13 @@ async function submitActivationRequest() {
 
 function copyActivationResponse(btn){
   if(!state.submitResult) return;
-  navigator.clipboard.writeText(JSON.stringify(state.submitResult, null, 2)).then(()=>{
+  navigator.clipboard.writeText(JSON.stringify(sanitizeActivationResponseForCopy(state.submitResult), null, 2)).then(()=>{
     btn.textContent='Copied ✓'; setTimeout(()=>{ btn.textContent='Copy response JSON'; }, 1500);
   });
 }
 
 function startOver() {
+  if (state.submitResult && state.submitResult.claimId && window.sessionStorage) sessionStorage.removeItem(claimAccessTokenStorageKey(state.submitResult.claimId));
   state = {
     step:1, ens:'', tenantLabel:'', activationMode:'cl', capMode:'packs', selectedPack:null, cherryVerbs:[], selectedCanonicalParents:[],
     pubKeyB64:'', privKeyB64:'', kid:'', keyGenerated:false, keyDownloaded:false, keyAcked:false,
