@@ -545,7 +545,11 @@
           Claim ID: <span id="activationClaimId"></span><br>
           Wallet: <span id="activationWallet"></span><br>
           Generated agents: <span id="activationAgentCount"></span>
+          <div style="margin-top:10px;padding:10px;border:1px solid rgba(217,119,6,.25);border-radius:10px;background:rgba(217,119,6,.06);font-size:13px;color:var(--text-2)">
+            <strong>Save your Claim Recovery Key now.</strong> You will need it to continue this activation after closing this browser session. Keep it private.
+          </div>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+            <button class="btn btn-primary" onclick="downloadClaimRecoveryKey()">Download Claim Recovery Key</button>
             <button class="btn btn-secondary" onclick="copyActivationResponse(this)">Copy response JSON</button>
             <button class="btn btn-secondary" onclick="downloadPackage()">Download package</button>
             <a class="btn btn-secondary" href="https://runtime.commandlayer.org/verify" target="_blank" rel="noopener">Open verifier</a>
@@ -557,6 +561,14 @@
       <h3>Activation pipeline</h3>
       <p id="pipelineIntro">Submit a claim to load persisted payment, ENS, IPFS, genesis, and tenant proof status.</p>
       <div id="activationPipeline" style="display:grid;gap:8px;text-align:left;margin-top:14px"></div>
+      <div style="margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;text-align:left">
+        <strong>Returning to an existing claim?</strong> Import your private Claim Recovery Key file to restore access in this browser session.
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;align-items:center">
+          <input id="claimRecoveryFile" type="file" accept="application/json,.json" style="max-width:320px" />
+          <button class="btn btn-secondary" onclick="importClaimRecoveryKey()">Import Claim Recovery Key</button>
+        </div>
+        <div id="claimRecoveryImportResult" style="margin-top:8px;font-size:13px;color:var(--muted)"></div>
+      </div>
       <div id="verifyRecordsBox" style="display:none;margin-top:14px;text-align:center">
         <button class="btn btn-primary" id="verifyRecordsBtn" onclick="verifyEnsRecords()">Verify ENS Records</button>
         <div id="verifyRecordsResult" style="margin-top:10px;font-size:13px;color:var(--muted)"></div>
@@ -1505,6 +1517,61 @@ function publicClaimHeaders(claimId, contentType) {
   const token = getClaimAccessToken(claimId);
   if (token) headers['x-claim-access-token'] = token;
   return headers;
+}
+
+
+function claimRecoveryKeyPayload(result) {
+  if (!result || !result.claimId || !result.claimAccessToken) return null;
+  return {
+    type: 'commandlayer_claim_recovery_key',
+    claim_id: result.claimId,
+    claim_access_token: result.claimAccessToken,
+    tenant_signer_ens: result.tenantSignerEns || getTenantSignerEns(),
+    created_at: new Date().toISOString(),
+    warning: 'Keep this file private. Anyone with this key can access and continue this claim activation.'
+  };
+}
+
+function downloadJsonFile(payload, filename) {
+  const blob = new Blob([JSON.stringify(payload, null, 2) + '\n'], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadClaimRecoveryKey() {
+  const payload = claimRecoveryKeyPayload(state.submitResult);
+  if (!payload) { alert('Create a claim before downloading a recovery key.'); return; }
+  downloadJsonFile(payload, `${payload.claim_id}-commandlayer-claim-recovery-key.json`);
+}
+
+async function importClaimRecoveryKey() {
+  const input = document.getElementById('claimRecoveryFile');
+  const resultEl = document.getElementById('claimRecoveryImportResult');
+  const file = input && input.files && input.files[0];
+  if (!file) { if (resultEl) resultEl.textContent = 'Choose a Claim Recovery Key JSON file first.'; return; }
+  try {
+    const parsed = JSON.parse(await file.text());
+    if (!parsed || parsed.type !== 'commandlayer_claim_recovery_key' || !parsed.claim_id || !parsed.claim_access_token) {
+      throw new Error('invalid_recovery_key');
+    }
+    storeClaimAccessToken(parsed.claim_id, parsed.claim_access_token);
+    state.submitResult = {
+      ...(state.submitResult || {}),
+      claimId: parsed.claim_id,
+      claimAccessToken: parsed.claim_access_token,
+      tenantSignerEns: parsed.tenant_signer_ens || ''
+    };
+    if (resultEl) resultEl.textContent = 'Claim Recovery Key imported for this browser session.';
+    await loadClaimPipeline(parsed.claim_id);
+  } catch (_err) {
+    if (resultEl) resultEl.textContent = 'Invalid Claim Recovery Key file.';
+  } finally {
+    if (input) input.value = '';
+  }
 }
 
 function sanitizeActivationResponseForCopy(result) {

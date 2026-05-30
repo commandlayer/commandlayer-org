@@ -3,6 +3,8 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
+const fs = require('node:fs');
+const path = require('node:path');
 
 const db = require('../lib/db');
 const submitClaim = require('../api/claim/commandlayer-namespace');
@@ -63,6 +65,21 @@ function loadVerifyRecordsWithResolver(resolver) {
   const handler = require('../api/claims/verify-signer-records');
   return { handler, restore: () => { signerRecords.resolveRequiredSignerRecords = old; delete require.cache[require.resolve('../api/claims/verify-signer-records')]; } };
 }
+
+
+test('claim page provides private recovery-key download/import without adding token to copied response', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'claim.html'), 'utf8');
+  assert.ok(html.includes('Download Claim Recovery Key'));
+  assert.ok(html.includes('Import Claim Recovery Key'));
+  assert.ok(html.includes("type: 'commandlayer_claim_recovery_key'"));
+  assert.ok(html.includes('claim_id: result.claimId'));
+  assert.ok(html.includes('claim_access_token: result.claimAccessToken'));
+  assert.ok(html.includes('tenant_signer_ens: result.tenantSignerEns'));
+  assert.ok(html.includes("warning: 'Keep this file private. Anyone with this key can access and continue this claim activation.'"));
+  assert.ok(html.includes('sessionStorage.setItem(claimAccessTokenStorageKey(claimId), token)'));
+  assert.ok(html.includes('delete copy.claimAccessToken'));
+  assert.ok(html.includes('delete copy.claim_access_token'));
+});
 
 test('claim submission returns raw access token once and persists only hash/public signer fields', async () => {
   resetRateLimitForTests();
