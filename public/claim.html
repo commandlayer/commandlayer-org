@@ -379,7 +379,7 @@
     <div class="keygen-box">
       <div class="keygen-icon">🔐</div>
       <h3>Browser-side key generation</h3>
-      <p>Your private key is generated locally using Web Crypto and never leaves your device. Download it immediately — it cannot be recovered after you leave this page.</p>
+      <p>Your private signing key is generated locally and is never sent to CommandLayer. Download it immediately — it cannot be recovered after you leave this page.</p>
       <p style="font-size:12px;color:var(--muted);margin-top:-8px">Ed25519 browser support varies. If generation fails, CommandLayer will not substitute another algorithm.</p>
       <button class="btn btn-primary" style="margin-top:4px" onclick="generateKey()">Generate Keypair</button>
       <div class="key-error" id="keyError"></div>
@@ -426,14 +426,12 @@
       <div class="code-block" id="ensRecords">—</div>
     </div>
     <div style="padding:14px;border-radius:12px;border:1px solid rgba(82,152,255,.2);background:rgba(82,152,255,.04);font-size:13px;color:var(--text-2);line-height:1.7">
-      <strong style="color:var(--text)">Current Session 1:</strong><br>
-      Manual activation package.<br>
-      Download the generated records and add them in ENS Manager.<br><br>
-      <strong style="color:var(--text)">Coming next:</strong><br>
-      Assisted ENS activation.<br>
-      Connect wallet → verify ENS control → create generated subnames → write TXT records → sign transactions.<br><br>
-      <strong style="color:var(--text)">CommandLayer-native activation:</strong><br>
-      For names like <code style="font-family:var(--mono);font-size:.95em">commandlayer.approveagent.eth</code>, CommandLayer can provision under its canonical parent namespaces after payment/provisioning is enabled.
+      <strong style="color:var(--text)">Activation record instructions:</strong><br>
+      <span id="activationModeInstruction">Publish the four records with your ENS owner wallet, then verify records.</span><br><br>
+      <strong style="color:var(--text)">Private-key safety:</strong><br>
+      Your private signing key is generated locally and is never sent to CommandLayer.<br><br>
+      <strong style="color:var(--text)">Managed namespace:</strong><br>
+      Managed ENS publication automation is pending activation infrastructure. This PR stores the public TXT package for operator review but does not perform onchain ENS writes.
     </div>
 
     <div class="pricing-grid" style="margin-top:14px">
@@ -536,8 +534,8 @@
     <div style="font-size:12px;color:var(--muted);margin:-4px 0 18px;text-align:center">Checkout is not enabled in Session 1. Pricing covers activation, metadata, verification routing, and integration support — not ENS ownership transfer.</div>
     <div id="activationControls" style="display:none">
       <div class="activation-cta" style="margin-top:0">
-        <h3>Submit CommandLayer namespace activation</h3>
-        <p>Submit your activation package for validation and operator review.</p>
+        <h3>Submit namespace activation</h3>
+        <p>Submit your activation package, public signer identity, generated TXT records, and public agent card data for validation and operator review.</p>
         <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
           <button class="btn btn-primary" id="submitActivationBtn" onclick="submitActivationRequest()">Submit activation request</button>
         </div>
@@ -556,9 +554,14 @@
       </div>
     </div>
     <div class="activation-cta">
-      <h3>Payment and provisioning are coming next.</h3>
-      <p>When activated, your agents will be ERC-8004 registered on Base, cards hosted at commandlayer.org, and you will receive a verified live receipt proving the setup works end-to-end.</p>
-      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+      <h3>Activation pipeline</h3>
+      <p id="pipelineIntro">Submit a claim to load persisted payment, ENS, IPFS, genesis, and tenant proof status.</p>
+      <div id="activationPipeline" style="display:grid;gap:8px;text-align:left;margin-top:14px"></div>
+      <div id="verifyRecordsBox" style="display:none;margin-top:14px;text-align:center">
+        <button class="btn btn-primary" id="verifyRecordsBtn" onclick="verifyEnsRecords()">Verify ENS Records</button>
+        <div id="verifyRecordsResult" style="margin-top:10px;font-size:13px;color:var(--muted)"></div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px">
         <button class="btn btn-primary" onclick="downloadPackage()">⬇ Download full package</button>
         <a class="btn btn-secondary" href="/verify.html">Test the verifier</a>
         <a class="btn btn-secondary" href="/docs/wrap-your-agent.html">Read the docs</a>
@@ -650,6 +653,30 @@ function agentNames() {
   const verbs = getVerbs();
   if (state.activationMode === 'single') return [state.ens];
   return verbs.map(v => agentName(v));
+}
+
+function persistedActivationMode() {
+  return state.activationMode === 'cl' ? 'managed_namespace' : 'bring_your_own_ens';
+}
+
+function getTenantSignerEns() {
+  const names = agentNames();
+  return (names[0] || state.ens || '').toLowerCase();
+}
+
+function signerTxtRecordsObject() {
+  const signer = getTenantSignerEns();
+  return {
+    'cl.sig.pub': `ed25519:${state.pubKeyB64}`,
+    'cl.sig.kid': state.kid,
+    'cl.sig.canonical': 'json.sorted_keys.v1',
+    'cl.receipt.signer': signer
+  };
+}
+
+function signerTxtRecordPackage() {
+  const records = signerTxtRecordsObject();
+  return Object.keys(records).map((key) => `${key}=${records[key]}`).join('\n');
 }
 
 // ── NAVIGATION ────────────────────────────────────────────────────────────────
@@ -1135,6 +1162,12 @@ function buildAgentTable() {
 
 function buildENSRecords() {
   const verbs = getEffectiveClVerbs();
+  const instruction = document.getElementById('activationModeInstruction');
+  if (instruction) {
+    instruction.textContent = state.activationMode === 'cl'
+      ? 'Managed ENS publication automation is pending activation infrastructure.'
+      : 'Publish the four records with your ENS owner wallet, then verify records.';
+  }
   let records = '';
 
   if (state.activationMode === 'single') {
@@ -1226,6 +1259,37 @@ console.log(check.checks.signature_valid);  // true`;
 }
 
 // ── STEP 7: AGENT CARD ────────────────────────────────────────────────────────
+function buildAgentCardObject(verb) {
+  const pack = PACKS.find(p=>p.id===state.selectedPack);
+  const isLive = pack && pack.live;
+  const name = state.activationMode === 'single' ? state.ens : agentName(verb);
+  return {
+    "$schema": "https://commandlayer.org/agent-cards/schemas/v1.1.0/agent.card.schema.json",
+    "$id": "pending_provisioning",
+    "id": name,
+    "owner": state.ens,
+    "ens": name,
+    "parent_ens": state.activationMode==='cl' ? (VERB_TO_AGENT[verb]||verb+'agent.eth') : state.ens,
+    "tenant": state.ens,
+    "activation_mode": persistedActivationMode(),
+    "version": "1.1.0",
+    "agent_card_status": "preview_only",
+    "hosted_agent_card": "pending_provisioning",
+    "status": isLive ? "activation_ready_live_pack" : "activation_preview",
+    "class": "commons",
+    "implements": [verb],
+    "entry": {
+      "trust_verification": `https://runtime.commandlayer.org/trust-verification/${verb}/v1.0.0`,
+      "verify": "https://runtime.commandlayer.org/verify"
+    },
+    "execution_status": "not_configured",
+    "networks": ["eip155:1"],
+    "license": "Apache-2.0",
+    "created_at": new Date().toISOString(),
+    "updated_at": new Date().toISOString()
+  };
+}
+
 function buildAgentCard() {
   const verbs = getEffectiveClVerbs();
   const pack = PACKS.find(p=>p.id===state.selectedPack);
@@ -1303,7 +1367,8 @@ function buildSummary() {
       ? `${state.ens} configured as one multi-capability agent`
       : `${names.length} sub-agent names generated`;
   const controls = document.getElementById('activationControls');
-  controls.style.display = state.activationMode === 'cl' ? 'block' : 'none';
+  controls.style.display = 'block';
+  renderActivationPipeline();
   document.getElementById('activationOk').style.display = 'none';
   document.getElementById('activationResult').style.display = 'none';
   const submitBtn = document.getElementById('submitActivationBtn');
@@ -1340,19 +1405,25 @@ function downloadPackage() {
   const manifest = {
     generated_at: new Date().toISOString(),
     parent_ens: state.ens,
-    activation_mode: state.activationMode,
-    activation_mode_label: {cl:'CommandLayer namespace', own:'Your ENS namespace', single:'Single agent'}[state.activationMode],
+    activation_mode: persistedActivationMode(),
+    activation_mode_label: {cl:'Managed namespace', own:'Bring your own ENS', single:'Bring your own ENS'}[state.activationMode],
     key_model: 'single_ed25519_key_for_package',
     kid: state.kid,
+    tenant_signer_ens: getTenantSignerEns(),
     public_key: `ed25519:${state.pubKeyB64}`,
+    tenant_signer_public_key: `ed25519:${state.pubKeyB64}`,
+    tenant_signer_kid: state.kid,
+    tenant_signer_canonicalization: 'json.sorted_keys.v1',
+    tenant_signer_txt_records: signerTxtRecordsObject(),
+    tenant_signer_txt_package: signerTxtRecordPackage(),
     capability_pack: pack ? pack.name : 'Custom cherry-pick',
     capabilities: verbs,
     agents,
     runtime: 'https://runtime.commandlayer.org',
     verifier: 'https://runtime.commandlayer.org/verify',
     schema_version: '1.1.0',
-    payment_status: 'not_enabled_session_1',
-    provisioning_status: 'pending',
+    payment_status: 'pending_backend_confirmation',
+    provisioning_status: 'activation_pipeline_pending',
     note: 'Create ENS subnames/TXT records, set CL_PRIVATE_KEY_PEM env var, then install @commandlayer/agent-sdk'
   };
   state._packageJson = JSON.stringify(manifest,null,2);
@@ -1361,6 +1432,88 @@ function downloadPackage() {
   const a = document.createElement('a');
   a.href=url; a.download=state.ens.replace('.eth','')+'-commandlayer-package.json';
   a.click(); URL.revokeObjectURL(url);
+}
+
+
+function pipelineStatusLabel(value) {
+  const map = {
+    generated: 'complete', created: 'complete', paid: 'complete', records_verified: 'complete', cards_pinned: 'complete',
+    generated_receipt: 'complete', verified: 'complete', live: 'complete', unpaid: 'pending', not_live: 'pending'
+  };
+  return map[value] || (String(value || '').includes('pending') || String(value || '').startsWith('not_') ? 'pending' : 'active');
+}
+
+function renderActivationPipeline(data) {
+  const el = document.getElementById('activationPipeline');
+  if (!el) return;
+  const pipeline = data && data.pipeline ? data.pipeline : {
+    tenant_signing_identity: state.keyGenerated ? 'generated' : 'pending',
+    claim_request: state.submitResult ? 'created' : 'pending',
+    payment: 'unpaid',
+    ens_records: state.submitResult ? 'records_generated' : 'records_pending',
+    agent_cards: 'not_pinned',
+    genesis_receipt: 'not_generated',
+    tenant_action_proof: 'not_submitted',
+    agent_live: 'not_live'
+  };
+  const rows = [
+    ['1. Tenant signing identity generated locally', pipeline.tenant_signing_identity],
+    ['2. Claim request created', pipeline.claim_request],
+    ['3. Payment confirmed', pipeline.payment],
+    ['4. ENS signer records verified', pipeline.ens_records],
+    ['5. Public agent cards pinned to IPFS', pipeline.agent_cards],
+    ['6. Genesis receipt generated', pipeline.genesis_receipt],
+    ['7. Tenant action proof verified', pipeline.tenant_action_proof],
+    ['8. Agent live', pipeline.agent_live]
+  ];
+  el.innerHTML = rows.map(([label,status]) => {
+    const cls = pipelineStatusLabel(status);
+    const icon = cls === 'complete' ? '✅' : (cls === 'active' ? '⏳' : '○');
+    return `<div class="check-row ${cls === 'complete' ? 'done' : 'pending'}"><span class="check-icon">${icon}</span><div class="check-text"><strong>${label}</strong><span>${status || 'pending'}</span></div></div>`;
+  }).join('');
+  const intro = document.getElementById('pipelineIntro');
+  const claim = data && data.claim;
+  if (intro && claim) {
+    intro.textContent = claim.tenant_signer_record_status === 'records_verified'
+      ? 'ENS signer identity verified on Ethereum mainnet'
+      : (claim.activation_mode === 'managed_namespace'
+        ? 'Managed ENS publication automation is pending activation infrastructure.'
+        : 'Publish the four records with your ENS owner wallet, then verify records.');
+  }
+  const box = document.getElementById('verifyRecordsBox');
+  if (box) {
+    const recordStatus = claim && claim.tenant_signer_record_status;
+    box.style.display = claim && recordStatus !== 'records_verified' ? 'block' : 'none';
+  }
+}
+
+async function loadClaimPipeline(claimId) {
+  if (!claimId) return;
+  try {
+    const res = await fetch(`/api/claims/status?claim_id=${encodeURIComponent(claimId)}`, { headers:{Accept:'application/json'} });
+    const data = await res.json();
+    if (res.ok && data.ok) renderActivationPipeline(data);
+  } catch (_err) {
+    renderActivationPipeline();
+  }
+}
+
+async function verifyEnsRecords() {
+  const claimId = state.submitResult && state.submitResult.claimId;
+  const resultEl = document.getElementById('verifyRecordsResult');
+  if (!claimId) { if (resultEl) resultEl.textContent = 'Submit the claim before verifying records.'; return; }
+  const btn = document.getElementById('verifyRecordsBtn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Verifying...'; }
+  try {
+    const res = await fetch('/api/claims/verify-signer-records', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ claim_id: claimId }) });
+    const data = await res.json();
+    if (resultEl) resultEl.textContent = data.status === 'records_verified' ? 'ENS signer identity verified on Ethereum mainnet' : `Record status: ${data.status || 'unavailable'}`;
+    await loadClaimPipeline(claimId);
+  } catch (_err) {
+    if (resultEl) resultEl.textContent = 'Record verification is unavailable. Try again after publishing the TXT records.';
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Verify ENS Records'; }
+  }
 }
 
 // ── UTILITY ───────────────────────────────────────────────────────────────────
@@ -1374,18 +1527,31 @@ function copyBlock(id, btn) {
 
 function canSubmitActivationRequest(){
   const verbs = getEffectiveClVerbs();
-  return state.activationMode==='cl' && state.siweAuthenticated && state.keyGenerated && !!state.kid && !!state.pubKeyB64 && verbs.length>0 && verbs.length<=10;
+  return state.siweAuthenticated && state.keyGenerated && state.keyDownloaded && state.keyAcked && !!state.kid && !!state.pubKeyB64 && verbs.length>0 && verbs.length<=10;
 }
 
 async function submitActivationRequest() {
   const resultEl = document.getElementById('activationResult');
   resultEl.style.display = 'none';
   const verbs = getEffectiveClVerbs();
-  const tenant = state.ens.replace('.eth', '');
+  const tenant = state.activationMode === 'cl' ? state.tenantLabel : state.ens.replace('.eth', '');
+  const txtRecords = signerTxtRecordsObject();
   const payload = {
-    authenticatedAddress: state.authenticatedAddress, tenant, activationMode: 'cl', packId: state.selectedPack,
+    authenticatedAddress: state.authenticatedAddress, tenant, activationMode: persistedActivationMode(), packId: state.selectedPack || 'trust',
     capabilities: verbs,
-    agents: verbs.map(v => ({ ens: agentName(v), capability: v, canonicalParent: VERB_TO_AGENT[v], skill: `trust-verification.${v}`, skillFamily: 'trust-verification' })),
+    tenantSignerEns: getTenantSignerEns(),
+    tenantSignerPublicKey: `ed25519:${state.pubKeyB64}`,
+    tenantSignerKid: state.kid,
+    tenantSignerCanonicalization: 'json.sorted_keys.v1',
+    tenantSignerTxtRecords: txtRecords,
+    agents: verbs.map(v => ({
+      ens: state.activationMode === 'single' ? state.ens : agentName(v),
+      capability: v,
+      canonicalParent: state.activationMode === 'cl' ? VERB_TO_AGENT[v] : state.ens,
+      skill: `trust-verification.${v}`,
+      skillFamily: 'trust-verification',
+      cardJson: buildAgentCardObject(v)
+    })),
     publicKey: `ed25519:${state.pubKeyB64}`, kid: state.kid,
     verifier: 'https://runtime.commandlayer.org/verify', runtime: 'https://runtime.commandlayer.org', schemaVersion: '1.1.0'
   };
@@ -1404,6 +1570,7 @@ async function submitActivationRequest() {
     document.getElementById('activationClaimId').textContent = data.claimId;
     document.getElementById('activationWallet').textContent = data.authenticatedAddress;
     document.getElementById('activationAgentCount').textContent = String((data.agents || []).length);
+    await loadClaimPipeline(data.claimId);
   } catch (err) {
     document.getElementById('activationOk').style.display = 'none';
     if (err && err.status === 'STORAGE_UNAVAILABLE') {
