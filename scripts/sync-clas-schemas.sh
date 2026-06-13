@@ -1,21 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SRC_ROOT="${1:-../clas/schemas/trust-verification}"
-DEST_ROOT="${2:-public/schemas/trust-verification}"
+SRC_BASE="${1:-../clas/schemas}"
+DEST_BASE="${2:-public/schemas}"
+FAMILIES=("trust-verification" "execution")
 
-if [[ ! -d "$SRC_ROOT" ]]; then
-  echo "Source directory not found: $SRC_ROOT" >&2
+if [[ ! -d "$SRC_BASE" ]]; then
+  echo "Source directory not found: $SRC_BASE" >&2
   exit 1
 fi
 
-mkdir -p "$(dirname "$DEST_ROOT")"
-rm -rf "$DEST_ROOT"
-mkdir -p "$DEST_ROOT"
+mkdir -p "$DEST_BASE"
 
-cp -a "$SRC_ROOT"/. "$DEST_ROOT"/
+for family in "${FAMILIES[@]}"; do
+  src="$SRC_BASE/$family"
+  dest="$DEST_BASE/$family"
 
-echo "Synced CLAS trust-verification schemas"
-echo "Source: $SRC_ROOT"
-echo "Destination: $DEST_ROOT"
-find "$DEST_ROOT" -type f | sort
+  if [[ ! -d "$src" ]]; then
+    echo "Source family directory not found: $src" >&2
+    exit 1
+  fi
+
+  rm -rf "$dest"
+  mkdir -p "$dest"
+  cp -a "$src"/. "$dest"/
+
+  echo "Synced CLAS $family schemas"
+  echo "Source: $src"
+  echo "Destination: $dest"
+  find "$dest" -type f | sort
+done

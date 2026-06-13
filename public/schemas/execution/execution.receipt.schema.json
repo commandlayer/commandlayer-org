@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://commandlayer.org/schemas/execution/execution.receipt.schema.json",
+  "title": "CLAS Execution Receipt v1",
+  "description": "Scoped execution and private settlement receipt for clas.execution.receipt.v1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "receipt_id", "verb", "agent", "action", "proofs"],
+  "properties": {
+    "schema": { "const": "clas.execution.receipt.v1" },
+    "receipt_id": { "type": "string", "minLength": 1 },
+    "parent_receipt_id": { "type": ["string", "null"], "minLength": 1 },
+    "root_receipt_id": { "type": ["string", "null"], "minLength": 1 },
+    "chain_id": { "type": ["string", "null"], "minLength": 1 },
+    "verb": { "type": "string", "minLength": 1 },
+    "agent": { "type": "string", "minLength": 1 },
+    "action": { "type": "string", "minLength": 1 },
+    "input": true,
+    "output": true,
+    "execution": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "status": { "type": "string", "minLength": 1 },
+        "duration_ms": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "settlement": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["payment_ref", "payee_commitment"],
+      "properties": {
+        "payment_ref": { "type": "string", "minLength": 1 },
+        "payee_commitment": { "type": "string", "pattern": "^sha256:[A-Za-z0-9+/=_:-]+$" },
+        "amount": { "type": ["string", "number"] },
+        "currency": { "type": "string", "minLength": 1 },
+        "rail": { "type": "string", "minLength": 1 }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "proofs": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/proof" }
+    }
+  },
+  "$defs": {
+    "proof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "covers", "signer_id", "signature"],
+      "properties": {
+        "type": { "enum": ["execution", "settlement"] },
+        "covers": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "canonicalization": { "type": "string", "default": "json.sorted_keys.v1" },
+        "hash": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["alg", "value"],
+          "properties": {
+            "alg": { "type": "string", "minLength": 1 },
+            "value": { "type": "string", "minLength": 1 }
+          }
+        },
+        "signer_id": { "type": "string", "minLength": 1 },
+        "signature": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["alg", "value"],
+          "properties": {
+            "alg": { "type": "string", "minLength": 1 },
+            "kid": { "type": "string", "minLength": 1 },
+            "value": { "type": "string", "minLength": 1 }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "execution" } }, "required": ["type"] },
+          "then": { "properties": { "covers": { "not": { "contains": { "const": "settlement" } } } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "settlement" } }, "required": ["type"] },
+          "then": { "properties": { "covers": { "contains": { "const": "settlement" } } } }
+        }
+      ]
+    }
+  }
+}
