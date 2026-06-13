@@ -1466,6 +1466,7 @@ function renderActivationPipeline(data) {
     agent_cards: 'not_pinned',
     genesis_receipt: 'not_generated',
     tenant_action_proof: 'not_submitted',
+    first_action_receipt: 'not_generated',
     agent_live: 'not_live'
   };
   const rows = [
@@ -1476,15 +1477,19 @@ function renderActivationPipeline(data) {
     ['5. Public agent cards pinned to IPFS', pipeline.agent_cards],
     ['6. Genesis receipt generated', pipeline.genesis_receipt],
     ['7. Tenant action proof verified', pipeline.tenant_action_proof],
-    ['8. Agent live', pipeline.agent_live]
+    ['8. First Action Receipt', pipeline.first_action_receipt],
+    ['9. Agent live', pipeline.agent_live]
   ];
   el.innerHTML = rows.map(([label,status]) => {
     const cls = pipelineStatusLabel(status);
     const icon = cls === 'complete' ? '✅' : (cls === 'active' ? '⏳' : '○');
     return `<div class="check-row ${cls === 'complete' ? 'done' : 'pending'}"><span class="check-icon">${icon}</span><div class="check-text"><strong>${label}</strong><span>${status || 'pending'}</span></div></div>`;
   }).join('');
-  const intro = document.getElementById('pipelineIntro');
   const claim = data && data.claim;
+  const firstAction = claim && (claim.first_action_receipt_status || 'not_generated');
+  const receiptNote = data && data.claim ? `<div class="check-row pending"><span class="check-icon">ℹ️</span><div class="check-text"><strong>First Action Receipt</strong><span>This proves the claimed agent can produce a scoped execution receipt. It does not prove payment settlement. Status: ${firstAction}</span></div></div>` : '';
+  if (receiptNote) el.insertAdjacentHTML('beforeend', receiptNote);
+  const intro = document.getElementById('pipelineIntro');
   if (intro && claim) {
     intro.textContent = claim.tenant_signer_record_status === 'records_verified'
       ? 'ENS signer identity verified on Ethereum mainnet'
