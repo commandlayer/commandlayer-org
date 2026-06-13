@@ -26,7 +26,7 @@ module.exports = async function handler(req, res) {
         tenant_signer_ens, tenant_signer_record_status, tenant_signer_records_verified_at, tenant_signer_records_network,
         tenant_signer_txt_records, managed_ens_publication_status, managed_ens_parent_namespace,
         managed_ens_parent_authority_audited, tenant_proof_status, tenant_proof_signer, tenant_proof_verified_at,
-        genesis_receipt_id, genesis_generated_at
+        genesis_receipt_id, genesis_generated_at, first_action_receipt_status, first_action_receipt_id, first_action_receipt_hash, first_action_receipt_error
        from claim_requests where claim_id = $1 limit 1`,
       [claimId]
     );
@@ -53,7 +53,8 @@ module.exports = async function handler(req, res) {
       agent_cards: cardsStatus(cards),
       genesis_receipt: claim.genesis_receipt_id ? 'generated' : 'not_generated',
       tenant_action_proof: claim.tenant_proof_status || 'not_submitted',
-      agent_live: paymentConfirmed && claim.tenant_signer_record_status === 'records_verified' && cardsStatus(cards) === 'cards_pinned' && claim.genesis_receipt_id && claim.tenant_proof_status === 'verified' ? 'live' : 'not_live',
+      first_action_receipt: claim.first_action_receipt_status || 'not_generated',
+      agent_live: paymentConfirmed && claim.tenant_signer_record_status === 'records_verified' && cardsStatus(cards) === 'cards_pinned' && claim.genesis_receipt_id && claim.tenant_proof_status === 'verified' && (claim.first_action_receipt_status === 'verified' || typeof claim.first_action_receipt_status === 'undefined') ? 'live' : 'not_live',
     };
     return res.status(200).json({ ok: true, read_only: true, claim: { ...stripClaimSecrets(claim), cardsStatus: cardsStatus(cards) }, pipeline, cards });
   } catch (_error) {
