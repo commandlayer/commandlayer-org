@@ -1,0 +1,14 @@
+{
+  "family_id": "execution",
+  "family_name": "Execution Receipts",
+  "family_status": "live",
+  "version": "v1",
+  "schemas": [
+    {
+      "schema": "clas.execution.receipt.v1",
+      "kind": "receipt",
+      "path": "/schemas/execution/execution.receipt.schema.json",
+      "description": "Scoped execution receipt with optional private settlement attestation."
+    }
+  ]
+}
