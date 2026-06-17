@@ -25,7 +25,7 @@ module.exports = async function handler(req, res) {
       `select claim_id, claim_access_token_hash, tenant, activation_mode, status, payment_status, paid_at,
         tenant_signer_ens, tenant_signer_record_status, tenant_signer_records_verified_at, tenant_signer_records_network,
         tenant_signer_txt_records, managed_ens_publication_status, managed_ens_parent_namespace,
-        managed_ens_parent_authority_audited, tenant_proof_status, tenant_proof_signer, tenant_proof_verified_at,
+        managed_ens_required_txt_records, managed_ens_verified_at, managed_ens_publication_error, managed_ens_parent_authority_audited, tenant_proof_status, tenant_proof_signer, tenant_proof_verified_at,
         genesis_receipt_id, genesis_generated_at, first_action_receipt_status, first_action_receipt_id, first_action_receipt_hash, first_action_receipt_error
        from claim_requests where claim_id = $1 limit 1`,
       [claimId]
@@ -49,6 +49,7 @@ module.exports = async function handler(req, res) {
       tenant_signing_identity: claim.tenant_signer_ens ? 'generated' : 'missing',
       claim_request: 'created',
       payment: paymentConfirmed ? 'paid' : (claim.payment_status || 'unpaid'),
+      managed_ens_publication: claim.activation_mode === 'managed_namespace' ? (claim.managed_ens_publication_status || 'not_started') : 'not_applicable',
       ens_records: claim.tenant_signer_record_status || 'records_pending',
       agent_cards: cardsStatus(cards),
       genesis_receipt: claim.genesis_receipt_id ? 'generated' : 'not_generated',
@@ -56,7 +57,7 @@ module.exports = async function handler(req, res) {
       first_action_receipt: claim.first_action_receipt_status || 'not_generated',
       agent_live: paymentConfirmed && claim.tenant_signer_record_status === 'records_verified' && cardsStatus(cards) === 'cards_pinned' && claim.genesis_receipt_id && claim.tenant_proof_status === 'verified' && (claim.first_action_receipt_status === 'verified' || typeof claim.first_action_receipt_status === 'undefined') ? 'live' : 'not_live',
     };
-    return res.status(200).json({ ok: true, read_only: true, claim: { ...stripClaimSecrets(claim), cardsStatus: cardsStatus(cards) }, pipeline, cards });
+    return res.status(200).json({ ok: true, read_only: true, claim: { ...stripClaimSecrets(claim), cardsStatus: cardsStatus(cards), managed_ens_publication: { status: claim.managed_ens_publication_status || 'not_started', signer_ens: claim.tenant_signer_ens || null, parent_namespace: claim.managed_ens_parent_namespace || null, record_names: Object.keys(claim.managed_ens_required_txt_records || claim.tenant_signer_txt_records || {}), helper_copy: 'The operator must publish the generated TXT records to ENS before signer verification can pass.', verified_at: claim.managed_ens_verified_at || null, error: claim.managed_ens_publication_error || null } }, pipeline, cards });
   } catch (_error) {
     return res.status(500).json({ ok: false, status: 'CLAIM_STATUS_UNAVAILABLE' });
   }
