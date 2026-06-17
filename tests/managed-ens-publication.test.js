@@ -32,7 +32,7 @@ test('successful verification updates managed ENS and signer statuses', async()=
   db.query=async(q,params)=>{ if(q.includes('select * from claim_requests')) return {rows:[claim()]}; updates.push({q,params}); return {rows:[],rowCount:1}; };
   const resolver=async(_ens,key)=>({'cl.sig.pub':'ed25519:pub','cl.sig.kid':'kid1','cl.sig.canonical':'json.sorted_keys.v1','cl.receipt.signer':'acme.attestagent.eth'}[key]);
   const res=makeRes(); await verify({method:'POST',headers:{'x-admin-api-key':'admin'},body:{claimId:'c1'},verifyOptions:{textResolver:resolver}},res);
-  assert.equal(res.statusCode,200); assert.equal(res.body.verification.ok,true); assert.ok(updates[0].q.includes("tenant_signer_record_status = 'records_verified'"));
+  assert.equal(res.statusCode,200); assert.equal(res.body.verification.ok,true); assert.equal(res.body.managed_ens_publication_status,'verified'); assert.equal(res.body.tenant_signer_record_status,'verified'); assert.ok(updates[0].q.includes("tenant_signer_record_status = 'verified'")); assert.equal(res.body.advanced.payment,'payment_required');
 });
 
 test('failed verification stores error and does not mark signer verified', async()=>{
@@ -40,11 +40,28 @@ test('failed verification stores error and does not mark signer verified', async
   db.query=async(q,params)=>{ if(q.includes('select * from claim_requests')) return {rows:[claim()]}; updates.push({q,params}); return {rows:[],rowCount:1}; };
   const resolver=async(_ens,key)=> key === 'cl.sig.pub' ? 'wrong' : ({'cl.sig.kid':'kid1','cl.sig.canonical':'json.sorted_keys.v1','cl.receipt.signer':'acme.attestagent.eth'}[key]);
   const res=makeRes(); await verify({method:'POST',headers:{'x-admin-api-key':'admin'},body:{claimId:'c1'},verifyOptions:{textResolver:resolver}},res);
-  assert.equal(res.statusCode,200); assert.equal(res.body.verification.ok,false); assert.ok(!updates[0].q.includes("tenant_signer_record_status = 'records_verified'")); assert.equal(updates[0].params[2],'required_txt_record_mismatch');
+  assert.equal(res.statusCode,200); assert.equal(res.body.verification.ok,false); assert.ok(!updates[0].q.includes("tenant_signer_record_status = 'verified'")); assert.equal(updates[0].params[2],'required_txt_record_mismatch');
 });
 
 test('public claim status includes managed ENS publication status', async()=>{
   db.query=async(q)=>{ if(q.includes('from claim_requests')) return {rows:[claim({managed_ens_publication_status:'ready_to_publish',managed_ens_required_txt_records:{'cl.sig.kid':'kid1'}})]}; if(q.includes('from agent_cards')) return {rows:[]}; return {rows:[]}; };
   const res=makeRes(); await status({method:'GET',query:{claimId:'c1'},headers:{'x-claim-access-token':token}},res);
   assert.equal(res.statusCode,200); assert.equal(res.body.pipeline.managed_ens_publication,'ready_to_publish'); assert.equal(res.body.claim.managed_ens_publication.helper_copy.includes('operator must publish'),true); assert.deepEqual(res.body.claim.managed_ens_publication.record_names,['cl.sig.kid']);
+});
+
+test('successful managed ENS verification returns advancement and preserves verified first action receipt', async()=>{
+  process.env.ADMIN_API_KEY='admin'; const updates=[];
+  const paidClaim = claim({status:'cards_pinned',payment_status:'paid',paid_at:'2026-01-01T00:00:00Z',tenant_signer_record_status:'verified',tenant_proof_status:'verified',genesis_receipt_id:'gen1',first_action_receipt_status:'verified',first_action_receipt_id:'fa1'});
+  db.query=async(q,params)=>{
+    if(q.includes('select * from claim_requests')) return {rows:[paidClaim]};
+    if(q.includes('select ens, card_cid')) return {rows:[{ens:'a.eth',card_cid:'cid',card_ipfs_uri:'ipfs://cid',card_sha256:'h'}]};
+    updates.push({q,params}); return {rows:[],rowCount:1};
+  };
+  const resolver=async(_ens,key)=>({'cl.sig.pub':'ed25519:pub','cl.sig.kid':'kid1','cl.sig.canonical':'json.sorted_keys.v1','cl.receipt.signer':'acme.attestagent.eth'}[key]);
+  const res=makeRes(); await verify({method:'POST',headers:{'x-admin-api-key':'admin'},body:{claimId:'c1'},verifyOptions:{textResolver:resolver}},res);
+  assert.equal(res.statusCode,200);
+  assert.equal(res.body.advanced.agent_cards,'cards_pinned');
+  assert.equal(res.body.advanced.genesis_receipt,'already_generated');
+  assert.equal(res.body.advanced.first_action_receipt,'verified');
+  assert.equal(updates.some(u=>u.q.includes('first_action_receipt_json')),false);
 });
