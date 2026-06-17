@@ -4,6 +4,7 @@ const db = require('../../lib/db');
 const { requireAdminAuth } = require('./_auth');
 const pinAgentCards = require('./pin-agent-cards');
 const generateGenesisReceipt = require('./generate-genesis-receipt');
+const generateFirstActionReceipt = require('./generate-first-action-receipt');
 
 function makeInternalRes() {
   return {
@@ -24,6 +25,17 @@ async function runHandler(handler, req) {
 
 function paymentStep(claim) {
   return claim.status === 'paid' || claim.status === 'cards_pinned' || claim.payment_status === 'paid' || claim.paid_at ? 'already_paid' : 'payment_required';
+}
+
+function recordsVerified(claim) {
+  return claim.tenant_signer_record_status === 'records_verified' || claim.tenant_signer_record_status === 'verified';
+}
+
+function canAttemptFirstAction(claim) {
+  if (!claim.genesis_receipt_id) return false;
+  if (!recordsVerified(claim)) return false;
+  if ('tenant_proof_status' in claim && claim.tenant_proof_status && claim.tenant_proof_status !== 'verified') return false;
+  return true;
 }
 
 module.exports = async function handler(req, res) {
@@ -52,6 +64,8 @@ module.exports = async function handler(req, res) {
       agent_cards: 'not_started',
       genesis_receipt: claim.genesis_receipt_id ? 'already_generated' : 'not_started',
       tenant_action_proof: claim.tenant_proof_status || 'not_submitted',
+      first_action_receipt: claim.first_action_receipt_status || 'not_generated',
+      errors: {},
     };
 
     if (steps.payment !== 'already_paid') {
@@ -71,6 +85,7 @@ module.exports = async function handler(req, res) {
         steps.agent_cards = pinRes.body && pinRes.body.status === 'ALREADY_PINNED' ? 'cards_pinned' : 'cards_pinned';
       } else {
         steps.agent_cards = pinRes.body && pinRes.body.status ? pinRes.body.status : 'pinning_not_completed';
+        steps.errors.agent_cards = steps.agent_cards;
       }
     }
 
@@ -86,6 +101,23 @@ module.exports = async function handler(req, res) {
         steps.genesis_receipt = 'already_generated';
       } else {
         steps.genesis_receipt = genesisRes.body && genesisRes.body.status ? genesisRes.body.status : 'not_generated';
+        steps.errors.genesis_receipt = steps.genesis_receipt;
+      }
+    }
+
+    claimResult = await db.query('select * from claim_requests where claim_id = $1 limit 1', [claimId]);
+    claim = claimResult.rows[0] || claim;
+    if (claim.first_action_receipt_status === 'verified') {
+      steps.first_action_receipt = 'verified';
+    } else if (claim.first_action_receipt_status === 'challenge_ready') {
+      steps.first_action_receipt = 'challenge_ready';
+    } else if (canAttemptFirstAction(claim)) {
+      const firstActionRes = await runHandler(generateFirstActionReceipt, { method: 'POST', headers: { 'x-admin-api-key': req.headers['x-admin-api-key'] || process.env.ADMIN_API_KEY }, body: { claimId } });
+      if (firstActionRes.statusCode >= 200 && firstActionRes.statusCode < 300) {
+        steps.first_action_receipt = firstActionRes.body && firstActionRes.body.status ? firstActionRes.body.status : 'challenge_ready';
+      } else {
+        steps.first_action_receipt = firstActionRes.body && firstActionRes.body.status ? firstActionRes.body.status : 'not_generated';
+        steps.errors.first_action_receipt = steps.first_action_receipt;
       }
     }
 

@@ -11,7 +11,7 @@ function paidOrApproved(claim) {
 function preflight(claim) {
   if (!paidOrApproved(claim)) return 'FIRST_ACTION_REQUIRES_PAID_CLAIM';
   if (!claim.tenant_signer_ens || !claim.tenant_signer_kid) return 'TENANT_SIGNER_ENS_REQUIRED';
-  if (claim.tenant_signer_record_status !== 'records_verified') return 'TENANT_SIGNER_RECORDS_NOT_VERIFIED';
+  if (claim.tenant_signer_record_status !== 'records_verified' && claim.tenant_signer_record_status !== 'verified') return 'TENANT_SIGNER_RECORDS_NOT_VERIFIED';
   if (!claim.genesis_receipt_id) return 'GENESIS_RECEIPT_REQUIRED';
   if ('tenant_proof_status' in claim && claim.tenant_proof_status && claim.tenant_proof_status !== 'verified') return 'TENANT_PROOF_NOT_VERIFIED';
   return null;

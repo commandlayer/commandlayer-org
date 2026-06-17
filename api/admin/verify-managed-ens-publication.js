@@ -3,6 +3,25 @@
 const db = require('../../lib/db');
 const { requireAdminAuth } = require('./_auth');
 const { verifyManagedEnsPublication } = require('../../lib/claims/managed-ens-publication');
+const runActivationPipeline = require('./run-activation-pipeline');
+
+function makeInternalRes() {
+  return {
+    statusCode: 200,
+    body: null,
+    headers: {},
+    setHeader(name, value) { this.headers[String(name).toLowerCase()] = value; },
+    status(code) { this.statusCode = code; return this; },
+    json(payload) { this.body = payload; return this; },
+  };
+}
+
+async function advanceActivation(req, claimId) {
+  const pipelineRes = makeInternalRes();
+  await runActivationPipeline({ method: 'POST', headers: { 'x-admin-api-key': req.headers['x-admin-api-key'] || process.env.ADMIN_API_KEY }, body: { claimId } }, pipelineRes);
+  if (pipelineRes.statusCode >= 200 && pipelineRes.statusCode < 300 && pipelineRes.body && pipelineRes.body.ok) return pipelineRes.body.steps || {};
+  return { errors: { activation_pipeline: pipelineRes.body && pipelineRes.body.status ? pipelineRes.body.status : 'ACTIVATION_PIPELINE_FAILED' } };
+}
 
 module.exports = async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -19,12 +38,14 @@ module.exports = async function handler(req, res) {
     if (verification.ok) {
       await db.query(
         `update claim_requests
-         set managed_ens_publication_status = 'verified', tenant_signer_record_status = 'records_verified',
+         set managed_ens_publication_status = 'verified', tenant_signer_record_status = 'verified',
              tenant_signer_records_verified_at = now(), managed_ens_verified_at = now(),
              managed_ens_publication_error = null, tenant_signer_verification_error = null, updated_at = now()
          where claim_id = $1`,
         [claimId]
       );
+      const advanced = await advanceActivation(req, claimId);
+      return res.status(200).json({ ok: true, claim_id: claimId, managed_ens_publication_status: 'verified', tenant_signer_record_status: 'verified', verification, advanced });
     } else {
       await db.query(
         `update claim_requests

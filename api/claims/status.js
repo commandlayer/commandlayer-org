@@ -44,6 +44,7 @@ module.exports = async function handler(req, res) {
     } catch (_error) {
       cards = [];
     }
+    const recordsVerified = claim.tenant_signer_record_status === 'records_verified' || claim.tenant_signer_record_status === 'verified';
     const paymentConfirmed = claim.status === 'paid' || claim.status === 'cards_pinned' || claim.status === 'active' || claim.payment_status === 'paid' || Boolean(claim.paid_at);
     const pipeline = {
       tenant_signing_identity: claim.tenant_signer_ens ? 'generated' : 'missing',
@@ -55,7 +56,7 @@ module.exports = async function handler(req, res) {
       genesis_receipt: claim.genesis_receipt_id ? 'generated' : 'not_generated',
       tenant_action_proof: claim.tenant_proof_status || 'not_submitted',
       first_action_receipt: claim.first_action_receipt_status || 'not_generated',
-      agent_live: paymentConfirmed && claim.tenant_signer_record_status === 'records_verified' && cardsStatus(cards) === 'cards_pinned' && claim.genesis_receipt_id && claim.tenant_proof_status === 'verified' && (claim.first_action_receipt_status === 'verified' || typeof claim.first_action_receipt_status === 'undefined') ? 'live' : 'not_live',
+      agent_live: paymentConfirmed && recordsVerified && cardsStatus(cards) === 'cards_pinned' && claim.genesis_receipt_id && claim.tenant_proof_status === 'verified' && (claim.first_action_receipt_status === 'verified' || typeof claim.first_action_receipt_status === 'undefined') ? 'live' : 'not_live',
     };
     return res.status(200).json({ ok: true, read_only: true, claim: { ...stripClaimSecrets(claim), cardsStatus: cardsStatus(cards), managed_ens_publication: { status: claim.managed_ens_publication_status || 'not_started', signer_ens: claim.tenant_signer_ens || null, parent_namespace: claim.managed_ens_parent_namespace || null, record_names: Object.keys(claim.managed_ens_required_txt_records || claim.tenant_signer_txt_records || {}), helper_copy: 'The operator must publish the generated TXT records to ENS before signer verification can pass.', verified_at: claim.managed_ens_verified_at || null, error: claim.managed_ens_publication_error || null } }, pipeline, cards });
   } catch (_error) {
