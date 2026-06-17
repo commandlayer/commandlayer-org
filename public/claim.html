@@ -672,8 +672,11 @@ function persistedActivationMode() {
 }
 
 function getTenantSignerEns() {
-  const names = agentNames();
-  return (names[0] || state.ens || '').toLowerCase();
+  if (state.activationMode === 'cl') {
+    const names = agentNames();
+    return (names[0] || state.ens || '').toLowerCase();
+  }
+  return (state.ens || '').toLowerCase();
 }
 
 function signerTxtRecordsObject() {
@@ -1422,6 +1425,7 @@ function downloadPackage() {
     key_model: 'single_ed25519_key_for_package',
     kid: state.kid,
     tenant_signer_ens: getTenantSignerEns(),
+    primary_tenant_signer_ens: getTenantSignerEns(),
     public_key: `ed25519:${state.pubKeyB64}`,
     tenant_signer_public_key: `ed25519:${state.pubKeyB64}`,
     tenant_signer_kid: state.kid,
@@ -1469,8 +1473,9 @@ function renderActivationPipeline(data) {
     first_action_receipt: 'not_generated',
     agent_live: 'not_live'
   };
+  const claim = data && data.claim;
   const rows = [
-    ['1. Tenant signing identity generated locally', pipeline.tenant_signing_identity],
+    [`1. Signer ENS: ${claim && claim.tenant_signer_ens ? claim.tenant_signer_ens : getTenantSignerEns()}`, pipeline.tenant_signing_identity],
     ['2. Claim request created', pipeline.claim_request],
     ['3. Payment confirmed', pipeline.payment],
     ['4. ENS signer records verified', pipeline.ens_records],
@@ -1485,7 +1490,6 @@ function renderActivationPipeline(data) {
     const icon = cls === 'complete' ? '✅' : (cls === 'active' ? '⏳' : '○');
     return `<div class="check-row ${cls === 'complete' ? 'done' : 'pending'}"><span class="check-icon">${icon}</span><div class="check-text"><strong>${label}</strong><span>${status || 'pending'}</span></div></div>`;
   }).join('');
-  const claim = data && data.claim;
   const firstAction = claim && (claim.first_action_receipt_status || 'not_generated');
   const receiptNote = data && data.claim ? `<div class="check-row pending"><span class="check-icon">ℹ️</span><div class="check-text"><strong>First Action Receipt</strong><span>This proves the claimed agent can produce a scoped execution receipt. It does not prove payment settlement. Status: ${firstAction}</span></div></div>` : '';
   if (receiptNote) el.insertAdjacentHTML('beforeend', receiptNote);
@@ -1494,7 +1498,7 @@ function renderActivationPipeline(data) {
     intro.textContent = claim.tenant_signer_record_status === 'records_verified'
       ? 'ENS signer identity verified on Ethereum mainnet'
       : (claim.activation_mode === 'managed_namespace'
-        ? 'Managed ENS publication automation is pending activation infrastructure.'
+        ? 'Managed namespace mode signs receipts from the generated VerbAgent ENS, not the tenant root ENS.'
         : 'Publish the four records with your ENS owner wallet, then verify records.');
   }
   const box = document.getElementById('verifyRecordsBox');

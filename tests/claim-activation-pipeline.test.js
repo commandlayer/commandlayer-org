@@ -350,3 +350,89 @@ test('public mutation endpoints have rate-limiting protection', async () => {
   assert.equal(proof.statusCode, 429);
   assert.equal(proof.body.status, 'RATE_LIMITED');
 });
+
+test('managed namespace package/recovery UI uses generated agent ENS as signer', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'public', 'claim.html'), 'utf8');
+  assert.ok(html.includes("if (state.activationMode === 'cl')"));
+  assert.ok(html.includes('primary_tenant_signer_ens: getTenantSignerEns()'));
+  assert.ok(html.includes("'cl.receipt.signer': agentName(v)"));
+  assert.ok(html.includes('tenant_signer_txt_package: signerTxtRecordPackage()'));
+  assert.ok(html.includes('tenant_signer_ens: result.tenantSignerEns || getTenantSignerEns()'));
+  assert.ok(html.includes('Signer ENS:'));
+  assert.ok(html.includes('Managed namespace mode signs receipts from the generated VerbAgent ENS, not the tenant root ENS.'));
+});
+
+test('managed namespace claim submission stores generated agent ENS and TXT signer', async () => {
+  resetRateLimitForTests();
+  process.env.DATABASE_URL = 'postgres://example';
+  const queries = [];
+  db.query = async (q, params) => { queries.push({ q, params }); return { rows: [], rowCount: 1 }; };
+  const res = makeRes();
+  await submitClaim({ method: 'POST', headers: { 'x-forwarded-for': '198.51.100.20' }, body: basePayload }, res);
+  assert.equal(res.statusCode, 202);
+  assert.equal(res.body.tenantSignerEns, 'acme.approveagent.eth');
+  const insert = queries.find((entry) => entry.q.includes('insert into claim_requests'));
+  assert.ok(insert);
+  assert.equal(insert.params[10], 'acme.approveagent.eth');
+  const txtRecords = JSON.parse(insert.params[15]);
+  assert.equal(txtRecords['cl.receipt.signer'], 'acme.approveagent.eth');
+  const requestJson = JSON.parse(insert.params[19]);
+  assert.equal(requestJson.tenantSignerEns, 'acme.approveagent.eth');
+  assert.equal(requestJson.primaryTenantSignerEns, 'acme.approveagent.eth');
+});
+
+test('managed namespace multiple capabilities uses first agent as primary while allowing per-agent signers', async () => {
+  resetRateLimitForTests();
+  process.env.DATABASE_URL = 'postgres://example';
+  const queries = [];
+  db.query = async (q, params) => { queries.push({ q, params }); return { rows: [], rowCount: 1 }; };
+  const payload = {
+    ...basePayload,
+    tenantSignerEns: 'acme.approveagent.eth',
+    agents: [
+      { ens: 'acme.approveagent.eth', capability: 'approve', canonicalParent: 'approveagent.eth', skill: 'trust-verification.approve', skillFamily: 'trust-verification', cardJson: { records: { 'cl.receipt.signer': 'acme.approveagent.eth' } } },
+      { ens: 'acme.attestagent.eth', capability: 'attest', canonicalParent: 'attestagent.eth', skill: 'trust-verification.attest', skillFamily: 'trust-verification', cardJson: { records: { 'cl.receipt.signer': 'acme.attestagent.eth' } } },
+    ],
+  };
+  const res = makeRes();
+  await submitClaim({ method: 'POST', headers: { 'x-forwarded-for': '198.51.100.21' }, body: payload }, res);
+  assert.equal(res.statusCode, 202);
+  assert.equal(res.body.tenantSignerEns, 'acme.approveagent.eth');
+  const insert = queries.find((entry) => entry.q.includes('insert into claim_requests'));
+  const requestJson = JSON.parse(insert.params[19]);
+  assert.equal(requestJson.primaryTenantSignerEns, 'acme.approveagent.eth');
+  assert.deepEqual(requestJson.agents.map((a) => a.ens), ['acme.approveagent.eth', 'acme.attestagent.eth']);
+});
+
+test('bring your own ENS mode can still store root signer ENS', async () => {
+  resetRateLimitForTests();
+  process.env.DATABASE_URL = 'postgres://example';
+  const queries = [];
+  db.query = async (q, params) => { queries.push({ q, params }); return { rows: [], rowCount: 1 }; };
+  const res = makeRes();
+  await submitClaim({ method: 'POST', headers: { 'x-forwarded-for': '198.51.100.22' }, body: { ...basePayload, activationMode: 'bring_your_own_ens', tenantSignerEns: 'acme.eth' } }, res);
+  assert.equal(res.statusCode, 202);
+  assert.equal(res.body.tenantSignerEns, 'acme.eth');
+  const insert = queries.find((entry) => entry.q.includes('insert into claim_requests'));
+  assert.equal(insert.params[10], 'acme.eth');
+});
+
+test('managed namespace mismatch between tenant signer and primary agent is rejected', async () => {
+  resetRateLimitForTests();
+  process.env.DATABASE_URL = 'postgres://example';
+  db.query = async () => { throw new Error('db should not be called'); };
+  const res = makeRes();
+  await submitClaim({ method: 'POST', headers: { 'x-forwarded-for': '198.51.100.23' }, body: { ...basePayload, tenantSignerEns: 'acme.eth' } }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'managed_signer_mismatch');
+});
+
+test('managed namespace agent cl.receipt.signer mismatch is rejected', async () => {
+  resetRateLimitForTests();
+  process.env.DATABASE_URL = 'postgres://example';
+  db.query = async () => { throw new Error('db should not be called'); };
+  const res = makeRes();
+  await submitClaim({ method: 'POST', headers: { 'x-forwarded-for': '198.51.100.24' }, body: { ...basePayload, agents: [{ ...basePayload.agents[0], cardJson: { records: { 'cl.receipt.signer': 'acme.eth' } } }] } }, res);
+  assert.equal(res.statusCode, 400);
+  assert.equal(res.body.error, 'managed_agent_signer_mismatch');
+});
