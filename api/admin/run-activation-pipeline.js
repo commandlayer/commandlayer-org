@@ -47,11 +47,11 @@ module.exports = async function handler(req, res) {
 
     const steps = {
       payment: paymentStep(claim),
+      managed_ens_publication: claim.managed_ens_publication_status || (claim.activation_mode === 'managed_namespace' ? 'not_started' : 'not_applicable'),
       ens_records: claim.tenant_signer_record_status || 'records_pending',
       agent_cards: 'not_started',
       genesis_receipt: claim.genesis_receipt_id ? 'already_generated' : 'not_started',
       tenant_action_proof: claim.tenant_proof_status || 'not_submitted',
-      managed_ens_publication: claim.managed_ens_publication_status || (claim.activation_mode === 'managed_namespace' ? 'not_started' : 'not_applicable'),
     };
 
     if (steps.payment !== 'already_paid') {
