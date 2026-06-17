@@ -40,8 +40,15 @@ function safeAgent(agent) {
     canonicalParent: String(agent.canonicalParent || agent.canonical_parent || '').toLowerCase().trim(),
     skill: String(agent.skill || '').trim(),
     skillFamily: String(agent.skillFamily || agent.skill_family || '').trim(),
+    records: agent.records && typeof agent.records === 'object' && !Array.isArray(agent.records) ? JSON.parse(JSON.stringify(agent.records)) : undefined,
     cardJson: sanitizedCard,
   };
+}
+
+function recordsFromAgent(agent) {
+  const card = agent && agent.cardJson && typeof agent.cardJson === 'object' ? agent.cardJson : {};
+  const records = agent && agent.records && typeof agent.records === 'object' ? agent.records : card.records;
+  return records && typeof records === 'object' && !Array.isArray(records) ? records : {};
 }
 
 module.exports = async function handler(req, res) {
@@ -76,6 +83,19 @@ module.exports = async function handler(req, res) {
   if (tenantSignerCanonicalization !== CANONICALIZATION) return invalid(res, 'invalid_canonicalization', `canonicalization must be ${CANONICALIZATION}.`);
   if (!agents.length || agents.length > 10) return invalid(res, 'invalid_agents', 'At least one and at most ten generated agents are required.');
   if (agents.some((a) => !ENS_RE.test(a.ens) || !a.capability || !a.canonicalParent || !a.skill || !a.skillFamily)) return invalid(res, 'invalid_agent', 'Every agent requires ens, capability, canonicalParent, skill, and skillFamily.');
+  if (activationMode === 'managed_namespace') {
+    const primaryManagedSignerEns = agents[0].ens;
+    if (tenantSignerEns !== primaryManagedSignerEns) {
+      return invalid(res, 'managed_signer_mismatch', 'Managed namespace tenantSignerEns must match the first generated managed agent ENS.');
+    }
+    const mismatchedAgent = agents.find((agent) => {
+      const recordSigner = recordsFromAgent(agent)['cl.receipt.signer'];
+      return recordSigner && String(recordSigner).toLowerCase().trim() !== agent.ens;
+    });
+    if (mismatchedAgent) {
+      return invalid(res, 'managed_agent_signer_mismatch', 'Managed namespace agent TXT records must use the agent ENS as cl.receipt.signer.');
+    }
+  }
   if (!process.env.DATABASE_URL) return res.status(503).json({ ok: false, status: 'STORAGE_UNAVAILABLE' });
 
   const claimId = `clm_${crypto.randomUUID().replace(/-/g, '')}`;
@@ -91,6 +111,7 @@ module.exports = async function handler(req, res) {
     activationMode,
     packId,
     tenantSignerEns,
+    primaryTenantSignerEns: activationMode === 'managed_namespace' ? agents[0].ens : tenantSignerEns,
     tenantSignerPublicKey,
     tenantSignerKid,
     tenantSignerCanonicalization,
