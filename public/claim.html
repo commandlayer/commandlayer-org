@@ -45,6 +45,11 @@
     .grad{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
     .hero p{color:var(--text-2);font-size:1.05rem;max-width:600px;margin:0 auto 16px;line-height:1.65}
     .hero-note{display:inline-block;margin-top:4px;padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--muted);font-size:13px;font-family:var(--mono)}
+    .discovery-panel{margin-top:32px;padding:24px;border:1px solid var(--border-hi);border-radius:18px;background:linear-gradient(135deg,rgba(82,152,255,.06),rgba(99,91,255,.04));text-align:left}
+    .discovery-panel h2{font-size:1.2rem;font-weight:800;margin-bottom:6px}
+    .discovery-panel>p{color:var(--text-2);font-size:.95rem;margin-bottom:14px}
+    .discovery-status{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;list-style:none}
+    .discovery-status li{padding:9px 12px;border:1px solid var(--border);border-radius:10px;background:rgba(255,255,255,.8);color:var(--text-2);font-size:13px}
     /* PROGRESS */
     .progress-wrap{padding:40px 0 32px}
     .steps-track{display:flex;align-items:center;justify-content:space-between;position:relative;margin-bottom:12px}
@@ -222,7 +227,7 @@
     .footer-grid a{display:block;color:var(--text-2);margin:8px 0;font-size:14px;text-decoration:none}
     .footer-grid a:hover{color:var(--purple)}
     @media(max-width:900px){.footer-grid,.summary-grid,.packs-grid,.mode-selector,.pricing-grid{grid-template-columns:1fr 1fr}}
-    @media(max-width:600px){.steps-track .step-label{display:none}.wizard-panel{padding:20px}.mode-selector,.pricing-grid{grid-template-columns:1fr}}
+    @media(max-width:600px){.steps-track .step-label{display:none}.wizard-panel{padding:20px}.mode-selector,.pricing-grid,.discovery-status{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -238,8 +243,18 @@
   <div class="container">
     <div class="hero-badge"><span class="badge-dot"></span>Namespace Activation</div>
     <h1>Bring one ENS name.<br><span class="grad">Generate 10 verifiable agents.</span></h1>
-    <p>Choose how you want to activate. Pick a capability pack. CommandLayer generates the sub-agent identities, ENS records, SDK config, and agent card — ready to deploy.</p>
-    <div class="hero-note">Session 1 &nbsp;·&nbsp; Activation package generator &nbsp;·&nbsp; No payment required</div>
+    <p>Choose an activation mode, pick capability agents, generate signer records, pin agent cards, and prepare ERC-8004 discovery metadata for CLAS-verifiable agent receipts.</p>
+    <div class="hero-note">Claim Beta &nbsp;·&nbsp; ENS + ERC-8004 discovery tracking &nbsp;·&nbsp; CLAS-ready agents</div>
+    <div class="discovery-panel">
+      <h2>Built for ERC-8004 discovery</h2>
+      <p>Claim prepares agent cards and registration metadata for ERC-8004 on Base. ERC-8004 makes the agent discoverable. CLAS receipts prove what the agent actually did.</p>
+      <ul class="discovery-status" aria-label="Claim Beta ERC-8004 status today">
+        <li>Agent cards can be generated and pinned.</li>
+        <li>ERC-8004 tracking rows can be prepared.</li>
+        <li>Real onchain registration remains pending until a confirmed registry transaction exists.</li>
+        <li>ENSIP-25 remains unverified until checked and confirmed.</li>
+      </ul>
+    </div>
   </div>
 </section>
 
@@ -306,14 +321,14 @@
         <div class="mode-icon">◈</div>
         <div class="mode-name">Your ENS namespace</div>
         <div class="mode-desc">Generate verb sub-agents under your own ENS name. Best for enterprises and teams wanting sovereign identity.</div>
-        <span class="mode-example" id="eg-own">approve.commandlayer.eth</span>
+        <span class="mode-example" id="eg-own">approve.acme.eth</span>
       </div>
 
       <div class="mode-card" id="mode-single" onclick="selectMode('single')">
         <div class="mode-icon">◎</div>
         <div class="mode-name">Single agent</div>
         <div class="mode-desc">Attach all capabilities directly to your ENS name. Simplest setup, best for solo agents with one primary capability.</div>
-        <span class="mode-example" id="eg-single">commandlayer.eth</span>
+        <span class="mode-example" id="eg-single">acme.eth</span>
       </div>
 
     </div>
@@ -360,7 +375,7 @@
     </div>
     <div class="field" id="ownEnsField" style="display:none">
       <label>ENS namespace</label>
-      <input type="text" id="ensInput" placeholder="commandlayer.eth" autocomplete="off" spellcheck="false" />
+      <input type="text" id="ensInput" placeholder="acme.eth" autocomplete="off" spellcheck="false" />
       <span class="field-error" id="ensError">Please enter a valid .eth name</span>
       <span class="field-hint">To activate records under your ENS name, the connected wallet must control that ENS name. Ownership/control verification is required before activation.</span>
       <span class="field-hint">Manual package only. Activation request submission for user-owned ENS namespaces requires ENS control verification.</span>
@@ -431,7 +446,7 @@
       <strong style="color:var(--text)">Private-key safety:</strong><br>
       Your private signing key is generated locally and is never sent to CommandLayer.<br><br>
       <strong style="color:var(--text)">Managed namespace:</strong><br>
-      Managed ENS publication automation is pending activation infrastructure. This PR stores the public TXT package for operator review but does not perform onchain ENS writes.
+      Managed activation: CommandLayer prepares the public TXT package, agent card metadata, and ERC-8004 discovery tracking for operator-reviewed provisioning. Onchain ENS writes and ERC-8004 registration are only marked verified after confirmation.
     </div>
 
     <div class="pricing-grid" style="margin-top:14px">
@@ -441,18 +456,18 @@
       </div>
       <div class="pricing-card">
         <strong>2. Assisted</strong>
-        <p>Connect wallet and let CommandLayer prepare the subname + TXT record transactions. User signs. Coming next.</p>
+        <p>Connect a wallet to prepare the subname and TXT records for owner review and signing.</p>
       </div>
       <div class="pricing-card">
         <strong>3. CommandLayer-native</strong>
-        <p>Activate under CommandLayer capability namespaces like <code style="font-family:var(--mono);font-size:.95em">commandlayer.approveagent.eth</code>. CommandLayer provisions after payment. Coming next.</p>
+        <p>Use a CommandLayer-managed name such as <code style="font-family:var(--mono);font-size:.95em">acme.approveagent.eth</code> with operator-reviewed provisioning during Claim Beta.</p>
       </div>
     </div>
 
     <div style="padding:12px 14px;border-radius:12px;border:1px solid var(--border);background:#fff;font-size:13px;color:var(--text-2);line-height:1.7">
       <strong style="color:var(--text)">No wallet connection is required to generate this package.</strong><br>
       Wallet connection is required to write records under your ENS name.<br>
-      Payment/provisioning is required for CommandLayer-native namespace activation.
+      Manual activation is available now. Managed activation is operator-reviewed during Claim Beta. Onchain ENS writes, ERC-8004 registration, and ENSIP-25 verification are marked complete only after confirmation.
     </div>
 
     
@@ -490,7 +505,7 @@
   <div class="wizard-panel" id="panel-7">
     <div class="panel-step">Step 7 of 8</div>
     <div class="panel-title">Agent card preview</div>
-    <div class="panel-sub">Preview of the first agent card in your namespace. When paid provisioning is live, all cards will be hosted automatically at commandlayer.org.</div>
+    <div class="panel-sub">Preview the first agent card in your namespace. Generated cards can be pinned, then associated with ERC-8004 discovery tracking during activation.</div>
     <div class="agent-card-preview">
       <div class="agent-card-header">
         <div class="agent-card-title" id="cardHeaderTitle">—</div>
@@ -523,15 +538,13 @@
       <div class="check-row done"><span class="check-icon">✅</span><div class="check-text"><strong>SDK config generated</strong><span>Drop into your codebase with CL_PRIVATE_KEY_PEM in env</span></div></div>
       <div class="check-row done"><span class="check-icon">✅</span><div class="check-text"><strong>Agent card generated</strong><span>Machine-readable identity record ready to host or submit</span></div></div>
       <div class="check-row pending"><span class="check-icon">⏳</span><div class="check-text"><strong>Add ENS TXT records</strong><span>Create subnames and paste records into <a href="https://app.ens.domains" target="_blank" style="color:var(--blue)">ENS Manager</a></span></div></div>
-      <div class="check-row pending"><span class="check-icon">⏳</span><div class="check-text"><strong>Payment &amp; provisioning</strong><span>Coming next — ERC-8004 registration on Base, hosted agent cards, and verified live receipts</span></div></div>
+      <div class="check-row pending"><span class="check-icon">⏳</span><div class="check-text"><strong>ERC-8004 registration status</strong><span>ERC-8004 tracking is prepared after agent card pinning. Real registration, agent ID, transaction hash, and ENSIP-25 verification are marked only after confirmed onchain registration.</span></div></div>
     </div>
-    <div class="pricing-grid">
-      <div class="pricing-card"><strong>Starter</strong><div class="price">Free</div><p>Generate activation records and prepare for review.</p></div>
-      <div class="pricing-card"><strong>Builder</strong><div class="price">$99/mo</div><p>Activation support, metadata, and verification routing.</p></div>
-      <div class="pricing-card"><strong>Protocol Partner</strong><div class="price">$499/mo</div><p>10-agent pack, expanded capabilities, integration support.</p></div>
-      <div class="pricing-card"><strong>Enterprise</strong><div class="price">Custom</div><p>Custom namespaces, compliance, and registry support.</p></div>
+    <div class="pricing-card" style="margin:18px 0">
+      <strong>Claim Beta</strong>
+      <div class="price">Free activation package generation</div>
+      <p>Operator-reviewed managed activation is available for selected builders. Pricing begins after hosted provisioning and live registration are enabled.</p>
     </div>
-    <div style="font-size:12px;color:var(--muted);margin:-4px 0 18px;text-align:center">Checkout is not enabled in Session 1. Pricing covers activation, metadata, verification routing, and integration support — not ENS ownership transfer.</div>
     <div id="activationControls" style="display:none">
       <div class="activation-cta" style="margin-top:0">
         <h3>Submit namespace activation</h3>
@@ -559,7 +572,7 @@
     </div>
     <div class="activation-cta">
       <h3>Activation pipeline</h3>
-      <p id="pipelineIntro">Submit a claim to load persisted payment, ENS, IPFS, genesis, and tenant proof status.</p>
+      <p id="pipelineIntro">Submit or import a claim to view activation status across ENS records, agent card pinning, ERC-8004 tracking, genesis receipt, tenant proof, and first-action receipt.</p>
       <div id="activationPipeline" style="display:grid;gap:8px;text-align:left;margin-top:14px"></div>
       <div style="margin-top:14px;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;text-align:left">
         <strong>Returning to an existing claim?</strong> Import your private Claim Recovery Key file to restore access in this browser session.
@@ -1180,7 +1193,7 @@ function buildENSRecords() {
   const instruction = document.getElementById('activationModeInstruction');
   if (instruction) {
     instruction.textContent = state.activationMode === 'cl'
-      ? 'Managed ENS publication automation is pending activation infrastructure.'
+      ? 'Managed activation prepares the public TXT package, agent card metadata, and ERC-8004 discovery tracking for operator review. Onchain ENS writes and registration require confirmation.'
       : 'Publish the four records with your ENS owner wallet, then verify records.';
   }
   let records = '';
