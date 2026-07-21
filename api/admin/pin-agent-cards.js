@@ -2,6 +2,7 @@
 
 const db = require('../../lib/db');
 const { stableStringify, sha256Hex, pinJsonToPinata } = require('../../lib/ipfsPinning');
+const { trackPinnedCardRegistration } = require('../../lib/claims/agent-registrations');
 
 function firstObjectValue(obj) {
   if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return null;
@@ -114,7 +115,10 @@ module.exports = async function handler(req, res) {
   }
 
   const allPinned = cardsResult.rows.every((r) => r.card_cid && r.card_ipfs_uri && r.card_sha256);
-  if (allPinned) return res.status(200).json({ ok: true, status: 'ALREADY_PINNED', claimId, cards: cardsResult.rows });
+  if (allPinned) {
+    await Promise.all(cardsResult.rows.map(trackPinnedCardRegistration));
+    return res.status(200).json({ ok: true, status: 'ALREADY_PINNED', claimId, cards: cardsResult.rows });
+  }
 
   const gatewayBase = (process.env.IPFS_GATEWAY_BASE_URL || 'https://gateway.pinata.cloud/ipfs').replace(/\/$/, '');
 
@@ -130,6 +134,7 @@ module.exports = async function handler(req, res) {
       const hash = sha256Hex(canonical);
 
       if (row.card_cid && row.card_ipfs_uri && row.card_sha256) {
+        await trackPinnedCardRegistration(row);
         pinned.push({ ens: row.ens, card_cid: row.card_cid, card_sha256: row.card_sha256, card_gateway_url: row.card_gateway_url });
         continue;
       }
@@ -145,6 +150,7 @@ module.exports = async function handler(req, res) {
            where id = $1`,
           [row.id, cid, ipfsUri, gatewayUrl, hash, provider]
         );
+        await trackPinnedCardRegistration({ ...row, card_cid: cid, card_ipfs_uri: ipfsUri });
         pinned.push({ ens: row.ens, card_cid: cid, card_sha256: hash, card_gateway_url: gatewayUrl });
       } catch (error) {
         await db.query("update agent_cards set pin_status = 'error', pin_error = $2 where id = $1", [row.id, String(error && error.message ? error.message : 'pinning_failed')]);

@@ -82,7 +82,12 @@ module.exports = async function handler(req, res) {
       latestPayment = await queryOptionalOne('select * from claim_payments where claim_id = $1 order by updated_at desc nulls last, paid_at desc nulls last, id desc limit 1', [claimId], 'claim_payments');
     }
 
-    return res.status(200).json({ ok: true, claim: stripClaimSecrets(claim), agents: agentsResult.rows, events: eventsResult.rows, transitions, cards, latestPayment });
+    let registrations = [];
+    if (await hasTable('agent_registrations')) {
+      registrations = await queryOptionalRows('select * from agent_registrations where claim_id = $1 order by ens asc, standard asc', [claimId], [], 'agent_registrations');
+    }
+
+    return res.status(200).json({ ok: true, claim: stripClaimSecrets(claim), agents: agentsResult.rows, events: eventsResult.rows, transitions, cards, registrations, latestPayment });
   } catch (error) {
     console.error('[admin.claim] failed to load claim detail', { code: error && error.code });
     const payload = {
