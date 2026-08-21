@@ -1,1 +1,3 @@
-chrome.runtime.onInstalled.addListener(()=>{console.log('CommandLayer Receipt Inspector developer preview installed');});
+chrome.runtime.onInstalled.addListener(() => {
+  console.log('VerifyAgent Evidence Verifier installed');
+});
