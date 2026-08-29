@@ -22,6 +22,11 @@
       ]
     }
   ],
+  "redirects": [
+    { "source": "/capabilities.html", "destination": "/services", "permanent": true },
+    { "source": "/canonical-receipts.html", "destination": "/protocol", "permanent": true },
+    { "source": "/ambient-verification.html", "destination": "/verify.html", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/services", "destination": "/services.html" },
     { "source": "/discover", "destination": "/discover.html" },
