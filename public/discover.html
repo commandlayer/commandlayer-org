@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discover — CommandLayer</title>
+  <meta name="description" content="How autonomous buyers discover, understand, quote, invoke, and verify CommandLayer machine services." />
+  <link rel="canonical" href="https://www.commandlayer.org/discover" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/factory.css" />
+</head>
+<body>
+<nav class="site-nav"><div class="container nav-inner"><a class="brand" href="/"><span class="brand-mark">CL</span><span class="brand-name">CommandLayer</span></a><ul class="nav-links"><li><a href="/">Home</a></li><li><a href="/services">Services</a></li><li><a class="active" href="/discover">Discover</a></li><li><a href="/verify.html">Verify</a></li><li><a href="/docs">Docs</a></li><li><a href="/about">About</a></li></ul><a class="nav-cta" href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub ↗</a></div></nav>
+<main>
+<section class="page-hero"><div class="container"><div class="kicker"><span class="kicker-dot"></span>Discovery plane</div><h1>Unknown machines should be able to <span class="gradient-text">find us without an introduction.</span></h1><p class="lead">CommandLayer is built around zero-touch machine acquisition: discover a service, understand its contract, obtain a quote, settle through a supported adapter, invoke the outcome, and verify the resulting execution evidence.</p><div class="actions"><a class="btn btn-dark" href="/catalog.json">Open machine catalog JSON</a><a class="btn btn-light" href="/docs">Read integration docs</a></div></div></section>
+
+<section class="section white"><div class="container"><div class="eyebrow">Canonical flow</div><h2 class="section-title">The directory is not the product.</h2><p class="section-copy">External listings are caches and acquisition surfaces. The authoritative service definition stays with CommandLayer so a listing can be refreshed, revoked, or republished without splitting product truth across ecosystems.</p>
+<div class="grid-3"><article class="card"><div class="card-icon">1</div><h3>Canonical manifest</h3><p>Identity, schemas, execution mode, economics, evidence class, endpoints, and adapter metadata originate from one service definition.</p></article><article class="card"><div class="card-icon">2</div><h3>Generated adapters</h3><p>OpenAPI, MCP, ENS, x402, ERC-8004, and future discovery surfaces are generated or mapped from that definition.</p></article><article class="card"><div class="card-icon">3</div><h3>Attributed acquisition</h3><p>Discovery source follows the buyer through manifest read, quote, payment, execution, receipt, and repeat use.</p></article></div>
+</div></section>
+
+<section class="section"><div class="container"><div class="eyebrow">Machine buyer path</div><h2 class="section-title">From need to verified result.</h2>
+<div class="status-list"><div class="status-item"><strong>1 · Discover</strong><p>Find a service through the owned catalog or an external directory adapter.</p><span class="status-pill status-build">source attributed</span></div><div class="status-item"><strong>2 · Understand</strong><p>Read the request schema, result schema, execution mode, pricing contract, and acceptance conditions.</p><span class="status-pill status-build">machine contract</span></div><div class="status-item"><strong>3 · Quote</strong><p>Request a bounded, expiring, input-bound quote without coupling the canonical contract to one payment provider.</p><span class="status-pill status-build">rail neutral</span></div><div class="status-item"><strong>4 · Settle</strong><p>Use the service's supported settlement adapter when payment is required.</p><span class="status-pill status-closed">adapter specific</span></div><div class="status-item"><strong>5 · Execute</strong><p>Run the service graph, providers, state, retries, and acceptance checks.</p><span class="status-pill status-build">observable</span></div><div class="status-item"><strong>6 · Verify</strong><p>Inspect signed execution evidence independently from payment evidence and factual-truth claims.</p><span class="status-pill status-stable">proof boundary</span></div></div>
+</div></section>
+
+<section class="section white"><div class="container"><div class="eyebrow">Current public catalog</div><h2 class="section-title">Machine-readable before machine-payable.</h2><p class="section-copy">The public catalog intentionally reports no live paid outcome services until evidence selection is complete. That keeps discovery truthful while the factory foundation is built.</p>
+<div class="code-card"><div class="code-head">GET /catalog.json</div><pre>{
+  <span class="code-key">"schema"</span>: <span class="code-str">"commandlayer.catalog.v0"</span>,
+  <span class="code-key">"program"</span>: <span class="code-str">"machine-service-factory"</span>,
+  <span class="code-key">"status"</span>: <span class="code-str">"evidence-gated"</span>,
+  <span class="code-key">"live_services"</span>: [],
+  <span class="code-key">"human_catalog"</span>: <span class="code-str">"/services"</span>,
+  <span class="code-key">"verification"</span>: <span class="code-str">"/verify.html"</span>
+}</pre></div>
+</div></section>
+
+<section class="section"><div class="container"><div class="eyebrow">Adapter strategy</div><h2 class="section-title">Go where agents already look.</h2><p class="section-copy">Discovery surfaces are earned in stages. The factory does not wait for any single registry or naming system to become universal.</p><div class="grid-3"><article class="card"><h3>Stage A</h3><p>Owned catalog, canonical HTTP manifest, OpenAPI, ENS where controlled, x402 where appropriate, basic attribution, MCP when mapping is straightforward.</p><div class="badges"><span class="badge adapter">owned</span><span class="badge adapter">OpenAPI</span><span class="badge adapter">ENS</span><span class="badge adapter">x402</span></div></article><article class="card"><h3>Stage B</h3><p>MCP registries, x402 discovery surfaces, practical wallet/payment ecosystems, and publication verification/refresh.</p><div class="badges"><span class="badge pending">earned next</span></div></article><article class="card"><h3>Stage C</h3><p>Selective ERC-8004 publication, 8004scan visibility, ownership proofs, reputation signals, and A2A only when demand warrants it.</p><div class="badges"><span class="badge pending">service selective</span></div></article></div><div class="notice"><strong>Identity is plural:</strong> the same service or agent can simultaneously have an HTTPS endpoint, wallet, ENS name, ERC-8004 registration, platform identity, and other identifiers. CommandLayer does not require one system to replace the rest.</div></div></section>
+</main>
+<footer class="footer"><div class="container"><div class="footer-grid"><div class="footer-brand"><a class="brand" href="/"><span class="brand-mark">CL</span><span class="brand-name">CommandLayer</span></a><p>Discoverable machine services with truthful contracts and verifiable execution.</p></div><div><h4>Product</h4><a href="/services">Services</a><a href="/discover">Discover</a><a href="/status">Status</a></div><div><h4>Developers</h4><a href="/docs">Docs</a><a href="/verify.html">Verifier</a><a href="/protocol">Protocol</a></div><div><h4>Company</h4><a href="/about">About</a><a href="https://github.com/commandlayer" target="_blank" rel="noopener">GitHub ↗</a></div></div><div class="footer-note"><span>© 2026 CommandLayer.</span><span>External directories are adapters, not sources of truth.</span></div></div></footer>
+</body></html>

@@ -1,6 +1,13 @@
 {
   "headers": [
     {
+      "source": "/",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "CDN-Cache-Control", "value": "no-store" }
+      ]
+    },
+    {
       "source": "/index.html",
       "headers": [
         { "key": "Cache-Control", "value": "no-store" },
@@ -13,27 +20,23 @@
         { "key": "Cache-Control", "value": "no-store" },
         { "key": "CDN-Cache-Control", "value": "no-store" }
       ]
-    },
-    {
-      "source": "/",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "CDN-Cache-Control", "value": "no-store" }
-      ]
     }
   ],
+  "redirects": [
+    { "source": "/capabilities.html", "destination": "/services", "permanent": true },
+    { "source": "/canonical-receipts.html", "destination": "/protocol", "permanent": true },
+    { "source": "/ambient-verification.html", "destination": "/verify.html", "permanent": true }
+  ],
   "rewrites": [
-    {
-      "source": "/admin/claims",
-      "destination": "/admin/claims.html"
-    },
-    {
-      "source": "/verify/r/:receipt_id",
-      "destination": "/verify/r/index.html"
-    },
-    {
-      "source": "/agent-cards/agents/v1.1.0/trust/:ens(.+).json",
-      "destination": "/api/agent-cards/card?ens=:ens"
-    }
+    { "source": "/services", "destination": "/services.html" },
+    { "source": "/discover", "destination": "/discover.html" },
+    { "source": "/status", "destination": "/status.html" },
+    { "source": "/docs", "destination": "/docs.html" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/protocol", "destination": "/protocol.html" },
+    { "source": "/about/protocol", "destination": "/protocol.html" },
+    { "source": "/admin/claims", "destination": "/admin/claims.html" },
+    { "source": "/verify/r/:receipt_id", "destination": "/verify/r/index.html" },
+    { "source": "/agent-cards/agents/v1.1.0/trust/:ens(.+).json", "destination": "/api/agent-cards/card?ens=:ens" }
   ]
 }
