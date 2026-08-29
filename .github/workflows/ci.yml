@@ -1,7 +1,7 @@
 name: CI
 on:
   push:
-    branches: [main, "claude/**"]
+    branches: [main, "claude/**", "factory/**"]
   pull_request:
     branches: [main]
 jobs:
@@ -12,5 +12,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: npm install
+          cache: npm
+      - run: npm ci
       - run: npm test
+      - run: npm run check:links
