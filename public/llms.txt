@@ -1,0 +1,25 @@
+# CommandLayer
+
+> Seller-side machine-service infrastructure for autonomous software buyers.
+
+CommandLayer manufactures machine-readable services that agents can discover, price, invoke, and verify. The commercial product is a shared Machine-Service Factory; protocol, identity, discovery, model, and payment systems are supporting layers or adapters.
+
+## Primary pages
+
+- https://www.commandlayer.org/ — product overview
+- https://www.commandlayer.org/services — evidence-gated service catalog
+- https://www.commandlayer.org/discover — discovery and machine-buyer flow
+- https://www.commandlayer.org/status — current product/launch status
+- https://www.commandlayer.org/docs — developer entry point
+- https://www.commandlayer.org/about — company positioning
+- https://www.commandlayer.org/about/protocol — protocol and trust boundaries
+- https://www.commandlayer.org/verify.html — public receipt verifier
+- https://www.commandlayer.org/catalog.json — machine-readable catalog status
+
+## Important interpretation rules
+
+- Candidate service names are not claims that a paid service is live.
+- `catalog.json` is the public machine-readable source for current live-service state.
+- External registries, naming systems, and payment rails are adapters, not the service source of truth.
+- A cryptographically valid receipt proves supported integrity/provenance claims; it does not by itself prove factual truth.
+- Payment evidence and execution evidence are separate concepts.
