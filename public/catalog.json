@@ -1,0 +1,23 @@
+{
+  "schema": "commandlayer.catalog.v0",
+  "program": "machine-service-factory",
+  "program_version": "3.2.1",
+  "status": "evidence-gated",
+  "positioning": "seller-side machine-service infrastructure",
+  "human_catalog": "/services",
+  "discovery_overview": "/discover",
+  "documentation": "/docs",
+  "verification": "/verify.html",
+  "live_services": [],
+  "selection": {
+    "first_three": "pending problem evidence and acceptance contracts",
+    "candidate_names_are_product_commitments": false
+  },
+  "principles": [
+    "one_factory_many_storefronts",
+    "canonical_manifest_is_source_of_truth",
+    "external_directories_are_adapters",
+    "receipts_prove_execution_not_factual_truth",
+    "evidence_before_expansion"
+  ]
+}
