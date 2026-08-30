@@ -1,0 +1,157 @@
+{
+  "schema": "commandlayer.service-categories.v1",
+  "updated": "2026-08-30",
+  "positioning": "One machine-service factory, organized into human-readable service families.",
+  "truth_rule": "Category pages describe real factory capabilities and measured status. A category or service is never labeled publicly live until activation gates pass.",
+  "categories": [
+    {
+      "slug": "research-intelligence",
+      "name": "Research & Intelligence",
+      "short": "Turn open-world information into bounded, sourced machine outcomes.",
+      "thesis": "This family packages search, retrieval, source normalization, synthesis and qualification into outcomes a machine can buy without assembling its own research stack.",
+      "buyers": ["agentic research workflows", "market and company intelligence systems", "sales and diligence agents", "autonomous planning systems"],
+      "examples": ["Research a market and return a sourced brief", "Find organizations matching a declared business profile", "Synthesize permitted external sources into a structured answer"],
+      "contract_pattern": "Declare the question or target, scope, requested fields and evidence requirements. CommandLayer returns structured output, source provenance, explicit unknowns and execution evidence.",
+      "boundaries": ["No guarantee of factual truth", "No unlawful sensitive-person targeting", "No invented contact or source fields", "Provider/source failures remain visible"],
+      "services": [
+        {"id":"researchagent","name":"ResearchAgent","class":"outcome","mode":"async job","status":"frozen","status_label":"reliability retest","price":null,"evidence":"2/25 accepted in the latest provider-backed reliability window; Firecrawl availability is the current blocker.","job":"Answer a bounded research question from permitted external sources and return a structured result with source provenance and execution evidence.","inputs":"question + scope","returns":"structured answer + sources + uncertainty + execution evidence"},
+        {"id":"leadagent","name":"LeadAgent","class":"outcome","mode":"async job","status":"frozen","status_label":"reliability retest","price":null,"evidence":"8/25 accepted across the latest provider-backed reliability window; intermittent structured-model failures remain under repair.","job":"Produce a bounded list of organizations or professional contacts matching declared business criteria, with qualification evidence and provenance.","inputs":"ideal customer profile + geography/market + requested fields","returns":"qualified entities + explicit unknowns + field provenance"}
+      ]
+    },
+    {
+      "slug": "search-crawl-retrieval",
+      "name": "Search, Crawl & Retrieval",
+      "short": "Acquire permitted external resources inside explicit machine-readable bounds.",
+      "thesis": "Retrieval services are the acquisition layer beneath many higher-value outcomes. They enforce scope, redirects, limits, network safety, provider accounting and observable failures instead of exposing an unconstrained browser or crawler.",
+      "buyers": ["research agents", "monitoring systems", "document and extraction pipelines", "agentic RAG and evidence workflows"],
+      "examples": ["Crawl a bounded set of pages and return content hashes", "Fetch a declared resource without following unsafe redirects", "Acquire source material for a composed research or comparison task"],
+      "contract_pattern": "Declare start URLs/resources and bounds. The service records every attempted resource, status, redirects, coverage and successful content hashes.",
+      "boundaries": ["No credential or access-control bypass", "No unrestricted site mirroring", "Explicit page/time/resource limits", "Blocked and failed resources are never reported as successful"],
+      "services": [
+        {"id":"crawlagent","name":"CrawlAgent","class":"primitive","mode":"async job","status":"retest","status_label":"paced retest","price":null,"evidence":"Live Firecrawl calls succeeded at about $0.005 variable COGS; prior five-sample run reached 2/5 because of HTTP 429s. Retry-After hardening is built and awaits paced confirmation.","job":"Retrieve permitted web resources within explicit crawl bounds and return normalized fetch results, status metadata and content hashes.","inputs":"start URLs + crawl bounds","returns":"resource statuses + normalized content + hashes + coverage summary"}
+      ]
+    },
+    {
+      "slug": "documents-data",
+      "name": "Documents & Data Extraction",
+      "short": "Convert supplied documents and content into declared machine schemas.",
+      "thesis": "This family turns documents, text and structured inputs into normalized machine data while preserving source anchors, hashes, unreadable fields and acceptance rules.",
+      "buyers": ["document automation agents", "back-office workflows", "data ingestion pipelines", "compliance and operations systems"],
+      "examples": ["Extract invoice fields into a declared schema", "Parse supplied content into normalized JSON", "Classify a document and preserve source anchors for every material field"],
+      "contract_pattern": "Supply authorized content plus the target schema. CommandLayer hashes the input, parses deterministically where possible, uses model/document providers only when needed, validates output and exposes unreadable fields rather than inventing values.",
+      "boundaries": ["No fabricated unreadable values", "No authenticity claim without a separate verification contract", "Schema failures are terminal unless the contract allows degraded output", "Private documents must be supplied or authorized"],
+      "services": [
+        {"id":"documentagent","name":"DocumentAgent","class":"outcome","mode":"async job","status":"qualified","status_label":"evidence-qualified","price":0.49,"evidence":"25/25 provider-backed acceptance; aggregate p95 variable COGS about $0.004036; current pre-production launch recommendation $0.49.","job":"Extract, classify and structure information from supplied or authorized documents into a declared schema with source anchors and execution evidence.","inputs":"document + output schema","returns":"validated structured fields + anchors + coverage + document hash"},
+        {"id":"parseagent","name":"ParseAgent","class":"primitive","mode":"sync","status":"qualified","status_label":"evidence-qualified","price":0.10,"evidence":"5/5 deterministic acceptance with zero measured vendor COGS on the tested path; current pre-production launch recommendation $0.10.","job":"Transform supplied content into a declared structured representation using deterministic parsing first.","inputs":"content + target schema/format","returns":"validated representation + parse mode + input/output hashes"}
+      ]
+    },
+    {
+      "slug": "analysis-comparison-decisioning",
+      "name": "Analysis, Comparison & Decisioning",
+      "short": "Normalize alternatives and expose how a machine reached a decision surface.",
+      "thesis": "Decision services should make criteria, missing data, normalization and weighting visible. CommandLayer packages those mechanics into bounded outcomes rather than returning an unexplained recommendation.",
+      "buyers": ["procurement agents", "shopping and selection agents", "market analysis systems", "planning and recommendation workflows"],
+      "examples": ["Compare three vendors against declared criteria", "Normalize plan features while leaving unavailable values missing", "Score alternatives using an exposed weighting formula"],
+      "contract_pattern": "Declare alternatives, criteria and optional weights. The result includes a normalized matrix, provenance or missing markers for material fields, and the scoring formula when scoring is requested.",
+      "boundaries": ["No hidden preference injection", "No claim of an objective best choice without declared weighting", "Missing values remain missing unless imputation is explicitly requested", "No irreversible purchase action inside the comparison contract"],
+      "services": [
+        {"id":"compareagent","name":"CompareAgent","class":"outcome","mode":"async job","status":"qualified","status_label":"evidence-qualified","price":0.49,"evidence":"25/25 provider-backed acceptance; aggregate p95 variable COGS about $0.00737425; current pre-production launch recommendation $0.49.","job":"Compare declared alternatives against explicit criteria and return a normalized decision matrix with source provenance and missing-data disclosure.","inputs":"alternatives + criteria","returns":"comparison matrix + normalization rules + provenance + optional scoring"}
+      ]
+    },
+    {
+      "slug": "monitoring-tracking-state",
+      "name": "Monitoring, Tracking & State",
+      "short": "Observe external state over time and preserve what changed, when and from where.",
+      "thesis": "Long-lived agent workflows need durable state, not just stateless requests. This family stores observations and snapshots separately from failures so a bad fetch cannot overwrite the last known good state.",
+      "buyers": ["watcher agents", "operations systems", "price and availability monitors", "shipment/event/state tracking workflows"],
+      "examples": ["Watch a page and emit an evidenced change event", "Track a metric and retain snapshot history", "Detect no-change as a valid observation rather than a failure"],
+      "contract_pattern": "Declare a target, observation/tracking specification and cadence or trigger. Successful observations are hashed and linked to prior state; failed observations are recorded separately and never masquerade as no-change.",
+      "boundaries": ["No guarantee of future detection", "No fabricated no-change event when fetch fails", "No hidden private-system access", "Irreversible response actions require a separate authorization contract"],
+      "services": [
+        {"id":"monitoragent","name":"MonitorAgent","class":"outcome","mode":"async durable","status":"timing","status_label":"async timing gate","price":0.49,"evidence":"5/5 on the tested synchronous measurement path at about 128 ms p95 and zero vendor COGS. Launch recommendation remains provisional until async queue/scheduler timing and trust gates clear.","job":"Observe a declared external target over time and emit durable, evidenced change events when state changes or a declared condition is met.","inputs":"target + observation spec + cadence/trigger","returns":"observation state + before/after evidence + timestamps + hashes"},
+        {"id":"trackagent","name":"TrackAgent","class":"outcome","mode":"async durable","status":"timing","status_label":"async timing gate","price":0.49,"evidence":"5/5 on the tested synchronous measurement path at about 120 ms p95 and zero vendor COGS. Launch recommendation remains provisional until async queue/scheduler timing and trust gates clear.","job":"Maintain durable snapshots for a declared entity or metric and return current state, history references and evidenced changes.","inputs":"entity + tracking spec","returns":"current snapshot + prior reference + change state + hashes"}
+      ]
+    },
+    {
+      "slug": "verification-trust-provenance",
+      "name": "Verification, Trust & Provenance",
+      "short": "Verify execution evidence without pretending a signature proves truth.",
+      "thesis": "Machines need an independent way to verify what executed, which signer produced the evidence and what proof scope the receipt actually covers. CommandLayer deliberately separates cryptographic execution evidence from factual truth.",
+      "buyers": ["agent runtimes", "payment and settlement systems", "auditable automation", "machine buyers validating purchased outcomes"],
+      "examples": ["Verify a signed execution receipt", "Resolve the declared signer and public key", "Return VERIFIED, INVALID or INDETERMINATE with machine-readable checks"],
+      "contract_pattern": "Submit a supported receipt/artifact. Verification canonicalizes it, validates schema and hashes, resolves the trusted signer key, verifies the Ed25519 signature and reports every check independently.",
+      "boundaries": ["Signature validity is not factual truth", "Unsupported profiles return INDETERMINATE", "Failed checks cannot be hidden behind VERIFIED", "Identity resolution is scoped to the declared proof surface"],
+      "services": [
+        {"id":"verifyagent","name":"VerifyAgent","class":"outcome","mode":"sync","status":"trust","status_label":"trust release gate","price":null,"evidence":"Factory verification and HTTPS trust-root resolution are built and released in code. The deployed signed-receipt round trip remains blocked on the real non-exportable production signer/public key.","job":"Verify integrity, signer/provenance and declared proof scope of a supported artifact without claiming the underlying statement is factually true.","inputs":"receipt or supported artifact","returns":"VERIFIED / INVALID / INDETERMINATE + per-check evidence"}
+      ]
+    },
+    {
+      "slug": "identity-access-authorization",
+      "name": "Identity, Access & Authorization",
+      "short": "Bind who or what may act to explicit machine-readable scopes.",
+      "thesis": "Identity answers who a machine or service claims to be; authorization answers what it may do. CommandLayer keeps these separate from settlement and execution evidence so permission is explicit rather than inferred from possession of a wallet or API key.",
+      "buyers": ["agent platforms", "enterprise policy systems", "delegated-action workflows", "machine commerce systems"],
+      "examples": ["Resolve a service or agent identity", "Evaluate a bounded action mandate", "Attach spend, resource and time scopes before execution"],
+      "contract_pattern": "Identity and authorization adapters can contribute scoped claims to an execution request, but the factory still evaluates service-specific policy before admitting work.",
+      "boundaries": ["Identity does not imply authorization", "Payment does not imply authorization", "High-consequence actions require explicit scope", "Replay and expiry are part of authorization semantics"],
+      "services": []
+    },
+    {
+      "slug": "commerce-payments-settlement",
+      "name": "Commerce, Payments & Settlement",
+      "short": "Let machines obtain a price, settle and invoke without a human checkout flow.",
+      "thesis": "Machine commerce needs price discovery, bounded payment, idempotent settlement and atomic admission. CommandLayer treats x402 and other payment systems as settlement adapters around the service contract—not as the product itself.",
+      "buyers": ["autonomous buyers", "agent marketplaces", "API-consuming agents", "machine procurement and commerce systems"],
+      "examples": ["Receive HTTP 402 payment requirements", "Settle a bounded USDC amount and retry the request", "Admit execution only after settlement evidence passes factory policy"],
+      "contract_pattern": "A buyer requests a priced service, receives payment requirements when settlement is required, pays on an allowed rail and retries with payment evidence. Admission remains idempotent and service-policy aware.",
+      "boundaries": ["Payment proof is not execution proof", "Allowed network/asset/payee are explicit", "Cumulative and per-payment spend controls are enforced", "Refund/payout/purchase actions remain separately permissioned"],
+      "services": []
+    },
+    {
+      "slug": "communication-messaging",
+      "name": "Communication & Messaging",
+      "short": "Deliver machine-to-machine or machine-to-human messages with explicit destinations and evidence.",
+      "thesis": "Communication services turn notifications, responses and delivery workflows into bounded operations rather than giving an agent unrestricted access to a messaging account.",
+      "buyers": ["notification agents", "workflow coordinators", "support and response systems", "event-driven automation"],
+      "examples": ["Send a notification to an authorized destination", "Route a response through a declared channel", "Return delivery status and provider evidence"],
+      "contract_pattern": "The caller declares destination, channel, content constraints and authorization. The service records provider delivery state and never upgrades an attempted delivery into a confirmed delivery without evidence.",
+      "boundaries": ["Destination authorization is explicit", "No credential harvesting", "No false delivery confirmation", "Bulk or unsolicited messaging requires service-specific abuse controls"],
+      "services": []
+    },
+    {
+      "slug": "workflow-scheduling-operations",
+      "name": "Workflow, Scheduling & Operations",
+      "short": "Coordinate durable jobs, schedules and bounded operational steps.",
+      "thesis": "Autonomous systems need durable execution semantics: leases, retries, schedules, idempotency, recovery and observable terminal states. This family exposes those operational outcomes without handing buyers the entire internal runtime.",
+      "buyers": ["long-running agents", "operations automation", "scheduled machine workflows", "multi-step service compositions"],
+      "examples": ["Schedule a bounded recurring observation", "Run an asynchronous job with durable status", "Coordinate a composed workflow with retry and terminal-state evidence"],
+      "contract_pattern": "A workflow contract declares the job, schedule or trigger, retry policy, idempotency scope and terminal conditions. Durable state separates successful work from failed attempts.",
+      "boundaries": ["No unbounded recurrence", "Retries remain inside budget and idempotency scope", "Failed attempts cannot overwrite last-good state", "Irreversible steps require their own authorization"],
+      "services": []
+    },
+    {
+      "slug": "media-transformation-utility",
+      "name": "Media, Transformation & Utility",
+      "short": "Transform supplied media and content into machine-usable representations.",
+      "thesis": "Utility services are composable building blocks for higher-value outcomes. They are useful when the transformation itself is the product and when another service needs a dependable primitive underneath.",
+      "buyers": ["media-processing agents", "content workflows", "research and meeting agents", "multimodal data pipelines"],
+      "examples": ["Transcribe supplied audio into timestamped text", "Normalize media-derived segments", "Expose hashes and provider provenance for transformed media"],
+      "contract_pattern": "Supply authorized media plus requested output options. The service records media hashes, provider steps, ordered segments and coverage; unintelligible spans remain explicit.",
+      "boundaries": ["No speaker-identity guarantee without separate evidence", "No unauthorized private media", "Low-quality spans are marked rather than invented", "Provider retries remain bounded by quote and timeout"],
+      "services": [
+        {"id":"transcribeagent","name":"TranscribeAgent","class":"primitive","mode":"async job","status":"measurement","status_label":"live measurement pending","price":null,"evidence":"A bounded inline MP3 fixture is bundled into the canonical measurement matrix and secure-ingestion checks pass. Live transcription measurement remains pending.","job":"Transcribe supplied or authorized audio/video into timestamped text and optional structured segments with provider provenance and media hashes.","inputs":"authorized media","returns":"ordered transcript segments + timestamps + language state + media hash"}
+      ]
+    },
+    {
+      "slug": "developer-infrastructure-agent-ops",
+      "name": "Developer, Infrastructure & Agent Operations",
+      "short": "Expose the factory surfaces machines and developers use to integrate, discover and operate services.",
+      "thesis": "The infrastructure family covers the machinery around outcomes: manifests, schemas, discovery adapters, metering, execution ledgers, receipts, telemetry, provider routing and compatibility surfaces such as HTTP/JSON, OpenAPI, MCP, x402 and future agent directories.",
+      "buyers": ["agent developers", "platform engineers", "marketplaces", "service operators and infrastructure teams"],
+      "examples": ["Read a canonical machine service manifest", "Integrate through HTTP/JSON or a supported adapter", "Inspect quote, execution, telemetry and receipt surfaces"],
+      "contract_pattern": "The canonical service definition is authoritative. External protocols and directories are adapters around that definition so the contract does not fork by distribution channel.",
+      "boundaries": ["Adapters do not become competing sources of truth", "Provider routing is cost/control infrastructure, not the product moat", "Telemetry cannot overstate organic demand", "Experimental adapters are labeled as such"],
+      "services": []
+    }
+  ]
+}

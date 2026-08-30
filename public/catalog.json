@@ -1,23 +1,237 @@
 {
-  "schema": "commandlayer.catalog.v0",
+  "schema": "commandlayer.catalog.v1",
   "program": "machine-service-factory",
   "program_version": "3.2.1",
-  "status": "evidence-gated",
+  "status": "pre-production-activation-gated",
   "positioning": "seller-side machine-service infrastructure",
   "human_catalog": "/services",
-  "discovery_overview": "/discover",
-  "documentation": "/docs",
-  "verification": "/verify.html",
-  "live_services": [],
-  "selection": {
-    "first_three": "pending problem evidence and acceptance contracts",
-    "candidate_names_are_product_commitments": false
-  },
+  "category_count": 12,
+  "categories": [
+    {
+      "slug": "research-intelligence",
+      "name": "Research & Intelligence",
+      "href": "/services/research-intelligence",
+      "first_ten_assigned": [
+        "researchagent",
+        "leadagent"
+      ]
+    },
+    {
+      "slug": "search-crawl-retrieval",
+      "name": "Search, Crawl & Retrieval",
+      "href": "/services/search-crawl-retrieval",
+      "first_ten_assigned": [
+        "crawlagent"
+      ]
+    },
+    {
+      "slug": "documents-data",
+      "name": "Documents & Data Extraction",
+      "href": "/services/documents-data",
+      "first_ten_assigned": [
+        "documentagent",
+        "parseagent"
+      ]
+    },
+    {
+      "slug": "analysis-comparison-decisioning",
+      "name": "Analysis, Comparison & Decisioning",
+      "href": "/services/analysis-comparison-decisioning",
+      "first_ten_assigned": [
+        "compareagent"
+      ]
+    },
+    {
+      "slug": "monitoring-tracking-state",
+      "name": "Monitoring, Tracking & State",
+      "href": "/services/monitoring-tracking-state",
+      "first_ten_assigned": [
+        "monitoragent",
+        "trackagent"
+      ]
+    },
+    {
+      "slug": "verification-trust-provenance",
+      "name": "Verification, Trust & Provenance",
+      "href": "/services/verification-trust-provenance",
+      "first_ten_assigned": [
+        "verifyagent"
+      ]
+    },
+    {
+      "slug": "identity-access-authorization",
+      "name": "Identity, Access & Authorization",
+      "href": "/services/identity-access-authorization",
+      "first_ten_assigned": []
+    },
+    {
+      "slug": "commerce-payments-settlement",
+      "name": "Commerce, Payments & Settlement",
+      "href": "/services/commerce-payments-settlement",
+      "first_ten_assigned": []
+    },
+    {
+      "slug": "communication-messaging",
+      "name": "Communication & Messaging",
+      "href": "/services/communication-messaging",
+      "first_ten_assigned": []
+    },
+    {
+      "slug": "workflow-scheduling-operations",
+      "name": "Workflow, Scheduling & Operations",
+      "href": "/services/workflow-scheduling-operations",
+      "first_ten_assigned": []
+    },
+    {
+      "slug": "media-transformation-utility",
+      "name": "Media, Transformation & Utility",
+      "href": "/services/media-transformation-utility",
+      "first_ten_assigned": [
+        "transcribeagent"
+      ]
+    },
+    {
+      "slug": "developer-infrastructure-agent-ops",
+      "name": "Developer, Infrastructure & Agent Operations",
+      "href": "/services/developer-infrastructure-agent-ops",
+      "first_ten_assigned": []
+    }
+  ],
+  "first_ten": [
+    {
+      "id": "researchagent",
+      "name": "ResearchAgent",
+      "category": "research-intelligence",
+      "category_name": "Research & Intelligence",
+      "class": "outcome",
+      "execution_mode": "async job",
+      "status": "frozen",
+      "status_label": "reliability retest",
+      "preproduction_price_usd": null,
+      "evidence": "2/25 accepted in the latest provider-backed reliability window; Firecrawl availability is the current blocker."
+    },
+    {
+      "id": "leadagent",
+      "name": "LeadAgent",
+      "category": "research-intelligence",
+      "category_name": "Research & Intelligence",
+      "class": "outcome",
+      "execution_mode": "async job",
+      "status": "frozen",
+      "status_label": "reliability retest",
+      "preproduction_price_usd": null,
+      "evidence": "8/25 accepted across the latest provider-backed reliability window; intermittent structured-model failures remain under repair."
+    },
+    {
+      "id": "crawlagent",
+      "name": "CrawlAgent",
+      "category": "search-crawl-retrieval",
+      "category_name": "Search, Crawl & Retrieval",
+      "class": "primitive",
+      "execution_mode": "async job",
+      "status": "retest",
+      "status_label": "paced retest",
+      "preproduction_price_usd": null,
+      "evidence": "Live Firecrawl calls succeeded at about $0.005 variable COGS; prior five-sample run reached 2/5 because of HTTP 429s. Retry-After hardening is built and awaits paced confirmation."
+    },
+    {
+      "id": "documentagent",
+      "name": "DocumentAgent",
+      "category": "documents-data",
+      "category_name": "Documents & Data Extraction",
+      "class": "outcome",
+      "execution_mode": "async job",
+      "status": "qualified",
+      "status_label": "evidence-qualified",
+      "preproduction_price_usd": 0.49,
+      "evidence": "25/25 provider-backed acceptance; aggregate p95 variable COGS about $0.004036; current pre-production launch recommendation $0.49."
+    },
+    {
+      "id": "parseagent",
+      "name": "ParseAgent",
+      "category": "documents-data",
+      "category_name": "Documents & Data Extraction",
+      "class": "primitive",
+      "execution_mode": "sync",
+      "status": "qualified",
+      "status_label": "evidence-qualified",
+      "preproduction_price_usd": 0.1,
+      "evidence": "5/5 deterministic acceptance with zero measured vendor COGS on the tested path; current pre-production launch recommendation $0.10."
+    },
+    {
+      "id": "compareagent",
+      "name": "CompareAgent",
+      "category": "analysis-comparison-decisioning",
+      "category_name": "Analysis, Comparison & Decisioning",
+      "class": "outcome",
+      "execution_mode": "async job",
+      "status": "qualified",
+      "status_label": "evidence-qualified",
+      "preproduction_price_usd": 0.49,
+      "evidence": "25/25 provider-backed acceptance; aggregate p95 variable COGS about $0.00737425; current pre-production launch recommendation $0.49."
+    },
+    {
+      "id": "monitoragent",
+      "name": "MonitorAgent",
+      "category": "monitoring-tracking-state",
+      "category_name": "Monitoring, Tracking & State",
+      "class": "outcome",
+      "execution_mode": "async durable",
+      "status": "timing",
+      "status_label": "async timing gate",
+      "preproduction_price_usd": 0.49,
+      "evidence": "5/5 on the tested synchronous measurement path at about 128 ms p95 and zero vendor COGS. Launch recommendation remains provisional until async queue/scheduler timing and trust gates clear."
+    },
+    {
+      "id": "trackagent",
+      "name": "TrackAgent",
+      "category": "monitoring-tracking-state",
+      "category_name": "Monitoring, Tracking & State",
+      "class": "outcome",
+      "execution_mode": "async durable",
+      "status": "timing",
+      "status_label": "async timing gate",
+      "preproduction_price_usd": 0.49,
+      "evidence": "5/5 on the tested synchronous measurement path at about 120 ms p95 and zero vendor COGS. Launch recommendation remains provisional until async queue/scheduler timing and trust gates clear."
+    },
+    {
+      "id": "verifyagent",
+      "name": "VerifyAgent",
+      "category": "verification-trust-provenance",
+      "category_name": "Verification, Trust & Provenance",
+      "class": "outcome",
+      "execution_mode": "sync",
+      "status": "trust",
+      "status_label": "trust release gate",
+      "preproduction_price_usd": null,
+      "evidence": "Factory verification and HTTPS trust-root resolution are built and released in code. The deployed signed-receipt round trip remains blocked on the real non-exportable production signer/public key."
+    },
+    {
+      "id": "transcribeagent",
+      "name": "TranscribeAgent",
+      "category": "media-transformation-utility",
+      "category_name": "Media, Transformation & Utility",
+      "class": "primitive",
+      "execution_mode": "async job",
+      "status": "measurement",
+      "status_label": "live measurement pending",
+      "preproduction_price_usd": null,
+      "evidence": "A bounded inline MP3 fixture is bundled into the canonical measurement matrix and secure-ingestion checks pass. Live transcription measurement remains pending."
+    }
+  ],
+  "evidence_qualified_activation_candidates": [
+    "documentagent",
+    "parseagent",
+    "compareagent"
+  ],
+  "public_live_services": [],
+  "truth_rule": "Category pages describe real factory capabilities and measured status. A category or service is never labeled publicly live until activation gates pass.",
   "principles": [
     "one_factory_many_storefronts",
+    "categories_scale_human_navigation",
     "canonical_manifest_is_source_of_truth",
     "external_directories_are_adapters",
     "receipts_prove_execution_not_factual_truth",
-    "evidence_before_expansion"
+    "evidence_before_activation_and_expansion"
   ]
 }
