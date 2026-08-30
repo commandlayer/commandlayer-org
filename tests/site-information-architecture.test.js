@@ -52,7 +52,7 @@ test('generated category pages and services hub contain substantive content', ()
   assert.match(hub, /125/);
   for (const category of categories) {
     const html = readText(`public/services/${category.slug}.html`);
-    assert.ok(html.includes(category.name));
+    assert.ok(html.includes(category.name.replaceAll('&', '&amp;')));
     assert.match(html, /Outcome contracts, not a list of endpoints/);
     assert.match(html, /What the contract refuses matters too/);
     assert.ok(html.length > 7000, `${category.slug} is unexpectedly thin`);
