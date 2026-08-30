@@ -3,40 +3,148 @@
     {
       "source": "/",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "CDN-Cache-Control", "value": "no-store" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "CDN-Cache-Control",
+          "value": "no-store"
+        }
       ]
     },
     {
       "source": "/index.html",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "CDN-Cache-Control", "value": "no-store" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "CDN-Cache-Control",
+          "value": "no-store"
+        }
       ]
     },
     {
       "source": "/claim.html",
       "headers": [
-        { "key": "Cache-Control", "value": "no-store" },
-        { "key": "CDN-Cache-Control", "value": "no-store" }
+        {
+          "key": "Cache-Control",
+          "value": "no-store"
+        },
+        {
+          "key": "CDN-Cache-Control",
+          "value": "no-store"
+        }
       ]
     }
   ],
   "redirects": [
-    { "source": "/capabilities.html", "destination": "/services", "permanent": true },
-    { "source": "/canonical-receipts.html", "destination": "/protocol", "permanent": true },
-    { "source": "/ambient-verification.html", "destination": "/verify.html", "permanent": true }
+    {
+      "source": "/capabilities.html",
+      "destination": "/services",
+      "permanent": true
+    },
+    {
+      "source": "/canonical-receipts.html",
+      "destination": "/protocol",
+      "permanent": true
+    },
+    {
+      "source": "/ambient-verification.html",
+      "destination": "/verify.html",
+      "permanent": true
+    }
   ],
   "rewrites": [
-    { "source": "/services", "destination": "/services.html" },
-    { "source": "/discover", "destination": "/discover.html" },
-    { "source": "/status", "destination": "/status.html" },
-    { "source": "/docs", "destination": "/docs.html" },
-    { "source": "/about", "destination": "/about.html" },
-    { "source": "/protocol", "destination": "/protocol.html" },
-    { "source": "/about/protocol", "destination": "/protocol.html" },
-    { "source": "/admin/claims", "destination": "/admin/claims.html" },
-    { "source": "/verify/r/:receipt_id", "destination": "/verify/r/index.html" },
-    { "source": "/agent-cards/agents/v1.1.0/trust/:ens(.+).json", "destination": "/api/agent-cards/card?ens=:ens" }
+    {
+      "source": "/services",
+      "destination": "/services.html"
+    },
+    {
+      "source": "/discover",
+      "destination": "/discover.html"
+    },
+    {
+      "source": "/status",
+      "destination": "/status.html"
+    },
+    {
+      "source": "/docs",
+      "destination": "/docs.html"
+    },
+    {
+      "source": "/about",
+      "destination": "/about.html"
+    },
+    {
+      "source": "/protocol",
+      "destination": "/protocol.html"
+    },
+    {
+      "source": "/about/protocol",
+      "destination": "/protocol.html"
+    },
+    {
+      "source": "/admin/claims",
+      "destination": "/admin/claims.html"
+    },
+    {
+      "source": "/verify/r/:receipt_id",
+      "destination": "/verify/r/index.html"
+    },
+    {
+      "source": "/agent-cards/agents/v1.1.0/trust/:ens(.+).json",
+      "destination": "/api/agent-cards/card?ens=:ens"
+    },
+    {
+      "source": "/services/research-intelligence",
+      "destination": "/services/research-intelligence.html"
+    },
+    {
+      "source": "/services/search-crawl-retrieval",
+      "destination": "/services/search-crawl-retrieval.html"
+    },
+    {
+      "source": "/services/documents-data",
+      "destination": "/services/documents-data.html"
+    },
+    {
+      "source": "/services/analysis-comparison-decisioning",
+      "destination": "/services/analysis-comparison-decisioning.html"
+    },
+    {
+      "source": "/services/monitoring-tracking-state",
+      "destination": "/services/monitoring-tracking-state.html"
+    },
+    {
+      "source": "/services/verification-trust-provenance",
+      "destination": "/services/verification-trust-provenance.html"
+    },
+    {
+      "source": "/services/identity-access-authorization",
+      "destination": "/services/identity-access-authorization.html"
+    },
+    {
+      "source": "/services/commerce-payments-settlement",
+      "destination": "/services/commerce-payments-settlement.html"
+    },
+    {
+      "source": "/services/communication-messaging",
+      "destination": "/services/communication-messaging.html"
+    },
+    {
+      "source": "/services/workflow-scheduling-operations",
+      "destination": "/services/workflow-scheduling-operations.html"
+    },
+    {
+      "source": "/services/media-transformation-utility",
+      "destination": "/services/media-transformation-utility.html"
+    },
+    {
+      "source": "/services/developer-infrastructure-agent-ops",
+      "destination": "/services/developer-infrastructure-agent-ops.html"
+    }
   ]
 }
