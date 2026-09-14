@@ -1,5 +1,4 @@
--- Public dashboard evidence storage.
--- Store payer_key_hash, never a raw payer address, in this public aggregate source.
+-- Dashboard evidence storage. Raw payer addresses are never stored here.
 CREATE TABLE IF NOT EXISTS reputation_events (
   event_id text PRIMARY KEY,
   service_id text NOT NULL,
@@ -18,9 +17,7 @@ CREATE TABLE IF NOT EXISTS reputation_events (
   transaction_hash text,
   created_at timestamptz NOT NULL DEFAULT now()
 );
-
 CREATE INDEX IF NOT EXISTS reputation_events_service_status_created_idx
   ON reputation_events (service_id, settlement_status, created_at DESC);
-
 CREATE INDEX IF NOT EXISTS reputation_events_payer_key_hash_idx
   ON reputation_events (payer_key_hash);
