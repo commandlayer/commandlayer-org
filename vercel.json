@@ -101,6 +101,26 @@
     {
       "source": "/agent-cards/agents/v1.1.0/trust/:ens(.+).json",
       "destination": "/api/agent-cards/card?ens=:ens"
+    },
+    {
+      "source": "/agents/compareagent",
+      "destination": "/agents/compareagent.html"
+    },
+    {
+      "source": "/agents/documentagent",
+      "destination": "/agents/documentagent.html"
+    },
+    {
+      "source": "/agents/parseagent",
+      "destination": "/agents/parseagent.html"
+    },
+    {
+      "source": "/agents/monitoragent",
+      "destination": "/agents/monitoragent.html"
+    },
+    {
+      "source": "/agents/trackagent",
+      "destination": "/agents/trackagent.html"
     }
   ]
 }
